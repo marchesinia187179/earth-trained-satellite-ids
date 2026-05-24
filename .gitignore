@@ -1,0 +1,55 @@
+# ==========================================
+# Data & Large Files
+# ==========================================
+data/
+*.csv
+*.xlsx
+*.parquet
+*.json
+*.h5
+
+# ==========================================
+# Trained Models & Artifacts
+# ==========================================
+*.pkl
+*.joblib
+*.npy
+*.npz
+models/
+checkpoints/
+
+# ==========================================
+# Python Temporary Files
+# ==========================================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+
+# ==========================================
+# Jupyter Notebooks Cache
+# ==========================================
+.ipynb_checkpoints/
+
+# ==========================================
+# Environments & Virtual Envs
+# ==========================================
+.venv/
+venv/
+env/
+ENV/
+bin/
+include/
+lib/
+share/
+
+# ==========================================
+# IDE & System Files
+# ==========================================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
