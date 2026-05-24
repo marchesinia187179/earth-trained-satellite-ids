@@ -164,7 +164,6 @@ def merge_normal_attack(source_path, dest_path):
     normal_attack_dir_path = create_directory('normal_attack', dest_path)
 
     # TODO
-
     return normal_attack_dir_path
 
 
