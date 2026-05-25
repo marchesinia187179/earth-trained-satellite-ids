@@ -1,8 +1,13 @@
 import pandas as pd
+import sys
 
 
 def minority_removal_nb15(data):
     print("Minority removal for nb15 started...")
+
+    if 'attack_cat' not in data.columns:
+        print("Error: Column 'attack_cat' missing in NB15 dataset.")
+        sys.exit(1)
 
     minority_classes = ['Analysis', 'Backdoor', 'Shellcode', 'Worms']
     data = data[~data['attack_cat'].isin(minority_classes)]
@@ -14,6 +19,10 @@ def minority_removal_nb15(data):
 
 def merge_minority_stin(data):
     print("Merging minority classes for stin started...")
+
+    if 'label' not in data.columns:
+        print("Error: Column 'label' missing in dataset.")
+        sys.exit(1)
 
     botnet_classes = ['Botnet', 'Web Attack', 'Backdoor']
     ddos_classes = ['LDAP_DDoS', 'MSSQL_DDoS', 'NetBIOS_DDoS', 'Portmap_DDoS']
@@ -32,6 +41,12 @@ def align_nb15(data):
     """
     Allinea il dataset NB15 trasformando e selezionando le feature specificate.
     """
+    required_columns = ['dur', 'sbytes', 'dbytes', 'spkts', 'dpkts', 'swin', 'dwin', 'sload', 'dload', 'sinpkt', 'dinpkt', 'attack_cat', 'label']
+    missing = [col for col in required_columns if col not in data.columns]
+    if missing:
+        print(f"Error: Missing columns in NB15 for alignment: {missing}")
+        sys.exit(1)
+
     new_df = pd.DataFrame()
 
     # Calcolo delle nuove features
@@ -66,6 +81,12 @@ def align_stin(data):
     """
     Allinea il dataset STIN trasformando e selezionando le feature specificate.
     """
+    required_columns = ['fl_dur', 'l_fw_pkt', 'l_bw_pkt', 'fw_pk', 'bw_pkt_s', 'fw_win_byt', 'bw_win_byt', 'fl_byt_s', 'fl_iat_min', 'down_up_ratio', 'label']
+    missing = [col for col in required_columns if col not in data.columns]
+    if missing:
+        print(f"Error: Missing columns in STIN for alignment: {missing}")
+        sys.exit(1)
+
     new_df = pd.DataFrame()
 
     # Calcolo delle nuove features
@@ -124,10 +145,10 @@ def normalize_dataset(data):
     return data
 
 
-def data_preprocessing(data, type):
-    print(f"Data preprocessing for {type} started...")
+def data_preprocessing(data, dataset_type):
+    print(f"Data preprocessing for {dataset_type} started...")
 
-    match type:
+    match dataset_type:
         case 'nb15':
             data = minority_removal_nb15(data)
             data = align_nb15(data)
@@ -137,11 +158,11 @@ def data_preprocessing(data, type):
         case 'sat20':
             data = align_stin(data)
         case _:
-            print("Invalid type!")
+            print("Invalid dataset_type!")
             return None
     
     data = normalize_dataset(data)
 
-    print(f"Data preprocessing for {type} completed successfully!")
+    print(f"Data preprocessing for {dataset_type} completed successfully!")
 
     return data

@@ -1,9 +1,14 @@
 import pandas as pd
 import pathlib
+import sys
 
 def get_data_from_csv(file_path):
     """Legge un file CSV e restituisce un DataFrame."""
-    return pd.read_csv(file_path, low_memory=False)
+    try:
+        return pd.read_csv(file_path, low_memory=False)
+    except Exception as e:
+        print(f"Error: Could not read file at {file_path}. Details: {e}")
+        sys.exit(1)
 
 
 def create_csv_from_data(data, file_name, file_path):
