@@ -2,22 +2,33 @@ import pandas as pd
 
 
 def minority_removal_nb15(data):
+    print("Minority removal for nb15 started...")
+
     minority_classes = ['Analysis', 'Backdoor', 'Shellcode', 'Worms']
+    data = data[~data['attack_cat'].isin(minority_classes)]
     
-    return data[~data['attack_cat'].isin(minority_classes)]
+    print("Minority removal for nb15 completed successfully!")
+
+    return data
 
 
 def merge_minority_stin(data):
+    print("Merging minority classes for stin started...")
+
     botnet_classes = ['Botnet', 'Web Attack', 'Backdoor']
     ddos_classes = ['LDAP_DDoS', 'MSSQL_DDoS', 'NetBIOS_DDoS', 'Portmap_DDoS']
 
     data['label'] = data['label'].replace(botnet_classes, 'Botnet')
     data['label'] = data['label'].replace(ddos_classes, 'DDoS')
 
+    print("Merging minority classes for stin completed successufully!")
+
     return data
 
 
 def align_nb15(data):
+    print("Aligning nb15 started...")
+
     """
     Allinea il dataset NB15 trasformando e selezionando le feature specificate.
     """
@@ -44,10 +55,14 @@ def align_nb15(data):
     new_df['attack_cat'] = data['attack_cat']
     new_df['label'] = data['label']
 
+    print("Aligning nb15 started completed successfully!")
+
     return new_df
 
 
 def align_stin(data):
+    print("Aligning stin started...")
+
     """
     Allinea il dataset STIN trasformando e selezionando le feature specificate.
     """
@@ -74,10 +89,14 @@ def align_stin(data):
     new_df['attack_cat'] = data['label']
     new_df['label'] = 1
 
+    print("Aligning stin started completed successfully!")
+
     return new_df
 
 
 def normalize_dataset(data):
+    print("Normalizing data started...")
+
     """
     Normalizza le feature numeriche del dataset utilizzando il Min-Max scaling.
     Formula: X_i = (x_i - min(x_i)) / (max(x_i) - min(x_i))
@@ -100,10 +119,13 @@ def normalize_dataset(data):
                 # Se tutti i valori sono uguali, impostiamo a 0.0
                 data[col] = 0.0
                 
+    print("Normalizing data completed successfully!")
+
     return data
 
 
 def data_preprocessing(data, type):
+    print(f"Data preprocessing for {type} started...")
 
     match type:
         case 'nb15':
@@ -119,5 +141,7 @@ def data_preprocessing(data, type):
             return None
     
     data = normalize_dataset(data)
+
+    print(f"Data preprocessing for {type} completed successfully!")
 
     return data
