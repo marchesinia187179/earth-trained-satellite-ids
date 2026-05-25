@@ -3,6 +3,13 @@ import sys
 
 
 def minority_removal_nb15(data):
+    """
+    Removes specific minority attack categories from the NB15 dataset to reduce noise or focus on main classes.
+
+    :param data: Input pandas DataFrame containing the NB15 dataset.
+    :internal minority_classes: List of attack categories to be filtered out ('Analysis', 'Backdoor', 'Shellcode', 'Worms').
+    :return: Filtered pandas DataFrame.
+    """
     print("Minority removal for nb15 started...")
 
     if 'attack_cat' not in data.columns:
@@ -18,6 +25,14 @@ def minority_removal_nb15(data):
 
 
 def merge_minority_stin(data):
+    """
+    Groups minority attack classes into broader categories for the STIN dataset.
+
+    :param data: Input pandas DataFrame containing the STIN dataset.
+    :internal botnet_classes: List of classes to be renamed to 'Botnet'.
+    :internal ddos_classes: List of classes to be renamed to 'DDoS'.
+    :return: Pandas DataFrame with merged labels.
+    """
     print("Merging minority classes for stin started...")
 
     if 'label' not in data.columns:
@@ -36,11 +51,16 @@ def merge_minority_stin(data):
 
 
 def align_nb15(data):
+    """
+    Aligns the NB15 dataset by transforming and selecting specific features to match the required schema.
+
+    :param data: Input pandas DataFrame (NB15 raw data).
+    :internal new_df: Temporary DataFrame used to store calculated and renamed features.
+    :internal required_columns: List of columns needed for the alignment process.
+    :return: Aligned pandas DataFrame with standardized feature names.
+    """
     print("Aligning nb15 started...")
 
-    """
-    Allinea il dataset NB15 trasformando e selezionando le feature specificate.
-    """
     required_columns = ['dur', 'sbytes', 'dbytes', 'spkts', 'dpkts', 'swin', 'dwin', 'sload', 'dload', 'sinpkt', 'dinpkt', 'attack_cat', 'label']
     missing = [col for col in required_columns if col not in data.columns]
     if missing:
@@ -49,7 +69,6 @@ def align_nb15(data):
 
     new_df = pd.DataFrame()
 
-    # Calcolo delle nuove features
     new_df['duration'] = data['dur'] * 1000000
     new_df['src_bytes'] = data['sbytes']
     new_df['dst_bytes'] = data['dbytes']
@@ -76,11 +95,16 @@ def align_nb15(data):
 
 
 def align_stin(data):
+    """
+    Aligns the STIN dataset by transforming and selecting specific features to match the required schema.
+
+    :param data: Input pandas DataFrame (STIN raw data).
+    :internal new_df: Temporary DataFrame used to store calculated and renamed features.
+    :internal required_columns: List of columns needed for the alignment process.
+    :return: Aligned pandas DataFrame with standardized feature names.
+    """
     print("Aligning stin started...")
 
-    """
-    Allinea il dataset STIN trasformando e selezionando le feature specificate.
-    """
     required_columns = ['fl_dur', 'l_fw_pkt', 'l_bw_pkt', 'fw_pk', 'bw_pkt_s', 'fw_win_byt', 'bw_win_byt', 'fl_byt_s', 'fl_iat_min', 'down_up_ratio', 'label']
     missing = [col for col in required_columns if col not in data.columns]
     if missing:
@@ -89,7 +113,6 @@ def align_stin(data):
 
     new_df = pd.DataFrame()
 
-    # Calcolo delle nuove features
     new_df['duration'] = data['fl_dur']
     new_df['src_bytes'] = data['l_fw_pkt']
     new_df['dst_bytes'] = data['l_bw_pkt']
@@ -116,28 +139,28 @@ def align_stin(data):
 
 
 def normalize_dataset(data):
+    """
+    Normalizes numerical features of the dataset using Min-Max scaling.
+    Formula: X_i = (x_i - min(x_i)) / (max(x_i) - min(x_i))
+
+    :param data: Input pandas DataFrame.
+    :internal cols_to_exclude: Features that should not be normalized ('attack_cat', 'label').
+    :return: Normalized pandas DataFrame.
+    """
     print("Normalizing data started...")
 
-    """
-    Normalizza le feature numeriche del dataset utilizzando il Min-Max scaling.
-    Formula: X_i = (x_i - min(x_i)) / (max(x_i) - min(x_i))
-    """
-    # Escludiamo le colonne di target dalla normalizzazione
     cols_to_exclude = ['attack_cat', 'label']
     
     for col in data.columns:
-        # Procediamo solo se la colonna è numerica e non è tra quelle da escludere
         if col not in cols_to_exclude and pd.api.types.is_numeric_dtype(data[col]):
             min_val = data[col].min()
             max_val = data[col].max()
             
-            # Calcolo della differenza (max - min) per il denominatore
             diff = max_val - min_val
             
             if diff != 0:
                 data[col] = (data[col] - min_val) / diff
             else:
-                # Se tutti i valori sono uguali, impostiamo a 0.0
                 data[col] = 0.0
                 
     print("Normalizing data completed successfully!")
@@ -146,6 +169,13 @@ def normalize_dataset(data):
 
 
 def data_preprocessing(data, dataset_type):
+    """
+    Main orchestration function for data preprocessing based on the dataset type.
+
+    :param data: Raw pandas DataFrame.
+    :param dataset_type: String indicating the dataset type ('nb15', 'ter20', 'sat20').
+    :return: Preprocessed and normalized pandas DataFrame.
+    """
     print(f"Data preprocessing for {dataset_type} started...")
 
     match dataset_type:

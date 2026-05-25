@@ -5,6 +5,13 @@ import sys
 
 
 def split_by_attack_cat(data, dest_path):
+    """
+    Splits the dataset into multiple CSV files based on the attack category.
+
+    :param data: The pandas DataFrame to split.
+    :param dest_path: Path where the 'attack_cat' directory will be created.
+    :return: The Path object to the directory containing the split CSV files.
+    """
     print("Splitting the dataset by attack category...")
 
     attack_cat_dir_path = create_directory('attack_cat', dest_path)
@@ -24,10 +31,19 @@ def split_by_attack_cat(data, dest_path):
 
 
 def merge_normal_attack(source_path, dest_path, normal_attack_ratio, replacing_mode=False):
+    """
+    Creates merged datasets containing both 'Normal' and a specific 'Attack' category, balanced by a ratio.
+
+    :param source_path: Path to the directory containing split category CSVs.
+    :param dest_path: Destination path for the merged files.
+    :param normal_attack_ratio: The numeric ratio (Normal/Attack) for balancing.
+    :param replacing_mode: Boolean indicating if sampling should use replacement.
+    :internal attack_cat_list: List of Path objects for each category file.
+    :return: The Path object to the 'normal_attack' directory.
+    """
     print("Merging normal and attack data...")
     
     normal_attack_dir_path = create_directory('normal_attack', dest_path)
-    # Convertiamo in lista per poter iterare più volte se necessario
     attack_cat_list = list(source_path.iterdir())
 
     normal_cat_path = next((attack_cat for attack_cat in attack_cat_list if attack_cat.stem == 'Normal'), None)
@@ -63,6 +79,14 @@ def merge_normal_attack(source_path, dest_path, normal_attack_ratio, replacing_m
 
 
 def merge_attacks(source_path, dest_path):
+    """
+    Merges all attack-only categories into a single 'Attacks' dataset.
+
+    :param source_path: Path to the directory containing split category CSVs.
+    :param dest_path: Destination path for the merged file.
+    :internal dfs: List used to collect DataFrames from individual attack files.
+    :return: The Path object to the generated 'Attacks.csv' file.
+    """
     print("Merging attacks data...")
 
     attack_cat_list = source_path.iterdir()
@@ -86,6 +110,13 @@ def merge_attacks(source_path, dest_path):
 
 
 def file_preprocessing(data, dataset_type):
+    """
+    Orchestrates the file-level preprocessing including splitting, merging attacks, and balancing classes.
+
+    :param data: The preprocessed pandas DataFrame.
+    :param dataset_type: The type of dataset being processed (e.g., 'nb15').
+    :internal project_root: Resolves the project root path based on file location.
+    """
     if dataset_type == 'nb15':
         print(f"Settings for {dataset_type}...")
         
@@ -108,7 +139,7 @@ def file_preprocessing(data, dataset_type):
     
     print(f"File preprocessing for {dataset_type} started...")
 
-    # Definisce la root del progetto partendo dalla posizione di questo file
+    # Defines the project root starting from the position of this file
     # src/preprocessing/file_preprocessing.py -> .parent (preprocessing) -> .parent (src) -> .parent (root)
     project_root = pathlib.Path(__file__).resolve().parent.parent.parent
     main_dir_path = create_directory(f'{dataset_type}_preprocessed', project_root / 'data')

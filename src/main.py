@@ -6,10 +6,24 @@ import pathlib
 
 
 def file_preprocessing_state(data_preprocessed, dataset_type):
+    """
+    Wrapper function to trigger the file-level preprocessing state.
+
+    :param data_preprocessed: The DataFrame after data preprocessing.
+    :param dataset_type: Type of the dataset (nb15, sat20, ter20).
+    """
     file_preprocessing(data_preprocessed, dataset_type)
 
 
 def data_preprocessing_state(path, dataset_type):
+    """
+    Wrapper function to load data and trigger the data-level preprocessing state.
+
+    :param path: Path to the raw CSV file.
+    :param dataset_type: Type of the dataset (nb15, sat20, ter20).
+    :internal data: Raw DataFrame loaded from CSV.
+    :return: Preprocessed DataFrame.
+    """
     data = get_data_from_csv(path)
     data_preprocessed = data_preprocessing(data, dataset_type)
 
@@ -17,6 +31,13 @@ def data_preprocessing_state(path, dataset_type):
 
 
 def main():
+    """
+    Main entry point of the application. 
+    Handles user input, validation, and orchestrates the preprocessing pipeline.
+
+    :internal user_choice: Tracks whether the user wants to continue or exit.
+    :internal user_input: Captures the path and dataset type provided by the user.
+    """
     user_choice = input("Do you want to start the preprocessing? [y/n] ").lower()
 
     if user_choice not in ['y', 'n']:
