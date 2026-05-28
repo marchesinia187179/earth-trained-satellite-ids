@@ -1,5 +1,5 @@
 # Data & Datasets (Prevents uploading large files)
-data/
+# data/
 *.csv
 *.xlsx
 *.parquet
@@ -8,7 +8,7 @@ data/
 # Machine Learning Artifacts (Models & Weights)
 *.pkl
 *.joblib
-models/
+# models/
 checkpoints/
 
 # Python Cache & System Files
