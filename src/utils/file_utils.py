@@ -50,3 +50,13 @@ def create_directory(dir_name, parent_path=None):
     path.mkdir(parents=True, exist_ok=True)
 
     return path
+
+
+def add_rnd_frst_model_info(results_dict, file_path):
+    
+    new_entry = pd.DataFrame([results_dict])
+    if not file_path.exists():
+        new_entry.to_csv(file_path, index=False)
+    else:
+        new_entry.to_csv(file_path, mode='a', header=False, index=False)
+    
