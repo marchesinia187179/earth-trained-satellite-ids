@@ -1,3 +1,5 @@
+import joblib
+
 from models.models import model_processing
 from utils.file_utils import *
 from preprocessing.data_preprocessing import *
@@ -89,6 +91,47 @@ def build_model_loop(user_choice):
             sys.exit(1)
 
 
+def classification_loop(user_choice):
+    while user_choice == 'y':
+
+        user_input = input("Insert the path of the dataset: [path] ")
+        data_path = pathlib.Path(user_input)
+
+        if not data_path.exists():
+            print(f"Error: The file path '{user_input}' does not exist.")
+            sys.exit(1)
+
+        data = get_data_from_csv(data_path)
+        data = pd.DataFrame(data)
+        
+        user_input = input("Insert the path of the model: [path] ")
+        model_path = pathlib.Path(user_input)
+
+        if not model_path.exists():
+            print(f"Error: The file path '{user_input}' does not exist.")
+            sys.exit(1)
+
+        model = joblib.load(model_path)
+
+
+
+
+
+
+
+
+
+
+        
+
+
+        user_choice = input("Do you want to start a new classification? [y/n] ").lower()
+        if user_choice not in ['y', 'n']:
+            print("Error: Invalid input. Please enter 'y' or 'n'.")
+            sys.exit(1)
+        
+
+
 def main():
     """
     Main entry point of the application. 
@@ -106,7 +149,7 @@ def main():
     if user_choice == 'y':
         preprocessing_loop(user_choice)
 
-    user_choice = input("Do you want to build a new model? [y/n] ").lower()
+    user_choice = input("Do you want to build a model? [y/n] ").lower()
 
     if user_choice not in ['y', 'n']:
         print("Error: Invalid input. Please enter 'y' or 'n'.")
@@ -114,6 +157,15 @@ def main():
 
     if user_choice == 'y':
         build_model_loop(user_choice)
+
+    user_choice = input("Do you want to start the classification? [y/n] ").lower()
+
+    if user_choice not in ['y', 'n']:
+        print("Error: Invalid input. Please enter 'y' or 'n'.")
+        sys.exit(1)
+
+    if user_choice == 'y':
+        classification_loop(user_choice)
 
     
 

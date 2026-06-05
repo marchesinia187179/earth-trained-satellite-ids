@@ -16,10 +16,10 @@ def isolation_forest():
 def save_random_forest(model, params, attack_cat, f1, precision, recall):
     save_path = pathlib.Path(__file__).resolve().parent / "random_forest_saved"
 
-    existing_files = list(save_path.glob('model*.joblib'))
+    existing_files = list(save_path.glob('random_forest_model*.joblib'))
     id = len(existing_files) + 1
 
-    joblib.dump(model, save_path / f'model{id}.joblib')
+    joblib.dump(model, save_path / f'random_forest_model_{id}.joblib')
 
     results = {
         'id': id,
@@ -35,7 +35,7 @@ def save_random_forest(model, params, attack_cat, f1, precision, recall):
         'recall': recall
     }
 
-    add_rnd_frst_model_info(results, save_path / 'rnd_frst_models_info.csv')
+    add_rnd_frst_model_info(results, save_path / 'random_forest_models_info.csv')
 
 
 def random_forest(data, train_ratio=0.8, n_estimators=None, max_depth=None, min_samples_split=None, max_features=None, cross_validation=True):
