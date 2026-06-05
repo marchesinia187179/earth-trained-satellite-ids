@@ -25,7 +25,7 @@ def save_random_forest(model, params, attack_cat, f1, precision, recall):
         'id': id,
         'train_ratio': params['train_ratio'],
         'n_estimators': params['n_estimators'],
-        'max_depth': params['max_depth'],
+        'max_depth': 'None' if params['max_depth'] is None else params['max_depth'],
         'min_samples_split': params['min_samples_split'],
         'max_features': params['max_features'],
         'cross_validation': params['cross_validation'],
