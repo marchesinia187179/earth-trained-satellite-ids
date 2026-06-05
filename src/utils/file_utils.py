@@ -52,11 +52,38 @@ def create_directory(dir_name, parent_path=None):
     return path
 
 
-def add_rnd_frst_model_info(results_dict, file_path):
-    
+def append_data_to_csv(results_dict, file_path):
     new_entry = pd.DataFrame([results_dict])
     if not file_path.exists():
         new_entry.to_csv(file_path, index=False)
     else:
         new_entry.to_csv(file_path, mode='a', header=False, index=False)
     
+
+def get_model_info(file_path):
+    try:
+        # Estraiamo l'ID numerico dalla fine del nome del file (es. random_forest_model_10 -> 10)
+        model_id = int(str(file_path.stem).split('_')[-1])
+    except (ValueError, IndexError):
+        print(f"Error: Could not extract ID from model filename '{file_path.name}'. Expected format: name_ID.joblib")
+        sys.exit(1)
+
+    # Cerchiamo l'unico file che contiene 'info.csv' nella stessa cartella
+    info_files = list(pathlib.Path(file_path).resolve().parent.glob('*info.csv'))
+    
+    if not info_files:
+        print(f"Error: No info CSV file found in {file_path.parent}")
+        sys.exit(1)
+
+    # Poiché c'è un solo file, prendiamo il primo della lista
+    df = get_data_from_csv(info_files[0])
+
+    # Cerchiamo la riga che corrisponde all'ID del modello salvato nel CSV
+    model_info = df[df['id'] == model_id]
+
+    if model_info.empty:
+        print(f"Error: Model ID {model_id} not found in {info_files[0]}")
+        sys.exit(1)
+
+    # Restituiamo la riga come Series per permettere l'accesso diretto via chiave (es. model_info['attack_cat'])
+    return model_info.iloc[0]

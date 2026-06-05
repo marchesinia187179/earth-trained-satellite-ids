@@ -1,5 +1,6 @@
 import joblib
 
+from classification.classification import classification_processing
 from models.models import model_processing
 from utils.file_utils import *
 from preprocessing.data_preprocessing import *
@@ -112,24 +113,14 @@ def classification_loop(user_choice):
             sys.exit(1)
 
         model = joblib.load(model_path)
+        model_info = get_model_info(model_path)
 
-
-
-
-
-
-
-
-
-
-        
-
+        classification_processing(data, model, model_path.stem, model_info["attack_cat"], data_path.stem)
 
         user_choice = input("Do you want to start a new classification? [y/n] ").lower()
         if user_choice not in ['y', 'n']:
             print("Error: Invalid input. Please enter 'y' or 'n'.")
             sys.exit(1)
-        
 
 
 def main():
@@ -167,9 +158,6 @@ def main():
     if user_choice == 'y':
         classification_loop(user_choice)
 
-    
-
-    
 
 if __name__ == "__main__":
     main()

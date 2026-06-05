@@ -6,7 +6,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import f1_score, precision_score, recall_score
 from sklearn.model_selection import RandomizedSearchCV, train_test_split
 
-from utils.file_utils import add_rnd_frst_model_info
+from utils.file_utils import append_data_to_csv
 
 
 def isolation_forest():
@@ -35,7 +35,7 @@ def save_random_forest(model, params, attack_cat, f1, precision, recall):
         'recall': recall
     }
 
-    add_rnd_frst_model_info(results, save_path / 'random_forest_models_info.csv')
+    append_data_to_csv(results, save_path / 'random_forest_models_info.csv')
 
 
 def random_forest(data, train_ratio=0.8, n_estimators=None, max_depth=None, min_samples_split=None, max_features=None, cross_validation=True):
@@ -94,9 +94,9 @@ def random_forest(data, train_ratio=0.8, n_estimators=None, max_depth=None, min_
             'cross_validation': False
         }
 
-    f1 = f1_score(y_test, y_pred, average="macro")
-    precision = precision_score(y_test, y_pred, average="macro")
-    recall = recall_score(y_test, y_pred, average="macro")
+    f1 = f1_score(y_test, y_pred, average="macro", zero_division=0)
+    precision = precision_score(y_test, y_pred, average="macro", zero_division=0)
+    recall = recall_score(y_test, y_pred, average="macro", zero_division=0)
 
     attack_cat = "_".join(data["attack_cat"].unique())
 
