@@ -21,7 +21,6 @@ def save_random_forest(model, params, attack_cat, f1, precision, recall):
 
     joblib.dump(model, save_path / f'model{id}.joblib')
 
-    "id,train_ratio,n_estimators,max_depth,min_samples_split,max_features,cross_validation,data,f1,precision,recall"
     results = {
         'id': id,
         'train_ratio': params['train_ratio'],
