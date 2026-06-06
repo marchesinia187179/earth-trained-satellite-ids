@@ -1,4 +1,5 @@
 from utils.file_utils import *
+from utils.input_utils import *
 import pathlib
 import pandas as pd
 import sys
@@ -120,20 +121,9 @@ def file_preprocessing(data, dataset_type):
     if dataset_type == 'nb15':
         print(f"Settings for {dataset_type}...")
         
-        try:
-            normal_attack_ratio = float(input("Insert the normal-attack ratio: [> 0] (e.g. 10, 10 normal data for 1 attack data) "))
-            if normal_attack_ratio <= 0:
-                print("Error: The ratio must be greater than 0.")
-                sys.exit(1)
-        except ValueError:
-            print("Error: Invalid input. Please enter a numeric value for the ratio.")
-            sys.exit(1)
-
-        replacing_input = input("Do you want to use replacing mode? [y/n] ").lower()
-        if replacing_input not in ['y', 'n']:
-            print("Error: Invalid input. Please enter 'y' or 'n'.")
-            sys.exit(1)
-        replacing_mode = replacing_input == 'y'
+        ratio_prompt = "Insert the normal-attack ratio: [> 0] (e.g. 10, 10 normal data for 1 attack data) "
+        normal_attack_ratio = get_numeric_input(ratio_prompt, type_func=float, min_val=0)
+        replacing_mode = get_y_n_bool("Do you want to use replacing mode? [y/n] ")
 
         print(f"Settings for {dataset_type} saved successfully!")
     

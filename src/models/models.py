@@ -7,6 +7,7 @@ from sklearn.metrics import f1_score, precision_score, recall_score
 from sklearn.model_selection import RandomizedSearchCV, train_test_split
 
 from utils.file_utils import append_data_to_csv
+from utils.input_utils import *
 
 
 def isolation_forest():
@@ -111,16 +112,9 @@ def model_processing(data, model_type):
     
     if model_type == "random forest":
 
-        user_choice = input("Do you want to set the parameters? [y/n] ").lower()
-        if user_choice not in ['y', 'n']:
-            print("Error: Invalid input. Please enter 'y' or 'n'.")
-            sys.exit(1)
-        
-        if user_choice == 'y':
-            user_input = input("Insert train_ratio, n_estimators, max_depth, min_samples_split and max_features: [train_ratio n_estimators max_depth min_samples_split max_features] ").split()
-            if len(user_input) != 5:
-                print("Error: Invalid input format. Expected: [train_ratio n_estimators max_depth min_samples_split max_features]")
-                sys.exit(1)
+        if get_y_n_bool("Do you want to set the parameters? [y/n] "):
+            prompt = "Insert train_ratio, n_estimators, max_depth, min_samples_split and max_features: [train_ratio n_estimators max_depth min_samples_split max_features] "
+            user_input = get_split_input(prompt, 5)
 
             train_ratio = float(user_input[0])
             n_estimators = int(user_input[1])
