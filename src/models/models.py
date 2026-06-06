@@ -1,13 +1,12 @@
 import pathlib
-import sys
-
 import joblib
+
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import f1_score, precision_score, recall_score
 from sklearn.model_selection import RandomizedSearchCV, train_test_split
-
 from utils.file_utils import append_data_to_csv
-from utils.input_utils import *
+from utils.input_utils import get_y_n_bool, get_split_input
+from utils.paths import MODELS_SAVED_DIR, RF_INFO_CSV
 
 
 def isolation_forest():
@@ -15,12 +14,11 @@ def isolation_forest():
 
 
 def save_random_forest(model, params, attack_cat, f1, precision, recall):
-    save_path = pathlib.Path(__file__).resolve().parent / "random_forest_saved"
-
-    existing_files = list(save_path.glob('random_forest_model*.joblib'))
+    print(f"Saving Random Forest model to: {MODELS_SAVED_DIR}")
+    existing_files = list(MODELS_SAVED_DIR.glob('random_forest_model*.joblib'))
     id = len(existing_files) + 1
 
-    joblib.dump(model, save_path / f'random_forest_model_{id}.joblib')
+    joblib.dump(model, MODELS_SAVED_DIR / f'random_forest_model_{id}.joblib')
 
     results = {
         'id': id,
@@ -36,10 +34,12 @@ def save_random_forest(model, params, attack_cat, f1, precision, recall):
         'recall': recall
     }
 
-    append_data_to_csv(results, save_path / 'random_forest_models_info.csv')
+    append_data_to_csv(results, RF_INFO_CSV)
+    print(f"Model metadata saved to {RF_INFO_CSV.name}")
 
 
 def random_forest(data, train_ratio=0.8, n_estimators=None, max_depth=None, min_samples_split=None, max_features=None, cross_validation=True):
+    print(f"Training Random Forest (Cross-Validation: {cross_validation})...")
 
     X = data.drop(columns=["label", "attack_cat"])
     y = data["label"]
@@ -57,6 +57,7 @@ def random_forest(data, train_ratio=0.8, n_estimators=None, max_depth=None, min_
 
         n_iter_tuning = 10 if samples > 100000 else 5
         rf = RandomForestClassifier(random_state=42)
+        print(f"Hyperparameter tuning in progress ({n_iter_tuning} iterations)...")
         model = RandomizedSearchCV(
             estimator=rf, 
             param_distributions=param_dist, 
@@ -100,8 +101,8 @@ def random_forest(data, train_ratio=0.8, n_estimators=None, max_depth=None, min_
     recall = recall_score(y_test, y_pred, average="macro", zero_division=0)
 
     attack_cat = "_".join(data["attack_cat"].unique())
-
     save_random_forest(model, params, attack_cat, f1, precision, recall)
+    print("Training process done.")
 
 
 def model_processing(data, model_type):

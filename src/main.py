@@ -2,12 +2,10 @@ import joblib
 
 from classification.classification import classification_processing
 from models.models import model_processing
-from utils.file_utils import *
-from utils.input_utils import *
-from preprocessing.data_preprocessing import *
-from preprocessing.file_preprocessing import *
-import sys
-import pathlib
+from utils.file_utils import get_data_from_csv, get_model_info
+from utils.input_utils import get_split_input, validate_path, validate_choice, get_y_n_choice
+from preprocessing.data_preprocessing import data_preprocessing
+from preprocessing.file_preprocessing import file_preprocessing
 import pandas as pd
 
 
@@ -37,6 +35,7 @@ def data_preprocessing_state(path, dataset_type):
 
 
 def preprocessing_loop(user_choice):
+    print("\n--- Starting Preprocessing Phase ---")
     while user_choice == 'y':
         prompt = "Insert the path and the dataset_type of the dataset: [path dataset_type] (dataset_type: nb15, sat20 or ter20) "
         user_input = get_split_input(prompt, 2)
@@ -51,6 +50,7 @@ def preprocessing_loop(user_choice):
 
 
 def build_model_loop(user_choice):
+    print("\n--- Starting Model Building Phase ---")
     while user_choice == 'y':
         model_input = input("Choose which model do you want to use: [random forest or isolation forest] ").lower()
         model_type = validate_choice(model_input, ['random forest', 'isolation forest'], "model type")
@@ -67,6 +67,7 @@ def build_model_loop(user_choice):
 
 
 def classification_loop(user_choice):
+    print("\n--- Starting Classification Phase ---")
     while user_choice == 'y':
         path_input = input("Insert the path of the dataset: [path] ")
         data_path = validate_path(path_input)

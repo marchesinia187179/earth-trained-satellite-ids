@@ -10,17 +10,13 @@ def minority_removal_nb15(data):
     :internal minority_classes: List of attack categories to be filtered out ('Analysis', 'Backdoor', 'Shellcode', 'Worms').
     :return: Filtered pandas DataFrame.
     """
-    print("Minority removal for nb15 started...")
-
     if 'attack_cat' not in data.columns:
         print("Error: Column 'attack_cat' missing in NB15 dataset.")
         sys.exit(1)
 
     minority_classes = ['Analysis', 'Backdoor', 'Shellcode', 'Worms']
     data = data[~data['attack_cat'].isin(minority_classes)]
-    
-    print("Minority removal for nb15 completed successfully!")
-
+    print("Minority classes removed (NB15).")
     return data
 
 
@@ -33,8 +29,6 @@ def merge_minority_stin(data):
     :internal ddos_classes: List of classes to be renamed to 'DDoS'.
     :return: Pandas DataFrame with merged labels.
     """
-    print("Merging minority classes for stin started...")
-
     if 'label' not in data.columns:
         print("Error: Column 'label' missing in dataset.")
         sys.exit(1)
@@ -45,8 +39,7 @@ def merge_minority_stin(data):
     data['label'] = data['label'].replace(botnet_classes, 'Botnet')
     data['label'] = data['label'].replace(ddos_classes, 'DDoS')
 
-    print("Merging minority classes for stin completed successufully!")
-
+    print("Minority classes grouped (STIN).")
     return data
 
 
@@ -59,8 +52,6 @@ def align_nb15(data):
     :internal required_columns: List of columns needed for the alignment process.
     :return: Aligned pandas DataFrame with standardized feature names.
     """
-    print("Aligning nb15 started...")
-
     required_columns = ['dur', 'sbytes', 'dbytes', 'spkts', 'dpkts', 'swin', 'dwin', 'sload', 'dload', 'sinpkt', 'dinpkt', 'attack_cat', 'label']
     missing = [col for col in required_columns if col not in data.columns]
     if missing:
@@ -89,8 +80,7 @@ def align_nb15(data):
     new_df['attack_cat'] = data['attack_cat']
     new_df['label'] = data['label']
 
-    print("Aligning nb15 started completed successfully!")
-
+    print("Dataset aligned (NB15).")
     return new_df
 
 
@@ -103,8 +93,6 @@ def align_stin(data):
     :internal required_columns: List of columns needed for the alignment process.
     :return: Aligned pandas DataFrame with standardized feature names.
     """
-    print("Aligning stin started...")
-
     required_columns = ['fl_dur', 'l_fw_pkt', 'l_bw_pkt', 'fw_pk', 'bw_pkt_s', 'fw_win_byt', 'bw_win_byt', 'fl_byt_s', 'fl_iat_min', 'down_up_ratio', 'label']
     missing = [col for col in required_columns if col not in data.columns]
     if missing:
@@ -133,8 +121,7 @@ def align_stin(data):
     new_df['attack_cat'] = data['label']
     new_df['label'] = 1
 
-    print("Aligning stin started completed successfully!")
-
+    print("Dataset aligned (STIN).")
     return new_df
 
 
@@ -147,8 +134,6 @@ def normalize_dataset(data):
     :internal cols_to_exclude: Features that should not be normalized ('attack_cat', 'label').
     :return: Normalized pandas DataFrame.
     """
-    print("Normalizing data started...")
-
     cols_to_exclude = ['attack_cat', 'label']
     
     for col in data.columns:
@@ -163,8 +148,7 @@ def normalize_dataset(data):
             else:
                 data[col] = 0.0
                 
-    print("Normalizing data completed successfully!")
-
+    print("Features normalized.")
     return data
 
 
@@ -176,8 +160,7 @@ def data_preprocessing(data, dataset_type):
     :param dataset_type: String indicating the dataset type ('nb15', 'ter20', 'sat20').
     :return: Preprocessed and normalized pandas DataFrame.
     """
-    print(f"Data preprocessing for {dataset_type} started...")
-
+    print(f"Running data-level preprocessing for {dataset_type}...")
     match dataset_type:
         case 'nb15':
             data = minority_removal_nb15(data)
@@ -192,7 +175,5 @@ def data_preprocessing(data, dataset_type):
             return None
     
     data = normalize_dataset(data)
-
-    print(f"Data preprocessing for {dataset_type} completed successfully!")
-
+    print(f"Data-level preprocessing for {dataset_type} done.")
     return data
