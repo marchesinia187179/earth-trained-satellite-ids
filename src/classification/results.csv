@@ -1,0 +1,8 @@
+id,model_name,model_training_dataset,testing_dataset,f1,precision,recall
+1,random_forest_model_1,DoS_Normal,Syn_DDoS,0.44743912440962696,0.5,0.4048776742757703
+2,random_forest_model_2,Exploits_Normal,Syn_DDoS,0.4762842936217549,0.5,0.45471644999488176
+3,random_forest_model_3,Fuzzers_Normal,Syn_DDoS,0.0002302673659971856,0.5,0.00011516020063466066
+4,random_forest_model_4,Generic_Normal,Syn_DDoS,0.0,0.0,0.0
+5,random_forest_model_5,Reconnaissance_Normal,Syn_DDoS,2.5590500806100776e-05,0.5,1.279557784829563e-05
+6,random_forest_model_1,DoS_Normal,DDoS,0.1409850813404303,0.5,0.08206206800251344
+7,random_forest_model_1,DoS_Normal,Normal_DoS,0.9912593878905823,0.9956577693990614,0.9869569892473118
