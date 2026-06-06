@@ -59,7 +59,6 @@ def build_model_loop(user_choice):
         data_path = validate_path(path_input)
 
         data = get_data_from_csv(data_path)
-        data = pd.DataFrame(data)
 
         model_processing(data, model_type)
 
@@ -73,7 +72,6 @@ def classification_loop(user_choice):
         data_path = validate_path(path_input)
 
         data = get_data_from_csv(data_path)
-        data = pd.DataFrame(data)
         
         model_path_input = input("Insert the path of the model: [path] ")
         model_path = validate_path(model_path_input)
