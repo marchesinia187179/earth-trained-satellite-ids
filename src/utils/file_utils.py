@@ -65,22 +65,25 @@ def append_data_to_csv(results_dict, file_path):
 
 def get_model_info(file_path):
     try:
-    # Cerchiamo l'unico file che contiene 'info.csv' nella stessa cartella
-    info_files = list(pathlib.Path(file_path).resolve().parent.glob('*info.csv'))
-    
-    if not info_files:
-        print(f"Error: No info CSV file found in {file_path.parent}")
+        # Cerchiamo l'unico file che contiene 'info.csv' nella stessa cartella
+        info_files = list(pathlib.Path(file_path).resolve().parent.glob('*info.csv'))
+        
+        if not info_files:
+            print(f"Error: No info CSV file found in {file_path.parent}")
+            sys.exit(1)
+
+        # Poiché c'è un solo file, prendiamo il primo della lista
+        df = get_data_from_csv(info_files[0])
+
+        # Cerchiamo la riga che corrisponde al nome del modello salvato nel CSV
+        model_info = df[df['model_name'] == file_path.stem]
+
+        if model_info.empty:
+            print(f"Error: Model '{file_path.stem}' not found in {info_files[0]}")
+            sys.exit(1)
+
+        # Restituiamo la riga come Series per permettere l'accesso diretto via chiave (es. model_info['attack_cat'])
+        return model_info.iloc[0]
+    except Exception as e:
+        print(f"Error retrieving model info: {e}")
         sys.exit(1)
-
-    # Poiché c'è un solo file, prendiamo il primo della lista
-    df = get_data_from_csv(info_files[0])
-
-    # Cerchiamo la riga che corrisponde al nome del modello salvato nel CSV
-    model_info = df[df['model_name'] == file_path.stem]
-
-    if model_info.empty:
-        print(f"Error: Model '{file_path.stem}' not found in {info_files[0]}")
-        sys.exit(1)
-
-    # Restituiamo la riga come Series per permettere l'accesso diretto via chiave (es. model_info['attack_cat'])
-    return model_info.iloc[0]

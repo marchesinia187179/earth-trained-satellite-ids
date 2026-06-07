@@ -1,7 +1,8 @@
 # Project TODO List
 
 ## Completed Tasks
-- [x] **Project Infrastructure**: Established modular directory structure and basic utility functions for file and directory management.
+- [x] **Project Infrastructure**: Established modular directory structure and centralized path management (`paths.py`).
+- [x] **Centralized Utilities**: Implemented project-wide input validation and user interaction logic (`input_utils.py`).
 - [x] **Data Preprocessing**:
     - [x] Implementation of dataset alignment for NB15 and STIN (ter20, sat20) datasets.
     - [x] Feature normalization using Min-Max scaling.
@@ -12,13 +13,16 @@
     - [x] Functionality to merge specific attack categories for comprehensive training.
 - [x] **Random Forest Model**:
     - [x] Implementation of the training pipeline with optional hyperparameter tuning (RandomizedSearchCV).
-    - [x] Evaluation metrics calculation (F1-score, Precision, Recall).
-    - [x] Model persistence (saving to `.joblib`) and metadata logging to CSV.
-- [x] **CLI Orchestration**: Created a main entry point to handle user interaction for preprocessing and model building loops.
+    - [x] Model persistence (saving to `.joblib`) and detailed metadata logging (`models_info.csv`) including TP, TN, FP, FN.
+- [x] **Classification & Evaluation**:
+    - [x] Implemented evaluation loop for testing models on cross-domain datasets (NB15, SAT20, TER20).
+    - [x] Standardized reporting with comprehensive metrics in `results.csv`.
+- [x] **CLI & UX**:
+    - [x] Orchestrated main entry point and runtime loops.
+    - [x] Standardized terminal feedback in English and refactored code for clarity (removed `import *`).
 
 ## Future Tasks
-- [ ] **Random Forest Evaluation**: Implement the testing phase for the Random Forest model specifically using STIN data (terrestrial vs. satellite cross-evaluation).
 - [ ] **Isolation Forest Implementation**: 
     - [ ] Implement the `isolation_forest` model logic in `models.py`.
-    - [ ] Develop the relative testing and evaluation suite for anomaly detection.
-- [ ] **Hybrid System Integration**: Research and implement the feasibility study of combining both models into a Hybrid IDS.
+    - [ ] Integrate reporting and evaluation for anomaly detection.
+- [ ] **Data Visualization**: Develop scripts to visualize performance metrics and domain shift effects from `results.csv`.
