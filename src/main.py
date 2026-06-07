@@ -55,12 +55,15 @@ def build_model_loop(user_choice):
         model_input = input("Choose which model do you want to use: [random forest or isolation forest] ").lower()
         model_type = validate_choice(model_input, ['random forest', 'isolation forest'], "model type")
 
+        dataset_type_input = input("Insert the dataset_type of the training dataset: (nb15, sat20 or ter20) ").lower()
+        dataset_type = validate_choice(dataset_type_input, ['nb15', 'sat20', 'ter20'], "dataset type")
+
         path_input = input("Insert the path of the dataset: [path] ")
         data_path = validate_path(path_input)
 
         data = get_data_from_csv(data_path)
 
-        model_processing(data, model_type)
+        model_processing(data, model_type, dataset_type, data_path.stem)
 
         user_choice = get_y_n_choice("Do you want to build a new model? [y/n] ")
 
@@ -71,6 +74,9 @@ def classification_loop(user_choice):
         path_input = input("Insert the path of the dataset: [path] ")
         data_path = validate_path(path_input)
 
+        dataset_type_input = input("Insert the dataset_type of the testing dataset: (nb15, sat20 or ter20) ").lower()
+        dataset_type = validate_choice(dataset_type_input, ['nb15', 'sat20', 'ter20'], "dataset type")
+
         data = get_data_from_csv(data_path)
         
         model_path_input = input("Insert the path of the model: [path] ")
@@ -79,7 +85,7 @@ def classification_loop(user_choice):
         model = joblib.load(model_path)
         model_info = get_model_info(model_path)
 
-        classification_processing(data, model, model_path.stem, model_info["attack_cat"], data_path.stem)
+        classification_processing(data, model, dataset_type, model_path.stem, data_path.stem)
 
         user_choice = get_y_n_choice("Do you want to start a new classification? [y/n] ")
 
