@@ -19,7 +19,7 @@
     - [x] Standardized reporting with comprehensive metrics in `results.csv`.
 - [x] **CLI & UX**:
     - [x] Orchestrated main entry point and runtime loops.
-    - [x] Standardized terminal feedback in English and refactored code for clarity (removed `import *`).
+    - [x] Standardized terminal feedback and refactored code for clarity.
 
 ## Future Tasks
 - [ ] **Isolation Forest Implementation**: 
