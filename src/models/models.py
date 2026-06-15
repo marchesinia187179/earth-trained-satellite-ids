@@ -1,12 +1,10 @@
-import pathlib
 import joblib
 from datetime import datetime
 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix
-from sklearn.model_selection import RandomizedSearchCV, train_test_split
+from sklearn.model_selection import train_test_split
 from utils.file_utils import append_data_to_csv
-from utils.input_utils import get_y_n_bool, get_split_input
 from utils.paths import MODELS_SAVED_DIR, RF_INFO_CSV
 
 
@@ -47,63 +45,19 @@ def save_random_forest(model, params, training_dataset, dataset_type, samples, m
     print(f"Model metadata saved to {RF_INFO_CSV.name}")
 
 
-def random_forest(data, dataset_type, training_dataset, train_ratio=0.8, n_estimators=None, max_depth=None, min_samples_split=None, max_features=None, cross_validation=True):
-    print(f"Training Random Forest (Cross-Validation: {cross_validation})...")
+def random_forest(data, dataset_type, training_dataset, train_ratio=0.8):
+    print(f"Training Random Forest...")
 
     X = data.drop(columns=["label", "attack_cat"])
     y = data["label"]
     X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=train_ratio, random_state=42)
 
-    if cross_validation:
-        samples = X.shape[0]
-        n_est = 300 if samples > 50000 else 100
-        param_dist = {
-            'n_estimators': [n_est, n_est + 200],
-            'max_depth': [10, 20, None],
-            'min_samples_split': [2, 5, 10],
-            'max_features': ['sqrt', 'log2']
-        }
+    model = RandomForestClassifier(random_state=42)
+    model.fit(X_train, y_train)
+    y_pred = model.predict(X_test)
 
-        n_iter_tuning = 10 if samples > 100000 else 5
-        rf = RandomForestClassifier(random_state=42)
-        print(f"Hyperparameter tuning in progress ({n_iter_tuning} iterations)...")
-        model = RandomizedSearchCV(
-            estimator=rf, 
-            param_distributions=param_dist, 
-            n_iter=n_iter_tuning, 
-            cv=3, 
-            n_jobs=-1, 
-            verbose=3
-        )
-
-        model.fit(X_train, y_train)
-        y_pred = model.best_estimator_.predict(X_test)
-        
-        params = model.best_params_.copy()
-        params['train_ratio'] = train_ratio
-        params['cross_validation'] = True
-
-        model = model.best_estimator_
-    else:
-        model = RandomForestClassifier(
-            n_estimators=n_estimators,
-            max_depth=max_depth,
-            min_samples_split=min_samples_split,
-            max_features=max_features,
-            random_state=42
-        )
-
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-
-        params = {
-            'train_ratio': train_ratio,
-            'n_estimators': n_estimators,
-            'max_depth': max_depth,
-            'min_samples_split': min_samples_split,
-            'max_features': max_features,
-            'cross_validation': False
-        }
+    params = model.get_params.copy()
+    params['train_ratio'] = train_ratio
 
     f1 = f1_score(y_test, y_pred, average="macro", zero_division=0)
     precision = precision_score(y_test, y_pred, average="macro", zero_division=0)
@@ -127,26 +81,7 @@ def random_forest(data, dataset_type, training_dataset, train_ratio=0.8, n_estim
 
 
 def model_processing(data, model_type, dataset_type, training_dataset):
-
-    if model_type not in ["random forest", "isolation forest"]:
-        print("Invalid model type")
-        return
-    
     if model_type == "random forest":
-
-        if get_y_n_bool("Do you want to set the parameters? [y/n] "):
-            prompt = "Insert train_ratio, n_estimators, max_depth, min_samples_split and max_features: [train_ratio n_estimators max_depth min_samples_split max_features] "
-            user_input = get_split_input(prompt, 5)
-
-            train_ratio = float(user_input[0])
-            n_estimators = int(user_input[1])
-            max_depth = None if user_input[2].lower() == 'none' else int(user_input[2])
-            min_samples_split = int(user_input[3])
-            max_features = user_input[4]
-            
-            random_forest(data, dataset_type, training_dataset, train_ratio, n_estimators, max_depth, min_samples_split, max_features, cross_validation=False)
-        else:
-            random_forest(data, dataset_type, training_dataset)
-
+        random_forest(data, dataset_type, training_dataset)
     elif model_type == "isolation forest":
         isolation_forest(data, dataset_type, training_dataset)

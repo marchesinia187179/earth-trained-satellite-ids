@@ -20,8 +20,6 @@ def save_result(model_name, dataset_type, testing_dataset, samples, metrics):
         'tn': metrics['tn'],
         'fp': metrics['fp'],
         'fn': metrics['fn'],
-        'f1': metrics['f1'],
-        'precision': metrics['precision'],
         'recall': metrics['recall']
     }
 
@@ -36,9 +34,7 @@ def classification_processing(data, model, dataset_type, model_name="Unknown", t
 
     y_pred = model.predict(X)
 
-    f1 = f1_score(y, y_pred, average="macro", zero_division=0)
-    precision = precision_score(y, y_pred, average="macro", zero_division=0)
-    recall = recall_score(y, y_pred, average="macro", zero_division=0)
+    recall = recall_score(y, y_pred)
 
     cm = confusion_matrix(y, y_pred)
     tn, fp, fn, tp = cm.ravel() if cm.size == 4 else (0, 0, 0, 0)
@@ -48,10 +44,8 @@ def classification_processing(data, model, dataset_type, model_name="Unknown", t
         'tn': tn,
         'fp': fp,
         'fn': fn,
-        'f1': f1,
-        'precision': precision,
         'recall': recall
     }
 
-    print(f"Metrics: F1={f1:.4f}, Precision={precision:.4f}, Recall={recall:.4f}")
+    print(f"Recall={recall:.4f}")
     save_result(model_name, dataset_type, testing_dataset, data.shape[0], metrics)
