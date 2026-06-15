@@ -31,7 +31,6 @@ def save_random_forest(model, params, training_dataset, dataset_type, samples, m
         'max_depth': 'None' if params['max_depth'] is None else params['max_depth'],
         'min_samples_split': params['min_samples_split'],
         'max_features': params['max_features'],
-        'cross_validation': params['cross_validation'],
         'tp': metrics['tp'],
         'tn': metrics['tn'],
         'fp': metrics['fp'],
@@ -52,11 +51,11 @@ def random_forest(data, dataset_type, training_dataset, train_ratio=0.8):
     y = data["label"]
     X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=train_ratio, random_state=42)
 
-    model = RandomForestClassifier(random_state=42)
+    model = RandomForestClassifier(random_state=42, verbose=3)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
 
-    params = model.get_params.copy()
+    params = model.get_params()
     params['train_ratio'] = train_ratio
 
     f1 = f1_score(y_test, y_pred, average="macro", zero_division=0)
