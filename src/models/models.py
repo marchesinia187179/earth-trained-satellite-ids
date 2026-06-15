@@ -58,6 +58,7 @@ def save_isolation_forest(model, train_ratio, training_dataset, dataset_type, sa
 def isolation_forest(data, dataset_type, training_dataset, train_ratio=0.8):
     print(f"Training Isolation Forest...")
 
+    '''
     data_normal = data[data['label'] == 0]
     data_anomaly = data[data['label'] == 1]
 
@@ -71,6 +72,30 @@ def isolation_forest(data, dataset_type, training_dataset, train_ratio=0.8):
     X_train = train_normal.drop(columns=['attack_cat', 'label']).values
     X_test = data_test.drop(columns=['attack_cat', 'label']).values
     y_test = data_test['label'].values
+    '''
+
+    '''
+    X = data.drop(columns=['attack_cat', 'label']).values
+    Y = data['label'].values
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, train_size=train_ratio, random_state=42)
+    '''
+
+
+    data_normal = data[data['label'] == 0]
+    data_anomaly = data[data['label'] == 1]
+
+    n_anomaly_sample = int(len(data_normal) * 0.10)
+    data_anomaly = data_anomaly.sample(n=n_anomaly_sample, random_state=42)
+
+    data = pd.concat([data_normal, data_anomaly])
+    
+    X = data.drop(columns=['attack_cat', 'label']).values
+    Y = data['label'].values
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, train_size=train_ratio, random_state=42)
+
+
+
+
 
     model = IsolationForest(random_state=42, verbose=3)
     model.fit(X_train)
