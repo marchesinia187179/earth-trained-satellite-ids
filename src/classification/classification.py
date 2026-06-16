@@ -53,10 +53,9 @@ def save_result(model_obj, model_name, dataset_type, testing_dataset, samples, m
         'fn': metrics['fn'],
         'f1': metrics['f1'],
         'precision': metrics['precision'],
-        'recall': metrics['recall']
+        'recall': metrics['recall'],
+        'auc_roc': metrics.get('auc_roc', None)
     }
-    if 'auc_roc' in metrics:
-        results_dict['auc_roc'] = metrics['auc_roc']
 
     append_data_to_csv(results_dict, file_path)
     print(f"Classification report appended to: {file_path.name}")
@@ -82,16 +81,25 @@ def classification_processing(data, models_to_test, dataset_type, testing_datase
         print(f"\nExecuting classification for model: {model_name} (Test Data: {testing_dataset})...")
 
         y_pred = model_obj.predict(X)
+        auc_roc = None
+
+        # AUC-ROC richiede la presenza di entrambe le classi nel set di test
+        unique_classes = np.unique(y)
+        has_both_classes = len(unique_classes) > 1
 
         # Special handling for Isolation Forest predictions
         if isinstance(model_obj, IsolationForest):
             # IsolationForest returns 1 for inliers (normal) and -1 for outliers (anomalies)
             # We map 1 -> 0 (normal) and -1 -> 1 (anomaly) to align with standard classification labels
             y_pred = np.where(y_pred == 1, 0, 1)
-            y_scores = -model_obj.decision_function(X) # Decision function for AUC-ROC
-            auc_roc = roc_auc_score(y, y_scores)
-        else:
-            auc_roc = None # AUC-ROC is typically for anomaly detection or binary classification with probabilities
+            if has_both_classes:
+                y_scores = -model_obj.decision_function(X)
+                auc_roc = roc_auc_score(y, y_scores)
+        # Controllo se è un RandomForest o se ha il metodo predict_proba (più robusto)
+        elif hasattr(model_obj, "predict_proba"):
+            if has_both_classes:
+                y_scores = model_obj.predict_proba(X)[:, 1]
+                auc_roc = roc_auc_score(y, y_scores)
 
         f1 = f1_score(y, y_pred)
         precision = precision_score(y, y_pred)

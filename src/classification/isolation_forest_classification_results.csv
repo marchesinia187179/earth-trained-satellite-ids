@@ -1,1 +1,2 @@
 id,timestamp,model_type,model_name,dataset_type,testing_dataset,samples,tp,tn,fp,fn,f1,precision,recall,auc_roc
+1,2026-06-16 12:35:54,isolation_forest,if_model_1,sat20,Syn_DDoS,39076,11851,0,0,27225,0.4654112749622008,1.0,0.303280786160303,

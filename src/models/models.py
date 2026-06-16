@@ -161,6 +161,9 @@ def random_forest(data, dataset_type, training_dataset, train_ratio=0.8):
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
 
+    y_scores = model.predict_proba(X_test)[:, 1]
+    auc_roc = roc_auc_score(y_test, y_scores)
+
     f1 = f1_score(y_test, y_pred)
     precision = precision_score(y_test, y_pred)
     recall = recall_score(y_test, y_pred)
@@ -175,7 +178,8 @@ def random_forest(data, dataset_type, training_dataset, train_ratio=0.8):
         'fn': fn,
         'f1': f1,
         'precision': precision,
-        'recall': recall
+        'recall': recall,
+        'auc_roc': auc_roc
     }
 
     save_random_forest(model, train_ratio, training_dataset, dataset_type, X_train.shape[0], metrics)
