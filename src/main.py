@@ -5,7 +5,7 @@ import joblib
 
 from classification.classification import classification_processing
 from models.models import model_processing
-from utils.file_utils import get_data_from_csv, get_model_info
+from utils.file_utils import get_data_from_csv
 from utils.input_utils import get_split_input, validate_path, validate_choice, get_y_n_choice
 from preprocessing.data_preprocessing import data_preprocessing
 from preprocessing.file_preprocessing import file_preprocessing
