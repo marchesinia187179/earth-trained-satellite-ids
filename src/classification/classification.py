@@ -51,10 +51,10 @@ def save_result(model_obj, model_name, dataset_type, testing_dataset, samples, m
         'tn': metrics['tn'],
         'fp': metrics['fp'],
         'fn': metrics['fn'],
-        'f1': metrics['f1'],
-        'precision': metrics['precision'],
+        'f1': metrics['f1'] if metrics['f1'] is not None else 'None',
+        'precision': metrics['precision'] if metrics['precision'] is not None else 'None',
         'recall': metrics['recall'],
-        'auc_roc': metrics.get('auc_roc', None)
+        'auc_roc': metrics.get('auc_roc') if metrics.get('auc_roc') is not None else 'None'
     }
 
     append_data_to_csv(results_dict, file_path)
@@ -87,6 +87,10 @@ def classification_processing(data, models_to_test, dataset_type, testing_datase
         unique_classes = np.unique(y)
         has_both_classes = len(unique_classes) > 1
 
+        if not has_both_classes:
+            print(f"Warning: Testing dataset '{testing_dataset}' contains only one class ({unique_classes}). "
+                  f"AUC-ROC cannot be calculated and will be set to 'None'.")
+
         # Special handling for Isolation Forest predictions
         if isinstance(model_obj, IsolationForest):
             # IsolationForest returns 1 for inliers (normal) and -1 for outliers (anomalies)
@@ -101,8 +105,8 @@ def classification_processing(data, models_to_test, dataset_type, testing_datase
                 y_scores = model_obj.predict_proba(X)[:, 1]
                 auc_roc = roc_auc_score(y, y_scores)
 
-        f1 = f1_score(y, y_pred)
-        precision = precision_score(y, y_pred)
+        f1 = f1_score(y, y_pred) if has_both_classes else None
+        precision = precision_score(y, y_pred) if has_both_classes else None
         recall = recall_score(y, y_pred)
 
         cm = confusion_matrix(y, y_pred)
@@ -114,5 +118,8 @@ def classification_processing(data, models_to_test, dataset_type, testing_datase
             'auc_roc': auc_roc
         }
 
-        print(f"F1-score={f1:.4f}, Precision={precision:.4f}, Recall={recall:.4f}")
+        f1_display = f"{f1:.4f}" if f1 is not None else "None"
+        precision_display = f"{precision:.4f}" if precision is not None else "None"
+        auc_roc_display = f"{auc_roc:.4f}" if auc_roc is not None else "None"
+        print(f"F1-score={f1_display}, Precision={precision_display}, Recall={recall:.4f}, AUC-ROC={auc_roc_display}")
         save_result(model_obj, model_name, dataset_type, testing_dataset, data.shape[0], metrics)
