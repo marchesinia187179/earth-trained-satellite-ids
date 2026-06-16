@@ -1,3 +1,6 @@
+"""
+Classification logic for evaluating trained models on test datasets.
+"""
 import pathlib
 from datetime import datetime
 
@@ -8,6 +11,7 @@ from utils.file_utils import append_data_to_csv, get_data_from_csv
 from utils.paths import RF_CLASSIFICATION_RESULTS_CSV, IF_CLASSIFICATION_RESULTS_CSV
 
 
+# --- Result Saving Functions ---
 def save_result(model_obj, model_name, dataset_type, testing_dataset, samples, metrics):
     """
     Saves classification results to a specific CSV file based on the model type.
@@ -61,6 +65,7 @@ def save_result(model_obj, model_name, dataset_type, testing_dataset, samples, m
     print(f"Classification report appended to: {file_path.name}")
 
 
+# --- Main Processing Logic ---
 def classification_processing(data, models_to_test, dataset_type, testing_dataset="Unknown"):
     """
     Processes classification for one or more models on the given data and saves their metrics.
@@ -71,6 +76,7 @@ def classification_processing(data, models_to_test, dataset_type, testing_datase
     :param dataset_type: Type of the dataset (nb15, sat20, ter20).
     :param testing_dataset: Name of the dataset used for testing.
     """
+    # Prepare features and labels
     X = data.drop(columns=["label", "attack_cat"])
     y = data["label"]
 
@@ -83,7 +89,7 @@ def classification_processing(data, models_to_test, dataset_type, testing_datase
         y_pred = model_obj.predict(X)
         auc_roc = None
 
-        # AUC-ROC richiede la presenza di entrambe le classi nel set di test
+        # AUC-ROC requires the presence of both classes in the test set
         unique_classes = np.unique(y)
         has_both_classes = len(unique_classes) > 1
 
@@ -93,24 +99,24 @@ def classification_processing(data, models_to_test, dataset_type, testing_datase
 
         # Special handling for Isolation Forest predictions
         if isinstance(model_obj, IsolationForest):
-            # IsolationForest returns 1 for inliers (normal) and -1 for outliers (anomalies)
-            # We map 1 -> 0 (normal) and -1 -> 1 (anomaly) to align with standard classification labels
+            # Map IsolationForest predictions: 1 -> 0 (normal), -1 -> 1 (anomaly)
             y_pred = np.where(y_pred == 1, 0, 1)
             if has_both_classes:
                 y_scores = -model_obj.decision_function(X)
                 auc_roc = roc_auc_score(y, y_scores)
-        # Controllo se è un RandomForest o se ha il metodo predict_proba (più robusto)
+        # Check if it is a RandomForest or has predict_proba method (more robust)
         elif hasattr(model_obj, "predict_proba"):
             if has_both_classes:
                 y_scores = model_obj.predict_proba(X)[:, 1]
                 auc_roc = roc_auc_score(y, y_scores)
 
+        # Calculate metrics
         f1 = f1_score(y, y_pred) if has_both_classes else None
         precision = precision_score(y, y_pred) if has_both_classes else None
         recall = recall_score(y, y_pred)
 
-        cm = confusion_matrix(y, y_pred)
-        tn, fp, fn, tp = cm.ravel() if cm.size == 4 else (0, 0, 0, 0)
+        cm = confusion_matrix(y, y_pred, labels=[0, 1])
+        tn, fp, fn, tp = cm.ravel()
 
         metrics = {
             'tp': tp, 'tn': tn, 'fp': fp, 'fn': fn,

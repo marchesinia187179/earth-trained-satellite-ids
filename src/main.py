@@ -1,3 +1,6 @@
+"""
+Main entry point for the Satellite IDS project.
+"""
 import joblib
 
 from classification.classification import classification_processing
@@ -9,6 +12,7 @@ from preprocessing.file_preprocessing import file_preprocessing
 import pandas as pd
 
 
+# --- State Wrappers ---
 def file_preprocessing_state(data_preprocessed, dataset_type):
     """
     Wrapper function to trigger the file-level preprocessing state.
@@ -34,7 +38,13 @@ def data_preprocessing_state(path, dataset_type):
     return data_preprocessed
 
 
+# --- Runtime Loops ---
 def preprocessing_loop(user_choice):
+    """
+    Interactive loop for running the data and file preprocessing phase.
+
+    :param user_choice: Initial choice string ('y') to start the loop.
+    """
     print("\n--- Starting Preprocessing Phase ---")
     while user_choice == 'y':
         prompt = "Insert the path and the dataset_type of the dataset: [path dataset_type] (dataset_type: nb15, sat20 or ter20) "
@@ -50,6 +60,11 @@ def preprocessing_loop(user_choice):
 
 
 def build_model_loop(user_choice):
+    """
+    Interactive loop for selecting, training, and saving machine learning models.
+
+    :param user_choice: Initial choice string ('y') to start the loop.
+    """
     print("\n--- Starting Model Building Phase ---")
     while user_choice == 'y':
         model_input = input("Choose which model do you want to use: [random forest or isolation forest] ").lower()
@@ -69,6 +84,11 @@ def build_model_loop(user_choice):
 
 
 def classification_loop(user_choice):
+    """
+    Interactive loop for evaluating saved models on specific testing datasets.
+
+    :param user_choice: Initial choice string ('y') to start the loop.
+    """
     print("\n--- Starting Classification Phase ---")
     while user_choice == 'y':
         path_input = input("Insert the path of the dataset for testing: [path] ")

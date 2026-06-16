@@ -1,3 +1,6 @@
+"""
+Model training and management for Random Forest and Isolation Forest.
+"""
 import joblib
 import numpy as np
 import pandas as pd
@@ -10,16 +13,40 @@ from utils.file_utils import append_data_to_csv
 from utils.paths import RF_MODELS_SAVED_DIR, RF_INFO_CSV, IF_MODELS_SAVED_DIR, IF_INFO_CSV
 
 
-def save_isolation_forest(model, train_ratio, training_dataset, dataset_type, samples, metrics):
-    print(f"Saving Isolation Forest model to: {IF_MODELS_SAVED_DIR}")
-    existing_files = list(IF_MODELS_SAVED_DIR.glob('if_model_*.joblib'))
-    id = len(existing_files) + 1
-    model_name = f'if_model_{id}'
+# --- Internal Helper Functions ---
+def _calculate_metrics(y_true, y_pred, y_scores):
+    """Internal helper to calculate metrics consistently."""
+    unique_classes = np.unique(y_true)
+    has_both = len(unique_classes) > 1
 
-    joblib.dump(model, IF_MODELS_SAVED_DIR / f'{model_name}.joblib')
+    f1 = f1_score(y_true, y_pred) if has_both else None
+    precision = precision_score(y_true, y_pred) if has_both else None
+    recall = recall_score(y_true, y_pred)
+    auc_roc = roc_auc_score(y_true, y_scores) if has_both else None
+
+    # Fix: labels=[0, 1] ensures a 2x2 matrix even if classes are missing
+    cm = confusion_matrix(y_true, y_pred, labels=[0, 1])
+    tn, fp, fn, tp = cm.ravel()
+
+    return {
+        'tp': tp, 'tn': tn, 'fp': fp, 'fn': fn,
+        'f1': f1, 'precision': precision, 'recall': recall,
+        'auc_roc': auc_roc
+    }
+
+
+def _save_model_and_metadata(model, model_type, train_ratio, training_dataset, dataset_type, samples, metrics):
+    """Simplifies and unifies saving for RF and IF models."""
+    if model_type == 'rf':
+        save_dir, info_csv, prefix = RF_MODELS_SAVED_DIR, RF_INFO_CSV, 'rf_model'
+    else:
+        save_dir, info_csv, prefix = IF_MODELS_SAVED_DIR, IF_INFO_CSV, 'if_model'
+
+    existing_files = list(save_dir.glob(f'{prefix}_*.joblib'))
+    model_name = f'{prefix}_{len(existing_files) + 1}'
+    joblib.dump(model, save_dir / f'{model_name}.joblib')
 
     params = model.get_params()
-
     results = {
         'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         'model_name': model_name,
@@ -27,35 +54,49 @@ def save_isolation_forest(model, train_ratio, training_dataset, dataset_type, sa
         'training_dataset': training_dataset,
         'samples': samples,
         'train_ratio': train_ratio,
-        
-        # --- IPERPARAMETRI DI INPUT ---
         'n_estimators': params['n_estimators'],
-        'max_samples': params['max_samples'],
         'max_features': params['max_features'],
-        'contamination': params['contamination'],
         'random_state': params.get('random_state', None),
-        
-        # --- ATTRIBUTI APPRESI DAL MODELLO (Scikit-Learn) ---
-        'model_offset': float(model.offset_),
-        'max_samples_actual': int(model.max_samples_),
         'n_features_in': int(model.n_features_in_),
-        
-        # --- METRICHE DI PERFORMANCE ---
-        'tp': metrics['tp'],
-        'tn': metrics['tn'],
-        'fp': metrics['fp'],
-        'fn': metrics['fn'],
-        'f1': metrics['f1'],
-        'precision': metrics['precision'],
-        'recall': metrics['recall'],
-        'auc_roc': metrics.get('auc_roc', None)
     }
 
-    append_data_to_csv(results, IF_INFO_CSV)
-    print(f"Model metadata saved to {IF_INFO_CSV.name}")
+    # Type-specific metadata
+    if model_type == 'rf':
+        results.update({
+            'criterion': params.get('criterion', 'gini'),
+            'max_depth': params.get('max_depth', None),
+            'n_classes': len(model.classes_)
+        })
+    else:
+        results.update({
+            'max_samples': params['max_samples'],
+            'contamination': params['contamination'],
+            'model_offset': float(model.offset_)
+        })
+
+    # Metrics formatting (None -> 'None' as requested)
+    results.update({
+        'tp': metrics['tp'], 'tn': metrics['tn'], 'fp': metrics['fp'], 'fn': metrics['fn'],
+        'f1': metrics['f1'] if metrics['f1'] is not None else 'None',
+        'precision': metrics['precision'] if metrics['precision'] is not None else 'None',
+        'recall': metrics['recall'],
+        'auc_roc': metrics['auc_roc'] if metrics['auc_roc'] is not None else 'None'
+    })
+
+    append_data_to_csv(results, info_csv)
+    print(f"Model {model_name} saved to {save_dir.name} and metadata to {info_csv.name}")
 
 
+# --- Public Training Functions ---
 def isolation_forest(data, dataset_type, training_dataset, train_ratio=0.8):
+    """
+    Trains an Isolation Forest model using normal data and evaluates it on a mixed set.
+
+    :param data: Input DataFrame containing both normal and anomaly samples.
+    :param dataset_type: Type of the dataset (nb15, sat20, ter20).
+    :param training_dataset: Name of the original dataset file.
+    :param train_ratio: Proportion of normal data used for training.
+    """
     print(f"Training Isolation Forest...")
     
     data_normal = data[data['label'] == 0]
@@ -75,82 +116,24 @@ def isolation_forest(data, dataset_type, training_dataset, train_ratio=0.8):
     model = IsolationForest(random_state=42, verbose=3)
     model.fit(X_train)
     y_pred = model.predict(X_test)
-
     y_pred = np.where(y_pred == 1, 0, 1)
     
     y_scores = -model.decision_function(X_test)
-    auc_roc = roc_auc_score(y_test, y_scores)
+    metrics = _calculate_metrics(y_test, y_pred, y_scores)
 
-    f1 = f1_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred)
-    recall = recall_score(y_test, y_pred)
-
-    cm = confusion_matrix(y_test, y_pred)
-    tn, fp, fn, tp = cm.ravel() if cm.size == 4 else (0, 0, 0, 0)
-
-    metrics = {
-        'tp': tp,
-        'tn': tn,
-        'fp': fp,
-        'fn': fn,
-        'f1': f1,
-        'precision': precision,
-        'recall': recall,
-        'auc_roc': auc_roc
-    }
-
-    save_isolation_forest(model, train_ratio, training_dataset, dataset_type, X_train.shape[0], metrics)
+    _save_model_and_metadata(model, 'if', train_ratio, training_dataset, dataset_type, X_train.shape[0], metrics)
     print("Training process done.")
 
 
-def save_random_forest(model, train_ratio, training_dataset, dataset_type, samples, metrics):
-    print(f"Saving Random Forest model to: {RF_MODELS_SAVED_DIR}")
-    existing_files = list(RF_MODELS_SAVED_DIR.glob('rf_model_*.joblib'))
-    id = len(existing_files) + 1
-    model_name = f'rf_model_{id}'
-
-    joblib.dump(model, RF_MODELS_SAVED_DIR / f'{model_name}.joblib')
-
-    params = model.get_params()
-
-    results = {
-        'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        'model_name': model_name,
-        'dataset_type': dataset_type,
-        'training_dataset': training_dataset,
-        'samples': samples,
-        'train_ratio': train_ratio,
-        
-        # --- IPERPARAMETRI DI INPUT (Specifici per Random Forest) ---
-        'n_estimators': params['n_estimators'],
-        'criterion': params.get('criterion', 'gini'),
-        'max_depth': params.get('max_depth', None),
-        'min_samples_split': params.get('min_samples_split', 2),
-        'min_samples_leaf': params.get('min_samples_leaf', 1),
-        'max_features': params['max_features'],
-        'random_state': params.get('random_state', None),
-        'n_jobs': params.get('n_jobs', -1),
-        
-        # --- ATTRIBUTI APPRESI DAL MODELLO (Scikit-Learn) ---
-        'n_features_in': int(model.n_features_in_),
-        'n_classes': len(model.classes_),
-        
-        # --- METRICHE DI PERFORMANCE ---
-        'tp': metrics['tp'],
-        'tn': metrics['tn'],
-        'fp': metrics['fp'],
-        'fn': metrics['fn'],
-        'f1': metrics['f1'],
-        'precision': metrics['precision'],
-        'recall': metrics['recall'],
-        'auc_roc': metrics.get('auc_roc', None)
-    }
-
-    append_data_to_csv(results, RF_INFO_CSV)
-    print(f"Model metadata saved to {RF_INFO_CSV.name}")
-
-
 def random_forest(data, dataset_type, training_dataset, train_ratio=0.8):
+    """
+    Trains a Random Forest classifier using a supervised learning approach.
+
+    :param data: Input DataFrame containing features and labels.
+    :param dataset_type: Type of the dataset (nb15, sat20, ter20).
+    :param training_dataset: Name of the original dataset file.
+    :param train_ratio: Proportion of data used for training.
+    """
     print(f"Training Random Forest...")
 
     X = data.drop(columns=["label", "attack_cat"])
@@ -160,33 +143,23 @@ def random_forest(data, dataset_type, training_dataset, train_ratio=0.8):
     model = RandomForestClassifier(random_state=42, verbose=3)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
-
     y_scores = model.predict_proba(X_test)[:, 1]
-    auc_roc = roc_auc_score(y_test, y_scores)
+    
+    metrics = _calculate_metrics(y_test, y_pred, y_scores)
 
-    f1 = f1_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred)
-    recall = recall_score(y_test, y_pred)
-
-    cm = confusion_matrix(y_test, y_pred)
-    tn, fp, fn, tp = cm.ravel() if cm.size == 4 else (0, 0, 0, 0)
-
-    metrics = {
-        'tp': tp,
-        'tn': tn,
-        'fp': fp,
-        'fn': fn,
-        'f1': f1,
-        'precision': precision,
-        'recall': recall,
-        'auc_roc': auc_roc
-    }
-
-    save_random_forest(model, train_ratio, training_dataset, dataset_type, X_train.shape[0], metrics)
+    _save_model_and_metadata(model, 'rf', train_ratio, training_dataset, dataset_type, X_train.shape[0], metrics)
     print("Training process done.")
 
 
 def model_processing(data, model_type, dataset_type, training_dataset):
+    """
+    Orchestrator function to trigger training for a specific model type.
+
+    :param data: Input DataFrame.
+    :param model_type: Type of model to build ('random forest' or 'isolation forest').
+    :param dataset_type: Type of the dataset (nb15, sat20, ter20).
+    :param training_dataset: Name of the dataset file.
+    """
     if model_type == "random forest":
         random_forest(data, dataset_type, training_dataset)
     elif model_type == "isolation forest":

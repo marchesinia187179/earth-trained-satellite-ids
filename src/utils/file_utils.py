@@ -1,3 +1,6 @@
+"""
+Utility functions for file handling and CSV operations.
+"""
 import pandas as pd
 import pathlib
 import sys
@@ -56,6 +59,12 @@ def create_directory(dir_name, parent_path=None):
 
 
 def append_data_to_csv(results_dict, file_path):
+    """
+    Appends a single row of data (as a dictionary) to an existing CSV or creates a new one.
+
+    :param results_dict: Dictionary containing the data to append.
+    :param file_path: Path to the target CSV file.
+    """
     new_entry = pd.DataFrame([results_dict])
     if not file_path.exists():
         new_entry.to_csv(file_path, index=False)
@@ -64,25 +73,31 @@ def append_data_to_csv(results_dict, file_path):
     
 
 def get_model_info(file_path):
+    """
+    Retrieves metadata for a specific model from its associated 'info.csv' file.
+
+    :param file_path: Path to the saved model (.joblib).
+    :return: A pandas Series containing the model's training metadata.
+    """
     try:
-        # Cerchiamo l'unico file che contiene 'info.csv' nella stessa cartella
+        # Search for the unique file containing 'info.csv' in the same folder
         info_files = list(pathlib.Path(file_path).resolve().parent.glob('*info.csv'))
         
         if not info_files:
             print(f"Error: No info CSV file found in {file_path.parent}")
             sys.exit(1)
 
-        # Poiché c'è un solo file, prendiamo il primo della lista
+        # Since there is only one file, take the first one
         df = get_data_from_csv(info_files[0])
 
-        # Cerchiamo la riga che corrisponde al nome del modello salvato nel CSV
+        # Search for the row corresponding to the model name saved in the CSV
         model_info = df[df['model_name'] == file_path.stem]
 
         if model_info.empty:
             print(f"Error: Model '{file_path.stem}' not found in {info_files[0]}")
             sys.exit(1)
 
-        # Restituiamo la riga come Series per permettere l'accesso diretto via chiave (es. model_info['attack_cat'])
+        # Return the row as a Series to allow direct access via key
         return model_info.iloc[0]
     except Exception as e:
         print(f"Error retrieving model info: {e}")
