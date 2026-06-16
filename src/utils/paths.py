@@ -15,3 +15,7 @@ RESULTS_DIR = SRC_DIR / "classification"
 # File specifici (opzionale)
 RF_INFO_CSV = RF_MODELS_SAVED_DIR / "random_forest_models_info.csv"
 IF_INFO_CSV = IF_MODELS_SAVED_DIR / "isolation_forest_models_info.csv"
+
+# File per i risultati della classificazione
+RF_CLASSIFICATION_RESULTS_CSV = RESULTS_DIR / "random_forest_classification_results.csv"
+IF_CLASSIFICATION_RESULTS_CSV = RESULTS_DIR / "isolation_forest_classification_results.csv"

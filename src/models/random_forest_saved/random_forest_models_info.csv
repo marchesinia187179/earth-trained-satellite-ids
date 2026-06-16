@@ -1,6 +1,1 @@
-timestamp,model_name,dataset_type,training_dataset,samples,train_ratio,n_estimators,max_depth,min_samples_split,max_features,tp,tn,fp,fn,f1,precision,recall
-2026-06-15 14:00:25,rf_model_1,nb15,Normal_DoS,81840,0.8,100,None,2,sqrt,1663,18625,36,136,0.9731164091751094,0.9857809923965659,0.9612366443688432
-2026-06-15 14:01:21,rf_model_2,nb15,Normal_Exploits,81840,0.8,100,None,2,sqrt,1636,18580,81,163,0.9620397957109221,0.9720640570887874,0.9525267522201138
-2026-06-15 14:02:00,rf_model_3,nb15,Normal_Fuzzers,81840,0.8,100,None,2,sqrt,825,18273,388,974,0.755939836727796,0.8147633076166815,0.7188980391758528
-2026-06-15 14:02:41,rf_model_4,nb15,Normal_Generic,81840,0.8,100,None,2,sqrt,1770,18657,4,29,0.9949402293515393,0.9980966222654801,0.991832791255608
-2026-06-15 14:03:10,rf_model_5,nb15,Normal_Reconnaissance,81840,0.8,100,None,2,sqrt,1693,18582,79,106,0.971620252359545,0.9748727590911903,0.9684224744355561
+timestamp,model_name,dataset_type,training_dataset,samples,train_ratio,n_estimators,criterion,max_depth,min_samples_split,min_samples_leaf,max_features,random_state,n_jobs,n_features_in,n_classes,tp,tn,fp,fn,f1,precision,recall,auc_roc

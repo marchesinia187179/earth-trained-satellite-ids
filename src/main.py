@@ -71,7 +71,7 @@ def build_model_loop(user_choice):
 def classification_loop(user_choice):
     print("\n--- Starting Classification Phase ---")
     while user_choice == 'y':
-        path_input = input("Insert the path of the dataset: [path] ")
+        path_input = input("Insert the path of the dataset for testing: [path] ")
         data_path = validate_path(path_input)
 
         dataset_type_input = input("Insert the dataset_type of the testing dataset: (nb15, sat20 or ter20) ").lower()
@@ -79,15 +79,23 @@ def classification_loop(user_choice):
 
         data = get_data_from_csv(data_path)
         
-        model_path_input = input("Insert the path of the model: [path] ")
-        model_path = validate_path(model_path_input)
+        models_to_test = []
+        while True:
+            model_path_input = input("Insert the path of the model: [path] ")
+            model_path = validate_path(model_path_input)
 
-        model = joblib.load(model_path)
-        model_info = get_model_info(model_path)
+            model = joblib.load(model_path)
+            models_to_test.append({
+                'model_obj': model,
+                'model_name': model_path.stem
+            })
+            
+            if get_y_n_choice("Do you want to add another model to test on this dataset? [y/n] ") == 'n':
+                break
 
-        classification_processing(data, model, dataset_type, model_path.stem, data_path.stem)
+        classification_processing(data, models_to_test, dataset_type, data_path.stem)
 
-        user_choice = get_y_n_choice("Do you want to start a new classification? [y/n] ")
+        user_choice = get_y_n_choice("Do you want to start a new classification session (new dataset)? [y/n] ")
 
 
 def main():

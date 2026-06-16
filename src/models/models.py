@@ -57,8 +57,7 @@ def save_isolation_forest(model, train_ratio, training_dataset, dataset_type, sa
 
 def isolation_forest(data, dataset_type, training_dataset, train_ratio=0.8):
     print(f"Training Isolation Forest...")
-
-    '''
+    
     data_normal = data[data['label'] == 0]
     data_anomaly = data[data['label'] == 1]
 
@@ -69,33 +68,9 @@ def isolation_forest(data, dataset_type, training_dataset, train_ratio=0.8):
 
     data_test = pd.concat([test_normal, test_anomaly])
 
-    X_train = train_normal.drop(columns=['attack_cat', 'label']).values
-    X_test = data_test.drop(columns=['attack_cat', 'label']).values
-    y_test = data_test['label'].values
-    '''
-
-    '''
-    X = data.drop(columns=['attack_cat', 'label']).values
-    Y = data['label'].values
-    X_train, X_test, y_train, y_test = train_test_split(X, Y, train_size=train_ratio, random_state=42)
-    '''
-
-
-    data_normal = data[data['label'] == 0]
-    data_anomaly = data[data['label'] == 1]
-
-    n_anomaly_sample = int(len(data_normal) * 0.10)
-    data_anomaly = data_anomaly.sample(n=n_anomaly_sample, random_state=42)
-
-    data = pd.concat([data_normal, data_anomaly])
-    
-    X = data.drop(columns=['attack_cat', 'label']).values
-    Y = data['label'].values
-    X_train, X_test, y_train, y_test = train_test_split(X, Y, train_size=train_ratio, random_state=42)
-
-
-
-
+    X_train = train_normal.drop(columns=['attack_cat', 'label'])
+    X_test = data_test.drop(columns=['attack_cat', 'label'])
+    y_test = data_test['label']
 
     model = IsolationForest(random_state=42, verbose=3)
     model.fit(X_train)
@@ -128,7 +103,7 @@ def isolation_forest(data, dataset_type, training_dataset, train_ratio=0.8):
     print("Training process done.")
 
 
-def save_random_forest(model, params, training_dataset, dataset_type, samples, metrics):
+def save_random_forest(model, train_ratio, training_dataset, dataset_type, samples, metrics):
     print(f"Saving Random Forest model to: {RF_MODELS_SAVED_DIR}")
     existing_files = list(RF_MODELS_SAVED_DIR.glob('rf_model_*.joblib'))
     id = len(existing_files) + 1
@@ -136,24 +111,39 @@ def save_random_forest(model, params, training_dataset, dataset_type, samples, m
 
     joblib.dump(model, RF_MODELS_SAVED_DIR / f'{model_name}.joblib')
 
+    params = model.get_params()
+
     results = {
         'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         'model_name': model_name,
         'dataset_type': dataset_type,
         'training_dataset': training_dataset,
         'samples': samples,
-        'train_ratio': params['train_ratio'],
+        'train_ratio': train_ratio,
+        
+        # --- IPERPARAMETRI DI INPUT (Specifici per Random Forest) ---
         'n_estimators': params['n_estimators'],
-        'max_depth': 'None' if params['max_depth'] is None else params['max_depth'],
-        'min_samples_split': params['min_samples_split'],
+        'criterion': params.get('criterion', 'gini'),
+        'max_depth': params.get('max_depth', None),
+        'min_samples_split': params.get('min_samples_split', 2),
+        'min_samples_leaf': params.get('min_samples_leaf', 1),
         'max_features': params['max_features'],
+        'random_state': params.get('random_state', None),
+        'n_jobs': params.get('n_jobs', -1),
+        
+        # --- ATTRIBUTI APPRESI DAL MODELLO (Scikit-Learn) ---
+        'n_features_in': int(model.n_features_in_),
+        'n_classes': len(model.classes_),
+        
+        # --- METRICHE DI PERFORMANCE ---
         'tp': metrics['tp'],
         'tn': metrics['tn'],
         'fp': metrics['fp'],
         'fn': metrics['fn'],
         'f1': metrics['f1'],
         'precision': metrics['precision'],
-        'recall': metrics['recall']
+        'recall': metrics['recall'],
+        'auc_roc': metrics.get('auc_roc', None)
     }
 
     append_data_to_csv(results, RF_INFO_CSV)
@@ -170,9 +160,6 @@ def random_forest(data, dataset_type, training_dataset, train_ratio=0.8):
     model = RandomForestClassifier(random_state=42, verbose=3)
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
-
-    params = model.get_params()
-    params['train_ratio'] = train_ratio
 
     f1 = f1_score(y_test, y_pred)
     precision = precision_score(y_test, y_pred)
@@ -191,7 +178,7 @@ def random_forest(data, dataset_type, training_dataset, train_ratio=0.8):
         'recall': recall
     }
 
-    save_random_forest(model, params, training_dataset, dataset_type, X_train.shape[0], metrics)
+    save_random_forest(model, train_ratio, training_dataset, dataset_type, X_train.shape[0], metrics)
     print("Training process done.")
 
 
