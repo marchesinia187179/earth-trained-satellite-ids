@@ -1,0 +1,7 @@
+id,timestamp,model_type,model_name,dataset_type,testing_dataset,samples,tp,tn,fp,fn,f1,precision,recall,auc_roc
+1,2026-06-17 13:37:39,isolation_forest,if_model_1,sat20,Syn_DDoS,39076,39076,0,0,0,None,None,1.0,None
+2,2026-06-17 13:38:12,isolation_forest,if_model_1,sat20,UDP_DDoS,43244,43244,0,0,0,None,None,1.0,None
+3,2026-06-17 13:38:47,isolation_forest,if_model_1,ter20,Botnet,40401,40400,0,0,1,None,None,0.9999752481374223,None
+4,2026-06-17 13:39:29,isolation_forest,if_model_1,ter20,DDoS,57292,57292,0,0,0,None,None,1.0,None
+5,2026-06-17 13:39:58,isolation_forest,if_model_1,ter20,Syn_DDoS,15713,15713,0,0,0,None,None,1.0,None
+6,2026-06-17 13:40:37,isolation_forest,if_model_1,ter20,UDP_DDoS,13838,5095,0,0,8743,None,None,0.36818904465963287,None
