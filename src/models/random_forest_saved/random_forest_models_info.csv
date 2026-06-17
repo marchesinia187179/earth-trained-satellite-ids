@@ -1,1 +1,0 @@
-timestamp,model_name,dataset_type,training_dataset,samples,train_ratio,n_estimators,criterion,max_depth,min_samples_split,min_samples_leaf,max_features,random_state,n_jobs,n_features_in,n_classes,tp,tn,fp,fn,f1,precision,recall,auc_roc
