@@ -8,26 +8,30 @@ import numpy as np
 from sklearn.ensemble import RandomForestClassifier, IsolationForest
 from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix, roc_auc_score
 from utils.file_utils import append_data_to_csv, get_data_from_csv
-from utils.paths import RF_CLASSIFICATION_RESULTS_CSV, IF_CLASSIFICATION_RESULTS_CSV
+from utils.paths import INDEPENDENT_RESULTS_DIR, DEPENDENT_RESULTS_DIR
 
 
 # --- Result Saving Functions ---
-def save_result(model_obj, model_name, dataset_type, testing_dataset, samples, metrics):
+def save_result(model_obj, mode, model_name, dataset_type, testing_dataset, samples, metrics):
     """
     Saves classification results to a specific CSV file based on the model type.
 
     :param model_obj: The trained model object (e.g., RandomForestClassifier, IsolationForest).
+    :param mode: Classification mode ('independent' or 'dependent').
     :param model_name: The name of the model.
     :param dataset_type: Type of the dataset (nb15, sat20, ter20).
     :param testing_dataset: Name of the dataset used for testing.
     :param samples: Number of samples in the testing dataset.
     :param metrics: Dictionary containing performance metrics (tp, tn, fp, fn, f1, precision, recall, auc_roc).
     """
+    base_dir = INDEPENDENT_RESULTS_DIR if mode == 'independent' else DEPENDENT_RESULTS_DIR
+    base_dir.mkdir(parents=True, exist_ok=True)
+
     if isinstance(model_obj, RandomForestClassifier):
-        file_path = RF_CLASSIFICATION_RESULTS_CSV
+        file_path = base_dir / "random_forest_classification_results.csv"
         model_type_str = "random_forest"
     elif isinstance(model_obj, IsolationForest):
-        file_path = IF_CLASSIFICATION_RESULTS_CSV
+        file_path = base_dir / "isolation_forest_classification_results.csv"
         model_type_str = "isolation_forest"
     else:
         print(f"Error: Unknown model type for model '{model_name}'. Cannot save results.")
@@ -66,11 +70,12 @@ def save_result(model_obj, model_name, dataset_type, testing_dataset, samples, m
 
 
 # --- Main Processing Logic ---
-def classification_processing(data, models_to_test, dataset_type, testing_dataset="Unknown"):
+def classification_processing(data, mode, models_to_test, dataset_type, testing_dataset="Unknown"):
     """
     Processes classification for one or more models on the given data and saves their metrics.
 
     :param data: The pandas DataFrame containing the testing data.
+    :param mode: Classification mode ('independent' or 'dependent').
     :param models_to_test: A list of dictionaries, where each dictionary contains
                            {'model_obj': model_instance, 'model_name': 'model_identifier'}.
     :param dataset_type: Type of the dataset (nb15, sat20, ter20).
@@ -128,4 +133,4 @@ def classification_processing(data, models_to_test, dataset_type, testing_datase
         precision_display = f"{precision:.4f}" if precision is not None else "None"
         auc_roc_display = f"{auc_roc:.4f}" if auc_roc is not None else "None"
         print(f"F1-score={f1_display}, Precision={precision_display}, Recall={recall:.4f}, AUC-ROC={auc_roc_display}")
-        save_result(model_obj, model_name, dataset_type, testing_dataset, data.shape[0], metrics)
+        save_result(model_obj, mode, model_name, dataset_type, testing_dataset, data.shape[0], metrics)

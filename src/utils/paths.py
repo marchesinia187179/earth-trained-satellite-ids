@@ -12,15 +12,19 @@ SRC_DIR = ROOT_DIR / "src"
 INDEPENDENT_DIR = DATA_DIR / "independent_datasets"
 DEPENDENT_DIR = DATA_DIR / "dependent_datasets"
 
-# Specific subfolders
+# Specific subfolders for models
 RF_MODELS_SAVED_DIR = SRC_DIR / "models" / "random_forest_saved"
 IF_MODELS_SAVED_DIR = SRC_DIR / "models" / "isolation_forest_saved"
-RESULTS_DIR = SRC_DIR / "classification"
 
-# Specific files (optional)
-RF_INFO_CSV = RF_MODELS_SAVED_DIR / "random_forest_models_info.csv"
-IF_INFO_CSV = IF_MODELS_SAVED_DIR / "isolation_forest_models_info.csv"
+# Specific subfolders for classification results
+CLASSIFICATION_DIR = SRC_DIR / "classification"
 
-# Classification results files
-RF_CLASSIFICATION_RESULTS_CSV = RESULTS_DIR / "random_forest_classification_results.csv"
-IF_CLASSIFICATION_RESULTS_CSV = RESULTS_DIR / "isolation_forest_classification_results.csv"
+# Mode-specific subdirectories for models
+INDEPENDENT_RF_DIR = RF_MODELS_SAVED_DIR / "independent"
+DEPENDENT_RF_DIR = RF_MODELS_SAVED_DIR / "dependent"
+INDEPENDENT_IF_DIR = IF_MODELS_SAVED_DIR / "independent"
+DEPENDENT_IF_DIR = IF_MODELS_SAVED_DIR / "dependent"
+
+# Mode-specific subdirectories for classification results
+INDEPENDENT_RESULTS_DIR = CLASSIFICATION_DIR / "independent"
+DEPENDENT_RESULTS_DIR = CLASSIFICATION_DIR / "dependent"

@@ -84,13 +84,15 @@ def preprocessing_loop():
             user_choice = get_y_n_choice("Do you want to process another independent dataset? [y/n] ")
 
 
-def build_model_loop(user_choice):
+def build_model_loop():
     """
     Interactive loop for selecting, training, and saving machine learning models.
-
-    :param user_choice: Initial choice string ('y') to start the loop.
     """
     print("\n--- Starting Model Building Phase ---")
+    mode_input = input("Choose model building mode: [independent or dependent] ").lower()
+    mode = validate_choice(mode_input, ['independent', 'dependent'], "mode")
+
+    user_choice = 'y'
     while user_choice == 'y':
         model_input = input("Choose which model do you want to use: [random forest or isolation forest] ").lower()
         model_type = validate_choice(model_input, ['random forest', 'isolation forest'], "model type")
@@ -103,18 +105,20 @@ def build_model_loop(user_choice):
 
         data = get_data_from_csv(data_path)
 
-        model_processing(data, model_type, dataset_type, data_path.stem)
+        model_processing(data, mode, model_type, dataset_type, data_path.stem)
 
         user_choice = get_y_n_choice("Do you want to build a new model? [y/n] ")
 
 
-def classification_loop(user_choice):
+def classification_loop():
     """
     Interactive loop for evaluating saved models on specific testing datasets.
-
-    :param user_choice: Initial choice string ('y') to start the loop.
     """
     print("\n--- Starting Classification Phase ---")
+    mode_input = input("Choose classification mode: [independent or dependent] ").lower()
+    mode = validate_choice(mode_input, ['independent', 'dependent'], "mode")
+
+    user_choice = 'y'
     while user_choice == 'y':
         path_input = input("Insert the path of the dataset for testing: [path] ")
         data_path = validate_path(path_input)
@@ -138,7 +142,7 @@ def classification_loop(user_choice):
             if get_y_n_choice("Do you want to add another model to test on this dataset? [y/n] ") == 'n':
                 break
 
-        classification_processing(data, models_to_test, dataset_type, data_path.stem)
+        classification_processing(data, mode, models_to_test, dataset_type, data_path.stem)
 
         user_choice = get_y_n_choice("Do you want to start a new classification session (new dataset)? [y/n] ")
 
@@ -157,11 +161,11 @@ def main():
 
     user_choice = get_y_n_choice("Do you want to build a model? [y/n] ")
     if user_choice == 'y':
-        build_model_loop(user_choice)
+        build_model_loop()
 
     user_choice = get_y_n_choice("Do you want to start the classification? [y/n] ")
     if user_choice == 'y':
-        classification_loop(user_choice)
+        classification_loop()
 
 
 if __name__ == "__main__":

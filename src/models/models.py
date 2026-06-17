@@ -10,7 +10,10 @@ from sklearn.ensemble import RandomForestClassifier, IsolationForest
 from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix, roc_auc_score
 from sklearn.model_selection import train_test_split
 from utils.file_utils import append_data_to_csv
-from utils.paths import RF_MODELS_SAVED_DIR, RF_INFO_CSV, IF_MODELS_SAVED_DIR, IF_INFO_CSV
+from utils.paths import (
+    INDEPENDENT_RF_DIR, DEPENDENT_RF_DIR,
+    INDEPENDENT_IF_DIR, DEPENDENT_IF_DIR
+)
 
 
 # --- Internal Helper Functions ---
@@ -35,12 +38,19 @@ def _calculate_metrics(y_true, y_pred, y_scores):
     }
 
 
-def _save_model_and_metadata(model, model_type, train_ratio, training_dataset, dataset_type, samples, metrics):
+def _save_model_and_metadata(model, model_type, mode, train_ratio, training_dataset, dataset_type, samples, metrics):
     """Simplifies and unifies saving for RF and IF models."""
     if model_type == 'rf':
-        save_dir, info_csv, prefix = RF_MODELS_SAVED_DIR, RF_INFO_CSV, 'rf_model'
+        save_dir = INDEPENDENT_RF_DIR if mode == 'independent' else DEPENDENT_RF_DIR
+        prefix = 'rf_model'
+        csv_name = 'random_forest_models_info.csv'
     else:
-        save_dir, info_csv, prefix = IF_MODELS_SAVED_DIR, IF_INFO_CSV, 'if_model'
+        save_dir = INDEPENDENT_IF_DIR if mode == 'independent' else DEPENDENT_IF_DIR
+        prefix = 'if_model'
+        csv_name = 'isolation_forest_models_info.csv'
+
+    save_dir.mkdir(parents=True, exist_ok=True)
+    info_csv = save_dir / csv_name
 
     existing_files = list(save_dir.glob(f'{prefix}_*.joblib'))
     model_name = f'{prefix}_{len(existing_files) + 1}'
@@ -88,11 +98,12 @@ def _save_model_and_metadata(model, model_type, train_ratio, training_dataset, d
 
 
 # --- Public Training Functions ---
-def isolation_forest(data, dataset_type, training_dataset, train_ratio=0.8):
+def isolation_forest(data, mode, dataset_type, training_dataset, train_ratio=0.8):
     """
     Trains an Isolation Forest model using normal data and evaluates it on a mixed set.
 
     :param data: Input DataFrame containing both normal and anomaly samples.
+    :param mode: Preprocessing mode used ('independent' or 'dependent').
     :param dataset_type: Type of the dataset (nb15, sat20, ter20).
     :param training_dataset: Name of the original dataset file.
     :param train_ratio: Proportion of normal data used for training.
@@ -121,15 +132,16 @@ def isolation_forest(data, dataset_type, training_dataset, train_ratio=0.8):
     y_scores = -model.decision_function(X_test)
     metrics = _calculate_metrics(y_test, y_pred, y_scores)
 
-    _save_model_and_metadata(model, 'if', train_ratio, training_dataset, dataset_type, X_train.shape[0], metrics)
+    _save_model_and_metadata(model, 'if', mode, train_ratio, training_dataset, dataset_type, X_train.shape[0], metrics)
     print("Training process done.")
 
 
-def random_forest(data, dataset_type, training_dataset, train_ratio=0.8):
+def random_forest(data, mode, dataset_type, training_dataset, train_ratio=0.8):
     """
     Trains a Random Forest classifier using a supervised learning approach.
 
     :param data: Input DataFrame containing features and labels.
+    :param mode: Preprocessing mode used ('independent' or 'dependent').
     :param dataset_type: Type of the dataset (nb15, sat20, ter20).
     :param training_dataset: Name of the original dataset file.
     :param train_ratio: Proportion of data used for training.
@@ -147,11 +159,11 @@ def random_forest(data, dataset_type, training_dataset, train_ratio=0.8):
     
     metrics = _calculate_metrics(y_test, y_pred, y_scores)
 
-    _save_model_and_metadata(model, 'rf', train_ratio, training_dataset, dataset_type, X_train.shape[0], metrics)
+    _save_model_and_metadata(model, 'rf', mode, train_ratio, training_dataset, dataset_type, X_train.shape[0], metrics)
     print("Training process done.")
 
 
-def model_processing(data, model_type, dataset_type, training_dataset):
+def model_processing(data, mode, model_type, dataset_type, training_dataset):
     """
     Orchestrator function to trigger training for a specific model type.
 
@@ -161,6 +173,6 @@ def model_processing(data, model_type, dataset_type, training_dataset):
     :param training_dataset: Name of the dataset file.
     """
     if model_type == "random forest":
-        random_forest(data, dataset_type, training_dataset)
+        random_forest(data, mode, dataset_type, training_dataset)
     elif model_type == "isolation forest":
-        isolation_forest(data, dataset_type, training_dataset)
+        isolation_forest(data, mode, dataset_type, training_dataset)

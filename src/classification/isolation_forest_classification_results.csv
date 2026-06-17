@@ -1,13 +1,1 @@
 id,timestamp,model_type,model_name,dataset_type,testing_dataset,samples,tp,tn,fp,fn,f1,precision,recall,auc_roc
-1,2026-06-16 14:41:58,isolation_forest,if_model_1,sat20,Syn_DDoS,39076,11851,0,0,27225,None,None,0.303280786160303,None
-2,2026-06-16 14:42:30,isolation_forest,if_model_1,sat20,UDP_DDoS,43244,43244,0,0,0,None,None,1.0,None
-3,2026-06-16 14:42:59,isolation_forest,if_model_1,ter20,Botnet,40401,40398,0,0,3,None,None,0.999925744412267,None
-4,2026-06-16 14:43:24,isolation_forest,if_model_1,ter20,DDoS,57292,57292,0,0,0,None,None,1.0,None
-5,2026-06-16 14:43:52,isolation_forest,if_model_1,ter20,Syn_DDoS,15713,8888,0,0,6825,None,None,0.5656462801501941,None
-6,2026-06-16 14:44:11,isolation_forest,if_model_1,ter20,UDP_DDoS,13838,4995,0,0,8843,None,None,0.3609625668449198,None
-7,2026-06-16 15:38:16,isolation_forest,if_model_1,nb15,Normal,93000,0,84827,8173,0,None,None,0.0,None
-8,2026-06-16 15:41:11,isolation_forest,if_model_1,nb15,DoS,16353,1441,0,0,14912,None,None,0.08811838806335229,None
-9,2026-06-16 15:43:07,isolation_forest,if_model_1,nb15,Exploits,44525,7301,0,0,37224,None,None,0.1639752947782145,None
-10,2026-06-16 15:43:35,isolation_forest,if_model_1,nb15,Fuzzers,24246,3460,0,0,20786,None,None,0.14270395116720283,None
-11,2026-06-16 15:44:16,isolation_forest,if_model_1,nb15,Generic,58871,378,0,0,58493,None,None,0.006420818399551562,None
-12,2026-06-16 15:44:36,isolation_forest,if_model_1,nb15,Reconnaissance,13987,209,0,0,13778,None,None,0.014942446557517695,None
