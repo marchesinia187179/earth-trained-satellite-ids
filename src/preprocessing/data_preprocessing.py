@@ -67,14 +67,14 @@ def align_nb15(data):
     new_df['dst_pkts'] = data['dpkts']
     new_df['src_win_byt'] = data['swin']
     new_df['dst_win_byt'] = data['dwin']
-    new_df['load_s'] = ((data['sload'] + data['dload']) / 8) / 1000000
+    new_df['load_s'] = ((data['sload'] + data['dload']) / 8)
     new_df['fl_iat_min'] = data[['sinpkt', 'dinpkt']].min(axis=1) * 1000
     new_df['down_up_ratio'] = data['dpkts'] / (data['spkts'] + 1e-6)
     new_df['total_bytes'] = new_df['src_bytes'] + new_df['dst_bytes']
     new_df['total_pkts'] = new_df['src_pkts'] + new_df['dst_pkts']
     new_df['src_mean_pkt_size'] = new_df['src_bytes'] / (new_df['src_pkts'] + 1e-6)
     new_df['dst_mean_pkt_size'] = new_df['dst_bytes'] / (new_df['dst_pkts'] + 1e-6)
-    new_df['pkts_per_sec'] = (new_df['src_pkts'] + new_df['dst_pkts']) / (new_df['duration'] + 1e-6)
+    new_df['pkts_per_sec'] = (new_df['src_pkts'] + new_df['dst_pkts']) / (data['dur'] + 1e-6)
     new_df['win_diff'] = new_df['src_win_byt'] - new_df['dst_win_byt']
     new_df['byte_ratio'] = new_df['dst_bytes'] / (new_df['src_bytes'] + 1e-6)
     new_df['attack_cat'] = data['attack_cat']
@@ -105,17 +105,17 @@ def align_stin(data):
     new_df['src_bytes'] = data['l_fw_pkt']
     new_df['dst_bytes'] = data['l_bw_pkt']
     new_df['src_pkts'] = data['fw_pk']
-    new_df['dst_pkts'] = data['bw_pkt_s'] * data['fl_dur'] * 1000000
+    new_df['dst_pkts'] = data['bw_pkt_s'] * data['fl_dur'] / 1000000
     new_df['src_win_byt'] = data['fw_win_byt']
     new_df['dst_win_byt'] = data['bw_win_byt']
-    new_df['load_s'] = data['fl_byt_s'] / 1000000
+    new_df['load_s'] = data['fl_byt_s']
     new_df['fl_iat_min'] = data['fl_iat_min']
     new_df['down_up_ratio'] = data['down_up_ratio']
     new_df['total_bytes'] = new_df['src_bytes'] + new_df['dst_bytes']
     new_df['total_pkts'] = new_df['src_pkts'] + new_df['dst_pkts']
     new_df['src_mean_pkt_size'] = new_df['src_bytes'] / (new_df['src_pkts'] + 1e-6)
     new_df['dst_mean_pkt_size'] = new_df['dst_bytes'] / (new_df['dst_pkts'] + 1e-6)
-    new_df['pkts_per_sec'] = (new_df['src_pkts'] + new_df['dst_pkts']) / (new_df['duration'] + 1e-6)
+    new_df['pkts_per_sec'] = ((new_df['src_pkts'] + new_df['dst_pkts']) / (new_df['duration'] + 1e-6)) * 1000000
     new_df['win_diff'] = new_df['src_win_byt'] - new_df['dst_win_byt']
     new_df['byte_ratio'] = new_df['dst_bytes'] / (new_df['src_bytes'] + 1e-6)
     new_df['attack_cat'] = data['label']
@@ -125,7 +125,7 @@ def align_stin(data):
     return new_df
 
 
-def normalize_dataset(data):
+def normalize_dataset_independent(data):
     """
     Normalizes numerical features of the dataset using Min-Max scaling.
     Formula: X_i = (x_i - min(x_i)) / (max(x_i) - min(x_i))
@@ -152,7 +152,45 @@ def normalize_dataset(data):
     return data
 
 
-def data_preprocessing(data, dataset_type):
+def normalize_dataset_dependent(data, scaler_stats=None):
+    """
+    Normalizza le feature numeriche. Se scaler_stats è None, calcola i minimi e massimi (fase di Fit).
+    Se scaler_stats è fornito, usa quei valori per normalizzare (fase di Transform).
+    """
+    cols_to_exclude = ['attack_cat', 'label']
+    
+    # Individuiamo le colonne numeriche da normalizzare
+    numeric_cols = [col for col in data.columns if col not in cols_to_exclude and pd.api.types.is_numeric_dtype(data[col])]
+    
+    # Se siamo sul Train Set (NB15), calcoliamo e salviamo i parametri
+    if scaler_stats is None:
+        scaler_stats = {}
+        for col in numeric_cols:
+            scaler_stats[col] = {
+                'min': data[col].min(),
+                'max': data[col].max()
+            }
+        print("Parametri di normalizzazione calcolati (Fit).")
+    else:
+        print("Parametri di normalizzazione ereditati (Transform).")
+
+    # Applichiamo la normalizzazione
+    for col in numeric_cols:
+        if col in scaler_stats:
+            min_val = scaler_stats[col]['min']
+            max_val = scaler_stats[col]['max']
+            diff = max_val - min_val
+            
+            if diff != 0:
+                data[col] = (data[col] - min_val) / diff
+            else:
+                data[col] = 0.0
+                
+    print("Features normalized.")
+    return data, scaler_stats
+
+
+def data_preprocessing(data, dataset_type, dependent=True, scaler_stats=None):
     """
     Main orchestration function for data preprocessing based on the dataset type.
 
@@ -161,19 +199,25 @@ def data_preprocessing(data, dataset_type):
     :return: Preprocessed and normalized pandas DataFrame.
     """
     print(f"Running data-level preprocessing for {dataset_type}...")
-    match dataset_type:
-        case 'nb15':
-            data = minority_removal_nb15(data)
-            data = align_nb15(data)
-        case 'ter20':
-            data = merge_minority_stin(data)
-            data = align_stin(data)
-        case 'sat20':
-            data = align_stin(data)
-        case _:
-            print("Invalid dataset_type!")
-            return None
+        
+    if dataset_type == 'nb15':
+        data = minority_removal_nb15(data)
+        data = align_nb15(data)
+
+    if dataset_type == 'ter20':
+        data = merge_minority_stin(data)
+        data = align_stin(data)
     
-    data = normalize_dataset(data)
+    if dataset_type == 'sat20':
+        data = align_stin(data)
+    
+    if dependent:
+        data, scaler_stats = normalize_dataset_dependent(data)
+        print(f"Data-level preprocessing for {dataset_type} done.")
+
+        return data, scaler_stats
+    
+    data = normalize_dataset_independent(data)
     print(f"Data-level preprocessing for {dataset_type} done.")
+
     return data
