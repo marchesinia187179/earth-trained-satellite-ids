@@ -5,3 +5,9 @@ id,timestamp,model_type,model_name,dataset_type,testing_dataset,samples,tp,tn,fp
 4,2026-06-17 13:52:52,isolation_forest,if_model_1,ter20,DDoS,57292,51653,0,0,5639,None,None,0.9015743908399079,None
 5,2026-06-17 13:53:20,isolation_forest,if_model_1,ter20,Syn_DDoS,15713,15581,0,0,132,None,None,0.9915993126710367,None
 6,2026-06-17 13:53:54,isolation_forest,if_model_1,ter20,UDP_DDoS,13838,13829,0,0,9,None,None,0.9993496169966758,None
+7,2026-06-17 14:15:48,isolation_forest,if_model_1,nb15,DoS,16353,1845,0,0,14508,None,None,0.11282333516785911,None
+8,2026-06-17 14:16:17,isolation_forest,if_model_1,nb15,Exploits,44525,7236,0,0,37289,None,None,0.16251544076361596,None
+9,2026-06-17 14:16:44,isolation_forest,if_model_1,nb15,Fuzzers,24246,3912,0,0,20334,None,None,0.1613462014352883,None
+10,2026-06-17 14:17:24,isolation_forest,if_model_1,nb15,Generic,58871,2531,0,0,56340,None,None,0.042992305209695776,None
+11,2026-06-17 14:18:00,isolation_forest,if_model_1,nb15,Reconnaissance,13987,490,0,0,13497,None,None,0.035032530206620435,None
+12,2026-06-17 14:18:36,isolation_forest,if_model_1,nb15,Normal,93000,0,84412,8588,0,None,None,0.0,None
