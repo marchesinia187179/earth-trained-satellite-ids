@@ -7,8 +7,59 @@ from datetime import datetime
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier, IsolationForest
 from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix, roc_auc_score
-from utils.file_utils import append_data_to_csv, get_data_from_csv
-from utils.paths import INDEPENDENT_RESULTS_DIR, DEPENDENT_RESULTS_DIR
+from utils.file_utils import append_data_to_csv, get_data_from_csv, get_model_info
+from utils.paths import (
+    INDEPENDENT_RESULTS_DIR, DEPENDENT_RESULTS_DIR,
+    INDEPENDENT_RF_DIR, DEPENDENT_RF_DIR,
+    INDEPENDENT_IF_DIR, DEPENDENT_IF_DIR,
+    INDEPENDENT_DIR, DEPENDENT_DIR
+)
+import joblib
+
+
+# --- Routine Classification Configuration ---
+# This list defines the routine classification tasks.
+# Each dictionary specifies a model, its mode (independent/dependent),
+# the dataset type, the specific testing dataset name, and the subdirectory
+# where the preprocessed testing dataset is expected to be found.
+ROUTINE_CLASSIFICATIONS = [
+    # --- DEPENDENT MODE ---
+    # Random Forest (Models 1-5) on SAT20 and TER20
+    *[{'mode': 'dependent', 'model_type': 'random_forest', 'model_name': f'rf_model_{i}', 'dataset_type': d_type, 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
+      for i in range(1, 6)
+      for d_type, t_sets in [('sat20', ['Syn_DDoS', 'UDP_DDoS']), ('ter20', ['Botnet', 'DDoS', 'Syn_DDoS', 'UDP_DDoS'])]
+      for t_set in t_sets],
+
+    # Isolation Forest (Model 1) on SAT20, TER20 and NB15
+    *[{'mode': 'dependent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'sat20', 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
+      for t_set in ['Syn_DDoS', 'UDP_DDoS']],
+    *[{'mode': 'dependent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'ter20', 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
+      for t_set in ['Botnet', 'DDoS', 'Syn_DDoS', 'UDP_DDoS']],
+    *[{'mode': 'dependent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
+      for t_set in ['DoS', 'Exploits', 'Fuzzers', 'Generic', 'Reconnaissance']],
+    *[{'mode': 'dependent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': 'normal_attack'}
+      for t_set in ['Normal', 'Normal_DoS', 'Normal_Exploits', 'Normal_Fuzzers', 'Normal_Generic', 'Normal_Reconnaissance']],
+
+    # --- INDEPENDENT MODE ---
+    # Random Forest (Models 1-5) on SAT20 and TER20
+    *[{'mode': 'independent', 'model_type': 'random_forest', 'model_name': f'rf_model_{i}', 'dataset_type': d_type, 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
+      for i in range(1, 6)
+      for d_type, t_sets in [('sat20', ['Syn_DDoS', 'UDP_DDoS']), ('ter20', ['Botnet', 'DDoS', 'Syn_DDoS', 'UDP_DDoS'])]
+      for t_set in t_sets],
+
+    # Isolation Forest (Model 1) on SAT20, TER20 and NB15
+    *[{'mode': 'independent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'sat20', 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
+      for t_set in ['Syn_DDoS', 'UDP_DDoS']],
+    *[{'mode': 'independent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'ter20', 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
+      for t_set in ['Botnet', 'DDoS', 'Syn_DDoS', 'UDP_DDoS']],
+    *[{'mode': 'independent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
+      for t_set in ['DoS', 'Exploits', 'Fuzzers', 'Generic', 'Reconnaissance']],
+    *[{'mode': 'independent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': 'normal_attack'}
+      for t_set in ['Normal', 'Normal_DoS', 'Normal_Exploits', 'Normal_Fuzzers', 'Normal_Generic', 'Normal_Reconnaissance']],
+]
+
+# Flatten the list of lists created by comprehensions
+ROUTINE_CLASSIFICATIONS = [item for sublist in ROUTINE_CLASSIFICATIONS for item in (sublist if isinstance(sublist, list) else [sublist])]
 
 
 # --- Result Saving Functions ---
@@ -67,6 +118,70 @@ def save_result(model_obj, mode, model_name, dataset_type, testing_dataset, samp
 
     append_data_to_csv(results_dict, file_path)
     print(f"Classification report appended to: {file_path.name}")
+
+
+def run_routine_classifications():
+    """
+    Executes a predefined set of classification tasks using specified models and datasets.
+    This function centralizes routine classification for easy execution and updates.
+    It assumes that both models and testing datasets are already preprocessed and saved
+    in their respective directories.
+    """
+    print("\n--- Starting Routine Classification Phase ---")
+    if not ROUTINE_CLASSIFICATIONS:
+        print("No routine classification tasks defined. Exiting routine classification.")
+        return
+
+    for task in ROUTINE_CLASSIFICATIONS:
+        mode = task['mode']
+        model_type = task['model_type']
+        model_name = task['model_name']
+        dataset_type = task['dataset_type']
+        testing_dataset_name = task['testing_dataset_name']
+        data_subdir = task['data_subdir'] # Subdirectory within {dataset_type}_preprocessed
+
+        print(f"\nRunning routine task: Mode={mode}, Model={model_name} ({model_type}), Dataset={dataset_type}/{data_subdir}/{testing_dataset_name}")
+
+        # Determine model path
+        model_base_dir = None
+        if model_type == 'random_forest':
+            model_base_dir = DEPENDENT_RF_DIR if mode == 'dependent' else INDEPENDENT_RF_DIR
+        elif model_type == 'isolation_forest':
+            model_base_dir = DEPENDENT_IF_DIR if mode == 'dependent' else INDEPENDENT_IF_DIR
+        
+        if model_base_dir is None:
+            print(f"Error: Unknown model type '{model_type}'. Skipping this task.")
+            continue
+
+        model_path = model_base_dir / f"{model_name}.joblib"
+
+        if not model_path.exists():
+            print(f"Error: Model not found at {model_path}. Skipping this task.")
+            continue
+        
+        try:
+            model_obj = joblib.load(model_path)
+        except Exception as e:
+            print(f"Error loading model {model_name} from {model_path}: {e}. Skipping this task.")
+            continue
+
+        # Determine data path (assuming preprocessed data is stored)
+        data_base_dir = DEPENDENT_DIR if mode == 'dependent' else INDEPENDENT_DIR
+        data_path = data_base_dir / f"{dataset_type}_preprocessed" / data_subdir / f"{testing_dataset_name}.csv"
+
+        if not data_path.exists():
+            print(f"Error: Preprocessed data not found at {data_path}. Skipping this task.")
+            continue
+        
+        try:
+            data = get_data_from_csv(data_path)
+        except Exception as e:
+            print(f"Error loading data from {data_path}: {e}. Skipping this task.")
+            continue
+
+        models_to_test = [{'model_obj': model_obj, 'model_name': model_name}]
+        classification_processing(data, mode, models_to_test, dataset_type, testing_dataset_name)
+    print("\n--- Routine Classification Phase Completed ---")
 
 
 # --- Main Processing Logic ---

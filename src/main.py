@@ -1,7 +1,7 @@
 """
 Main entry point for the Satellite IDS project.
 """
-import joblib
+import joblib # Keep joblib for the interactive classification_loop
 
 from classification.classification import classification_processing
 from models.models import model_processing
@@ -9,6 +9,7 @@ from utils.file_utils import get_data_from_csv
 from utils.input_utils import get_split_input, validate_path, validate_choice, get_y_n_choice
 from preprocessing.data_preprocessing import data_preprocessing
 from preprocessing.file_preprocessing import file_preprocessing
+from classification.classification import run_routine_classifications # Import the new routine function
 import pandas as pd
 from utils.paths import INDEPENDENT_DIR, DEPENDENT_DIR
 
@@ -162,6 +163,13 @@ def main():
     user_choice = get_y_n_choice("Do you want to build a model? [y/n] ")
     if user_choice == 'y':
         build_model_loop()
+
+    # New routine classification state
+    user_choice = get_y_n_choice("Do you want to run routine classifications? [y/n] ")
+    if user_choice == 'y':
+        print("\n--- Starting Routine Classification Phase ---")
+        run_routine_classifications()
+        print("--- Routine Classification Phase Completed ---")
 
     user_choice = get_y_n_choice("Do you want to start the classification? [y/n] ")
     if user_choice == 'y':
