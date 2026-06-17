@@ -9,6 +9,8 @@ ROOT_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
 # Main folders
 DATA_DIR = ROOT_DIR / "data"
 SRC_DIR = ROOT_DIR / "src"
+INDEPENDENT_DIR = DATA_DIR / "independent_datasets"
+DEPENDENT_DIR = DATA_DIR / "dependent_datasets"
 
 # Specific subfolders
 RF_MODELS_SAVED_DIR = SRC_DIR / "models" / "random_forest_saved"

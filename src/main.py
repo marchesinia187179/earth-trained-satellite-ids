@@ -10,53 +10,78 @@ from utils.input_utils import get_split_input, validate_path, validate_choice, g
 from preprocessing.data_preprocessing import data_preprocessing
 from preprocessing.file_preprocessing import file_preprocessing
 import pandas as pd
+from utils.paths import INDEPENDENT_DIR, DEPENDENT_DIR
 
 
 # --- State Wrappers ---
-def file_preprocessing_state(data_preprocessed, dataset_type):
+def file_preprocessing_state(data_preprocessed, dataset_type, base_dir):
     """
     Wrapper function to trigger the file-level preprocessing state.
 
     :param data_preprocessed: The DataFrame after data preprocessing.
     :param dataset_type: Type of the dataset (nb15, sat20, ter20).
+    :param base_dir: Path where results should be stored.
     """
-    file_preprocessing(data_preprocessed, dataset_type)
+    file_preprocessing(data_preprocessed, dataset_type, base_dir)
 
 
-def data_preprocessing_state(path, dataset_type):
+def data_preprocessing_state(path, dataset_type, dependent=True, scaler_stats=None):
     """
     Wrapper function to load data and trigger the data-level preprocessing state.
 
     :param path: Path to the raw CSV file.
     :param dataset_type: Type of the dataset (nb15, sat20, ter20).
-    :internal data: Raw DataFrame loaded from CSV.
-    :return: Preprocessed DataFrame.
+    :param dependent: Boolean for normalization type.
+    :param scaler_stats: Precomputed normalization parameters.
+    :return: Tuple (Preprocessed DataFrame, scaler_stats).
     """
     data = get_data_from_csv(path)
-    data_preprocessed = data_preprocessing(data, dataset_type)
+    data_preprocessed, scaler_stats = data_preprocessing(data, dataset_type, dependent, scaler_stats)
 
-    return data_preprocessed
+    return data_preprocessed, scaler_stats
 
 
 # --- Runtime Loops ---
-def preprocessing_loop(user_choice):
+def preprocessing_loop():
     """
     Interactive loop for running the data and file preprocessing phase.
-
-    :param user_choice: Initial choice string ('y') to start the loop.
     """
     print("\n--- Starting Preprocessing Phase ---")
-    while user_choice == 'y':
-        prompt = "Insert the path and the dataset_type of the dataset: [path dataset_type] (dataset_type: nb15, sat20 or ter20) "
+    mode_input = input("Choose preprocessing mode: [independent or dependent] ").lower()
+    mode = validate_choice(mode_input, ['independent', 'dependent'], "mode")
+
+    if mode == 'dependent':
+        print("\n[DEPENDENT MODE] First dataset will be used for Fit (scaler calculation).")
+        prompt = "Insert the path and the dataset_type for FIT: [path dataset_type] "
         user_input = get_split_input(prompt, 2)
-        
         path = validate_path(user_input[0])
         dataset_type = validate_choice(user_input[1], ['nb15', 'sat20', 'ter20'], "dataset type")
 
-        data_preprocessed = data_preprocessing_state(path, dataset_type)
-        file_preprocessing_state(data_preprocessed, dataset_type)
+        # Fit phase
+        data_pre, scaler_stats = data_preprocessing_state(path, dataset_type, dependent=True, scaler_stats=None)
+        file_preprocessing_state(data_pre, dataset_type, DEPENDENT_DIR)
 
-        user_choice = get_y_n_choice("Do you want to start a new preprocessing? [y/n] ")
+        # Transform phase for subsequent datasets
+        while get_y_n_choice("Do you want to add a dataset for TRANSFORM using calculated stats? [y/n] ") == 'y':
+            prompt = "Insert the path and the dataset_type for TRANSFORM: [path dataset_type] "
+            user_input = get_split_input(prompt, 2)
+            path = validate_path(user_input[0])
+            dataset_type = validate_choice(user_input[1], ['nb15', 'sat20', 'ter20'], "dataset type")
+
+            data_pre, _ = data_preprocessing_state(path, dataset_type, dependent=True, scaler_stats=scaler_stats)
+            file_preprocessing_state(data_pre, dataset_type, DEPENDENT_DIR)
+    
+    else: # Independent mode
+        user_choice = 'y'
+        while user_choice == 'y':
+            prompt = "Insert path and dataset_type for independent preprocessing: [path dataset_type] "
+            user_input = get_split_input(prompt, 2)
+            path = validate_path(user_input[0])
+            dataset_type = validate_choice(user_input[1], ['nb15', 'sat20', 'ter20'], "dataset type")
+
+            data_pre, _ = data_preprocessing_state(path, dataset_type, dependent=False)
+            file_preprocessing_state(data_pre, dataset_type, INDEPENDENT_DIR)
+            user_choice = get_y_n_choice("Do you want to process another independent dataset? [y/n] ")
 
 
 def build_model_loop(user_choice):
@@ -128,7 +153,7 @@ def main():
     """
     user_choice = get_y_n_choice("Do you want to start the preprocessing? [y/n] ")
     if user_choice == 'y':
-        preprocessing_loop(user_choice)
+        preprocessing_loop()
 
     user_choice = get_y_n_choice("Do you want to build a model? [y/n] ")
     if user_choice == 'y':

@@ -212,7 +212,7 @@ def data_preprocessing(data, dataset_type, dependent=True, scaler_stats=None):
         data = align_stin(data)
     
     if dependent:
-        data, scaler_stats = normalize_dataset_dependent(data)
+        data, scaler_stats = normalize_dataset_dependent(data, scaler_stats)
         print(f"Data-level preprocessing for {dataset_type} done.")
 
         return data, scaler_stats
@@ -220,4 +220,4 @@ def data_preprocessing(data, dataset_type, dependent=True, scaler_stats=None):
     data = normalize_dataset_independent(data)
     print(f"Data-level preprocessing for {dataset_type} done.")
 
-    return data
+    return data, None

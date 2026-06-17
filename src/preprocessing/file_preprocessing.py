@@ -103,12 +103,13 @@ def merge_attacks(source_path, dest_path):
     return create_csv_from_data(df, "Attacks", dest_path)
 
 
-def file_preprocessing(data, dataset_type):
+def file_preprocessing(data, dataset_type, base_dest_dir):
     """
     Orchestrates the file-level preprocessing including splitting, merging attacks, and balancing classes.
 
     :param data: The preprocessed pandas DataFrame.
     :param dataset_type: The type of dataset being processed (e.g., 'nb15').
+    :param base_dest_dir: The base directory where to save the preprocessed data.
     :internal project_root: Resolves the project root path based on file location.
     """
     if dataset_type == 'nb15':
@@ -118,7 +119,7 @@ def file_preprocessing(data, dataset_type):
     
     print(f"Running file-level preprocessing for {dataset_type}...")
 
-    main_dir_path = create_directory(f'{dataset_type}_preprocessed', DATA_DIR)
+    main_dir_path = create_directory(f'{dataset_type}_preprocessed', base_dest_dir)
 
     create_csv_from_data(data, f'{dataset_type}_preprocessed', main_dir_path)
 
