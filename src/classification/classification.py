@@ -3,6 +3,7 @@ Classification logic for evaluating trained models on test datasets.
 """
 import pathlib
 from datetime import datetime
+import pandas as pd
 
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier, IsolationForest
@@ -88,18 +89,8 @@ def save_result(model_obj, mode, model_name, dataset_type, testing_dataset, samp
         print(f"Error: Unknown model type for model '{model_name}'. Cannot save results.")
         return
 
-    # Determine the ID for the new entry
-    if file_path.exists():
-        try:
-            existing_df = get_data_from_csv(file_path)
-            id = existing_df.shape[0] + 1
-        except Exception: # Handle cases where CSV might be empty or corrupted
-            id = 1
-    else:
-        id = 1
-    
     results_dict = {
-        'id': id,
+        'id': None,
         'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         'model_type': model_type_str,
         'model_name': model_name,
@@ -115,6 +106,30 @@ def save_result(model_obj, mode, model_name, dataset_type, testing_dataset, samp
         'recall': metrics['recall'],
         'auc_roc': metrics.get('auc_roc') if metrics.get('auc_roc') is not None else 'None'
     }
+
+    if file_path.exists():
+        try:
+            df = pd.read_csv(file_path)
+            # Check if an entry with the same model and dataset already exists
+            mask = (df['model_name'] == model_name) & \
+                   (df['dataset_type'] == dataset_type) & \
+                   (df['testing_dataset'] == testing_dataset)
+            
+            if not df.empty and mask.any():
+                # Update existing row, preserving the original ID
+                idx = df.index[mask][0]
+                results_dict['id'] = df.at[idx, 'id']
+                for key, value in results_dict.items():
+                    df.at[idx, key] = value
+                df.to_csv(file_path, index=False)
+                print(f"Updated existing entry for {model_name} on {testing_dataset} in: {file_path.name}")
+                return
+            else:
+                results_dict['id'] = int(df['id'].max() + 1) if not df.empty else 1
+        except Exception:
+            results_dict['id'] = 1
+    else:
+        results_dict['id'] = 1
 
     append_data_to_csv(results_dict, file_path)
     print(f"Classification report appended to: {file_path.name}")
