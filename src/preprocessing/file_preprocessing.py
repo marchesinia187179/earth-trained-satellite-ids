@@ -103,6 +103,54 @@ def merge_attacks(source_path, dest_path):
     return create_csv_from_data(df, "Attacks", dest_path)
 
 
+def create_scaled_dataset(source_path, dest_path, ratio, replacing_mode):
+    """
+    Creates a balanced NB15 dataset with equi-probability for all attack categories.
+    Each attack category contributes the same number of samples to the attack pool.
+
+    :param source_path: Path to the directory containing split category CSVs.
+    :param dest_path: Destination path for the scaled file.
+    :param ratio: The numeric ratio (Normal/Attack) for balancing.
+    :param replacing_mode: Boolean indicating if sampling should use replacement.
+    """
+    attack_cat_list = list(source_path.iterdir())
+    normal_path = next((p for p in attack_cat_list if p.stem == 'Normal'), None)
+    if not normal_path:
+        print("Error: Normal category not found for scaled dataset.")
+        return
+
+    normal_df = get_data_from_csv(normal_path)
+    attack_paths = [p for p in attack_cat_list if p.stem != 'Normal']
+    num_cats = len(attack_paths)
+    
+    # Load attack data frames
+    attack_dfs = [get_data_from_csv(p) for p in attack_paths]
+    
+    if not replacing_mode:
+        # Find the smallest attack category to ensure equi-probability without replacement
+        min_atk_samples = min(len(df) for df in attack_dfs)
+        if len(normal_df) < (min_atk_samples * num_cats) * ratio:
+            # Normal data is the bottleneck
+            atk_per_cat = int(len(normal_df) / ratio) // num_cats
+            normal_to_sample = int(atk_per_cat * num_cats * ratio)
+        else:
+            # Attack categories are the bottleneck
+            atk_per_cat = min_atk_samples
+            normal_to_sample = int(atk_per_cat * num_cats * ratio)
+    else:
+        # With replacement, use the available Normal data as the primary baseline
+        atk_per_cat = int(len(normal_df) / ratio) // num_cats
+        normal_to_sample = len(normal_df)
+
+    final_dfs = [normal_df.sample(n=normal_to_sample, replace=replacing_mode, random_state=42)]
+    for df in attack_dfs:
+        final_dfs.append(df.sample(n=atk_per_cat, replace=replacing_mode, random_state=42))
+
+    df_final = pd.concat(final_dfs).sample(frac=1, random_state=42).reset_index(drop=True)
+    create_csv_from_data(df_final, "nb15_preprocessed_scaled", dest_path)
+    print("Equi-probable scaled dataset 'nb15_preprocessed_scaled' created.")
+
+
 def file_preprocessing(data, dataset_type, base_dest_dir):
     """
     Orchestrates the file-level preprocessing including splitting, merging attacks, and balancing classes.
@@ -128,5 +176,6 @@ def file_preprocessing(data, dataset_type, base_dest_dir):
     if dataset_type == 'nb15':
         merge_attacks(attack_cat_dir_path, main_dir_path)
         merge_normal_attack(attack_cat_dir_path, main_dir_path, normal_attack_ratio, replacing_mode)
+        create_scaled_dataset(attack_cat_dir_path, main_dir_path, normal_attack_ratio, replacing_mode)
 
     print(f"File-level preprocessing for {dataset_type} done.")
