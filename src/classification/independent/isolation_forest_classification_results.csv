@@ -1,0 +1,18 @@
+id,timestamp,model_type,model_name,dataset_type,testing_dataset,samples,tp,tn,fp,fn,f1,precision,recall,auc_roc
+1,2026-06-18 16:24:18,isolation_forest,if_model_1,sat20,Syn_DDoS,7816,7816,0,0,0,None,None,1.0,None
+2,2026-06-18 16:24:18,isolation_forest,if_model_1,sat20,UDP_DDoS,8649,8649,0,0,0,None,None,1.0,None
+3,2026-06-18 16:24:18,isolation_forest,if_model_1,ter20,Botnet,8081,8081,0,0,0,None,None,1.0,None
+4,2026-06-18 16:24:19,isolation_forest,if_model_1,ter20,DDoS,11459,11459,0,0,0,None,None,1.0,None
+5,2026-06-18 16:24:19,isolation_forest,if_model_1,ter20,Syn_DDoS,3143,3143,0,0,0,None,None,1.0,None
+6,2026-06-18 16:24:19,isolation_forest,if_model_1,ter20,UDP_DDoS,2768,1020,0,0,1748,None,None,0.3684971098265896,None
+7,2026-06-18 16:24:19,isolation_forest,if_model_1,nb15,DoS,3271,392,0,0,2879,None,None,0.11984102720880464,None
+8,2026-06-18 16:24:19,isolation_forest,if_model_1,nb15,Exploits,8905,1476,0,0,7429,None,None,0.16574957888826503,None
+9,2026-06-18 16:24:20,isolation_forest,if_model_1,nb15,Fuzzers,4850,819,0,0,4031,None,None,0.1688659793814433,None
+10,2026-06-18 16:24:20,isolation_forest,if_model_1,nb15,Generic,11775,523,0,0,11252,None,None,0.04441613588110403,None
+11,2026-06-18 16:24:20,isolation_forest,if_model_1,nb15,Normal,18600,0,16788,1812,0,None,None,0.0,None
+12,2026-06-18 16:24:20,isolation_forest,if_model_1,nb15,Reconnaissance,2798,100,0,0,2698,None,None,0.035739814152966405,None
+13,2026-06-18 16:24:21,isolation_forest,if_model_1,nb15,Normal_DoS,20478,237,16788,1812,1641,0.12070282658517953,0.11566617862371889,0.12619808306709265,0.6927447982868987
+14,2026-06-18 16:24:22,isolation_forest,if_model_1,nb15,Normal_Exploits,20482,292,16788,1812,1590,0.14651279478173607,0.13878326996197718,0.155154091392136,0.5650044993315279
+15,2026-06-18 16:24:23,isolation_forest,if_model_1,nb15,Normal_Fuzzers,20464,317,16788,1812,1547,0.1587778612572001,0.14889619539689997,0.17006437768240343,0.46475340636393003
+16,2026-06-18 16:24:23,isolation_forest,if_model_1,nb15,Normal_Generic,20487,95,16788,1812,1792,0.05007907221929362,0.04981646565285789,0.050344462109167994,0.7061653731530392
+17,2026-06-18 16:24:24,isolation_forest,if_model_1,nb15,Normal_Reconnaissance,20428,67,16788,1812,1761,0.0361478284326949,0.03565726450239489,0.03665207877461707,0.4173897967106657
