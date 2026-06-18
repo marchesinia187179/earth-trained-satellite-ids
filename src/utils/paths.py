@@ -12,6 +12,11 @@ SRC_DIR = ROOT_DIR / "src"
 INDEPENDENT_DIR = DATA_DIR / "independent_datasets"
 DEPENDENT_DIR = DATA_DIR / "dependent_datasets"
 
+# Raw dataset paths
+NB15_RAW_PATH = DATA_DIR / "nb15.csv"
+SAT20_RAW_PATH = DATA_DIR / "sat20.csv"
+TER20_RAW_PATH = DATA_DIR / "ter20.csv"
+
 # Specific subfolders for models
 RF_MODELS_SAVED_DIR = SRC_DIR / "models" / "random_forest_saved"
 IF_MODELS_SAVED_DIR = SRC_DIR / "models" / "isolation_forest_saved"

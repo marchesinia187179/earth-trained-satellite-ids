@@ -151,6 +151,49 @@ def create_scaled_dataset(source_path, dest_path, ratio, replacing_mode):
     print("Equi-probable scaled dataset 'nb15_preprocessed_scaled' created.")
 
 
+def create_joint_datasets(base_dest_dir, ratio, replacing_mode):
+    """
+    Creates joint datasets combining NB15 Normal samples with SAT20 and TER20 attacks.
+    Maintains a 10:1 Normal-to-Attack ratio with equi-probability for attack categories.
+
+    :param base_dest_dir: The base directory (independent or dependent).
+    :param ratio: The numeric ratio (Normal/Attack).
+    :param replacing_mode: Boolean for sampling with replacement.
+    """
+    print("\n--- Starting Joint Preprocessing Phase ---")
+    joint_dir_path = create_directory('joint_preprocessed', base_dest_dir)
+    
+    nb15_normal_path = base_dest_dir / "nb15_preprocessed" / "attack_cat" / "Normal.csv"
+    if not nb15_normal_path.exists():
+        print(f"Error: NB15 Normal file not found at {nb15_normal_path}. Skipping joint phase.")
+        return
+
+    normal_df = get_data_from_csv(nb15_normal_path)
+    
+    for ds_type in ['sat20', 'ter20']:
+        atk_source_dir = base_dest_dir / f"{ds_type}_preprocessed" / "attack_cat"
+        if not atk_source_dir.exists():
+            print(f"Warning: Attack source for {ds_type} not found at {atk_source_dir}. Skipping.")
+            continue
+
+        # Filter out 'Normal' if it exists in SAT20/TER20 to get only attacks
+        attack_files = [p for p in atk_source_dir.iterdir() if p.stem != 'Normal' and p.suffix == '.csv']
+        if not attack_files:
+            continue
+
+        num_cats = len(attack_files)
+        total_atk_needed = int(len(normal_df) / ratio)
+        atk_per_cat = total_atk_needed // num_cats
+
+        attack_dfs = []
+        for p in attack_files:
+            df = get_data_from_csv(p)
+            attack_dfs.append(df.sample(n=atk_per_cat, replace=replacing_mode, random_state=42))
+
+        df_joint = pd.concat([normal_df] + attack_dfs).sample(frac=1, random_state=42).reset_index(drop=True)
+        create_csv_from_data(df_joint, f"Normal_{ds_type}", joint_dir_path)
+
+
 def file_preprocessing(data, dataset_type, base_dest_dir, normal_attack_ratio=None, replacing_mode=None):
     """
     Orchestrates the file-level preprocessing including splitting, merging attacks, and balancing classes.

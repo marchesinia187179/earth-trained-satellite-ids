@@ -9,9 +9,9 @@ from models.models import model_processing
 from utils.file_utils import get_data_from_csv
 from utils.input_utils import get_split_input, validate_path, validate_choice, get_y_n_choice
 from preprocessing.data_preprocessing import data_preprocessing
-from preprocessing.file_preprocessing import file_preprocessing
+from preprocessing.file_preprocessing import file_preprocessing, create_joint_datasets
 from classification.classification import run_routine_classifications # Import the new routine function
-import pandas as pd
+from utils.paths import INDEPENDENT_DIR, DEPENDENT_DIR, NB15_RAW_PATH, SAT20_RAW_PATH, TER20_RAW_PATH
 from utils.paths import INDEPENDENT_DIR, DEPENDENT_DIR
 
 
@@ -94,24 +94,44 @@ def run_routine_preprocessing():
     Uses a fixed ratio of 10 and no replacement for NB15.
     """
     print("\n--- Starting Routine Preprocessing Phase ---")
+
+    mode_input = input("Choose routine preprocessing mode: [independent or dependent] ").lower()
+    mode = validate_choice(mode_input, ['independent', 'dependent'], "mode")
     
     datasets = [
-        {'type': 'nb15', 'path': pathlib.Path('/Users/marchesinialessandro/Documents/university-subjects/attivita-progettuale/coding/earth-trained-satellite-ids/data/nb15.csv')},
-        {'type': 'sat20', 'path': pathlib.Path('/Users/marchesinialessandro/Documents/university-subjects/attivita-progettuale/coding/earth-trained-satellite-ids/data/sat20.csv')},
-        {'type': 'ter20', 'path': pathlib.Path('/Users/marchesinialessandro/Documents/university-subjects/attivita-progettuale/coding/earth-trained-satellite-ids/data/ter20.csv')}
+        {'type': 'nb15', 'path': NB15_RAW_PATH},
+        {'type': 'sat20', 'path': SAT20_RAW_PATH},
+        {'type': 'ter20', 'path': TER20_RAW_PATH}
     ]
     
-    ratio = 10.0
-    replacing = False
+    nb15_ratio = 10.0
+    nb15_replacing = False
     
-    for ds in datasets:
+    scaler_stats = None # Will store scaler stats if in dependent mode
+
+    for i, ds in enumerate(datasets):
         if not ds['path'].exists():
             print(f"Warning: Dataset file not found at {ds['path']}. Skipping {ds['type']}.")
             continue
             
-        print(f"\n[ROUTINE] Processing {ds['type']} (Independent Mode)...")
-        data_pre, _ = data_preprocessing_state(ds['path'], ds['type'], dependent=False)
-        file_preprocessing_state(data_pre, ds['type'], INDEPENDENT_DIR, normal_attack_ratio=ratio, replacing_mode=replacing)
+        print(f"\n[ROUTINE] Processing {ds['type']} ({mode.capitalize()} Mode)...")
+        
+        current_base_dir = DEPENDENT_DIR if mode == 'dependent' else INDEPENDENT_DIR
+
+        if mode == 'dependent':
+            data_preprocessed, new_scaler_stats = data_preprocessing_state(ds['path'], ds['type'], dependent=True, scaler_stats=scaler_stats)
+            if scaler_stats is None: # If it's the first dataset, capture the scaler_stats
+                scaler_stats = new_scaler_stats
+        else: # Independent mode
+            data_preprocessed, _ = data_preprocessing_state(ds['path'], ds['type'], dependent=False)
+        
+        if ds['type'] == 'nb15':
+            file_preprocessing_state(data_preprocessed, ds['type'], current_base_dir, normal_attack_ratio=nb15_ratio, replacing_mode=nb15_replacing)
+        else:
+            file_preprocessing_state(data_preprocessed, ds['type'], current_base_dir)
+
+    # Final Joint Preprocessing Phase
+    create_joint_datasets(current_base_dir, ratio=nb15_ratio, replacing_mode=nb15_replacing)
 
     print("\n--- Routine Preprocessing Phase Completed ---")
 
