@@ -57,6 +57,6 @@ NORMAL_FILE_STEM = "Normal" # For attack_cat/Normal.csv
 JOINT_NORMAL_SAT20_FILE_STEM = "Normal_sat20"
 JOINT_NORMAL_TER20_FILE_STEM = "Normal_ter20"
 
-# General suffix for preprocessed dataset directories and main files
-PREPROCESSED_DIR_SUFFIX = "_preprocessed" # e.g., nb15_preprocessed
-PREPROCESSED_MAIN_FILE_SUFFIX = "_preprocessed" # e.g., nb15_preprocessed.csv (without .csv)
+# General file info
+GENERAL_FILE_INFO_FILENAME = "general_file_info.csv"
+GENERAL_FILE_INFO_PATH = DATA_DIR / GENERAL_FILE_INFO_FILENAME

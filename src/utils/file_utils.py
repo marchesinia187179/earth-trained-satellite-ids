@@ -3,7 +3,9 @@ Utility functions for file handling and CSV operations.
 """
 import pandas as pd
 import pathlib
+from datetime import datetime
 import sys
+from utils.paths import GENERAL_FILE_INFO_PATH, ROOT_DIR
 
 def get_data_from_csv(file_path):
     """
@@ -36,15 +38,31 @@ def create_csv_from_data(data, file_name, file_path):
     full_path = pathlib.Path(file_path) / file_name
     df.to_csv(full_path, index=False, encoding='utf-8', na_rep='None')
     print(f"Created file: {full_path.name}")
+
+    file_info = {
+        'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        'filename': full_path.name,
+        'relative_path': str(full_path.relative_to(ROOT_DIR)),
+        'rows': df.shape[0],
+        'columns': df.shape[1],
+    }
+
     print(f"  - Data shape: {df.shape}")
     if 'attack_cat' in df.columns:
         counts = df['attack_cat'].value_counts()
+        file_info['attack_cat_distribution'] = str(counts.to_dict())
         print(f"  - Class distribution (attack_cat):\n{counts.to_string()}")
+    else:
+        file_info['attack_cat_distribution'] = 'None'
     if 'attack_cat' in df.columns and 'split_type' in df.columns:
         pivot = df.groupby(['attack_cat', 'split_type']).size().unstack(fill_value=0)
+        file_info['train_test_distribution'] = str(pivot.to_dict())
         print(f"  - Train/Test division per class:\n{pivot.to_string()}")
+    else:
+        file_info['train_test_distribution'] = 'None'
     print("-" * 30)
     
+    append_data_to_csv(file_info, GENERAL_FILE_INFO_PATH)
     return full_path
 
 

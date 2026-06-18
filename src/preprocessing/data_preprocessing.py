@@ -217,11 +217,17 @@ def data_preprocessing(data, dataset_type, dependent=True, scaler_stats=None, tr
     else:
         data = normalize_dataset_independent(data)
 
-    # Add split column for training/testing
-    data = data.sample(frac=1, random_state=42).reset_index(drop=True)
-    n_train = int(len(data) * train_split)
-    split_col = ['train'] * n_train + ['test'] * (len(data) - n_train)
-    data['split_type'] = split_col
+    # Add split column for training/testing (Stratified Split per attack_cat)
+    # Using an explicit loop and concat to ensure 'attack_cat' column is preserved
+    split_groups = []
+    for _, group in data.groupby('attack_cat'):
+        group = group.sample(frac=1, random_state=42).reset_index(drop=True)
+        n_group_train = int(len(group) * train_split)
+        group['split_type'] = ['train'] * n_group_train + ['test'] * (len(group) - n_group_train)
+        split_groups.append(group)
+    
+    data = pd.concat(split_groups)
+
     # Final shuffle to mix train/test labels
     data = data.sample(frac=1, random_state=42).reset_index(drop=True)
 

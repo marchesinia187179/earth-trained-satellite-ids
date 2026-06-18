@@ -37,7 +37,7 @@ ROUTINE_MODELS = [
     {'model_type': 'random forest', 'dataset_type': 'nb15+sat20', 'file_rel_path': f'{JOINT_DIR_NAME}/{JOINT_NORMAL_SAT20_FILE_STEM}.csv'},
     {'model_type': 'random forest', 'dataset_type': 'nb15+ter20', 'file_rel_path': f'{JOINT_DIR_NAME}/{JOINT_NORMAL_TER20_FILE_STEM}.csv'},
     # Isolation Forest on NB15
-    {'model_type': 'isolation_forest', 'dataset_type': 'nb15', 'file_rel_path': f'{NB15_PREPROCESSED_DIR_NAME}/{NB15_PREPROCESSED_DIR_NAME}{PREPROCESSED_MAIN_FILE_SUFFIX}.csv'}
+    {'model_type': 'isolation_forest', 'dataset_type': 'nb15', 'file_rel_path': f'{NB15_PREPROCESSED_DIR_NAME}/{NB15_SCALED_FILE_STEM}.csv'}
 ]
 
 
