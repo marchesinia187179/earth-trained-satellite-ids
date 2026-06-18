@@ -4,13 +4,12 @@ Main entry point for the Satellite IDS project.
 import pathlib
 import joblib # Keep joblib for the interactive classification_loop
 
-from classification.classification import classification_processing
+from classification.classification import classification_processing, run_routine_classifications
 from models.models import model_processing, run_routine_models
 from utils.file_utils import get_data_from_csv
-from utils.input_utils import get_split_input, validate_path, validate_choice, get_y_n_choice
+from utils.input_utils import get_split_input, validate_path, validate_choice, get_y_n_choice, get_numeric_input
 from preprocessing.data_preprocessing import data_preprocessing
 from preprocessing.file_preprocessing import file_preprocessing, create_joint_datasets
-from classification.classification import run_routine_classifications # Import the new routine function
 from utils.paths import INDEPENDENT_DIR, DEPENDENT_DIR, NB15_RAW_PATH, SAT20_RAW_PATH, TER20_RAW_PATH
 
 
