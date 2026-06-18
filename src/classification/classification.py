@@ -25,9 +25,9 @@ import joblib
 # where the preprocessed testing dataset is expected to be found.
 ROUTINE_CLASSIFICATIONS = [
     # --- DEPENDENT MODE ---
-    # Random Forest (Models 1-5) on SAT20 and TER20
+    # Random Forest (Models 1-6) on SAT20 and TER20
     *[{'mode': 'dependent', 'model_type': 'random_forest', 'model_name': f'rf_model_{i}', 'dataset_type': d_type, 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
-      for i in range(1, 6)
+      for i in range(1, 7)
       for d_type, t_sets in [('sat20', ['Syn_DDoS', 'UDP_DDoS']), ('ter20', ['Botnet', 'DDoS', 'Syn_DDoS', 'UDP_DDoS'])]
       for t_set in t_sets],
 
@@ -37,14 +37,14 @@ ROUTINE_CLASSIFICATIONS = [
     *[{'mode': 'dependent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'ter20', 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
       for t_set in ['Botnet', 'DDoS', 'Syn_DDoS', 'UDP_DDoS']],
     *[{'mode': 'dependent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
-      for t_set in ['DoS', 'Exploits', 'Fuzzers', 'Generic', 'Reconnaissance']],
+      for t_set in ['DoS', 'Exploits', 'Fuzzers', 'Generic', 'Normal', 'Reconnaissance']],
     *[{'mode': 'dependent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': 'normal_attack'}
-      for t_set in ['Normal', 'Normal_DoS', 'Normal_Exploits', 'Normal_Fuzzers', 'Normal_Generic', 'Normal_Reconnaissance']],
+      for t_set in ['Normal_DoS', 'Normal_Exploits', 'Normal_Fuzzers', 'Normal_Generic', 'Normal_Reconnaissance']],
 
     # --- INDEPENDENT MODE ---
-    # Random Forest (Models 1-5) on SAT20 and TER20
+    # Random Forest (Models 1-6) on SAT20 and TER20
     *[{'mode': 'independent', 'model_type': 'random_forest', 'model_name': f'rf_model_{i}', 'dataset_type': d_type, 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
-      for i in range(1, 6)
+      for i in range(1, 7)
       for d_type, t_sets in [('sat20', ['Syn_DDoS', 'UDP_DDoS']), ('ter20', ['Botnet', 'DDoS', 'Syn_DDoS', 'UDP_DDoS'])]
       for t_set in t_sets],
 
@@ -54,9 +54,9 @@ ROUTINE_CLASSIFICATIONS = [
     *[{'mode': 'independent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'ter20', 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
       for t_set in ['Botnet', 'DDoS', 'Syn_DDoS', 'UDP_DDoS']],
     *[{'mode': 'independent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
-      for t_set in ['DoS', 'Exploits', 'Fuzzers', 'Generic', 'Reconnaissance']],
+      for t_set in ['DoS', 'Exploits', 'Fuzzers', 'Generic', 'Normal', 'Reconnaissance']],
     *[{'mode': 'independent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': 'normal_attack'}
-      for t_set in ['Normal', 'Normal_DoS', 'Normal_Exploits', 'Normal_Fuzzers', 'Normal_Generic', 'Normal_Reconnaissance']],
+      for t_set in ['Normal_DoS', 'Normal_Exploits', 'Normal_Fuzzers', 'Normal_Generic', 'Normal_Reconnaissance']],
 ]
 
 # Flatten the list of lists created by comprehensions
@@ -101,15 +101,17 @@ def save_result(model_obj, mode, model_name, dataset_type, testing_dataset, samp
         'tn': metrics['tn'],
         'fp': metrics['fp'],
         'fn': metrics['fn'],
-        'f1': metrics['f1'] if metrics['f1'] is not None else 'None',
-        'precision': metrics['precision'] if metrics['precision'] is not None else 'None',
+        'f1': metrics['f1'],
+        'precision': metrics['precision'],
         'recall': metrics['recall'],
-        'auc_roc': metrics.get('auc_roc') if metrics.get('auc_roc') is not None else 'None'
+        'auc_roc': metrics.get('auc_roc')
     }
 
     if file_path.exists():
         try:
-            df = pd.read_csv(file_path)
+            # Carichiamo il CSV trattando 'None' come valore nullo reale (NaN)
+            df = pd.read_csv(file_path, na_values='None')
+            
             # Check if an entry with the same model and dataset already exists
             mask = (df['model_name'] == model_name) & \
                    (df['dataset_type'] == dataset_type) & \
@@ -121,13 +123,15 @@ def save_result(model_obj, mode, model_name, dataset_type, testing_dataset, samp
                 results_dict['id'] = df.at[idx, 'id']
                 for key, value in results_dict.items():
                     df.at[idx, key] = value
-                df.to_csv(file_path, index=False)
+                df.to_csv(file_path, index=False, na_rep='None')
                 print(f"Updated existing entry for {model_name} on {testing_dataset} in: {file_path.name}")
                 return
             else:
-                results_dict['id'] = int(df['id'].max() + 1) if not df.empty else 1
-        except Exception:
-            results_dict['id'] = 1
+                # Assicuriamoci che l'ID sia un intero basato sul massimo esistente
+                results_dict['id'] = int(df['id'].max() + 1) if not df.empty and pd.notnull(df['id'].max()) else 1
+        except Exception as e:
+            print(f"Warning: Could not parse {file_path.name} for update ({e}). Appending as new.")
+            results_dict['id'] = 1 # Fallback se il file è corrotto
     else:
         results_dict['id'] = 1
 

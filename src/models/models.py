@@ -89,7 +89,7 @@ def _save_model_and_metadata(model, model_type, mode, train_ratio, training_data
         'tp': metrics['tp'], 'tn': metrics['tn'], 'fp': metrics['fp'], 'fn': metrics['fn'],
         'f1': metrics['f1'] if metrics['f1'] is not None else 'None',
         'precision': metrics['precision'] if metrics['precision'] is not None else 'None',
-        'recall': metrics['recall'],
+        'recall': metrics['recall'] if metrics['recall'] is not None else 'None',
         'auc_roc': metrics['auc_roc'] if metrics['auc_roc'] is not None else 'None'
     })
 
