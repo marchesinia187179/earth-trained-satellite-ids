@@ -134,12 +134,14 @@ def normalize_dataset_independent(data):
     :internal cols_to_exclude: Features that should not be normalized ('attack_cat', 'label').
     :return: Normalized pandas DataFrame.
     """
-    cols_to_exclude = ['attack_cat', 'label']
+    cols_to_exclude = ['attack_cat', 'label', 'split_type']
+
+    data_train = data[data['split_type'] == 'train']
     
     for col in data.columns:
         if col not in cols_to_exclude and pd.api.types.is_numeric_dtype(data[col]):
-            min_val = data[col].min()
-            max_val = data[col].max()
+            min_val = data_train[col].min()
+            max_val = data_train[col].max()
             
             diff = max_val - min_val
             
@@ -157,18 +159,20 @@ def normalize_dataset_dependent(data, scaler_stats=None):
     Normalizza le feature numeriche. Se scaler_stats è None, calcola i minimi e massimi (fase di Fit).
     Se scaler_stats è fornito, usa quei valori per normalizzare (fase di Transform).
     """
-    cols_to_exclude = ['attack_cat', 'label']
+    cols_to_exclude = ['attack_cat', 'label', 'split_type']
     
     # Individuiamo le colonne numeriche da normalizzare
     numeric_cols = [col for col in data.columns if col not in cols_to_exclude and pd.api.types.is_numeric_dtype(data[col])]
     
     # Se siamo sul Train Set (NB15), calcoliamo e salviamo i parametri
     if scaler_stats is None:
+        data_train = data[data['split_type'] == 'train']
+
         scaler_stats = {}
         for col in numeric_cols:
             scaler_stats[col] = {
-                'min': data[col].min(),
-                'max': data[col].max()
+                'min': data_train[col].min(),
+                'max': data_train[col].max()
             }
         print("Parametri di normalizzazione calcolati (Fit).")
     else:
@@ -190,6 +194,19 @@ def normalize_dataset_dependent(data, scaler_stats=None):
     return data, scaler_stats
 
 
+def stratified_split(data, train_split):
+    # Add split column for training/testing (Stratified Split per attack_cat)
+    # Using an explicit loop and concat to ensure 'attack_cat' column is preserved
+    split_groups = []
+    for _, group in data.groupby('attack_cat'):
+        group = group.sample(frac=1, random_state=42).reset_index(drop=True)
+        n_group_train = int(len(group) * train_split)
+        group['split_type'] = ['train'] * n_group_train + ['test'] * (len(group) - n_group_train)
+        split_groups.append(group)
+    
+    return pd.concat(split_groups)
+
+
 def data_preprocessing(data, dataset_type, dependent=True, scaler_stats=None, train_split=0.8):
     """
     Main orchestration function for data preprocessing based on the dataset type.
@@ -200,6 +217,8 @@ def data_preprocessing(data, dataset_type, dependent=True, scaler_stats=None, tr
     :return: Preprocessed and normalized pandas DataFrame.
     """
     print(f"Running data-level preprocessing for {dataset_type}...")
+
+    data = data.copy()
         
     if dataset_type == 'nb15':
         data = minority_removal_nb15(data)
@@ -211,22 +230,13 @@ def data_preprocessing(data, dataset_type, dependent=True, scaler_stats=None, tr
     
     if dataset_type == 'sat20':
         data = align_stin(data)
+
+    data = stratified_split(data, train_split)
     
     if dependent:
         data, scaler_stats = normalize_dataset_dependent(data, scaler_stats)
     else:
         data = normalize_dataset_independent(data)
-
-    # Add split column for training/testing (Stratified Split per attack_cat)
-    # Using an explicit loop and concat to ensure 'attack_cat' column is preserved
-    split_groups = []
-    for _, group in data.groupby('attack_cat'):
-        group = group.sample(frac=1, random_state=42).reset_index(drop=True)
-        n_group_train = int(len(group) * train_split)
-        group['split_type'] = ['train'] * n_group_train + ['test'] * (len(group) - n_group_train)
-        split_groups.append(group)
-    
-    data = pd.concat(split_groups)
 
     # Final shuffle to mix train/test labels
     data = data.sample(frac=1, random_state=42).reset_index(drop=True)
