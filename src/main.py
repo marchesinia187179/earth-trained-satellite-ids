@@ -149,8 +149,8 @@ def build_model_loop():
         model_input = input("Choose which model do you want to use: [random forest or isolation forest] ").lower()
         model_type = validate_choice(model_input, ['random forest', 'isolation forest'], "model type")
 
-        dataset_type_input = input("Insert the dataset_type of the training dataset: (nb15, sat20 or ter20) ").lower()
-        dataset_type = validate_choice(dataset_type_input, ['nb15', 'sat20', 'ter20'], "dataset type")
+        dataset_type_input = input("Insert the dataset_type of the training dataset: (nb15, sat20, ter20, nb15+sat20, nb15+ter20) ").lower()
+        dataset_type = validate_choice(dataset_type_input, ['nb15', 'sat20', 'ter20', 'nb15+sat20', 'nb15+ter20'], "dataset type")
 
         path_input = input("Insert the path of the dataset: [path] ")
         data_path = validate_path(path_input)
