@@ -29,7 +29,7 @@ def file_preprocessing_state(data_preprocessed, dataset_type, base_dir, normal_a
     file_preprocessing(data_preprocessed, dataset_type, base_dir, normal_attack_ratio, replacing_mode)
 
 
-def data_preprocessing_state(path, dataset_type, dependent=True, scaler_stats=None):
+def data_preprocessing_state(path, dataset_type, dependent=True, scaler_stats=None, train_split=0.8):
     """
     Wrapper function to load data and trigger the data-level preprocessing state.
 
@@ -37,10 +37,11 @@ def data_preprocessing_state(path, dataset_type, dependent=True, scaler_stats=No
     :param dataset_type: Type of the dataset (nb15, sat20, ter20).
     :param dependent: Boolean for normalization type.
     :param scaler_stats: Precomputed normalization parameters.
+    :param train_split: Percentage of data to be assigned to training (0.0 to 1.0).
     :return: Tuple (Preprocessed DataFrame, scaler_stats).
     """
     data = get_data_from_csv(path)
-    data_preprocessed, scaler_stats = data_preprocessing(data, dataset_type, dependent, scaler_stats)
+    data_preprocessed, scaler_stats = data_preprocessing(data, dataset_type, dependent, scaler_stats, train_split)
 
     return data_preprocessed, scaler_stats
 
@@ -54,6 +55,8 @@ def preprocessing_loop():
     mode_input = input("Choose preprocessing mode: [independent or dependent] ").lower()
     mode = validate_choice(mode_input, ['independent', 'dependent'], "mode")
 
+    train_split = get_numeric_input("Insert the train split percentage (e.g. 80): ", type_func=float, min_val=1, max_val=99) / 100
+
     if mode == 'dependent':
         print("\n[DEPENDENT MODE] First dataset will be used for Fit (scaler calculation).")
         prompt = "Insert the path and the dataset_type for FIT: [path dataset_type] "
@@ -62,7 +65,7 @@ def preprocessing_loop():
         dataset_type = validate_choice(user_input[1], ['nb15', 'sat20', 'ter20'], "dataset type")
 
         # Fit phase
-        data_pre, scaler_stats = data_preprocessing_state(path, dataset_type, dependent=True, scaler_stats=None)
+        data_pre, scaler_stats = data_preprocessing_state(path, dataset_type, dependent=True, scaler_stats=None, train_split=train_split)
         file_preprocessing_state(data_pre, dataset_type, DEPENDENT_DIR)
 
         # Transform phase for subsequent datasets
@@ -72,7 +75,7 @@ def preprocessing_loop():
             path = validate_path(user_input[0])
             dataset_type = validate_choice(user_input[1], ['nb15', 'sat20', 'ter20'], "dataset type")
 
-            data_pre, _ = data_preprocessing_state(path, dataset_type, dependent=True, scaler_stats=scaler_stats)
+            data_pre, _ = data_preprocessing_state(path, dataset_type, dependent=True, scaler_stats=scaler_stats, train_split=train_split)
             file_preprocessing_state(data_pre, dataset_type, DEPENDENT_DIR)
     
     else: # Independent mode
@@ -83,7 +86,7 @@ def preprocessing_loop():
             path = validate_path(user_input[0])
             dataset_type = validate_choice(user_input[1], ['nb15', 'sat20', 'ter20'], "dataset type")
 
-            data_pre, _ = data_preprocessing_state(path, dataset_type, dependent=False)
+            data_pre, _ = data_preprocessing_state(path, dataset_type, dependent=False, train_split=train_split)
             file_preprocessing_state(data_pre, dataset_type, INDEPENDENT_DIR)
             user_choice = get_y_n_choice("Do you want to process another independent dataset? [y/n] ")
 
@@ -106,6 +109,7 @@ def run_routine_preprocessing():
     
     nb15_ratio = 10.0
     nb15_replacing = False
+    train_split = 0.8
     
     scaler_stats = None # Will store scaler stats if in dependent mode
 
@@ -119,11 +123,11 @@ def run_routine_preprocessing():
         current_base_dir = DEPENDENT_DIR if mode == 'dependent' else INDEPENDENT_DIR
 
         if mode == 'dependent':
-            data_preprocessed, new_scaler_stats = data_preprocessing_state(ds['path'], ds['type'], dependent=True, scaler_stats=scaler_stats)
+            data_preprocessed, new_scaler_stats = data_preprocessing_state(ds['path'], ds['type'], dependent=True, scaler_stats=scaler_stats, train_split=train_split)
             if scaler_stats is None: # If it's the first dataset, capture the scaler_stats
                 scaler_stats = new_scaler_stats
         else: # Independent mode
-            data_preprocessed, _ = data_preprocessing_state(ds['path'], ds['type'], dependent=False)
+            data_preprocessed, _ = data_preprocessing_state(ds['path'], ds['type'], dependent=False, train_split=train_split)
         
         if ds['type'] == 'nb15':
             file_preprocessing_state(data_preprocessed, ds['type'], current_base_dir, normal_attack_ratio=nb15_ratio, replacing_mode=nb15_replacing)

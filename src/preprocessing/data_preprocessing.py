@@ -190,12 +190,13 @@ def normalize_dataset_dependent(data, scaler_stats=None):
     return data, scaler_stats
 
 
-def data_preprocessing(data, dataset_type, dependent=True, scaler_stats=None):
+def data_preprocessing(data, dataset_type, dependent=True, scaler_stats=None, train_split=0.8):
     """
     Main orchestration function for data preprocessing based on the dataset type.
 
     :param data: Raw pandas DataFrame.
     :param dataset_type: String indicating the dataset type ('nb15', 'ter20', 'sat20').
+    :param train_split: Percentage of data to be assigned to training (0.0 to 1.0).
     :return: Preprocessed and normalized pandas DataFrame.
     """
     print(f"Running data-level preprocessing for {dataset_type}...")
@@ -213,11 +214,16 @@ def data_preprocessing(data, dataset_type, dependent=True, scaler_stats=None):
     
     if dependent:
         data, scaler_stats = normalize_dataset_dependent(data, scaler_stats)
-        print(f"Data-level preprocessing for {dataset_type} done.")
+    else:
+        data = normalize_dataset_independent(data)
 
-        return data, scaler_stats
-    
-    data = normalize_dataset_independent(data)
+    # Add split column for training/testing
+    data = data.sample(frac=1, random_state=42).reset_index(drop=True)
+    n_train = int(len(data) * train_split)
+    split_col = ['train'] * n_train + ['test'] * (len(data) - n_train)
+    data['split_type'] = split_col
+    # Final shuffle to mix train/test labels
+    data = data.sample(frac=1, random_state=42).reset_index(drop=True)
+
     print(f"Data-level preprocessing for {dataset_type} done.")
-
-    return data, None
+    return data, scaler_stats

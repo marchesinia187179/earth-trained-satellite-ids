@@ -40,6 +40,9 @@ def create_csv_from_data(data, file_name, file_path):
     if 'attack_cat' in df.columns:
         counts = df['attack_cat'].value_counts()
         print(f"  - Class distribution (attack_cat):\n{counts.to_string()}")
+    if 'attack_cat' in df.columns and 'split_type' in df.columns:
+        pivot = df.groupby(['attack_cat', 'split_type']).size().unstack(fill_value=0)
+        print(f"  - Train/Test division per class:\n{pivot.to_string()}")
     print("-" * 30)
     
     return full_path

@@ -110,18 +110,19 @@ def isolation_forest(data, mode, dataset_type, training_dataset, train_ratio=0.8
     """
     print(f"Training Isolation Forest...")
     
-    data_normal = data[data['label'] == 0]
-    data_anomaly = data[data['label'] == 1]
-
-    train_normal, test_normal = train_test_split(data_normal, train_size=train_ratio, random_state=42)
-
-    n_anomaly_sample = int(len(test_normal) * 0.10)
-    test_anomaly = data_anomaly.sample(n=n_anomaly_sample, random_state=42)
+    # Use split_type column to separate data
+    train_normal = data[(data['label'] == 0) & (data['split_type'] == 'train')]
+    test_normal = data[(data['label'] == 0) & (data['split_type'] == 'test')]
+    
+    # For Anomaly test set, use only data marked as 'test'
+    data_anomaly_test = data[(data['label'] == 1) & (data['split_type'] == 'test')]
+    n_anomaly_sample = min(len(data_anomaly_test), int(len(test_normal) * 0.10))
+    test_anomaly = data_anomaly_test.sample(n=n_anomaly_sample, random_state=42)
 
     data_test = pd.concat([test_normal, test_anomaly])
 
-    X_train = train_normal.drop(columns=['attack_cat', 'label'])
-    X_test = data_test.drop(columns=['attack_cat', 'label'])
+    X_train = train_normal.drop(columns=['attack_cat', 'label', 'split_type'])
+    X_test = data_test.drop(columns=['attack_cat', 'label', 'split_type'])
     y_test = data_test['label']
 
     model = IsolationForest(random_state=42, verbose=3)
@@ -148,9 +149,13 @@ def random_forest(data, mode, dataset_type, training_dataset, train_ratio=0.8):
     """
     print(f"Training Random Forest...")
 
-    X = data.drop(columns=["label", "attack_cat"])
-    y = data["label"]
-    X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=train_ratio, random_state=42)
+    train_set = data[data['split_type'] == 'train']
+    test_set = data[data['split_type'] == 'test']
+
+    X_train = train_set.drop(columns=["label", "attack_cat", "split_type"])
+    y_train = train_set["label"]
+    X_test = test_set.drop(columns=["label", "attack_cat", "split_type"])
+    y_test = test_set["label"]
 
     model = RandomForestClassifier(random_state=42, verbose=3)
     model.fit(X_train, y_train)

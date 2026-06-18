@@ -239,9 +239,11 @@ def classification_processing(data, mode, models_to_test, dataset_type, testing_
     :param dataset_type: Type of the dataset (nb15, sat20, ter20).
     :param testing_dataset: Name of the dataset used for testing.
     """
+    # Filter only test data to avoid data leakage from training
+    test_data = data[data['split_type'] == 'test']
     # Prepare features and labels
-    X = data.drop(columns=["label", "attack_cat"])
-    y = data["label"]
+    X = test_data.drop(columns=["label", "attack_cat", "split_type"])
+    y = test_data["label"]
 
     for model_entry in models_to_test:
         model_obj = model_entry['model_obj']
@@ -291,4 +293,4 @@ def classification_processing(data, mode, models_to_test, dataset_type, testing_
         precision_display = f"{precision:.4f}" if precision is not None else "None"
         auc_roc_display = f"{auc_roc:.4f}" if auc_roc is not None else "None"
         print(f"F1-score={f1_display}, Precision={precision_display}, Recall={recall:.4f}, AUC-ROC={auc_roc_display}")
-        save_result(model_obj, mode, model_name, dataset_type, testing_dataset, data.shape[0], metrics)
+        save_result(model_obj, mode, model_name, dataset_type, testing_dataset, test_data.shape[0], metrics)
