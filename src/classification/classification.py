@@ -17,78 +17,131 @@ from utils.paths import (
     RF_RESULTS_FILENAME, IF_RESULTS_FILENAME, # Result filenames
     ATTACK_CAT_DIR_NAME, NORMAL_ATTACK_DIR_NAME, # Subdirectory names
     NB15_PREPROCESSED_DIR_NAME, SAT20_PREPROCESSED_DIR_NAME, TER20_PREPROCESSED_DIR_NAME, # Preprocessed dir names
-    PREPROCESSED_DIR_SUFFIX # Suffix for preprocessed directories
+    PREPROCESSED_DIR_SUFFIX, JOINT_DIR_NAME,
+    JOINT_NORMAL_SAT20_FILE_STEM, JOINT_NORMAL_TER20_FILE_STEM
 )
 import joblib
 
 
 # --- Routine Classification Configuration ---
-# This list defines the routine classification tasks.
-# Each dictionary specifies a model, its mode (independent/dependent),
-# the dataset type, the specific testing dataset name, and the subdirectory
-# where the preprocessed testing dataset is expected to be found.
-ROUTINE_CLASSIFICATIONS = [
-    # --- DEPENDENT MODE ---
-    # Random Forest (Models 1-6) on SAT20 and TER20
-    *[{'mode': 'dependent', 'model_type': 'random_forest', 'model_name': f'rf_model_{i}', 'dataset_type': d_type, 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
-      for i in range(1, 7)
-      for d_type, t_sets in [('sat20', ['Syn_DDoS', 'UDP_DDoS']), ('ter20', ['Botnet', 'DDoS', 'Syn_DDoS', 'UDP_DDoS'])]
-      for t_set in t_sets],
+ROUTINE_CLASSIFICATIONS = []
 
-    # Random Forest (Model 6) on NB15
-    *[{'mode': 'dependent', 'model_type': 'random_forest', 'model_name': f'rf_model_{6}', 'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
-      for t_set in ['DoS', 'Exploits', 'Fuzzers', 'Generic', 'Normal', 'Reconnaissance']],
+for mode in ['independent', 'dependent']:
+    # =========================================================================
+    # RANDOM FOREST MATRIX ENGINES
+    # =========================================================================
+    
+    # --- GRUPPO A: PURE DATASETS ---
+    # Target SAT20 (Pure): Evaluate models 1-8 against zero-day satellite floods (Syn_DDoS, UDP_DDoS)
+    for i in range(1, 9):
+        for t_set in ['Syn_DDoS', 'UDP_DDoS']:
+            ROUTINE_CLASSIFICATIONS.append({
+                'mode': mode, 'model_type': 'random_forest', 'model_name': f'rf_model_{i}',
+                'dataset_type': 'sat20', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME
+            })
 
-    # Random Forest (Model 7) on NB15
-    *[{'mode': 'dependent', 'model_type': 'random_forest', 'model_name': f'rf_model_{7}', 'dataset_type': 'sat20', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
-      for t_set in ['Syn_DDoS', 'UDP_DDoS']],
+    # Target TER20 (Pure): Map cross-domain vulnerability patterns on non-STIN specific targets
+    for i in range(1, 9):
+        for t_set in ['Botnet', 'DDoS', 'Syn_DDoS', 'UDP_DDoS']:
+            ROUTINE_CLASSIFICATIONS.append({
+                'mode': mode, 'model_type': 'random_forest', 'model_name': f'rf_model_{i}',
+                'dataset_type': 'ter20', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME
+            })
 
-    # Random Forest (Model 8) on NB15
-    *[{'mode': 'dependent', 'model_type': 'random_forest', 'model_name': f'rf_model_{8}', 'dataset_type': 'ter20', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
-      for t_set in ['Botnet', 'DDoS', 'Syn_DDoS', 'UDP_DDoS']],
+    # Target NB15 (Pure): Internal multi-class baseline validation for global model (Model 6)
+    for t_set in ['DoS', 'Exploits', 'Fuzzers', 'Generic', 'Normal', 'Reconnaissance']:
+        ROUTINE_CLASSIFICATIONS.append({
+            'mode': mode, 'model_type': 'random_forest', 'model_name': 'rf_model_6',
+            'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME
+        })
 
-    # Isolation Forest (Model 1) on SAT20, TER20 and NB15
-    *[{'mode': 'dependent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'sat20', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
-      for t_set in ['Syn_DDoS', 'UDP_DDoS']],
-    *[{'mode': 'dependent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'ter20', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
-      for t_set in ['Botnet', 'DDoS', 'Syn_DDoS', 'UDP_DDoS']],
-    *[{'mode': 'dependent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
-      for t_set in ['DoS', 'Exploits', 'Fuzzers', 'Generic', 'Normal', 'Reconnaissance']],
-    *[{'mode': 'dependent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': NORMAL_ATTACK_DIR_NAME}
-      for t_set in ['Normal_DoS', 'Normal_Exploits', 'Normal_Fuzzers', 'Normal_Generic', 'Normal_Reconnaissance']],
+    # Target NB15 (Cross-Class): Map native cross-class evasion capabilities of specialized models (1-5)
+    native_map = {1: 'DoS', 2: 'Exploits', 3: 'Fuzzers', 4: 'Generic', 5: 'Reconnaissance'}
+    all_nb15_attacks = ['DoS', 'Exploits', 'Fuzzers', 'Generic', 'Reconnaissance']
+    for i in range(1, 6):
+        for t_set in all_nb15_attacks:
+            if t_set != native_map[i]:
+                ROUTINE_CLASSIFICATIONS.append({
+                    'mode': mode, 'model_type': 'random_forest', 'model_name': f'rf_model_{i}',
+                    'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME
+                })
 
-    # --- INDEPENDENT MODE ---
-    # Random Forest (Models 1-6) on SAT20 and TER20
-    *[{'mode': 'independent', 'model_type': 'random_forest', 'model_name': f'rf_model_{i}', 'dataset_type': d_type, 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
-      for i in range(1, 7)
-      for d_type, t_sets in [('sat20', ['Syn_DDoS', 'UDP_DDoS']), ('ter20', ['Botnet', 'DDoS', 'Syn_DDoS', 'UDP_DDoS'])]
-      for t_set in t_sets],
+    # --- GRUPPO B: HYBRID / COMBO DATASETS (10:1 Ratio) ---
+    # Target SAT20 Combo: Full metrics evaluation (F1/FPR) using balanced single-class satellite injections
+    for i in range(1, 9):
+        for t_set in ['Normal_Syn_DDoS', 'Normal_UDP_DDoS']:
+            ROUTINE_CLASSIFICATIONS.append({
+                'mode': mode, 'model_type': 'random_forest', 'model_name': f'rf_model_{i}',
+                'dataset_type': 'nb15+sat20', 'testing_dataset_name': t_set, 'data_subdir': f"{JOINT_DIR_NAME}/sat20_joint"
+            })
 
-    # Random Forest (Model 6) on NB15
-    *[{'mode': 'independent', 'model_type': 'random_forest', 'model_name': f'rf_model_{6}', 'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
-      for t_set in ['DoS', 'Exploits', 'Fuzzers', 'Generic', 'Normal', 'Reconnaissance']],
+    # Target TER20 Combo: Operational threat identification matrices against single-class terrestrial injections
+    for i in range(1, 9):
+        for t_set in ['Normal_Botnet', 'Normal_DDoS', 'Normal_Syn_DDoS', 'Normal_UDP_DDoS']:
+            ROUTINE_CLASSIFICATIONS.append({
+                'mode': mode, 'mode_type': 'random_forest', 'model_name': f'rf_model_{i}',
+                'dataset_type': 'nb15+ter20', 'testing_dataset_name': t_set, 'data_subdir': f"{JOINT_DIR_NAME}/ter20_joint"
+            })
 
-    # Random Forest (Model 7) on NB15
-    *[{'mode': 'independent', 'model_type': 'random_forest', 'model_name': f'rf_model_{7}', 'dataset_type': 'sat20', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
-      for t_set in ['Syn_DDoS', 'UDP_DDoS']],
+    # Target STIN Cross-Domain Transferability: Cross-evaluate hybrid domain detectors on competing spaces
+    # Model 7 (SAT Hybrid) on Terrestrial Aggregates
+    ROUTINE_CLASSIFICATIONS.append({
+        'mode': mode, 'model_type': 'random_forest', 'model_name': 'rf_model_7',
+        'dataset_type': 'nb15+ter20', 'testing_dataset_name': JOINT_NORMAL_TER20_FILE_STEM, 'data_subdir': JOINT_DIR_NAME
+    })
+    # Model 8 (TER Hybrid) on Satellite Aggregates
+    ROUTINE_CLASSIFICATIONS.append({
+        'mode': mode, 'model_type': 'random_forest', 'model_name': 'rf_model_8',
+        'dataset_type': 'nb15+sat20', 'testing_dataset_name': JOINT_NORMAL_SAT20_FILE_STEM, 'data_subdir': JOINT_DIR_NAME
+    })
 
-    # Random Forest (Model 8) on NB15
-    *[{'mode': 'independent', 'model_type': 'random_forest', 'model_name': f'rf_model_{8}', 'dataset_type': 'ter20', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
-      for t_set in ['Botnet', 'DDoS', 'Syn_DDoS', 'UDP_DDoS']],
+    # =========================================================================
+    # ISOLATION FOREST MATRIX ENGINES (ANOMALY DETECTION)
+    # =========================================================================
+    
+    # --- GRUPPO A: PURE TEST VARIANTS ---
+    # Target SAT20 (Pure Test): Measure direct structural outlier variance on raw satellite streams
+    for t_set in ['Syn_DDoS', 'UDP_DDoS']:
+        ROUTINE_CLASSIFICATIONS.append({
+            'mode': mode, 'model_type': 'isolation_forest', 'model_name': 'if_model_1',
+            'dataset_type': 'sat20', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME
+        })
 
-    # Isolation Forest (Model 1) on SAT20, TER20 and NB15
-    *[{'mode': 'independent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'sat20', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
-      for t_set in ['Syn_DDoS', 'UDP_DDoS']],
-    *[{'mode': 'independent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'ter20', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
-      for t_set in ['Botnet', 'DDoS', 'Syn_DDoS', 'UDP_DDoS']],
-    *[{'mode': 'independent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
-      for t_set in ['DoS', 'Exploits', 'Fuzzers', 'Generic', 'Normal', 'Reconnaissance']],
-    *[{'mode': 'independent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': NORMAL_ATTACK_DIR_NAME}
-      for t_set in ['Normal_DoS', 'Normal_Exploits', 'Normal_Fuzzers', 'Normal_Generic', 'Normal_Reconnaissance']],
-]
+    # Target TER20 (Pure Test): Assess unsupervised anomaly resolution thresholds without terrestrial labels
+    for t_set in ['Botnet', 'DDoS', 'Syn_DDoS', 'UDP_DDoS']:
+        ROUTINE_CLASSIFICATIONS.append({
+            'mode': mode, 'model_type': 'isolation_forest', 'model_name': 'if_model_1',
+            'dataset_type': 'ter20', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME
+        })
 
-# Flatten the list of lists created by comprehensions
-ROUTINE_CLASSIFICATIONS = [item for sublist in ROUTINE_CLASSIFICATIONS for item in (sublist if isinstance(sublist, list) else [sublist])]
+    # Target NB15 (Pure Test): Internal anomaly alignment map and precise True False Positive Rate (FPR) verification on pure Normal
+    for t_set in ['DoS', 'Exploits', 'Fuzzers', 'Generic', 'Normal', 'Reconnaissance']:
+        ROUTINE_CLASSIFICATIONS.append({
+            'mode': mode, 'model_type': 'isolation_forest', 'model_name': 'if_model_1',
+            'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME
+        })
+
+    # --- GRUPPO B: OPERATIONAL COMBO SCENARIOS (10:1 Ratio) ---
+    # Target SAT20 Combo: Benchmark real-world False Alarm Rates against satellite multi-source patterns
+    for t_set in ['Normal_Syn_DDoS', 'Normal_UDP_DDoS']:
+        ROUTINE_CLASSIFICATIONS.append({
+            'mode': mode, 'model_type': 'isolation_forest', 'model_name': 'if_model_1',
+            'dataset_type': 'nb15+sat20', 'testing_dataset_name': t_set, 'data_subdir': f"{JOINT_DIR_NAME}/sat20_joint"
+        })
+
+    # Target TER20 Combo: Evaluate contamination limits on unsupervised boundaries under terrestrial mixtures
+    for t_set in ['Normal_Botnet', 'Normal_DDoS', 'Normal_Syn_DDoS', 'Normal_UDP_DDoS']:
+        ROUTINE_CLASSIFICATIONS.append({
+            'mode': mode, 'model_type': 'isolation_forest', 'model_name': 'if_model_1',
+            'dataset_type': 'nb15+ter20', 'testing_dataset_name': t_set, 'data_subdir': f"{JOINT_DIR_NAME}/ter20_joint"
+        })
+
+    # Target STIN Cross-Domain Aggregato: Analyze global zero-day transference limits for pure zero-knowledge models
+    for d_type, stem in [('sat20', JOINT_NORMAL_SAT20_FILE_STEM), ('ter20', JOINT_NORMAL_TER20_FILE_STEM)]:
+        ROUTINE_CLASSIFICATIONS.append({
+            'mode': mode, 'model_type': 'isolation_forest', 'model_name': 'if_model_1',
+            'dataset_type': f"nb15+{d_type}", 'testing_dataset_name': stem, 'data_subdir': JOINT_DIR_NAME
+        })
 
 
 # --- Result Saving Functions ---
@@ -219,7 +272,9 @@ def run_routine_classifications():
         preprocessed_dataset_dir_name = f"{dataset_type}{PREPROCESSED_DIR_SUFFIX}"
         
         # Build the full path to the testing dataset
-        if data_subdir: # If there's a specific subdirectory (e.g., attack_cat, normal_attack)
+        if str(data_subdir).startswith(JOINT_DIR_NAME):
+            data_path = data_base_dir / data_subdir / f"{testing_dataset_name}.csv"
+        elif data_subdir: # If there's a specific subdirectory (e.g., attack_cat, normal_attack)
             data_path = data_base_dir / preprocessed_dataset_dir_name / data_subdir / f"{testing_dataset_name}.csv"
         else: # If the file is directly in the preprocessed dataset directory (e.g., nb15_preprocessed.csv)
             data_path = data_base_dir / preprocessed_dataset_dir_name / f"{testing_dataset_name}.csv"

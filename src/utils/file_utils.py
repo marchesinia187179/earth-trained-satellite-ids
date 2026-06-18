@@ -62,6 +62,19 @@ def create_csv_from_data(data, file_name, file_path):
         file_info['train_test_distribution'] = 'None'
     print("-" * 30)
     
+    if GENERAL_FILE_INFO_PATH.exists():
+        try:
+            info_df = pd.read_csv(GENERAL_FILE_INFO_PATH, na_values='None')
+            mask = info_df['relative_path'] == file_info['relative_path']
+            if not info_df.empty and mask.any():
+                idx = info_df.index[mask][0]
+                for key, value in file_info.items():
+                    info_df.at[idx, key] = value
+                info_df.to_csv(GENERAL_FILE_INFO_PATH, index=False, na_rep='None')
+                return full_path
+        except Exception as e:
+            print(f"Warning: Could not update {GENERAL_FILE_INFO_PATH.name} ({e}). Appending instead.")
+
     append_data_to_csv(file_info, GENERAL_FILE_INFO_PATH)
     return full_path
 

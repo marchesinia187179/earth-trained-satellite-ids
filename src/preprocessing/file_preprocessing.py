@@ -200,6 +200,15 @@ def create_joint_datasets(base_dest_dir, ratio, replacing_mode):
         df_joint = pd.concat([normal_df] + attack_dfs).sample(frac=1, random_state=42).reset_index(drop=True)
         create_csv_from_data(df_joint, joint_file_stem, joint_dir_path)
 
+        # Create subfolder for single-class joints
+        sub_dir_path = create_directory(f"{ds_type}_joint", joint_dir_path)
+        
+        for p in attack_files:
+            df = get_data_from_csv(p)
+            sampled_atk = df.sample(n=total_atk_needed, replace=replacing_mode, random_state=42)
+            df_single_joint = pd.concat([normal_df, sampled_atk]).sample(frac=1, random_state=42).reset_index(drop=True)
+            create_csv_from_data(df_single_joint, f"Normal_{p.stem}", sub_dir_path)
+
 
 def file_preprocessing(data, dataset_type, base_dest_dir, normal_attack_ratio=None, replacing_mode=None):
     """
