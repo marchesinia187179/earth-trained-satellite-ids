@@ -79,7 +79,7 @@ for mode in ['independent', 'dependent']:
     for i in range(1, 9):
         for t_set in ['Normal_Botnet', 'Normal_DDoS', 'Normal_Syn_DDoS', 'Normal_UDP_DDoS']:
             ROUTINE_CLASSIFICATIONS.append({
-                'mode': mode, 'mode_type': 'random_forest', 'model_name': f'rf_model_{i}',
+                'mode': mode, 'model_type': 'random_forest', 'model_name': f'rf_model_{i}',
                 'dataset_type': 'nb15+ter20', 'testing_dataset_name': t_set, 'data_subdir': f"{JOINT_DIR_NAME}/ter20_joint"
             })
 
