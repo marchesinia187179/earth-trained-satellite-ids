@@ -151,19 +151,23 @@ def create_scaled_dataset(source_path, dest_path, ratio, replacing_mode):
     print("Equi-probable scaled dataset 'nb15_preprocessed_scaled' created.")
 
 
-def file_preprocessing(data, dataset_type, base_dest_dir):
+def file_preprocessing(data, dataset_type, base_dest_dir, normal_attack_ratio=None, replacing_mode=None):
     """
     Orchestrates the file-level preprocessing including splitting, merging attacks, and balancing classes.
 
     :param data: The preprocessed pandas DataFrame.
     :param dataset_type: The type of dataset being processed (e.g., 'nb15').
     :param base_dest_dir: The base directory where to save the preprocessed data.
+    :param normal_attack_ratio: Optional numeric ratio (Normal/Attack) for balancing (NB15 only).
+    :param replacing_mode: Optional boolean for sampling with replacement (NB15 only).
     :internal project_root: Resolves the project root path based on file location.
     """
     if dataset_type == 'nb15':
-        ratio_prompt = "Insert the normal-attack ratio: [> 0] (e.g. 10, 10 normal data for 1 attack data) "
-        normal_attack_ratio = get_numeric_input(ratio_prompt, type_func=float, min_val=0)
-        replacing_mode = get_y_n_bool("Do you want to use replacing mode? [y/n] ")
+        if normal_attack_ratio is None:
+            ratio_prompt = "Insert the normal-attack ratio: [> 0] (e.g. 10, 10 normal data for 1 attack data) "
+            normal_attack_ratio = get_numeric_input(ratio_prompt, type_func=float, min_val=0)
+        if replacing_mode is None:
+            replacing_mode = get_y_n_bool("Do you want to use replacing mode? [y/n] ")
     
     print(f"Running file-level preprocessing for {dataset_type}...")
 

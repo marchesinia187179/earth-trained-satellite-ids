@@ -1,6 +1,7 @@
 """
 Main entry point for the Satellite IDS project.
 """
+import pathlib
 import joblib # Keep joblib for the interactive classification_loop
 
 from classification.classification import classification_processing
@@ -15,15 +16,17 @@ from utils.paths import INDEPENDENT_DIR, DEPENDENT_DIR
 
 
 # --- State Wrappers ---
-def file_preprocessing_state(data_preprocessed, dataset_type, base_dir):
+def file_preprocessing_state(data_preprocessed, dataset_type, base_dir, normal_attack_ratio=None, replacing_mode=None):
     """
     Wrapper function to trigger the file-level preprocessing state.
 
     :param data_preprocessed: The DataFrame after data preprocessing.
     :param dataset_type: Type of the dataset (nb15, sat20, ter20).
     :param base_dir: Path where results should be stored.
+    :param normal_attack_ratio: Optional ratio for NB15 balancing.
+    :param replacing_mode: Optional boolean for sampling with replacement.
     """
-    file_preprocessing(data_preprocessed, dataset_type, base_dir)
+    file_preprocessing(data_preprocessed, dataset_type, base_dir, normal_attack_ratio, replacing_mode)
 
 
 def data_preprocessing_state(path, dataset_type, dependent=True, scaler_stats=None):
@@ -83,6 +86,34 @@ def preprocessing_loop():
             data_pre, _ = data_preprocessing_state(path, dataset_type, dependent=False)
             file_preprocessing_state(data_pre, dataset_type, INDEPENDENT_DIR)
             user_choice = get_y_n_choice("Do you want to process another independent dataset? [y/n] ")
+
+
+def run_routine_preprocessing():
+    """
+    Executes a predefined preprocessing routine for nb15, sat20, and ter20.
+    Uses a fixed ratio of 10 and no replacement for NB15.
+    """
+    print("\n--- Starting Routine Preprocessing Phase ---")
+    
+    datasets = [
+        {'type': 'nb15', 'path': pathlib.Path('/Users/marchesinialessandro/Documents/university-subjects/attivita-progettuale/coding/earth-trained-satellite-ids/data/nb15.csv')},
+        {'type': 'sat20', 'path': pathlib.Path('/Users/marchesinialessandro/Documents/university-subjects/attivita-progettuale/coding/earth-trained-satellite-ids/data/sat20.csv')},
+        {'type': 'ter20', 'path': pathlib.Path('/Users/marchesinialessandro/Documents/university-subjects/attivita-progettuale/coding/earth-trained-satellite-ids/data/ter20.csv')}
+    ]
+    
+    ratio = 10.0
+    replacing = False
+    
+    for ds in datasets:
+        if not ds['path'].exists():
+            print(f"Warning: Dataset file not found at {ds['path']}. Skipping {ds['type']}.")
+            continue
+            
+        print(f"\n[ROUTINE] Processing {ds['type']} (Independent Mode)...")
+        data_pre, _ = data_preprocessing_state(ds['path'], ds['type'], dependent=False)
+        file_preprocessing_state(data_pre, ds['type'], INDEPENDENT_DIR, normal_attack_ratio=ratio, replacing_mode=replacing)
+
+    print("\n--- Routine Preprocessing Phase Completed ---")
 
 
 def build_model_loop():
@@ -156,7 +187,12 @@ def main():
     :internal user_choice: Tracks whether the user wants to continue or exit.
     :internal user_input: Captures the path and dataset type provided by the user.
     """
-    user_choice = get_y_n_choice("Do you want to start the preprocessing? [y/n] ")
+    # Routine Preprocessing state
+    user_choice = get_y_n_choice("Do you want to run routine preprocessing? (NB15, SAT20, TER20) [y/n] ")
+    if user_choice == 'y':
+        run_routine_preprocessing()
+
+    user_choice = get_y_n_choice("Do you want to start interactive preprocessing? [y/n] ")
     if user_choice == 'y':
         preprocessing_loop()
 

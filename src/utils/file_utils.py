@@ -36,6 +36,11 @@ def create_csv_from_data(data, file_name, file_path):
     full_path = pathlib.Path(file_path) / file_name
     df.to_csv(full_path, index=False, encoding='utf-8')
     print(f"Created file: {full_path.name}")
+    print(f"  - Data shape: {df.shape}")
+    if 'attack_cat' in df.columns:
+        counts = df['attack_cat'].value_counts()
+        print(f"  - Class distribution (attack_cat):\n{counts.to_string()}")
+    print("-" * 30)
     
     return full_path
 
