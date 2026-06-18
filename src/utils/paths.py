@@ -33,3 +33,41 @@ DEPENDENT_IF_DIR = IF_MODELS_SAVED_DIR / "dependent"
 # Mode-specific subdirectories for classification results
 INDEPENDENT_RESULTS_DIR = CLASSIFICATION_DIR / "independent"
 DEPENDENT_RESULTS_DIR = CLASSIFICATION_DIR / "dependent"
+
+# Filenames for info and results
+RF_INFO_FILENAME = "random_forest_models_info.csv"
+IF_INFO_FILENAME = "isolation_forest_models_info.csv"
+RF_RESULTS_FILENAME = "random_forest_classification_results.csv"
+IF_RESULTS_FILENAME = "isolation_forest_classification_results.csv"
+
+# Directory names for structured datasets
+ATTACK_CAT_DIR_NAME = "attack_cat"
+NORMAL_ATTACK_DIR_NAME = "normal_attack"
+JOINT_DIR_NAME = "joint_preprocessed"
+
+# Preprocessed dataset directory names (e.g., "nb15_preprocessed")
+NB15_PREPROCESSED_DIR_NAME = "nb15_preprocessed"
+SAT20_PREPROCESSED_DIR_NAME = "sat20_preprocessed"
+TER20_PREPROCESSED_DIR_NAME = "ter20_preprocessed"
+
+# Specific preprocessed filenames (stem only, .csv added by create_csv_from_data)
+NB15_SCALED_FILE_STEM = "nb15_preprocessed_scaled"
+ATTACKS_FILE_STEM = "Attacks"
+NORMAL_FILE_STEM = "Normal" # For attack_cat/Normal.csv
+JOINT_NORMAL_SAT20_FILE_STEM = "Normal_sat20"
+JOINT_NORMAL_TER20_FILE_STEM = "Normal_ter20"
+
+# General suffix for preprocessed dataset directories and main files
+PREPROCESSED_DIR_SUFFIX = "_preprocessed" # e.g., nb15_preprocessed
+PREPROCESSED_MAIN_FILE_SUFFIX = "_preprocessed" # e.g., nb15_preprocessed.csv (without .csv)
+
+# Filenames for info and results
+RF_INFO_FILENAME = "random_forest_models_info.csv"
+IF_INFO_FILENAME = "isolation_forest_models_info.csv"
+RF_RESULTS_FILENAME = "random_forest_classification_results.csv"
+IF_RESULTS_FILENAME = "isolation_forest_classification_results.csv"
+
+# Directory names for structured datasets
+ATTACK_CAT_DIR_NAME = "attack_cat"
+NORMAL_ATTACK_DIR_NAME = "normal_attack"
+JOINT_DIR_NAME = "joint_preprocessed"

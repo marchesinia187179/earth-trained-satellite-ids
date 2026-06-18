@@ -4,7 +4,14 @@ import sys
 
 from utils.file_utils import create_directory, create_csv_from_data, get_data_from_csv
 from utils.input_utils import get_numeric_input, get_y_n_bool
-from utils.paths import DATA_DIR
+from utils.paths import (
+    DATA_DIR, ATTACK_CAT_DIR_NAME,
+    NORMAL_ATTACK_DIR_NAME, JOINT_DIR_NAME,
+    NORMAL_FILE_STEM, ATTACKS_FILE_STEM,
+    NB15_SCALED_FILE_STEM, NB15_PREPROCESSED_DIR_NAME,
+    JOINT_NORMAL_SAT20_FILE_STEM, JOINT_NORMAL_TER20_FILE_STEM,
+    PREPROCESSED_DIR_SUFFIX, PREPROCESSED_MAIN_FILE_SUFFIX
+)
 
 def split_by_attack_cat(data, dest_path):
     """
@@ -14,7 +21,7 @@ def split_by_attack_cat(data, dest_path):
     :param dest_path: Path where the 'attack_cat' directory will be created.
     :return: The Path object to the directory containing the split CSV files.
     """
-    attack_cat_dir_path = create_directory('attack_cat', dest_path)
+    attack_cat_dir_path = create_directory(ATTACK_CAT_DIR_NAME, dest_path)
     if 'attack_cat' not in data.columns:
         print("Error: 'attack_cat' column not found during split.")
         sys.exit(1)
@@ -22,14 +29,14 @@ def split_by_attack_cat(data, dest_path):
     attack_cat_list = data['attack_cat'].unique()
 
     for attack_cat in attack_cat_list:
-        attack_cat_data = data[data['attack_cat'] == attack_cat]
+        attack_cat_data = data[data['attack_cat'] == attack_cat].copy() # Use .copy() to avoid SettingWithCopyWarning
         create_csv_from_data(attack_cat_data, attack_cat, attack_cat_dir_path)
     print("Dataset split by attack category.")
     
     return attack_cat_dir_path
 
 
-def merge_normal_attack(source_path, dest_path, normal_attack_ratio, replacing_mode=False):
+def merge_normal_attack(source_path, dest_path, normal_attack_ratio, replacing_mode):
     """
     Creates merged datasets containing both 'Normal' and a specific 'Attack' category, balanced by a ratio.
 
@@ -40,10 +47,10 @@ def merge_normal_attack(source_path, dest_path, normal_attack_ratio, replacing_m
     :internal attack_cat_list: List of Path objects for each category file.
     :return: The Path object to the 'normal_attack' directory.
     """
-    normal_attack_dir_path = create_directory('normal_attack', dest_path)
+    normal_attack_dir_path = create_directory(NORMAL_ATTACK_DIR_NAME, dest_path)
     attack_cat_list = list(source_path.iterdir())
-
-    normal_cat_path = next((attack_cat for attack_cat in attack_cat_list if attack_cat.stem == 'Normal'), None)
+    
+    normal_cat_path = next((attack_cat for attack_cat in attack_cat_list if attack_cat.stem == NORMAL_FILE_STEM), None)
     if normal_cat_path is None:
         print("Error: Normal category not found!")
         return normal_attack_dir_path
@@ -51,8 +58,8 @@ def merge_normal_attack(source_path, dest_path, normal_attack_ratio, replacing_m
     normal_data = pd.DataFrame(get_data_from_csv(normal_cat_path))
     normal_samples = normal_data.shape[0]
 
-    for attack_cat_path in attack_cat_list:
-        if attack_cat_path.stem == 'Normal': continue
+    for attack_cat_path in attack_cat_list: # Iterate through all files in attack_cat_dir
+        if attack_cat_path.stem == NORMAL_FILE_STEM: continue # Skip the Normal file itself
 
         attack_data = get_data_from_csv(attack_cat_path)
         attack_data = pd.DataFrame(attack_data)
@@ -99,8 +106,8 @@ def merge_attacks(source_path, dest_path):
 
     df = pd.concat(dfs).sample(frac=1, random_state=42).reset_index(drop=True)
 
-    print("Attack categories merged.")
-    return create_csv_from_data(df, "Attacks", dest_path)
+    print("Attack categories merged into a single file.")
+    return create_csv_from_data(df, ATTACKS_FILE_STEM, dest_path)
 
 
 def create_scaled_dataset(source_path, dest_path, ratio, replacing_mode):
@@ -113,8 +120,8 @@ def create_scaled_dataset(source_path, dest_path, ratio, replacing_mode):
     :param ratio: The numeric ratio (Normal/Attack) for balancing.
     :param replacing_mode: Boolean indicating if sampling should use replacement.
     """
-    attack_cat_list = list(source_path.iterdir())
-    normal_path = next((p for p in attack_cat_list if p.stem == 'Normal'), None)
+    attack_cat_list = list(source_path.iterdir()) # Get all files in the attack_cat directory
+    normal_path = next((p for p in attack_cat_list if p.stem == NORMAL_FILE_STEM), None)
     if not normal_path:
         print("Error: Normal category not found for scaled dataset.")
         return
@@ -147,7 +154,7 @@ def create_scaled_dataset(source_path, dest_path, ratio, replacing_mode):
         final_dfs.append(df.sample(n=atk_per_cat, replace=replacing_mode, random_state=42))
 
     df_final = pd.concat(final_dfs).sample(frac=1, random_state=42).reset_index(drop=True)
-    create_csv_from_data(df_final, "nb15_preprocessed_scaled", dest_path)
+    create_csv_from_data(df_final, NB15_SCALED_FILE_STEM, dest_path)
     print("Equi-probable scaled dataset 'nb15_preprocessed_scaled' created.")
 
 
@@ -161,23 +168,23 @@ def create_joint_datasets(base_dest_dir, ratio, replacing_mode):
     :param replacing_mode: Boolean for sampling with replacement.
     """
     print("\n--- Starting Joint Preprocessing Phase ---")
-    joint_dir_path = create_directory('joint_preprocessed', base_dest_dir)
+    joint_dir_path = create_directory(JOINT_DIR_NAME, base_dest_dir)
     
-    nb15_normal_path = base_dest_dir / "nb15_preprocessed" / "attack_cat" / "Normal.csv"
+    nb15_normal_path = base_dest_dir / NB15_PREPROCESSED_DIR_NAME / ATTACK_CAT_DIR_NAME / f"{NORMAL_FILE_STEM}.csv"
     if not nb15_normal_path.exists():
         print(f"Error: NB15 Normal file not found at {nb15_normal_path}. Skipping joint phase.")
         return
 
     normal_df = get_data_from_csv(nb15_normal_path)
     
-    for ds_type in ['sat20', 'ter20']:
-        atk_source_dir = base_dest_dir / f"{ds_type}_preprocessed" / "attack_cat"
+    for ds_type, joint_file_stem in [('sat20', JOINT_NORMAL_SAT20_FILE_STEM), ('ter20', JOINT_NORMAL_TER20_FILE_STEM)]:
+        atk_source_dir = base_dest_dir / f"{ds_type}{PREPROCESSED_DIR_SUFFIX}" / ATTACK_CAT_DIR_NAME
         if not atk_source_dir.exists():
             print(f"Warning: Attack source for {ds_type} not found at {atk_source_dir}. Skipping.")
             continue
 
         # Filter out 'Normal' if it exists in SAT20/TER20 to get only attacks
-        attack_files = [p for p in atk_source_dir.iterdir() if p.stem != 'Normal' and p.suffix == '.csv']
+        attack_files = [p for p in atk_source_dir.iterdir() if p.stem != NORMAL_FILE_STEM and p.suffix == '.csv']
         if not attack_files:
             continue
 
@@ -191,7 +198,7 @@ def create_joint_datasets(base_dest_dir, ratio, replacing_mode):
             attack_dfs.append(df.sample(n=atk_per_cat, replace=replacing_mode, random_state=42))
 
         df_joint = pd.concat([normal_df] + attack_dfs).sample(frac=1, random_state=42).reset_index(drop=True)
-        create_csv_from_data(df_joint, f"Normal_{ds_type}", joint_dir_path)
+        create_csv_from_data(df_joint, joint_file_stem, joint_dir_path)
 
 
 def file_preprocessing(data, dataset_type, base_dest_dir, normal_attack_ratio=None, replacing_mode=None):
@@ -214,9 +221,9 @@ def file_preprocessing(data, dataset_type, base_dest_dir, normal_attack_ratio=No
     
     print(f"Running file-level preprocessing for {dataset_type}...")
 
-    main_dir_path = create_directory(f'{dataset_type}_preprocessed', base_dest_dir)
+    main_dir_path = create_directory(f'{dataset_type}{PREPROCESSED_DIR_SUFFIX}', base_dest_dir)
 
-    create_csv_from_data(data, f'{dataset_type}_preprocessed', main_dir_path)
+    create_csv_from_data(data, f'{dataset_type}{PREPROCESSED_MAIN_FILE_SUFFIX}', main_dir_path)
 
     attack_cat_dir_path = split_by_attack_cat(data, main_dir_path)
 

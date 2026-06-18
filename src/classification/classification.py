@@ -13,7 +13,11 @@ from utils.paths import (
     INDEPENDENT_RESULTS_DIR, DEPENDENT_RESULTS_DIR,
     INDEPENDENT_RF_DIR, DEPENDENT_RF_DIR,
     INDEPENDENT_IF_DIR, DEPENDENT_IF_DIR,
-    INDEPENDENT_DIR, DEPENDENT_DIR
+    INDEPENDENT_DIR, DEPENDENT_DIR,
+    RF_RESULTS_FILENAME, IF_RESULTS_FILENAME, # Result filenames
+    ATTACK_CAT_DIR_NAME, NORMAL_ATTACK_DIR_NAME, # Subdirectory names
+    NB15_PREPROCESSED_DIR_NAME, SAT20_PREPROCESSED_DIR_NAME, TER20_PREPROCESSED_DIR_NAME, # Preprocessed dir names
+    PREPROCESSED_DIR_SUFFIX # Suffix for preprocessed directories
 )
 import joblib
 
@@ -26,60 +30,60 @@ import joblib
 ROUTINE_CLASSIFICATIONS = [
     # --- DEPENDENT MODE ---
     # Random Forest (Models 1-6) on SAT20 and TER20
-    *[{'mode': 'dependent', 'model_type': 'random_forest', 'model_name': f'rf_model_{i}', 'dataset_type': d_type, 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
+    *[{'mode': 'dependent', 'model_type': 'random_forest', 'model_name': f'rf_model_{i}', 'dataset_type': d_type, 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
       for i in range(1, 7)
       for d_type, t_sets in [('sat20', ['Syn_DDoS', 'UDP_DDoS']), ('ter20', ['Botnet', 'DDoS', 'Syn_DDoS', 'UDP_DDoS'])]
       for t_set in t_sets],
 
     # Random Forest (Model 6) on NB15
-    *[{'mode': 'dependent', 'model_type': 'random_forest', 'model_name': f'rf_model_{6}', 'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
+    *[{'mode': 'dependent', 'model_type': 'random_forest', 'model_name': f'rf_model_{6}', 'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
       for t_set in ['DoS', 'Exploits', 'Fuzzers', 'Generic', 'Normal', 'Reconnaissance']],
 
     # Random Forest (Model 7) on NB15
-    *[{'mode': 'dependent', 'model_type': 'random_forest', 'model_name': f'rf_model_{7}', 'dataset_type': 'sat20', 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
+    *[{'mode': 'dependent', 'model_type': 'random_forest', 'model_name': f'rf_model_{7}', 'dataset_type': 'sat20', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
       for t_set in ['Syn_DDoS', 'UDP_DDoS']],
 
     # Random Forest (Model 8) on NB15
-    *[{'mode': 'dependent', 'model_type': 'random_forest', 'model_name': f'rf_model_{8}', 'dataset_type': 'ter20', 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
+    *[{'mode': 'dependent', 'model_type': 'random_forest', 'model_name': f'rf_model_{8}', 'dataset_type': 'ter20', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
       for t_set in ['Botnet', 'DDoS', 'Syn_DDoS', 'UDP_DDoS']],
 
     # Isolation Forest (Model 1) on SAT20, TER20 and NB15
-    *[{'mode': 'dependent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'sat20', 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
+    *[{'mode': 'dependent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'sat20', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
       for t_set in ['Syn_DDoS', 'UDP_DDoS']],
-    *[{'mode': 'dependent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'ter20', 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
+    *[{'mode': 'dependent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'ter20', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
       for t_set in ['Botnet', 'DDoS', 'Syn_DDoS', 'UDP_DDoS']],
-    *[{'mode': 'dependent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
+    *[{'mode': 'dependent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
       for t_set in ['DoS', 'Exploits', 'Fuzzers', 'Generic', 'Normal', 'Reconnaissance']],
-    *[{'mode': 'dependent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': 'normal_attack'}
+    *[{'mode': 'dependent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': NORMAL_ATTACK_DIR_NAME}
       for t_set in ['Normal_DoS', 'Normal_Exploits', 'Normal_Fuzzers', 'Normal_Generic', 'Normal_Reconnaissance']],
 
     # --- INDEPENDENT MODE ---
     # Random Forest (Models 1-6) on SAT20 and TER20
-    *[{'mode': 'independent', 'model_type': 'random_forest', 'model_name': f'rf_model_{i}', 'dataset_type': d_type, 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
+    *[{'mode': 'independent', 'model_type': 'random_forest', 'model_name': f'rf_model_{i}', 'dataset_type': d_type, 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
       for i in range(1, 7)
       for d_type, t_sets in [('sat20', ['Syn_DDoS', 'UDP_DDoS']), ('ter20', ['Botnet', 'DDoS', 'Syn_DDoS', 'UDP_DDoS'])]
       for t_set in t_sets],
 
     # Random Forest (Model 6) on NB15
-    *[{'mode': 'independent', 'model_type': 'random_forest', 'model_name': f'rf_model_{6}', 'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
+    *[{'mode': 'independent', 'model_type': 'random_forest', 'model_name': f'rf_model_{6}', 'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
       for t_set in ['DoS', 'Exploits', 'Fuzzers', 'Generic', 'Normal', 'Reconnaissance']],
 
     # Random Forest (Model 7) on NB15
-    *[{'mode': 'independent', 'model_type': 'random_forest', 'model_name': f'rf_model_{7}', 'dataset_type': 'sat20', 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
+    *[{'mode': 'independent', 'model_type': 'random_forest', 'model_name': f'rf_model_{7}', 'dataset_type': 'sat20', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
       for t_set in ['Syn_DDoS', 'UDP_DDoS']],
 
     # Random Forest (Model 8) on NB15
-    *[{'mode': 'independent', 'model_type': 'random_forest', 'model_name': f'rf_model_{8}', 'dataset_type': 'ter20', 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
+    *[{'mode': 'independent', 'model_type': 'random_forest', 'model_name': f'rf_model_{8}', 'dataset_type': 'ter20', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
       for t_set in ['Botnet', 'DDoS', 'Syn_DDoS', 'UDP_DDoS']],
 
     # Isolation Forest (Model 1) on SAT20, TER20 and NB15
-    *[{'mode': 'independent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'sat20', 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
+    *[{'mode': 'independent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'sat20', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
       for t_set in ['Syn_DDoS', 'UDP_DDoS']],
-    *[{'mode': 'independent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'ter20', 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
+    *[{'mode': 'independent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'ter20', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
       for t_set in ['Botnet', 'DDoS', 'Syn_DDoS', 'UDP_DDoS']],
-    *[{'mode': 'independent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': 'attack_cat'}
+    *[{'mode': 'independent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME}
       for t_set in ['DoS', 'Exploits', 'Fuzzers', 'Generic', 'Normal', 'Reconnaissance']],
-    *[{'mode': 'independent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': 'normal_attack'}
+    *[{'mode': 'independent', 'model_type': 'isolation_forest', 'model_name': 'if_model_1', 'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': NORMAL_ATTACK_DIR_NAME}
       for t_set in ['Normal_DoS', 'Normal_Exploits', 'Normal_Fuzzers', 'Normal_Generic', 'Normal_Reconnaissance']],
 ]
 
@@ -104,10 +108,10 @@ def save_result(model_obj, mode, model_name, dataset_type, testing_dataset, samp
     base_dir.mkdir(parents=True, exist_ok=True)
 
     if isinstance(model_obj, RandomForestClassifier):
-        file_path = base_dir / "random_forest_classification_results.csv"
+        file_path = base_dir / RF_RESULTS_FILENAME
         model_type_str = "random_forest"
     elif isinstance(model_obj, IsolationForest):
-        file_path = base_dir / "isolation_forest_classification_results.csv"
+        file_path = base_dir / IF_RESULTS_FILENAME
         model_type_str = "isolation_forest"
     else:
         print(f"Error: Unknown model type for model '{model_name}'. Cannot save results.")
@@ -210,7 +214,15 @@ def run_routine_classifications():
 
         # Determine data path (assuming preprocessed data is stored)
         data_base_dir = DEPENDENT_DIR if mode == 'dependent' else INDEPENDENT_DIR
-        data_path = data_base_dir / f"{dataset_type}_preprocessed" / data_subdir / f"{testing_dataset_name}.csv"
+        
+        # Construct the preprocessed dataset directory name dynamically
+        preprocessed_dataset_dir_name = f"{dataset_type}{PREPROCESSED_DIR_SUFFIX}"
+        
+        # Build the full path to the testing dataset
+        if data_subdir: # If there's a specific subdirectory (e.g., attack_cat, normal_attack)
+            data_path = data_base_dir / preprocessed_dataset_dir_name / data_subdir / f"{testing_dataset_name}.csv"
+        else: # If the file is directly in the preprocessed dataset directory (e.g., nb15_preprocessed.csv)
+            data_path = data_base_dir / preprocessed_dataset_dir_name / f"{testing_dataset_name}.csv"
 
         if not data_path.exists():
             print(f"Error: Preprocessed data not found at {data_path}. Skipping this task.")

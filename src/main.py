@@ -5,14 +5,13 @@ import pathlib
 import joblib # Keep joblib for the interactive classification_loop
 
 from classification.classification import classification_processing
-from models.models import model_processing
+from models.models import model_processing, run_routine_models
 from utils.file_utils import get_data_from_csv
 from utils.input_utils import get_split_input, validate_path, validate_choice, get_y_n_choice
 from preprocessing.data_preprocessing import data_preprocessing
 from preprocessing.file_preprocessing import file_preprocessing, create_joint_datasets
 from classification.classification import run_routine_classifications # Import the new routine function
 from utils.paths import INDEPENDENT_DIR, DEPENDENT_DIR, NB15_RAW_PATH, SAT20_RAW_PATH, TER20_RAW_PATH
-from utils.paths import INDEPENDENT_DIR, DEPENDENT_DIR
 
 
 # --- State Wrappers ---
@@ -147,6 +146,13 @@ def build_model_loop():
     print("\n--- Starting Model Building Phase ---")
     mode_input = input("Choose model building mode: [independent or dependent] ").lower()
     mode = validate_choice(mode_input, ['independent', 'dependent'], "mode")
+
+    routine_choice = get_y_n_choice(f"Do you want to run the routine model building for {mode} mode? [y/n] ")
+    if routine_choice == 'y':
+        run_routine_models(mode)
+        # Ask if user wants to continue with interactive building
+        if get_y_n_choice("Do you want to build additional models manually? [y/n] ") == 'n':
+            return
 
     user_choice = 'y'
     while user_choice == 'y':
