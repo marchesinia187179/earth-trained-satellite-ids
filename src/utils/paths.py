@@ -54,11 +54,6 @@ CLASSIFICATION_DIR = SRC_DIR / "classification"
 INDEPENDENT_RESULTS_DIR = CLASSIFICATION_DIR / "independent"
 DEPENDENT_RESULTS_DIR = CLASSIFICATION_DIR / "dependent"
 
-# --- Plots ---
-PLOTS_DIR = CLASSIFICATION_DIR / "plots"
-INDEPENDENT_PLOTS_DIR = PLOTS_DIR / "independent"
-DEPENDENT_PLOTS_DIR = PLOTS_DIR / "dependent"
-
 # --- Structured dataset directory names ---
 JOINT_DIR_NAME = "joint_preprocessed"
 
@@ -76,10 +71,7 @@ def setup_project_directories():
         IF_MODELS_SAVED_DIR / "independent",
         IF_MODELS_SAVED_DIR / "dependent",
         INDEPENDENT_RESULTS_DIR,
-        DEPENDENT_RESULTS_DIR,
-        PLOTS_DIR,
-        INDEPENDENT_PLOTS_DIR,
-        DEPENDENT_PLOTS_DIR
+        DEPENDENT_RESULTS_DIR
     ]
     
     for directory in directories_to_create:
