@@ -1,0 +1,10 @@
+id,timestamp,model_type,model_name,dataset_type,testing_dataset,samples,tp,tn,fp,fn,f1,precision,recall,auc_roc
+17,2026-06-19 21:20:19,isolation_forest,if_model_1,ter20,Botnet,8081,8081,0,0,0,None,None,1.0,None
+13,2026-06-19 21:20:27,random_forest,rf_model_1,ter20,Botnet,8081,1372,0,0,6709,None,None,0.1697809677020171,None
+29,2026-06-19 21:20:37,random_forest,rf_model_2,ter20,Botnet,8081,6082,0,0,1999,None,None,0.7526296250464052,None
+45,2026-06-19 21:20:47,random_forest,rf_model_3,ter20,Botnet,8081,8081,0,0,0,None,None,1.0,None
+61,2026-06-19 21:20:55,random_forest,rf_model_4,ter20,Botnet,8081,1063,0,0,7018,None,None,0.13154312585076106,None
+77,2026-06-19 21:21:03,random_forest,rf_model_5,ter20,Botnet,8081,1085,0,0,6996,None,None,0.13426556119292166,None
+95,2026-06-19 21:21:14,random_forest,rf_model_6,ter20,Botnet,8081,7756,0,0,325,None,None,0.9597822051726271,None
+108,2026-06-19 21:21:20,random_forest,rf_model_7,ter20,Botnet,8081,4936,0,0,3145,None,None,0.6108154931320381,None
+121,2026-06-19 21:21:26,random_forest,rf_model_8,ter20,Botnet,8081,8081,0,0,0,None,None,1.0,None

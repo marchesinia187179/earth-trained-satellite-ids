@@ -10,6 +10,9 @@ from sklearn.metrics import f1_score, precision_score, recall_score, confusion_m
 from utils.file_utils import get_data_from_csv, update_or_append_csv
 from utils.paths import (
     INDEPENDENT_RESULTS_DIR, DEPENDENT_RESULTS_DIR,
+    INDEPENDENT_RESULTS_MODELS_DIR, DEPENDENT_RESULTS_MODELS_DIR,
+    INDEPENDENT_RESULTS_DATASETS_DIR, DEPENDENT_RESULTS_DATASETS_DIR,
+    TESTING_DATASET_DIR_NAME, DATASET_RESULTS_SUFFIX, TESTING_DATASET_RESULTS_SUFFIX,
     INDEPENDENT_RF_DIR, DEPENDENT_RF_DIR,
     INDEPENDENT_IF_DIR, DEPENDENT_IF_DIR,
     INDEPENDENT_DIR, DEPENDENT_DIR,
@@ -154,7 +157,7 @@ ROUTINE_CLASSIFICATIONS.sort(key=_get_routine_sort_key)
 
 
 # --- Result Saving Functions ---
-def save_result(model_obj, mode, model_name, dataset_type, testing_dataset, samples, metrics):
+def save_result(model_obj, mode, model_name, dataset_type, testing_dataset, samples, metrics, collect_results=False):
     base_dir = INDEPENDENT_RESULTS_DIR if mode == 'independent' else DEPENDENT_RESULTS_DIR
     base_dir.mkdir(parents=True, exist_ok=True)
 
@@ -166,7 +169,7 @@ def save_result(model_obj, mode, model_name, dataset_type, testing_dataset, samp
         model_type_str = "isolation_forest"
     else:
         print(f"Error: Unknown model type for model '{model_name}'. Cannot save results.")
-        return
+        return None
 
     results_dict = {
         'id': None,
@@ -189,12 +192,59 @@ def save_result(model_obj, mode, model_name, dataset_type, testing_dataset, samp
     match_keys = ['model_name', 'dataset_type', 'testing_dataset']
     update_or_append_csv(file_path, results_dict, match_keys)
 
+    if collect_results:
+        return results_dict
+    return None
+
+
+def _persist_grouped_routine_results(results, mode):
+    if not results:
+        print("Warning: No routine results were collected for grouped exports.")
+        return
+
+    results_df = pd.DataFrame(results)
+    if results_df.empty:
+        print("Warning: Collected routine results are empty. No grouped files will be created.")
+        return
+
+    models_dir = INDEPENDENT_RESULTS_MODELS_DIR if mode == 'independent' else DEPENDENT_RESULTS_MODELS_DIR
+    datasets_dir = INDEPENDENT_RESULTS_DATASETS_DIR if mode == 'independent' else DEPENDENT_RESULTS_DATASETS_DIR
+
+    print(f"\n--- Persisting grouped routine classification results ({mode}) ---")
+    for model_name, group in results_df.groupby('model_name'):
+        output_path = models_dir / model_name / f"{model_name}_classification_results.csv"
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        group.to_csv(output_path, index=False, na_rep='None')
+        print(f"  Saved model-level file: {output_path}")
+
+    for dataset_type, group in results_df.groupby('dataset_type'):
+        dataset_dir = datasets_dir / dataset_type
+        dataset_dir.mkdir(parents=True, exist_ok=True)
+
+        dataset_summary_path = dataset_dir / f"{dataset_type}{DATASET_RESULTS_SUFFIX}"
+        group.to_csv(dataset_summary_path, index=False, na_rep='None')
+        print(f"  Saved dataset-level file: {dataset_summary_path}")
+
+        testing_dir = dataset_dir / TESTING_DATASET_DIR_NAME
+        testing_dir.mkdir(parents=True, exist_ok=True)
+
+        for testing_dataset_name, test_group in group.groupby('testing_dataset'):
+            test_path = testing_dir / f"{testing_dataset_name}{TESTING_DATASET_RESULTS_SUFFIX}"
+            test_group.to_csv(test_path, index=False, na_rep='None')
+            print(f"    Saved testing-dataset file: {test_path}")
+
+    print(f"--- Grouped routine classification export completed for mode '{mode}'. "
+          f"Models: {results_df['model_name'].nunique()}, Datasets: {results_df['dataset_type'].nunique()}, "
+          f"Testing datasets: {results_df['testing_dataset'].nunique()} ---\n")
+
 
 def run_routine_classifications(pipeline_mode=None):
     print("\n--- Starting Routine Classification Phase ---")
     if not ROUTINE_CLASSIFICATIONS:
         print("No routine classification tasks defined. Exiting routine classification.")
         return
+
+    routine_results_by_mode = {'independent': [], 'dependent': []}
 
     for task in ROUTINE_CLASSIFICATIONS:
         mode = task['mode']
@@ -252,20 +302,30 @@ def run_routine_classifications(pipeline_mode=None):
             continue
 
         models_to_test = [{'model_obj': model_obj, 'model_name': model_name}]
-        classification_processing(data, mode, models_to_test, dataset_type, testing_dataset_name)
+        task_results = classification_processing(data, mode, models_to_test, dataset_type, testing_dataset_name, collect_results=True)
+        if task_results:
+            routine_results_by_mode[mode].extend(task_results)
+
+    if pipeline_mode is None:
+        for run_mode, results in routine_results_by_mode.items():
+            _persist_grouped_routine_results(results, run_mode)
+    else:
+        _persist_grouped_routine_results(routine_results_by_mode[pipeline_mode], pipeline_mode)
+
     print("\n--- Routine Classification Phase Completed ---")
 
 
 # --- Main Processing Logic ---
-def classification_processing(data, mode, models_to_test, dataset_type, testing_dataset="Unknown"):
+def classification_processing(data, mode, models_to_test, dataset_type, testing_dataset="Unknown", collect_results=False):
     test_data = data[data['split_type'] == 'test']
 
     if test_data.empty:
         print(f"Warning: No samples marked as 'test' found for {testing_dataset}. Skipping processing.")
-        return
+        return [] if collect_results else None
 
     X = test_data.drop(columns=["label", "attack_cat", "split_type"])
     y = test_data["label"]
+    results = [] if collect_results else None
 
     for model_entry in models_to_test:
         model_obj = model_entry['model_obj']
@@ -316,4 +376,8 @@ def classification_processing(data, mode, models_to_test, dataset_type, testing_
         auc_roc_display = f"{auc_roc:.4f}" if auc_roc is not None else "None"
 
         print(f"F1-score={f1_display}, Precision={precision_display}, Recall={recall_display}, AUC-ROC={auc_roc_display}")
-        save_result(model_obj, mode, model_name, dataset_type, testing_dataset, test_data.shape[0], metrics)
+        result = save_result(model_obj, mode, model_name, dataset_type, testing_dataset, test_data.shape[0], metrics, collect_results=collect_results)
+        if collect_results and result is not None:
+            results.append(result)
+
+    return results if collect_results else None

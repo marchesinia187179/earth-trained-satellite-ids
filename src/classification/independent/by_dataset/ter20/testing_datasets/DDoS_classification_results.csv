@@ -1,0 +1,10 @@
+id,timestamp,model_type,model_name,dataset_type,testing_dataset,samples,tp,tn,fp,fn,f1,precision,recall,auc_roc
+18,2026-06-19 21:20:19,isolation_forest,if_model_1,ter20,DDoS,11459,11459,0,0,0,None,None,1.0,None
+14,2026-06-19 21:20:28,random_forest,rf_model_1,ter20,DDoS,11459,5357,0,0,6102,None,None,0.46749280041888475,None
+30,2026-06-19 21:20:37,random_forest,rf_model_2,ter20,DDoS,11459,10983,0,0,476,None,None,0.9584605986560782,None
+46,2026-06-19 21:20:48,random_forest,rf_model_3,ter20,DDoS,11459,11459,0,0,0,None,None,1.0,None
+62,2026-06-19 21:20:56,random_forest,rf_model_4,ter20,DDoS,11459,7,0,0,11452,None,None,0.0006108735491753207,None
+78,2026-06-19 21:21:04,random_forest,rf_model_5,ter20,DDoS,11459,13,0,0,11446,None,None,0.0011344794484684528,None
+96,2026-06-19 21:21:15,random_forest,rf_model_6,ter20,DDoS,11459,11398,0,0,61,None,None,0.9946766733571865,None
+109,2026-06-19 21:21:20,random_forest,rf_model_7,ter20,DDoS,11459,3273,0,0,8186,None,None,0.28562701806440355,None
+122,2026-06-19 21:21:26,random_forest,rf_model_8,ter20,DDoS,11459,11459,0,0,0,None,None,1.0,None
