@@ -1,17 +1,15 @@
 """
 Main entry point for the Satellite IDS project.
 """
-import pathlib
 import joblib  # Keep joblib for the interactive classification_loop
 
-from classification.classification import classification_processing, run_routine_classifications
-from models.models import model_processing, run_routine_models
 from utils.file_utils import get_data_from_csv
 from utils.input_utils import get_split_input, validate_path, validate_choice, get_y_n_choice, get_numeric_input
+from utils.paths import INDEPENDENT_DIR, DEPENDENT_DIR, NB15_RAW_PATH, SAT20_RAW_PATH, TER20_RAW_PATH, setup_project_directories
 from preprocessing.data_preprocessing import data_preprocessing
 from preprocessing.file_preprocessing import file_preprocessing, create_joint_datasets
-from utils.paths import INDEPENDENT_DIR, DEPENDENT_DIR, NB15_RAW_PATH, SAT20_RAW_PATH, TER20_RAW_PATH
-
+from models.models import model_processing, run_routine_models
+from classification.classification import classification_processing, run_routine_classifications
 
 # --- State Wrappers ---
 def file_preprocessing_state(data_preprocessed, dataset_type, base_dir, normal_attack_ratio=None, replacing_mode=None):
@@ -266,6 +264,8 @@ def main():
     """
     Main entry point of the application with a main dashboard menu.
     """
+    setup_project_directories()
+
     while True:
         print("\n" + "="*60)
         print("      SATELLITE IDS - MAIN DASHBOARD")

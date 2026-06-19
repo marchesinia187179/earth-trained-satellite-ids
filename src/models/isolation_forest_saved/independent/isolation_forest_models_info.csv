@@ -1,2 +1,0 @@
-timestamp,model_name,dataset_type,training_dataset,samples,train_ratio,n_estimators,max_features,random_state,n_features_in,max_samples,contamination,model_offset,tp,tn,fp,fn,f1,precision,recall,auc_roc
-2026-06-18 16:21:11,if_model_1,nb15,nb15_preprocessed,74400,0.8,100,1.0,42,17,auto,auto,-0.5,208,16788,1812,1652,0.10721649484536082,0.10297029702970296,0.11182795698924732,0.6079651693837438
