@@ -1,14 +1,13 @@
 """
 Classification logic for evaluating trained models on test datasets.
 """
-import pathlib
 from datetime import datetime
 import pandas as pd
 
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier, IsolationForest
 from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix, roc_auc_score
-from utils.file_utils import append_data_to_csv, get_data_from_csv, get_model_info
+from utils.file_utils import get_data_from_csv, update_or_append_csv
 from utils.paths import (
     INDEPENDENT_RESULTS_DIR, DEPENDENT_RESULTS_DIR,
     INDEPENDENT_RF_DIR, DEPENDENT_RF_DIR,
@@ -182,42 +181,14 @@ def save_result(model_obj, mode, model_name, dataset_type, testing_dataset, samp
         'tn': metrics['tn'],
         'fp': metrics['fp'],
         'fn': metrics['fn'],
-        'f1': metrics['f1'],
-        'precision': metrics['precision'],
-        'recall': metrics['recall'],
-        'auc_roc': metrics.get('auc_roc')
+        'f1': metrics['f1'] if metrics['f1'] is not None else 'None',
+        'precision': metrics['precision'] if metrics['precision'] is not None else 'None',
+        'recall': metrics['recall'] if metrics['recall'] is not None else 'None',
+        'auc_roc': metrics['auc_roc'] if metrics['auc_roc'] is not None else 'None'
     }
 
-    if file_path.exists():
-        try:
-            # Carichiamo il CSV trattando 'None' come valore nullo reale (NaN)
-            df = pd.read_csv(file_path, na_values='None')
-            
-            # Check if an entry with the same model and dataset already exists
-            mask = (df['model_name'] == model_name) & \
-                   (df['dataset_type'] == dataset_type) & \
-                   (df['testing_dataset'] == testing_dataset)
-            
-            if not df.empty and mask.any():
-                # Update existing row, preserving the original ID
-                idx = df.index[mask][0]
-                results_dict['id'] = df.at[idx, 'id']
-                for key, value in results_dict.items():
-                    df.at[idx, key] = value
-                df.to_csv(file_path, index=False, na_rep='None')
-                print(f"Updated existing entry for {model_name} on {testing_dataset} in: {file_path.name}")
-                return
-            else:
-                # Assicuriamoci che l'ID sia un intero basato sul massimo esistente
-                results_dict['id'] = int(df['id'].max() + 1) if not df.empty and pd.notnull(df['id'].max()) else 1
-        except Exception as e:
-            print(f"Warning: Could not parse {file_path.name} for update ({e}). Appending as new.")
-            results_dict['id'] = 1 # Fallback se il file è corrotto
-    else:
-        results_dict['id'] = 1
-
-    append_data_to_csv(results_dict, file_path)
-    print(f"Classification report appended to: {file_path.name}")
+    match_keys = ['model_name', 'dataset_type', 'testing_dataset']
+    update_or_append_csv(file_path, results_dict, match_keys)
 
 
 def run_routine_classifications():
@@ -308,6 +279,11 @@ def classification_processing(data, mode, models_to_test, dataset_type, testing_
     """
     # Filter only test data to avoid data leakage from training
     test_data = data[data['split_type'] == 'test']
+
+    if test_data.empty:
+        print(f"Warning: No samples marked as 'test' found for {testing_dataset}. Skipping processing.")
+        return
+
     # Prepare features and labels
     X = test_data.drop(columns=["label", "attack_cat", "split_type"])
     y = test_data["label"]
@@ -345,7 +321,7 @@ def classification_processing(data, mode, models_to_test, dataset_type, testing_
         # Calculate metrics
         f1 = f1_score(y, y_pred) if has_both_classes else None
         precision = precision_score(y, y_pred) if has_both_classes else None
-        recall = recall_score(y, y_pred)
+        recall = recall_score(y, y_pred) if has_both_classes else None
 
         cm = confusion_matrix(y, y_pred, labels=[0, 1])
         tn, fp, fn, tp = cm.ravel()
@@ -358,6 +334,8 @@ def classification_processing(data, mode, models_to_test, dataset_type, testing_
 
         f1_display = f"{f1:.4f}" if f1 is not None else "None"
         precision_display = f"{precision:.4f}" if precision is not None else "None"
+        recall_display = f"{recall:.4f}" if recall is not None else "None"
         auc_roc_display = f"{auc_roc:.4f}" if auc_roc is not None else "None"
-        print(f"F1-score={f1_display}, Precision={precision_display}, Recall={recall:.4f}, AUC-ROC={auc_roc_display}")
+
+        print(f"F1-score={f1_display}, Precision={precision_display}, Recall={recall_display}, AUC-ROC={auc_roc_display}")
         save_result(model_obj, mode, model_name, dataset_type, testing_dataset, test_data.shape[0], metrics)

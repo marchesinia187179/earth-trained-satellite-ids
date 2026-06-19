@@ -140,8 +140,13 @@ def normalize_dataset_independent(data):
     
     for col in data.columns:
         if col not in cols_to_exclude and pd.api.types.is_numeric_dtype(data[col]):
-            min_val = data_train[col].min()
-            max_val = data_train[col].max()
+
+            if not data_train.empty:
+                min_val = data_train[col].min()
+                max_val = data_train[col].max()
+            else:
+                min_val = data[col].min()
+                max_val = data[col].max()
             
             diff = max_val - min_val
             
@@ -170,10 +175,18 @@ def normalize_dataset_dependent(data, scaler_stats=None):
 
         scaler_stats = {}
         for col in numeric_cols:
+            if not data_train.empty:
+                min_val = data_train[col].min()
+                max_val = data_train[col].max()
+            else:
+                min_val = data[col].min()
+                max_val = data[col].max()
+                
             scaler_stats[col] = {
-                'min': data_train[col].min(),
-                'max': data_train[col].max()
+                'min': min_val,
+                'max': max_val
             }
+
         print("Parametri di normalizzazione calcolati (Fit).")
     else:
         print("Parametri di normalizzazione ereditati (Transform).")

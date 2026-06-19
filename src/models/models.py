@@ -8,8 +8,7 @@ import pandas as pd
 from datetime import datetime
 from sklearn.ensemble import RandomForestClassifier, IsolationForest
 from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix, roc_auc_score
-from sklearn.model_selection import train_test_split
-from utils.file_utils import append_data_to_csv, get_data_from_csv
+from utils.file_utils import get_data_from_csv, update_or_append_csv
 from utils.paths import (
     INDEPENDENT_RF_DIR, DEPENDENT_RF_DIR,
     INDEPENDENT_IF_DIR, DEPENDENT_IF_DIR,
@@ -50,7 +49,7 @@ def _calculate_metrics(y_true, y_pred, y_scores):
 
     f1 = f1_score(y_true, y_pred) if has_both else None
     precision = precision_score(y_true, y_pred) if has_both else None
-    recall = recall_score(y_true, y_pred)
+    recall = recall_score(y_true, y_pred) if has_both else None
     auc_roc = roc_auc_score(y_true, y_scores) if has_both else None
 
     # Fix: labels=[0, 1] ensures a 2x2 matrix even if classes are missing
@@ -118,9 +117,11 @@ def _save_model_and_metadata(model, model_type, mode, train_ratio, training_data
         'recall': metrics['recall'] if metrics['recall'] is not None else 'None',
         'auc_roc': metrics['auc_roc'] if metrics['auc_roc'] is not None else 'None'
     })
-
-    append_data_to_csv(results, info_csv)
-    print(f"Model {model_name} saved to {save_dir.name} and metadata to {info_csv.name}")
+    
+    match_keys = ['model_name', 'dataset_type']
+    update_or_append_csv(info_csv, results, match_keys, id_column='id')
+    
+    print(f"Model {model_name} saved to {save_dir.name} and metadata processed in {info_csv.name}")
 
 
 # --- Public Training Functions ---

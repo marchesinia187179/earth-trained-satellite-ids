@@ -7,6 +7,61 @@ from datetime import datetime
 import sys
 from utils.paths import GENERAL_FILE_INFO_PATH, ROOT_DIR
 
+
+def update_or_append_csv(file_path, data_dict, match_keys, id_column='id'):
+    """
+    Aggiorna una riga esistente in un file CSV se i campi in match_keys corrispondono,
+    altrimenti genera un nuovo ID incrementale (sulla colonna specificata) e appende i dati.
+
+    :param file_path: Oggetto pathlib.Path del file CSV di destinazione.
+    :param data_dict: Dizionario contenente i dati della riga da salvare/aggiornare.
+    :param match_keys: Lista di stringhe (colonne) per identificare l'univocità della riga.
+    :param id_column: Nome della colonna ID (default: 'id').
+    """
+    if file_path.exists():
+        try:
+            # Carica il file trattando 'None' come nullo
+            df = pd.read_csv(file_path, na_values='None')
+            
+            if not df.empty:
+                # Costruisce la maschera booleana per verificare i duplicati
+                mask = True
+                for key in match_keys:
+                    mask &= (df[key] == data_dict[key])
+                
+                if mask.any():
+                    # Aggiorna la riga preservando l'ID originale
+                    idx = df.index[mask][0]
+                    data_dict[id_column] = df.at[idx, id_column]
+                    
+                    for key, value in data_dict.items():
+                        df.at[idx, key] = value
+                        
+                    df.to_csv(file_path, index=False, na_rep='None')
+                    print(f"Updated existing entry in: {file_path.name}")
+                    return
+                
+                # Genera un nuovo ID incrementale basato sul massimo esistente
+                max_id = df[id_column].max()
+                data_dict[id_column] = int(max_id + 1) if pd.notnull(max_id) else 1
+            else:
+                data_dict[id_column] = 1
+        except Exception as e:
+            print(f"Warning: Could not parse {file_path.name} for update ({e}). Appending as new.")
+            data_dict[id_column] = 1
+    else:
+        data_dict[id_column] = 1
+
+    # Accoda la nuova riga
+    new_entry = pd.DataFrame([data_dict])
+    if not file_path.exists():
+        new_entry.to_csv(file_path, index=False, na_rep='None')
+    else:
+        new_entry.to_csv(file_path, mode='a', header=False, index=False, na_rep='None')
+        
+    print(f"Data appended/created in: {file_path.name}")
+
+
 def get_data_from_csv(file_path):
     """
     Reads a CSV file and returns a pandas DataFrame.
@@ -62,20 +117,9 @@ def create_csv_from_data(data, file_name, file_path):
         file_info['train_test_distribution'] = 'None'
     print("-" * 30)
     
-    if GENERAL_FILE_INFO_PATH.exists():
-        try:
-            info_df = pd.read_csv(GENERAL_FILE_INFO_PATH, na_values='None')
-            mask = info_df['relative_path'] == file_info['relative_path']
-            if not info_df.empty and mask.any():
-                idx = info_df.index[mask][0]
-                for key, value in file_info.items():
-                    info_df.at[idx, key] = value
-                info_df.to_csv(GENERAL_FILE_INFO_PATH, index=False, na_rep='None')
-                return full_path
-        except Exception as e:
-            print(f"Warning: Could not update {GENERAL_FILE_INFO_PATH.name} ({e}). Appending instead.")
-
-    append_data_to_csv(file_info, GENERAL_FILE_INFO_PATH)
+    match_keys = ['relative_path']
+    update_or_append_csv(GENERAL_FILE_INFO_PATH, file_info, match_keys, id_column='id')
+    
     return full_path
 
 
