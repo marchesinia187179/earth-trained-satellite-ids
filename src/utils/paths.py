@@ -43,10 +43,6 @@ PREPROCESSED_MAIN_FILE_SUFFIX = "_preprocessed"
 RF_MODELS_SAVED_DIR = SRC_DIR / "models" / "random_forest_saved"
 IF_MODELS_SAVED_DIR = SRC_DIR / "models" / "isolation_forest_saved"
 
-# Specific subfolders for models
-RF_MODELS_SAVED_DIR = SRC_DIR / "models" / "random_forest_saved"
-IF_MODELS_SAVED_DIR = SRC_DIR / "models" / "isolation_forest_saved"
-
 # Mode-specific subdirectories for models
 INDEPENDENT_RF_DIR = RF_MODELS_SAVED_DIR / "independent"
 DEPENDENT_RF_DIR = RF_MODELS_SAVED_DIR / "dependent"
@@ -57,6 +53,11 @@ DEPENDENT_IF_DIR = IF_MODELS_SAVED_DIR / "dependent"
 CLASSIFICATION_DIR = SRC_DIR / "classification"
 INDEPENDENT_RESULTS_DIR = CLASSIFICATION_DIR / "independent"
 DEPENDENT_RESULTS_DIR = CLASSIFICATION_DIR / "dependent"
+
+# --- Plots ---
+PLOTS_DIR = CLASSIFICATION_DIR / "plots"
+INDEPENDENT_PLOTS_DIR = PLOTS_DIR / "independent"
+DEPENDENT_PLOTS_DIR = PLOTS_DIR / "dependent"
 
 # --- Structured dataset directory names ---
 JOINT_DIR_NAME = "joint_preprocessed"
@@ -75,7 +76,10 @@ def setup_project_directories():
         IF_MODELS_SAVED_DIR / "independent",
         IF_MODELS_SAVED_DIR / "dependent",
         INDEPENDENT_RESULTS_DIR,
-        DEPENDENT_RESULTS_DIR
+        DEPENDENT_RESULTS_DIR,
+        PLOTS_DIR,
+        INDEPENDENT_PLOTS_DIR,
+        DEPENDENT_PLOTS_DIR
     ]
     
     for directory in directories_to_create:

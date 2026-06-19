@@ -10,6 +10,13 @@ from preprocessing.data_preprocessing import data_preprocessing
 from preprocessing.file_preprocessing import file_preprocessing, create_joint_datasets
 from models.models import model_processing, run_routine_models
 from classification.classification import classification_processing, run_routine_classifications
+from view.plotting import (
+    plot_confusion_matrix,
+    plot_feature_importance,
+    plot_classification_report,
+    plot_learning_curves_iterative,
+)
+from utils.paths import INDEPENDENT_RESULTS_DIR, DEPENDENT_RESULTS_DIR, INDEPENDENT_PLOTS_DIR, DEPENDENT_PLOTS_DIR
 
 # --- State Wrappers ---
 def file_preprocessing_state(data_preprocessed, dataset_type, base_dir, normal_attack_ratio=None, replacing_mode=None):
@@ -203,6 +210,10 @@ def run_guided_routine_pipeline():
     else:
         print("Routine classification skipped.")
 
+    # Offer to auto-generate plots after guided routine
+    if get_y_n_choice("Do you want to automatically generate plots for this mode? [y/n] ") == 'y':
+        generate_plots_for_mode(mode)
+
     print("\nRoutine pipeline session concluded.")
 
 
@@ -228,6 +239,8 @@ def run_full_automated_pipeline():
         
         print(f"\n--- 3. Executing Non-Stop Routine Classifications ({mode}) ---")
         run_routine_classifications(mode) 
+        # After full automated routines, generate static plots automatically
+        generate_plots_for_mode(mode)
         
     print("\n=== FULL PIPELINE AUTOMATICALLY COMPLETED FOR BOTH MODES ===")
 
@@ -240,8 +253,9 @@ def run_manual_pipeline():
         print("2. Build/Train Interactive Model")
         print("3. Start Classification / Test Model")
         print("4. Return to main menu")
+        print("5. Plotting Tools")
         
-        choice = input("Select an option (1-4): ")
+        choice = input("Select an option (1-5): ")
         
         if choice == '1':
             preprocessing_loop()
@@ -252,8 +266,80 @@ def run_manual_pipeline():
         elif choice == '4':
             print("Returning to main menu...")
             break
+        elif choice == '5':
+            plotting_loop()
         else:
-            print("Invalid choice. Please enter a number from 1 to 4.")
+            print("Invalid choice. Please enter a number from 1 to 5.")
+
+
+def generate_plots_for_mode(mode: str):
+    """Scan results directory for the given mode and generate sensible plots.
+
+    Uses filename heuristics to select which plotting function to call and
+    saves plots into the corresponding plots directory.
+    """
+    results_dir = INDEPENDENT_RESULTS_DIR if mode == 'independent' else DEPENDENT_RESULTS_DIR
+    plots_dir = INDEPENDENT_PLOTS_DIR if mode == 'independent' else DEPENDENT_PLOTS_DIR
+
+    if not results_dir.exists():
+        print(f"[main] No results directory for mode {mode}: {results_dir}")
+        return
+
+    csvs = list(results_dir.glob('*.csv'))
+    if not csvs:
+        print(f"[main] No CSV result files found in {results_dir}")
+        return
+
+    for csv in csvs:
+        name = csv.stem.lower()
+        try:
+            if 'confusion' in name or 'cm' == name:
+                plot_confusion_matrix(str(csv), save_dir=str(plots_dir))
+            elif 'feature' in name or 'importance' in name:
+                plot_feature_importance(str(csv), save_dir=str(plots_dir))
+            elif 'report' in name or 'classification' in name or 'results' in name:
+                plot_classification_report(str(csv), save_dir=str(plots_dir))
+            else:
+                # fallback: attempt classification report
+                plot_classification_report(str(csv), save_dir=str(plots_dir))
+        except Exception as e:
+            print(f"[main] Failed to generate plot for {csv}: {e}")
+
+
+def plotting_loop():
+    """Interactive plotting utilities for manual use."""
+    while True:
+        print("\n--- Plotting Tools ---")
+        print("1. Plot Confusion Matrix from CSV")
+        print("2. Plot Feature Importance from CSV")
+        print("3. Plot Classification Report from CSV")
+        print("4. Plot Learning Curves (iterative CSV)")
+        print("5. Return to manual menu")
+
+        c = input("Select plotting option (1-5): ").strip()
+        if c == '5':
+            break
+
+        csv_path = input("Enter path to CSV file: ").strip()
+        save_choice = input("Save plot to project plots directory? [y/n] ").strip().lower()
+        save_dir = None
+        if save_choice == 'y':
+            mode_choice = input("Which mode plots folder to use? [independent/dependent]: ").strip().lower()
+            save_dir = str(INDEPENDENT_PLOTS_DIR if mode_choice == 'independent' else DEPENDENT_PLOTS_DIR)
+
+        try:
+            if c == '1':
+                plot_confusion_matrix(csv_path, save_dir=save_dir)
+            elif c == '2':
+                plot_feature_importance(csv_path, save_dir=save_dir)
+            elif c == '3':
+                plot_classification_report(csv_path, save_dir=save_dir)
+            elif c == '4':
+                plot_learning_curves_iterative(csv_path, save_dir=save_dir)
+            else:
+                print("Invalid choice.")
+        except Exception as e:
+            print(f"[main] Plotting error: {e}")
 
 
 def main():
