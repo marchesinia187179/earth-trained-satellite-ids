@@ -1,7 +1,7 @@
 """
 Main entry point for the Satellite IDS project.
 """
-import joblib  # Keep joblib for the interactive classification_loop
+import joblib
 
 from utils.file_utils import get_data_from_csv
 from utils.input_utils import get_split_input, validate_path, validate_choice, get_y_n_choice, get_numeric_input
@@ -13,16 +13,12 @@ from classification.classification import classification_processing, run_routine
 
 # --- State Wrappers ---
 def file_preprocessing_state(data_preprocessed, dataset_type, base_dir, normal_attack_ratio=None, replacing_mode=None):
-    """
-    Wrapper function to trigger the file-level preprocessing state.
-    """
+    """Wrapper function to trigger the file-level preprocessing state."""
     file_preprocessing(data_preprocessed, dataset_type, base_dir, normal_attack_ratio, replacing_mode)
 
 
 def data_preprocessing_state(path, dataset_type, dependent=True, scaler_stats=None, train_split=0.8):
-    """
-    Wrapper function to load data and trigger the data-level preprocessing state.
-    """
+    """Wrapper function to load data and trigger the data-level preprocessing state."""
     data = get_data_from_csv(path)
     data_preprocessed, scaler_stats = data_preprocessing(data, dataset_type, dependent, scaler_stats, train_split)
     return data_preprocessed, scaler_stats
@@ -30,14 +26,13 @@ def data_preprocessing_state(path, dataset_type, dependent=True, scaler_stats=No
 
 # --- Runtime Loops ---
 def preprocessing_loop():
-    """
-    Interactive loop for running the data and file preprocessing phase.
-    """
+    """Interactive loop for running the data and file preprocessing phase."""
     print("\n--- Starting Preprocessing Phase ---")
     mode_input = input("Choose preprocessing mode: [independent or dependent] ").lower()
     mode = validate_choice(mode_input, ['independent', 'dependent'], "mode")
 
     train_split = get_numeric_input("Insert the train split percentage (e.g. 80): ", type_func=float, min_val=1, max_val=99) / 100
+    current_base_dir = DEPENDENT_DIR if mode == 'dependent' else INDEPENDENT_DIR
 
     if mode == 'dependent':
         print("\n[DEPENDENT MODE] First dataset will be used for Fit (scaler calculation).")
@@ -47,7 +42,7 @@ def preprocessing_loop():
         dataset_type = validate_choice(user_input[1], ['nb15', 'sat20', 'ter20'], "dataset type")
 
         data_pre, scaler_stats = data_preprocessing_state(path, dataset_type, dependent=True, scaler_stats=None, train_split=train_split)
-        file_preprocessing_state(data_pre, dataset_type, DEPENDENT_DIR)
+        file_preprocessing_state(data_pre, dataset_type, current_base_dir)
 
         while get_y_n_choice("Do you want to add a dataset for TRANSFORM using calculated stats? [y/n] ") == 'y':
             prompt = "Insert the path and the dataset_type for TRANSFORM: [path dataset_type] "
@@ -56,8 +51,7 @@ def preprocessing_loop():
             dataset_type = validate_choice(user_input[1], ['nb15', 'sat20', 'ter20'], "dataset type")
 
             data_pre, _ = data_preprocessing_state(path, dataset_type, dependent=True, scaler_stats=scaler_stats, train_split=train_split)
-            file_preprocessing_state(data_pre, dataset_type, DEPENDENT_DIR)
-    
+            file_preprocessing_state(data_pre, dataset_type, current_base_dir)
     else: 
         user_choice = 'y'
         while user_choice == 'y':
@@ -67,18 +61,23 @@ def preprocessing_loop():
             dataset_type = validate_choice(user_input[1], ['nb15', 'sat20', 'ter20'], "dataset type")
 
             data_pre, _ = data_preprocessing_state(path, dataset_type, dependent=False, train_split=train_split)
-            file_preprocessing_state(data_pre, dataset_type, INDEPENDENT_DIR)
+            file_preprocessing_state(data_pre, dataset_type, current_base_dir)
             user_choice = get_y_n_choice("Do you want to process another independent dataset? [y/n] ")
 
+    # SOLVED: Generates joint datasets also in manual mode to prevent downstream errors
+    print("\n[INFO] Generating joint datasets from preprocessed files...")
+    create_joint_datasets(current_base_dir, ratio=10.0, replacing_mode=False)
 
-def run_routine_preprocessing():
-    """
-    Executes a predefined preprocessing routine for nb15, sat20, and ter20.
-    """
+
+# SOLVED: Added 'mode' parameter with a default value of None to prevent TypeErrors
+def run_routine_preprocessing(mode=None):
+    """Executes a predefined preprocessing routine for nb15, sat20, and ter20."""
     print("\n--- Starting Routine Preprocessing Phase ---")
 
-    mode_input = input("Choose routine preprocessing mode: [independent or dependent] ").lower()
-    mode = validate_choice(mode_input, ['independent', 'dependent'], "mode")
+    # SOLVED: Dynamic mode assignment prevents automation breaks
+    if mode is None:
+        mode_input = input("Choose routine preprocessing mode: [independent or dependent] ").lower()
+        mode = validate_choice(mode_input, ['independent', 'dependent'], "mode")
     
     datasets = [
         {'type': 'nb15', 'path': NB15_RAW_PATH},
@@ -93,7 +92,7 @@ def run_routine_preprocessing():
     
     current_base_dir = DEPENDENT_DIR if mode == 'dependent' else INDEPENDENT_DIR
 
-    for i, ds in enumerate(datasets):
+    for ds in datasets:
         if not ds['path'].exists():
             print(f"Warning: Dataset file not found at {ds['path']}. Skipping {ds['type']}.")
             continue
@@ -117,9 +116,7 @@ def run_routine_preprocessing():
 
 
 def build_model_loop():
-    """
-    Interactive loop for selecting, training, and saving machine learning models.
-    """
+    """Interactive loop for selecting, training, and saving machine learning models."""
     print("\n--- Starting Model Building Phase ---")
     mode_input = input("Choose model building mode: [independent or dependent] ").lower()
     mode = validate_choice(mode_input, ['independent', 'dependent'], "mode")
@@ -148,9 +145,7 @@ def build_model_loop():
 
 
 def classification_loop():
-    """
-    Interactive loop for evaluating saved models on specific testing datasets.
-    """
+    """Interactive loop for evaluating saved models on specific testing datasets."""
     print("\n--- Starting Classification Phase ---")
     mode_input = input("Choose classification mode: [independent or dependent] ").lower()
     mode = validate_choice(mode_input, ['independent', 'dependent'], "mode")
@@ -184,26 +179,26 @@ def classification_loop():
 
 
 def run_guided_routine_pipeline():
-    """
-    Executes the pipeline in Routine mode but guides the user step-by-step.
-    """
+    """Executes the pipeline in Routine mode but guides the user step-by-step."""
     print("\n=== AUTOMATED ROUTINE PIPELINE (GUIDED STEP-BY-STEP) ===")
     
+    # SOLVED: Asked once here to maintain pipeline consistency across all steps
+    mode_input = input("Choose routine pipeline mode: [independent or dependent] ").lower()
+    mode = validate_choice(mode_input, ['independent', 'dependent'], "mode")
+
     if get_y_n_choice("Do you want to execute the routine PREPROCESSING phase? [y/n] ") == 'y':
-        run_routine_preprocessing(mode=None)
+        run_routine_preprocessing(mode=mode)
     else:
         print("Routine preprocessing skipped.")
     
     if get_y_n_choice("Do you want to execute the routine MODEL BUILDING phase? [y/n] ") == 'y':
-        mode_input = input("Choose routine model building mode: [independent or dependent] ").lower()
-        mode = validate_choice(mode_input, ['independent', 'dependent'], "mode")
+        print(f"\n--- Running Routine Model Building ({mode.upper()} Mode) ---")
         run_routine_models(mode)
     else:
         print("Routine model building skipped.")
 
     if get_y_n_choice("Do you want to execute the routine CLASSIFICATION phase? [y/n] ") == 'y':
-        mode_input = input("Choose routine classification mode: [independent or dependent] ").lower()
-        mode = validate_choice(mode_input, ['independent', 'dependent'], "mode")
+        print(f"\n--- Running Routine Classification ({mode.upper()} Mode) ---")
         run_routine_classifications(mode)
     else:
         print("Routine classification skipped.")
@@ -214,31 +209,31 @@ def run_guided_routine_pipeline():
 def run_full_automated_pipeline():
     """
     Executes all routines non-stop (Pre-processing -> Training -> Testing) 
-    using a user-selected mode without further interruptions.
+    for BOTH independent and dependent modes without any interruptions.
     """
-    print("\n=== FULL AUTOMATED ROUTINE PIPELINE (NON-STOP) ===")
+    print("\n=== FULL AUTOMATED ROUTINE PIPELINE (NON-STOP: BOTH MODES) ===")
     
-    # 1. Ask mode ONCE here
-    mode_input = input("Choose FULL pipeline mode: [independent or dependent] ").lower()
-    mode = validate_choice(mode_input, ['independent', 'dependent'], "mode")
+    modes_to_run = ['independent', 'dependent']
     
-    print(f"\n--- 1. Executing Non-Stop Routine Preprocessing ({mode}) ---")
-    run_routine_preprocessing(mode=mode)
-    
-    print(f"\n--- 2. Executing Non-Stop Routine Model Building ({mode}) ---")
-    run_routine_models(mode)
-    
-    print(f"\n--- 3. Executing Non-Stop Routine Classifications ({mode}) ---")
-
-    run_routine_classifications(mode) 
-    
-    print("\n=== FULL PIPELINE AUTOMATICALLY COMPLETED ===")
+    for mode in modes_to_run:
+        print("\n" + "*"*50)
+        print(f"      STARTING PIPELINE FOR: {mode.upper()} MODE")
+        print("*"*50)
+        
+        print(f"\n--- 1. Executing Non-Stop Routine Preprocessing ({mode}) ---")
+        run_routine_preprocessing(mode)
+        
+        print(f"\n--- 2. Executing Non-Stop Routine Model Building ({mode}) ---")
+        run_routine_models(mode)
+        
+        print(f"\n--- 3. Executing Non-Stop Routine Classifications ({mode}) ---")
+        run_routine_classifications(mode) 
+        
+    print("\n=== FULL PIPELINE AUTOMATICALLY COMPLETED FOR BOTH MODES ===")
 
 
 def run_manual_pipeline():
-    """
-    Secondary menu for manual, step-by-step interactive operations.
-    """
+    """Secondary menu for manual, step-by-step interactive operations."""
     while True:
         print("\n=== MANUAL STEP-BY-STEP FLOW ===")
         print("1. Run Interactive Preprocessing")
@@ -262,9 +257,7 @@ def run_manual_pipeline():
 
 
 def main():
-    """
-    Main entry point of the application with a main dashboard menu.
-    """
+    """Main entry point of the application with a main dashboard menu."""
     setup_project_directories()
 
     while True:

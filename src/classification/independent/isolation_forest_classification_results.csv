@@ -1,0 +1,21 @@
+id,timestamp,model_type,model_name,dataset_type,testing_dataset,samples,tp,tn,fp,fn,f1,precision,recall,auc_roc
+1,2026-06-19 15:48:23,isolation_forest,if_model_1,sat20,Syn_DDoS,7816,7816,0,0,0,None,None,None,None
+2,2026-06-19 15:48:23,isolation_forest,if_model_1,sat20,UDP_DDoS,8649,8649,0,0,0,None,None,None,None
+3,2026-06-19 15:48:24,isolation_forest,if_model_1,ter20,Botnet,8081,8081,0,0,0,None,None,None,None
+4,2026-06-19 15:48:24,isolation_forest,if_model_1,ter20,DDoS,11459,11459,0,0,0,None,None,None,None
+5,2026-06-19 15:48:24,isolation_forest,if_model_1,ter20,Syn_DDoS,3143,3143,0,0,0,None,None,None,None
+6,2026-06-19 15:48:24,isolation_forest,if_model_1,ter20,UDP_DDoS,2768,1020,0,0,1748,None,None,None,None
+7,2026-06-19 15:48:25,isolation_forest,if_model_1,nb15,DoS,3271,392,0,0,2879,None,None,None,None
+8,2026-06-19 15:48:25,isolation_forest,if_model_1,nb15,Exploits,8905,1476,0,0,7429,None,None,None,None
+9,2026-06-19 15:48:26,isolation_forest,if_model_1,nb15,Fuzzers,4850,819,0,0,4031,None,None,None,None
+10,2026-06-19 15:48:26,isolation_forest,if_model_1,nb15,Generic,11775,523,0,0,11252,None,None,None,None
+11,2026-06-19 15:48:27,isolation_forest,if_model_1,nb15,Normal,18600,0,16788,1812,0,None,None,None,None
+12,2026-06-19 15:48:27,isolation_forest,if_model_1,nb15,Reconnaissance,2798,100,0,0,2698,None,None,None,None
+13,2026-06-19 15:48:28,isolation_forest,if_model_1,nb15+sat20,Normal_Syn_DDoS,20461,1861,16788,1812,0,0.6725695699313335,0.5066702967601415,1.0,0.9237027728184061
+14,2026-06-19 15:48:29,isolation_forest,if_model_1,nb15+sat20,Normal_UDP_DDoS,20461,1861,16788,1812,0,0.6725695699313335,0.5066702967601415,1.0,0.9829380377066326
+15,2026-06-19 15:48:30,isolation_forest,if_model_1,nb15+ter20,Normal_Botnet,20461,1861,16788,1812,0,0.6725695699313335,0.5066702967601415,1.0,0.9820285370912852
+16,2026-06-19 15:48:31,isolation_forest,if_model_1,nb15+ter20,Normal_DDoS,20461,1861,16788,1812,0,0.6725695699313335,0.5066702967601415,1.0,0.9778318397439231
+17,2026-06-19 15:48:32,isolation_forest,if_model_1,nb15+ter20,Normal_Syn_DDoS,20461,1861,16788,1812,0,0.6725695699313335,0.5066702967601415,1.0,0.9422258237853391
+18,2026-06-19 15:48:33,isolation_forest,if_model_1,nb15+ter20,Normal_UDP_DDoS,20461,667,16788,1812,1194,0.30737327188940095,0.2690601048810004,0.3584094572810317,0.90458552171627
+19,2026-06-19 15:48:34,isolation_forest,if_model_1,nb15+sat20,Normal_sat20,20462,1862,16788,1812,0,0.6726878612716763,0.5068045726728362,1.0,0.9530715325179308
+20,2026-06-19 15:48:35,isolation_forest,if_model_1,nb15+ter20,Normal_ter20,20464,1565,16788,1812,299,0.5972142720854798,0.46342907906425823,0.8395922746781116,0.9520932264986848

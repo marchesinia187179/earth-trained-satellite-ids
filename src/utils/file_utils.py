@@ -12,11 +12,7 @@ def update_or_append_csv(file_path, data_dict, match_keys, id_column='id'):
     """
     Aggiorna una riga esistente in un file CSV se i campi in match_keys corrispondono,
     altrimenti genera un nuovo ID incrementale (sulla colonna specificata) e appende i dati.
-
-    :param file_path: Oggetto pathlib.Path del file CSV di destinazione.
-    :param data_dict: Dizionario contenente i dati della riga da salvare/aggiornare.
-    :param match_keys: Lista di stringhe (colonne) per identificare l'univocità della riga.
-    :param id_column: Nome della colonna ID (default: 'id').
+    Mantiene sempre id_column come prima colonna.
     """
     if file_path.exists():
         try:
@@ -37,6 +33,11 @@ def update_or_append_csv(file_path, data_dict, match_keys, id_column='id'):
                     for key, value in data_dict.items():
                         df.at[idx, key] = value
                         
+                    # --- MODIFICA: Forza l'ID come prima colonna nell'aggiornamento ---
+                    cols = [id_column] + [c for c in df.columns if c != id_column]
+                    df = df[cols]
+                    # ------------------------------------------------------------------
+                    
                     df.to_csv(file_path, index=False, na_rep='None')
                     print(f"Updated existing entry in: {file_path.name}")
                     return
@@ -54,9 +55,25 @@ def update_or_append_csv(file_path, data_dict, match_keys, id_column='id'):
 
     # Accoda la nuova riga
     new_entry = pd.DataFrame([data_dict])
+    
+    # --- MODIFICA: Forza l'ID come prima colonna prima di salvare la nuova riga ---
+    ordered_cols = [id_column] + [c for c in new_entry.columns if c != id_column]
+    new_entry = new_entry[ordered_cols]
+    # ------------------------------------------------------------------------------
+
     if not file_path.exists():
         new_entry.to_csv(file_path, index=False, na_rep='None')
     else:
+        # --- MODIFICA SICUREZZA: Allinea le colonne per l'append (mode='a' ignora gli header) ---
+        if 'df' in locals() and not df.empty:
+            existing_cols = [id_column] + [c for c in df.columns if c != id_column]
+            # Assicurati che le colonne di new_entry matchino esattamente quelle del file esistente
+            for col in existing_cols:
+                if col not in new_entry.columns:
+                    new_entry[col] = None
+            new_entry = new_entry[existing_cols]
+        # ----------------------------------------------------------------------------------------
+        
         new_entry.to_csv(file_path, mode='a', header=False, index=False, na_rep='None')
         
     print(f"Data appended/created in: {file_path.name}")
@@ -144,11 +161,16 @@ def create_directory(dir_name, parent_path=None):
 def append_data_to_csv(results_dict, file_path):
     """
     Appends a single row of data (as a dictionary) to an existing CSV or creates a new one.
-
-    :param results_dict: Dictionary containing the data to append.
-    :param file_path: Path to the target CSV file.
+    Assicura che, se l'ID è presente, venga sempre posizionato come prima colonna.
     """
     new_entry = pd.DataFrame([results_dict])
+    
+    # --- MODIFICA: Verifica se esiste una chiave 'id' (o affini) e la forza al primo posto ---
+    if 'id' in new_entry.columns:
+        ordered_cols = ['id'] + [c for c in new_entry.columns if c != 'id']
+        new_entry = new_entry[ordered_cols]
+    # ------------------------------------------------------------------------------------------
+
     if not file_path.exists():
         new_entry.to_csv(file_path, index=False, na_rep='None')
     else:

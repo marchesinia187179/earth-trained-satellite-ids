@@ -191,12 +191,10 @@ def save_result(model_obj, mode, model_name, dataset_type, testing_dataset, samp
     update_or_append_csv(file_path, results_dict, match_keys)
 
 
-def run_routine_classifications(mode):
+def run_routine_classifications(pipeline_mode=None):
     """
     Executes a predefined set of classification tasks using specified models and datasets.
-    This function centralizes routine classification for easy execution and updates.
-    It assumes that both models and testing datasets are already preprocessed and saved
-    in their respective directories.
+    If pipeline_mode is provided, it filters and runs ONLY the tasks for that specific mode.
     """
     print("\n--- Starting Routine Classification Phase ---")
     if not ROUTINE_CLASSIFICATIONS:
@@ -205,6 +203,12 @@ def run_routine_classifications(mode):
 
     for task in ROUTINE_CLASSIFICATIONS:
         mode = task['mode']
+        
+        # --- FIX: Salta i task che non appartengono alla modalità corrente ---
+        if pipeline_mode is not None and mode != pipeline_mode:
+            continue
+        # ---------------------------------------------------------------------
+            
         model_type = task['model_type']
         model_name = task['model_name']
         dataset_type = task['dataset_type']
