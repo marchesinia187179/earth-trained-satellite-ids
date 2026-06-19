@@ -3,8 +3,8 @@ Classification logic for evaluating trained models on test datasets.
 """
 from datetime import datetime
 import pandas as pd
-
 import numpy as np
+import re
 from sklearn.ensemble import RandomForestClassifier, IsolationForest
 from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix, roc_auc_score
 from utils.file_utils import get_data_from_csv, update_or_append_csv
@@ -142,20 +142,19 @@ for mode in ['independent', 'dependent']:
             'dataset_type': f"nb15+{d_type}", 'testing_dataset_name': stem, 'data_subdir': JOINT_DIR_NAME
         })
 
+# --- REORDER LOGIC: Sort ROUTINE_CLASSIFICATIONS by Mode and Model Sequentially ---
+def _get_routine_sort_key(task):
+    # Extracts number from model name (e.g., 'rf_model_3' -> 3) to prevent alphabetical mismatch (10 before 2)
+    nums = re.findall(r'\d+', task['model_name'])
+    num = int(nums[0]) if nums else 0
+    # Order: Mode ('independent'/'dependent'), Model Type ('isolation_forest'/'random_forest'), Model Number, Dataset
+    return (task['mode'], task['model_type'], num, task['dataset_type'], task['testing_dataset_name'])
+
+ROUTINE_CLASSIFICATIONS.sort(key=_get_routine_sort_key)
+
 
 # --- Result Saving Functions ---
 def save_result(model_obj, mode, model_name, dataset_type, testing_dataset, samples, metrics):
-    """
-    Saves classification results to a specific CSV file based on the model type.
-
-    :param model_obj: The trained model object (e.g., RandomForestClassifier, IsolationForest).
-    :param mode: Classification mode ('independent' or 'dependent').
-    :param model_name: The name of the model.
-    :param dataset_type: Type of the dataset (nb15, sat20, ter20).
-    :param testing_dataset: Name of the dataset used for testing.
-    :param samples: Number of samples in the testing dataset.
-    :param metrics: Dictionary containing performance metrics (tp, tn, fp, fn, f1, precision, recall, auc_roc).
-    """
     base_dir = INDEPENDENT_RESULTS_DIR if mode == 'independent' else DEPENDENT_RESULTS_DIR
     base_dir.mkdir(parents=True, exist_ok=True)
 
@@ -192,10 +191,6 @@ def save_result(model_obj, mode, model_name, dataset_type, testing_dataset, samp
 
 
 def run_routine_classifications(pipeline_mode=None):
-    """
-    Executes a predefined set of classification tasks using specified models and datasets.
-    If pipeline_mode is provided, it filters and runs ONLY the tasks for that specific mode.
-    """
     print("\n--- Starting Routine Classification Phase ---")
     if not ROUTINE_CLASSIFICATIONS:
         print("No routine classification tasks defined. Exiting routine classification.")
@@ -203,21 +198,17 @@ def run_routine_classifications(pipeline_mode=None):
 
     for task in ROUTINE_CLASSIFICATIONS:
         mode = task['mode']
-        
-        # --- FIX: Salta i task che non appartengono alla modalità corrente ---
         if pipeline_mode is not None and mode != pipeline_mode:
             continue
-        # ---------------------------------------------------------------------
             
         model_type = task['model_type']
         model_name = task['model_name']
         dataset_type = task['dataset_type']
         testing_dataset_name = task['testing_dataset_name']
-        data_subdir = task['data_subdir'] # Subdirectory within {dataset_type}_preprocessed
+        data_subdir = task['data_subdir']
 
         print(f"\nRunning routine task: Mode={mode}, Model={model_name} ({model_type}), Dataset={dataset_type}/{data_subdir}/{testing_dataset_name}")
 
-        # Determine model path
         model_base_dir = None
         if model_type == 'random_forest':
             model_base_dir = DEPENDENT_RF_DIR if mode == 'dependent' else INDEPENDENT_RF_DIR
@@ -240,18 +231,14 @@ def run_routine_classifications(pipeline_mode=None):
             print(f"Error loading model {model_name} from {model_path}: {e}. Skipping this task.")
             continue
 
-        # Determine data path (assuming preprocessed data is stored)
         data_base_dir = DEPENDENT_DIR if mode == 'dependent' else INDEPENDENT_DIR
-        
-        # Construct the preprocessed dataset directory name dynamically
         preprocessed_dataset_dir_name = f"{dataset_type}{PREPROCESSED_DIR_SUFFIX}"
         
-        # Build the full path to the testing dataset
         if str(data_subdir).startswith(JOINT_DIR_NAME):
             data_path = data_base_dir / data_subdir / f"{testing_dataset_name}.csv"
-        elif data_subdir: # If there's a specific subdirectory (e.g., attack_cat, normal_attack)
+        elif data_subdir:
             data_path = data_base_dir / preprocessed_dataset_dir_name / data_subdir / f"{testing_dataset_name}.csv"
-        else: # If the file is directly in the preprocessed dataset directory (e.g., nb15_preprocessed.csv)
+        else:
             data_path = data_base_dir / preprocessed_dataset_dir_name / f"{testing_dataset_name}.csv"
 
         if not data_path.exists():
@@ -271,24 +258,12 @@ def run_routine_classifications(pipeline_mode=None):
 
 # --- Main Processing Logic ---
 def classification_processing(data, mode, models_to_test, dataset_type, testing_dataset="Unknown"):
-    """
-    Processes classification for one or more models on the given data and saves their metrics.
-
-    :param data: The pandas DataFrame containing the testing data.
-    :param mode: Classification mode ('independent' or 'dependent').
-    :param models_to_test: A list of dictionaries, where each dictionary contains
-                           {'model_obj': model_instance, 'model_name': 'model_identifier'}.
-    :param dataset_type: Type of the dataset (nb15, sat20, ter20).
-    :param testing_dataset: Name of the dataset used for testing.
-    """
-    # Filter only test data to avoid data leakage from training
     test_data = data[data['split_type'] == 'test']
 
     if test_data.empty:
         print(f"Warning: No samples marked as 'test' found for {testing_dataset}. Skipping processing.")
         return
 
-    # Prepare features and labels
     X = test_data.drop(columns=["label", "attack_cat", "split_type"])
     y = test_data["label"]
 
@@ -301,34 +276,33 @@ def classification_processing(data, mode, models_to_test, dataset_type, testing_
         y_pred = model_obj.predict(X)
         auc_roc = None
 
-        # AUC-ROC requires the presence of both classes in the test set
         unique_classes = np.unique(y)
         has_both_classes = len(unique_classes) > 1
 
         if not has_both_classes:
             print(f"Warning: Testing dataset '{testing_dataset}' contains only one class ({unique_classes}). "
-                  f"AUC-ROC cannot be calculated and will be set to 'None'.")
+                  f"AUC-ROC, F1, and Precision will be set to 'None'. Recall will be forced if possible.")
 
-        # Special handling for Isolation Forest predictions
         if isinstance(model_obj, IsolationForest):
-            # Map IsolationForest predictions: 1 -> 0 (normal), -1 -> 1 (anomaly)
             y_pred = np.where(y_pred == 1, 0, 1)
             if has_both_classes:
                 y_scores = -model_obj.decision_function(X)
                 auc_roc = roc_auc_score(y, y_scores)
-        # Check if it is a RandomForest or has predict_proba method (more robust)
         elif hasattr(model_obj, "predict_proba"):
             if has_both_classes:
                 y_scores = model_obj.predict_proba(X)[:, 1]
                 auc_roc = roc_auc_score(y, y_scores)
 
-        # Calculate metrics
-        f1 = f1_score(y, y_pred) if has_both_classes else None
-        precision = precision_score(y, y_pred) if has_both_classes else None
-        recall = recall_score(y, y_pred) if has_both_classes else None
-
+        # Calculate standard confusion matrix first to extract raw metrics reliably
         cm = confusion_matrix(y, y_pred, labels=[0, 1])
         tn, fp, fn, tp = cm.ravel()
+
+        # Calculate metrics conditionally
+        f1 = f1_score(y, y_pred) if has_both_classes else None
+        precision = precision_score(y, y_pred) if has_both_classes else None
+        
+        # FIX: Compute recall directly from confusion matrix if there are true positive instances available
+        recall = float(tp) / (tp + fn) if (tp + fn) > 0 else None
 
         metrics = {
             'tp': tp, 'tn': tn, 'fp': fp, 'fn': fn,
