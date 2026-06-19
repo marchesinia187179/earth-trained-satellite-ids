@@ -185,16 +185,15 @@ def classification_loop():
 
 def run_guided_routine_pipeline():
     """
-    Executes the pipeline in Routine mode but guides the user step-by-step,
-    asking confirmation before starting each phase.
+    Executes the pipeline in Routine mode but guides the user step-by-step.
     """
     print("\n=== AUTOMATED ROUTINE PIPELINE (GUIDED STEP-BY-STEP) ===")
     
     if get_y_n_choice("Do you want to execute the routine PREPROCESSING phase? [y/n] ") == 'y':
-        run_routine_preprocessing()
+        run_routine_preprocessing(mode=None)
     else:
         print("Routine preprocessing skipped.")
-
+    
     if get_y_n_choice("Do you want to execute the routine MODEL BUILDING phase? [y/n] ") == 'y':
         mode_input = input("Choose routine model building mode: [independent or dependent] ").lower()
         mode = validate_choice(mode_input, ['independent', 'dependent'], "mode")
@@ -203,9 +202,9 @@ def run_guided_routine_pipeline():
         print("Routine model building skipped.")
 
     if get_y_n_choice("Do you want to execute the routine CLASSIFICATION phase? [y/n] ") == 'y':
-        print("\n--- Starting Routine Classification Phase ---")
-        run_routine_classifications()
-        print("--- Routine Classification Phase Completed ---")
+        mode_input = input("Choose routine classification mode: [independent or dependent] ").lower()
+        mode = validate_choice(mode_input, ['independent', 'dependent'], "mode")
+        run_routine_classifications(mode)
     else:
         print("Routine classification skipped.")
 
@@ -215,21 +214,23 @@ def run_guided_routine_pipeline():
 def run_full_automated_pipeline():
     """
     Executes all routines non-stop (Pre-processing -> Training -> Testing) 
-    using a default mode without requiring step-by-step confirmation.
+    using a user-selected mode without further interruptions.
     """
     print("\n=== FULL AUTOMATED ROUTINE PIPELINE (NON-STOP) ===")
     
-    # We set a default mode for a full non-stop run (independent is standard and doesn't require stats tracking across loops)
-    mode = 'independent'
+    # 1. Ask mode ONCE here
+    mode_input = input("Choose FULL pipeline mode: [independent or dependent] ").lower()
+    mode = validate_choice(mode_input, ['independent', 'dependent'], "mode")
     
-    print("\n--- 1. Executing Non-Stop Routine Preprocessing ---")
-    run_routine_preprocessing()
+    print(f"\n--- 1. Executing Non-Stop Routine Preprocessing ({mode}) ---")
+    run_routine_preprocessing(mode=mode)
     
-    print("\n--- 2. Executing Non-Stop Routine Model Building ---")
+    print(f"\n--- 2. Executing Non-Stop Routine Model Building ({mode}) ---")
     run_routine_models(mode)
     
-    print("\n--- 3. Executing Non-Stop Routine Classifications ---")
-    run_routine_classifications()
+    print(f"\n--- 3. Executing Non-Stop Routine Classifications ({mode}) ---")
+
+    run_routine_classifications(mode) 
     
     print("\n=== FULL PIPELINE AUTOMATICALLY COMPLETED ===")
 

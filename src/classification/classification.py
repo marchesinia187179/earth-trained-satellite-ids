@@ -191,7 +191,7 @@ def save_result(model_obj, mode, model_name, dataset_type, testing_dataset, samp
     update_or_append_csv(file_path, results_dict, match_keys)
 
 
-def run_routine_classifications():
+def run_routine_classifications(mode):
     """
     Executes a predefined set of classification tasks using specified models and datasets.
     This function centralizes routine classification for easy execution and updates.
