@@ -24,9 +24,11 @@ JOINT_DIR_NAME = "joint_preprocessed"
 
 # Specific preprocessed filenames (stem only, .csv added by create_csv_from_data)
 NB15_SCALED_FILE_STEM = "nb15_preprocessed_scaled"
-NB15_FILE_STEM = "nb15_preprocessed"  # Aggiungi questo se mancante per coerenza
-ATTACKS_FILE_STEM = "Attacks"
-NORMAL_FILE_STEM = "Normal" # For attack_cat/Normal.csv
+NB15_FILE_STEM = "nb15_preprocessed"
+NB15_ATTACKS_SCALED_FILE_STEM = "nb15_attacks_preprocessed_scaled"
+SAT20_ATTACKS_SCALED_FILE_STEM = "sat20_attacks_preprocessed_scaled"
+TER20_ATTACKS_SCALED_FILE_STEM = "ter20_attacks_preprocessed_scaled"
+NORMAL_FILE_STEM = "Normal"
 JOINT_NORMAL_SAT20_FILE_STEM = "Normal_sat20"
 JOINT_NORMAL_TER20_FILE_STEM = "Normal_ter20"
 
@@ -36,7 +38,7 @@ SAT20_PREPROCESSED_DIR_NAME = "sat20_preprocessed"
 TER20_PREPROCESSED_DIR_NAME = "ter20_preprocessed"
 
 # General suffix for preprocessed dataset directories and main files
-PREPROCESSED_DIR_SUFFIX = "_preprocessed" # e.g., nb15_preprocessed
+PREPROCESSED_DIR_SUFFIX = "_preprocessed"
 PREPROCESSED_MAIN_FILE_SUFFIX = "_preprocessed"
 
 # --- Models ---

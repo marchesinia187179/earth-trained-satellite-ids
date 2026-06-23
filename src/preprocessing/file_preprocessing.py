@@ -6,7 +6,8 @@ from utils.input_utils import get_numeric_input, get_y_n_bool
 from utils.paths import (
     DATA_DIR, ATTACK_CAT_DIR_NAME,
     NORMAL_ATTACK_DIR_NAME, JOINT_DIR_NAME,
-    NORMAL_FILE_STEM, ATTACKS_FILE_STEM,
+    NORMAL_FILE_STEM, NB15_ATTACKS_SCALED_FILE_STEM,
+    SAT20_ATTACKS_SCALED_FILE_STEM, TER20_ATTACKS_SCALED_FILE_STEM,
     NB15_SCALED_FILE_STEM, NB15_PREPROCESSED_DIR_NAME,
     JOINT_NORMAL_SAT20_FILE_STEM, JOINT_NORMAL_TER20_FILE_STEM,
     PREPROCESSED_DIR_SUFFIX, PREPROCESSED_MAIN_FILE_SUFFIX
@@ -102,22 +103,60 @@ def merge_normal_attack(source_path, dest_path, normal_attack_ratio, replacing_m
     return normal_attack_dir_path
 
 
-def merge_attacks(source_path, dest_path):
+def merge_attacks_scaled(source_path, dest_path, dataset_type):
     attack_cat_list = source_path.iterdir()
     dfs = []
 
     for attack_cat_path in attack_cat_list:
-        if attack_cat_path.stem == 'Normal': continue
+        if attack_cat_path.name.startswith('.') or attack_cat_path.stem == 'Normal': 
+            continue
+        
         attack_data = get_data_from_csv(attack_cat_path)
-        dfs.append(pd.DataFrame(attack_data))
+        df_cat = pd.DataFrame(attack_data)
+        
+        if not df_cat.empty:
+            dfs.append(df_cat)
 
     if not dfs:
         print("Error: No attack categories found to merge.")
         sys.exit(1)
 
-    df = pd.concat(dfs).sample(frac=1, random_state=42).reset_index(drop=True)
-    create_csv_from_data(df, ATTACKS_FILE_STEM, dest_path)
-    print("Attack categories merged into a single file.")
+    # --- LOGICA DI EQUIPROBABILITÀ SEPARATA PER TRAIN E TEST ---
+    # 1. Trova il numero minimo di campioni train e test tra tutte le categorie
+    min_train = min(len(df[df['split_type'] == 'train']) for df in dfs)
+    min_test = min(len(df[df['split_type'] == 'test']) for df in dfs)
+    
+    print(f"Balancing split sub-distributions across all attack categories:")
+    print(f"  -> Each class will have exactly {min_train} 'train' samples.")
+    print(f"  -> Each class will have exactly {min_test} 'test' samples.")
+
+    balanced_dfs = []
+    for df in dfs:
+        # 2. Isola i due split per la classe corrente
+        df_train = df[df['split_type'] == 'train']
+        df_test = df[df['split_type'] == 'test']
+        
+        # 3. Campiona separatamente per garantire l'equiprobabilità interna
+        sampled_train = df_train.sample(n=min_train, random_state=42)
+        sampled_test = df_test.sample(n=min_test, random_state=42)
+        
+        # 4. Ricombina i due split bilanciati per la classe corrente
+        balanced_class_df = pd.concat([sampled_train, sampled_test])
+        balanced_dfs.append(balanced_class_df)
+
+    # 5. Concatena tutte le classi bilanciate e rimescola le righe
+    df_final = pd.concat(balanced_dfs).sample(frac=1, random_state=42).reset_index(drop=True)
+    
+    # Salvataggio del file
+    if dataset_type == 'nb15':
+        create_csv_from_data(df_final, NB15_ATTACKS_SCALED_FILE_STEM, dest_path)
+    elif dataset_type == 'sat20':
+        create_csv_from_data(df_final, SAT20_ATTACKS_SCALED_FILE_STEM, dest_path)
+    elif dataset_type == 'ter20':
+        create_csv_from_data(df_final, TER20_ATTACKS_SCALED_FILE_STEM, dest_path)
+    
+    print(f"Attack categories merged successfully. Total samples: {len(df_final)} "
+          f"(Train per class: {min_train} | Test per class: {min_test})")
     return dest_path
 
 
@@ -214,9 +253,9 @@ def file_preprocessing(data, dataset_type, base_dest_dir, normal_attack_ratio=No
     main_dir_path = create_directory(f'{dataset_type}{PREPROCESSED_DIR_SUFFIX}', base_dest_dir)
     create_csv_from_data(data, f'{dataset_type}{PREPROCESSED_MAIN_FILE_SUFFIX}', main_dir_path)
     attack_cat_dir_path = split_by_attack_cat(data, main_dir_path)
+    merge_attacks_scaled(attack_cat_dir_path, main_dir_path, dataset_type)
 
     if dataset_type == 'nb15':
-        merge_attacks(attack_cat_dir_path, main_dir_path)
         merge_normal_attack(attack_cat_dir_path, main_dir_path, normal_attack_ratio, replacing_mode)
         create_scaled_dataset(attack_cat_dir_path, main_dir_path, normal_attack_ratio, replacing_mode)
 

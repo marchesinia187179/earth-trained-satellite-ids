@@ -20,7 +20,8 @@ from utils.paths import (
     ATTACK_CAT_DIR_NAME, NORMAL_ATTACK_DIR_NAME, # Subdirectory names
     NB15_PREPROCESSED_DIR_NAME, SAT20_PREPROCESSED_DIR_NAME, TER20_PREPROCESSED_DIR_NAME, # Preprocessed dir names
     PREPROCESSED_DIR_SUFFIX, JOINT_DIR_NAME,
-    JOINT_NORMAL_SAT20_FILE_STEM, JOINT_NORMAL_TER20_FILE_STEM
+    JOINT_NORMAL_SAT20_FILE_STEM, JOINT_NORMAL_TER20_FILE_STEM,
+    SAT20_ATTACKS_SCALED_FILE_STEM, TER20_ATTACKS_SCALED_FILE_STEM
 )
 import joblib
 
@@ -56,6 +57,16 @@ for mode in ['independent', 'dependent']:
             'mode': mode, 'model_type': 'random_forest', 'model_name': 'rf_model_6',
             'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME
         })
+
+    # Pure Cross-Dataset Evaluation: Test the global baseline on full raw preprocessed streams
+    ROUTINE_CLASSIFICATIONS.append({
+        'mode': mode, 'model_type': 'random_forest', 'model_name': 'rf_model_6',
+        'dataset_type': 'sat20', 'testing_dataset_name': SAT20_ATTACKS_SCALED_FILE_STEM, 'data_subdir': ''
+    })
+    ROUTINE_CLASSIFICATIONS.append({
+        'mode': mode, 'model_type': 'random_forest', 'model_name': 'rf_model_6',
+        'dataset_type': 'ter20', 'testing_dataset_name': TER20_ATTACKS_SCALED_FILE_STEM, 'data_subdir': ''
+    })
 
     # Target NB15 (Cross-Class): Map native cross-class evasion capabilities of specialized models (1-5)
     native_map = {1: 'DoS', 2: 'Exploits', 3: 'Fuzzers', 4: 'Generic', 5: 'Reconnaissance'}
@@ -95,6 +106,18 @@ for mode in ['independent', 'dependent']:
     ROUTINE_CLASSIFICATIONS.append({
         'mode': mode, 'model_type': 'random_forest', 'model_name': 'rf_model_8',
         'dataset_type': 'nb15+sat20', 'testing_dataset_name': JOINT_NORMAL_SAT20_FILE_STEM, 'data_subdir': JOINT_DIR_NAME
+    })
+
+    # Global Baseline Cross-Domain Evaluation: Test the global multi-class model on full aggregated streams
+    # Model 6 (Global Baseline) on Satellite Aggregates
+    ROUTINE_CLASSIFICATIONS.append({
+        'mode': mode, 'model_type': 'random_forest', 'model_name': 'rf_model_6',
+        'dataset_type': 'nb15+sat20', 'testing_dataset_name': JOINT_NORMAL_SAT20_FILE_STEM, 'data_subdir': JOINT_DIR_NAME
+    })
+    # Model 6 (Global Baseline) on Terrestrial Aggregates
+    ROUTINE_CLASSIFICATIONS.append({
+        'mode': mode, 'model_type': 'random_forest', 'model_name': 'rf_model_6',
+        'dataset_type': 'nb15+ter20', 'testing_dataset_name': JOINT_NORMAL_TER20_FILE_STEM, 'data_subdir': JOINT_DIR_NAME
     })
 
     # =========================================================================
