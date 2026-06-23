@@ -1,0 +1,19 @@
+id,timestamp,model_type,model_name,dataset_type,testing_dataset,samples,tp,tn,fp,fn,f1,precision,recall,auc_roc,pr_auc
+55,2026-06-23 15:17:40,random_forest,rf_model_4,nb15,DoS,3271,2356,0,0,915,None,None,0.7202690308774076,None,None
+56,2026-06-23 15:17:41,random_forest,rf_model_4,nb15,Exploits,8905,3569,0,0,5336,None,None,0.40078607523862997,None,None
+57,2026-06-23 15:17:41,random_forest,rf_model_4,nb15,Fuzzers,4850,623,0,0,4227,None,None,0.1284536082474227,None,None
+58,2026-06-23 15:17:42,random_forest,rf_model_4,nb15,Normal,18600,0,18596,4,0,None,None,None,None,None
+59,2026-06-23 15:17:42,random_forest,rf_model_4,nb15,Reconnaissance,2798,411,0,0,2387,None,None,0.1468906361686919,None,None
+60,2026-06-23 15:17:43,random_forest,rf_model_4,nb15,nb15_preprocessed_scaled,20464,885,18596,4,979,0.6429349800217944,0.9955005624296963,0.4747854077253219,0.8754312324057409,0.7583495346138879
+61,2026-06-23 15:17:44,random_forest,rf_model_4,nb15+sat20,Normal_Syn_DDoS,20461,0,18596,4,1861,0.0,0.0,0.0,0.603896058310655,0.29729081688142994
+62,2026-06-23 15:17:44,random_forest,rf_model_4,nb15+sat20,Normal_UDP_DDoS,20461,36,18596,4,1825,0.03787480273540242,0.9,0.01934443847393874,0.9723309528349309,0.8011889484357332
+63,2026-06-23 15:17:45,random_forest,rf_model_4,nb15+ter20,Normal_Botnet,20461,9,18596,4,1852,0.0096051227321238,0.6923076923076923,0.004836109618484685,0.9645289559896691,0.6827002246808511
+64,2026-06-23 15:17:46,random_forest,rf_model_4,nb15+ter20,Normal_DDoS,20461,0,18596,4,1861,0.0,0.0,0.0,0.9571478509068428,0.5841644805470543
+65,2026-06-23 15:17:47,random_forest,rf_model_4,nb15+ter20,Normal_Syn_DDoS,20461,0,18596,4,1861,0.0,0.0,0.0,0.9307327110525615,0.7972827966708274
+66,2026-06-23 15:17:48,random_forest,rf_model_4,nb15+ter20,Normal_UDP_DDoS,20461,0,18596,4,1861,0.0,0.0,0.0,0.5915752168160257,0.2545516899049749
+67,2026-06-23 15:17:48,random_forest,rf_model_4,sat20,Syn_DDoS,7816,0,0,0,7816,None,None,0.0,None,None
+68,2026-06-23 15:17:49,random_forest,rf_model_4,sat20,UDP_DDoS,8649,197,0,0,8452,None,None,0.02277719967626315,None,None
+69,2026-06-23 15:17:49,random_forest,rf_model_4,ter20,Botnet,8081,29,0,0,8052,None,None,0.0035886647692117313,None,None
+70,2026-06-23 15:17:49,random_forest,rf_model_4,ter20,DDoS,11459,0,0,0,11459,None,None,0.0,None,None
+71,2026-06-23 15:17:49,random_forest,rf_model_4,ter20,Syn_DDoS,3143,0,0,0,3143,None,None,0.0,None,None
+72,2026-06-23 15:17:50,random_forest,rf_model_4,ter20,UDP_DDoS,2768,0,0,0,2768,None,None,0.0,None,None

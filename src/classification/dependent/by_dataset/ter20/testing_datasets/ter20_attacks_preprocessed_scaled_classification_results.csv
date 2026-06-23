@@ -1,0 +1,3 @@
+id,timestamp,model_type,model_name,dataset_type,testing_dataset,samples,tp,tn,fp,fn,f1,precision,recall,auc_roc,pr_auc
+22,2026-06-23 15:17:05,isolation_forest,if_model_1,ter20,ter20_attacks_preprocessed_scaled,11072,10683,0,0,389,None,None,0.9648663294797688,None,None
+113,2026-06-23 15:18:15,random_forest,rf_model_6,ter20,ter20_attacks_preprocessed_scaled,11072,346,0,0,10726,None,None,0.03125,None,None
