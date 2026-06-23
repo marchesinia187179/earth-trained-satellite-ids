@@ -1,3 +1,0 @@
-id,timestamp,model_type,model_name,dataset_type,testing_dataset,samples,tp,tn,fp,fn,f1,precision,recall,auc_roc,pr_auc
-17,2026-06-23 15:15:12,isolation_forest,if_model_1,sat20,sat20_attacks_preprocessed_scaled,15632,15632,0,0,0,None,None,1.0,None,None
-108,2026-06-23 15:16:21,random_forest,rf_model_6,sat20,sat20_attacks_preprocessed_scaled,15632,7816,0,0,7816,None,None,0.5,None,None

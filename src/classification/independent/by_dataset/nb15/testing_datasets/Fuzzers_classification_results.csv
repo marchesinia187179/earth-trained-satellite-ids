@@ -1,7 +1,0 @@
-id,timestamp,model_type,model_name,dataset_type,testing_dataset,samples,tp,tn,fp,fn,f1,precision,recall,auc_roc,pr_auc
-3,2026-06-23 15:15:02,isolation_forest,if_model_1,nb15,Fuzzers,4850,819,0,0,4031,None,None,0.1688659793814433,None,None
-2,2026-06-23 15:15:14,random_forest,rf_model_1,nb15,Fuzzers,4850,738,0,0,4112,None,None,0.15216494845360826,None,None
-20,2026-06-23 15:15:25,random_forest,rf_model_2,nb15,Fuzzers,4850,860,0,0,3990,None,None,0.177319587628866,None,None
-57,2026-06-23 15:15:49,random_forest,rf_model_4,nb15,Fuzzers,4850,623,0,0,4227,None,None,0.1284536082474227,None,None
-75,2026-06-23 15:15:58,random_forest,rf_model_5,nb15,Fuzzers,4850,691,0,0,4159,None,None,0.14247422680412372,None,None
-93,2026-06-23 15:16:08,random_forest,rf_model_6,nb15,Fuzzers,4850,1207,0,0,3643,None,None,0.2488659793814433,None,None

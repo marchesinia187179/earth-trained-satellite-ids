@@ -26,7 +26,9 @@ JOINT_DIR_NAME = "joint_preprocessed"
 NB15_SCALED_FILE_STEM = "nb15_preprocessed_scaled"
 NB15_FILE_STEM = "nb15_preprocessed"
 NB15_ATTACKS_SCALED_FILE_STEM = "nb15_attacks_preprocessed_scaled"
+SAT20_FILE_STEM = "sat20_preprocessed"
 SAT20_ATTACKS_SCALED_FILE_STEM = "sat20_attacks_preprocessed_scaled"
+TER20_FILE_STEM = "ter20_preprocessed"
 TER20_ATTACKS_SCALED_FILE_STEM = "ter20_attacks_preprocessed_scaled"
 NORMAL_FILE_STEM = "Normal"
 JOINT_NORMAL_SAT20_FILE_STEM = "Normal_sat20"
@@ -36,6 +38,7 @@ JOINT_NORMAL_TER20_FILE_STEM = "Normal_ter20"
 NB15_PREPROCESSED_DIR_NAME = "nb15_preprocessed"
 SAT20_PREPROCESSED_DIR_NAME = "sat20_preprocessed"
 TER20_PREPROCESSED_DIR_NAME = "ter20_preprocessed"
+JOINT_DIR_NAME = "joint_preprocessed"
 
 # General suffix for preprocessed dataset directories and main files
 PREPROCESSED_DIR_SUFFIX = "_preprocessed"
@@ -65,9 +68,6 @@ INDEPENDENT_RESULTS_MODELS_DIR = INDEPENDENT_RESULTS_DIR / BY_MODEL_DIR_NAME
 DEPENDENT_RESULTS_MODELS_DIR = DEPENDENT_RESULTS_DIR / BY_MODEL_DIR_NAME
 INDEPENDENT_RESULTS_DATASETS_DIR = INDEPENDENT_RESULTS_DIR / BY_DATASET_DIR_NAME
 DEPENDENT_RESULTS_DATASETS_DIR = DEPENDENT_RESULTS_DIR / BY_DATASET_DIR_NAME
-
-# --- Structured dataset directory names ---
-JOINT_DIR_NAME = "joint_preprocessed"
 
 # --- Helper to ensure directories exist ---
 def setup_project_directories():
