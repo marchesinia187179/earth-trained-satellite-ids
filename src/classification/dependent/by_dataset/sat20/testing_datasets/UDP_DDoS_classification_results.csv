@@ -1,10 +1,10 @@
 id,timestamp,model_type,model_name,dataset_type,testing_dataset,samples,tp,tn,fp,fn,f1,precision,recall,auc_roc,pr_auc
-1,2026-06-23 10:57:42,isolation_forest,if_model_1,sat20,UDP_DDoS,8649,4164,0,0,4485,None,None,0.4814429413805064,None,None
-1,2026-06-23 10:57:52,random_forest,rf_model_1,sat20,UDP_DDoS,8649,5592,0,0,3057,None,None,0.646548733957683,None,None
-1,2026-06-23 10:58:03,random_forest,rf_model_2,sat20,UDP_DDoS,8649,4430,0,0,4219,None,None,0.5121979419586079,None,None
-1,2026-06-23 10:58:15,random_forest,rf_model_3,sat20,UDP_DDoS,8649,3937,0,0,4712,None,None,0.4551971326164875,None,None
-1,2026-06-23 10:58:24,random_forest,rf_model_4,sat20,UDP_DDoS,8649,197,0,0,8452,None,None,0.02277719967626315,None,None
-1,2026-06-23 10:58:33,random_forest,rf_model_5,sat20,UDP_DDoS,8649,228,0,0,8421,None,None,0.026361429066944154,None,None
-1,2026-06-23 10:58:45,random_forest,rf_model_6,sat20,UDP_DDoS,8649,6660,0,0,1989,None,None,0.7700312174817898,None,None
-1,2026-06-23 10:58:52,random_forest,rf_model_7,sat20,UDP_DDoS,8649,8648,0,0,1,None,None,0.9998843796970748,None,None
-1,2026-06-23 10:58:59,random_forest,rf_model_8,sat20,UDP_DDoS,8649,8648,0,0,1,None,None,0.9998843796970748,None,None
+16,2026-06-23 12:35:46,isolation_forest,if_model_1,sat20,UDP_DDoS,8649,4164,0,0,4485,None,None,0.4814429413805064,None,None
+12,2026-06-23 12:35:58,random_forest,rf_model_1,sat20,UDP_DDoS,8649,5592,0,0,3057,None,None,0.646548733957683,None,None
+28,2026-06-23 12:36:12,random_forest,rf_model_2,sat20,UDP_DDoS,8649,4430,0,0,4219,None,None,0.5121979419586079,None,None
+44,2026-06-23 12:36:27,random_forest,rf_model_3,sat20,UDP_DDoS,8649,3937,0,0,4712,None,None,0.4551971326164875,None,None
+60,2026-06-23 12:36:37,random_forest,rf_model_4,sat20,UDP_DDoS,8649,197,0,0,8452,None,None,0.02277719967626315,None,None
+76,2026-06-23 12:36:46,random_forest,rf_model_5,sat20,UDP_DDoS,8649,228,0,0,8421,None,None,0.026361429066944154,None,None
+96,2026-06-23 12:37:03,random_forest,rf_model_6,sat20,UDP_DDoS,8649,6660,0,0,1989,None,None,0.7700312174817898,None,None
+111,2026-06-23 12:37:11,random_forest,rf_model_7,sat20,UDP_DDoS,8649,8648,0,0,1,None,None,0.9998843796970748,None,None
+124,2026-06-23 12:37:18,random_forest,rf_model_8,sat20,UDP_DDoS,8649,8648,0,0,1,None,None,0.9998843796970748,None,None

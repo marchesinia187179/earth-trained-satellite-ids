@@ -1,10 +1,10 @@
 id,timestamp,model_type,model_name,dataset_type,testing_dataset,samples,tp,tn,fp,fn,f1,precision,recall,auc_roc,pr_auc
-1,2026-06-23 10:57:43,isolation_forest,if_model_1,ter20,DDoS,11459,10217,0,0,1242,None,None,0.8916135788463216,None,None
-1,2026-06-23 10:57:53,random_forest,rf_model_1,ter20,DDoS,11459,46,0,0,11413,None,None,0.004014311894580679,None,None
-1,2026-06-23 10:58:04,random_forest,rf_model_2,ter20,DDoS,11459,501,0,0,10958,None,None,0.04372109259097653,None,None
-1,2026-06-23 10:58:16,random_forest,rf_model_3,ter20,DDoS,11459,8652,0,0,2807,None,None,0.7550397067806964,None,None
-1,2026-06-23 10:58:24,random_forest,rf_model_4,ter20,DDoS,11459,0,0,0,11459,None,None,0.0,None,None
-1,2026-06-23 10:58:33,random_forest,rf_model_5,ter20,DDoS,11459,0,0,0,11459,None,None,0.0,None,None
-1,2026-06-23 10:58:46,random_forest,rf_model_6,ter20,DDoS,11459,206,0,0,11253,None,None,0.017977135875730868,None,None
-1,2026-06-23 10:58:52,random_forest,rf_model_7,ter20,DDoS,11459,11459,0,0,0,None,None,1.0,None,None
-1,2026-06-23 10:58:59,random_forest,rf_model_8,ter20,DDoS,11459,11459,0,0,0,None,None,1.0,None,None
+19,2026-06-23 12:35:47,isolation_forest,if_model_1,ter20,DDoS,11459,10217,0,0,1242,None,None,0.8916135788463216,None,None
+14,2026-06-23 12:35:59,random_forest,rf_model_1,ter20,DDoS,11459,46,0,0,11413,None,None,0.004014311894580679,None,None
+30,2026-06-23 12:36:13,random_forest,rf_model_2,ter20,DDoS,11459,501,0,0,10958,None,None,0.04372109259097653,None,None
+46,2026-06-23 12:36:28,random_forest,rf_model_3,ter20,DDoS,11459,8652,0,0,2807,None,None,0.7550397067806964,None,None
+62,2026-06-23 12:36:38,random_forest,rf_model_4,ter20,DDoS,11459,0,0,0,11459,None,None,0.0,None,None
+78,2026-06-23 12:36:47,random_forest,rf_model_5,ter20,DDoS,11459,0,0,0,11459,None,None,0.0,None,None
+99,2026-06-23 12:37:04,random_forest,rf_model_6,ter20,DDoS,11459,206,0,0,11253,None,None,0.017977135875730868,None,None
+113,2026-06-23 12:37:12,random_forest,rf_model_7,ter20,DDoS,11459,11459,0,0,0,None,None,1.0,None,None
+126,2026-06-23 12:37:19,random_forest,rf_model_8,ter20,DDoS,11459,11459,0,0,0,None,None,1.0,None,None

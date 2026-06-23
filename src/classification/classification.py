@@ -146,6 +146,16 @@ for mode in ['independent', 'dependent']:
             'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME
         })
 
+    # Pure Cross-Dataset Evaluation: Test the global baseline on full raw preprocessed streams
+    ROUTINE_CLASSIFICATIONS.append({
+        'mode': mode, 'model_type': 'isolation_forest', 'model_name': 'if_model_1',
+        'dataset_type': 'sat20', 'testing_dataset_name': SAT20_ATTACKS_SCALED_FILE_STEM, 'data_subdir': ''
+    })
+    ROUTINE_CLASSIFICATIONS.append({
+        'mode': mode, 'model_type': 'isolation_forest', 'model_name': 'if_model_1',
+        'dataset_type': 'ter20', 'testing_dataset_name': TER20_ATTACKS_SCALED_FILE_STEM, 'data_subdir': ''
+    })
+
     # --- GRUPPO B: OPERATIONAL COMBO SCENARIOS (10:1 Ratio) ---
     # Target SAT20 Combo: Benchmark real-world False Alarm Rates against satellite multi-source patterns
     for t_set in ['Normal_Syn_DDoS', 'Normal_UDP_DDoS']:
