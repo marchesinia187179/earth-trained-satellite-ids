@@ -32,8 +32,7 @@ def generate_custom_recall_heatmap(mode='independent', save_dir=None):
         'nb15:Exploits': 'NB15: Exploits',
         'nb15:Fuzzers': 'NB15: Fuzzers',
         'nb15:Generic': 'NB15: Generic',
-        'nb15:Normal': 'NB15: Normal',
-        'nb15:Reconnaissance': 'NB15: Recon.',
+        'nb15:Reconnaissance': 'NB15: Reconn.',
         
         # SAT20 Scenarios
         'nb15+sat20:Normal_sat20': 'Aggr.: Normal + All SAT20',
@@ -101,7 +100,7 @@ def generate_custom_recall_heatmap(mode='independent', save_dir=None):
         matrix_df, 
         annot=True, 
         fmt=".4f", 
-        cmap="YlGnBu", 
+        cmap="Blues", 
         linewidths=.7, 
         vmin=0.0, 
         vmax=1.0,
