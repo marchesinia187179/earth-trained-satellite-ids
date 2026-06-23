@@ -1,0 +1,10 @@
+id,timestamp,model_type,model_name,dataset_type,testing_dataset,samples,tp,tn,fp,fn,f1,precision,recall,auc_roc,pr_auc
+30,2026-06-23 16:39:58,isolation_forest,if_model_1,ter20,UDP_DDoS,2768,1020,0,0,1748,None,None,0.3684971098265896,None,None
+30,2026-06-23 16:40:19,random_forest,rf_model_1,ter20,UDP_DDoS,2768,2014,0,0,754,None,None,0.7276011560693642,None,None
+62,2026-06-23 16:40:42,random_forest,rf_model_2,ter20,UDP_DDoS,2768,0,0,0,2768,None,None,0.0,None,None
+94,2026-06-23 16:41:08,random_forest,rf_model_3,ter20,UDP_DDoS,2768,1,0,0,2767,None,None,0.000361271676300578,None,None
+126,2026-06-23 16:41:27,random_forest,rf_model_4,ter20,UDP_DDoS,2768,0,0,0,2768,None,None,0.0,None,None
+158,2026-06-23 16:41:49,random_forest,rf_model_5,ter20,UDP_DDoS,2768,2460,0,0,308,None,None,0.888728323699422,None,None
+190,2026-06-23 16:42:13,random_forest,rf_model_6,ter20,UDP_DDoS,2768,1,0,0,2767,None,None,0.000361271676300578,None,None
+222,2026-06-23 16:42:29,random_forest,rf_model_7,ter20,UDP_DDoS,2768,2767,0,0,1,None,None,0.9996387283236994,None,None
+254,2026-06-23 16:42:45,random_forest,rf_model_8,ter20,UDP_DDoS,2768,2768,0,0,0,None,None,1.0,None,None

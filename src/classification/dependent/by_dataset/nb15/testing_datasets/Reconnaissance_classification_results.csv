@@ -1,0 +1,10 @@
+id,timestamp,model_type,model_name,dataset_type,testing_dataset,samples,tp,tn,fp,fn,f1,precision,recall,auc_roc,pr_auc
+11,2026-06-23 16:43:07,isolation_forest,if_model_1,nb15,Reconnaissance,2798,100,0,0,2698,None,None,0.035739814152966405,None,None
+11,2026-06-23 16:43:29,random_forest,rf_model_1,nb15,Reconnaissance,2798,778,0,0,2020,None,None,0.2780557541100786,None,None
+43,2026-06-23 16:43:52,random_forest,rf_model_2,nb15,Reconnaissance,2798,723,0,0,2075,None,None,0.2583988563259471,None,None
+75,2026-06-23 16:44:16,random_forest,rf_model_3,nb15,Reconnaissance,2798,529,0,0,2269,None,None,0.1890636168691923,None,None
+107,2026-06-23 16:44:40,random_forest,rf_model_4,nb15,Reconnaissance,2798,411,0,0,2387,None,None,0.1468906361686919,None,None
+139,2026-06-23 16:45:01,random_forest,rf_model_5,nb15,Reconnaissance,2798,2665,0,0,133,None,None,0.9524660471765547,None,None
+171,2026-06-23 16:45:26,random_forest,rf_model_6,nb15,Reconnaissance,2798,2569,0,0,229,None,None,0.918155825589707,None,None
+203,2026-06-23 16:45:49,random_forest,rf_model_7,nb15,Reconnaissance,2798,0,0,0,2798,None,None,0.0,None,None
+235,2026-06-23 16:46:06,random_forest,rf_model_8,nb15,Reconnaissance,2798,0,0,0,2798,None,None,0.0,None,None

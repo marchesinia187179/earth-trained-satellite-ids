@@ -1,0 +1,10 @@
+id,timestamp,model_type,model_name,dataset_type,testing_dataset,samples,tp,tn,fp,fn,f1,precision,recall,auc_roc,pr_auc
+26,2026-06-23 16:43:18,isolation_forest,if_model_1,sat20,sat20_preprocessed,16465,11980,0,0,4485,None,None,0.7276040085028849,None,None
+26,2026-06-23 16:43:43,random_forest,rf_model_1,sat20,sat20_preprocessed,16465,5592,0,0,10873,None,None,0.33962951715760703,None,None
+58,2026-06-23 16:44:06,random_forest,rf_model_2,sat20,sat20_preprocessed,16465,4430,0,0,12035,None,None,0.26905557242635897,None,None
+90,2026-06-23 16:44:31,random_forest,rf_model_3,sat20,sat20_preprocessed,16465,3938,0,0,12527,None,None,0.2391740054661403,None,None
+122,2026-06-23 16:44:52,random_forest,rf_model_4,sat20,sat20_preprocessed,16465,197,0,0,16268,None,None,0.011964773762526571,None,None
+154,2026-06-23 16:45:14,random_forest,rf_model_5,sat20,sat20_preprocessed,16465,6610,0,0,9855,None,None,0.4014576374126936,None,None
+186,2026-06-23 16:45:42,random_forest,rf_model_6,sat20,sat20_preprocessed,16465,6661,0,0,9804,None,None,0.4045551169146675,None,None
+218,2026-06-23 16:45:59,random_forest,rf_model_7,sat20,sat20_preprocessed,16465,16464,0,0,1,None,None,0.9999392651078044,None,None
+250,2026-06-23 16:46:15,random_forest,rf_model_8,sat20,sat20_preprocessed,16465,16464,0,0,1,None,None,0.9999392651078044,None,None

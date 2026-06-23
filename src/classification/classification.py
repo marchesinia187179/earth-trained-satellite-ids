@@ -61,7 +61,7 @@ for mode in ['independent', 'dependent']:
         for t_set in [TER20_ATTACKS_SCALED_FILE_STEM, TER20_FILE_STEM]:
             ROUTINE_CLASSIFICATIONS.append({
                 'mode': mode, 'model_type': 'random_forest', 'model_name': f'rf_model_{i}',
-                'dataset_type': 'sat20', 'testing_dataset_name': t_set, 'data_subdir': ''
+                'dataset_type': 'ter20', 'testing_dataset_name': t_set, 'data_subdir': ''
             })
 
     # nb15
@@ -95,6 +95,12 @@ for mode in ['independent', 'dependent']:
             })
 
     for i in range(1, 9):
+        ROUTINE_CLASSIFICATIONS.append({
+            'mode': mode, 'model_type': 'random_forest', 'model_name': f'rf_model_{i}',
+            'dataset_type': 'nb15+sat20', 'testing_dataset_name': JOINT_NORMAL_SAT20_FILE_STEM, 'data_subdir': JOINT_DIR_NAME
+        })
+
+    for i in range(1, 9):
         for t_set in ['Normal_Botnet', 'Normal_DDoS', 'Normal_Syn_DDoS', 'Normal_UDP_DDoS']:
             ROUTINE_CLASSIFICATIONS.append({
                 'mode': mode, 'model_type': 'random_forest', 'model_name': f'rf_model_{i}',
@@ -107,12 +113,6 @@ for mode in ['independent', 'dependent']:
             'dataset_type': 'nb15+ter20', 'testing_dataset_name': JOINT_NORMAL_TER20_FILE_STEM, 'data_subdir': JOINT_DIR_NAME
         })
 
-    for i in range(1, 9):
-        ROUTINE_CLASSIFICATIONS.append({
-            'mode': mode, 'model_type': 'random_forest', 'model_name': f'rf_model_{i}',
-            'dataset_type': 'nb15+sat20', 'testing_dataset_name': JOINT_NORMAL_SAT20_FILE_STEM, 'data_subdir': JOINT_DIR_NAME
-        })
-
     # =========================================================================
     # ISOLATION FOREST
     # =========================================================================
@@ -120,69 +120,69 @@ for mode in ['independent', 'dependent']:
     # sat20
     for t_set in ['Syn_DDoS', 'UDP_DDoS']:
         ROUTINE_CLASSIFICATIONS.append({
-            'mode': mode, 'model_type': 'random_forest', 'model_name': 'if_model_1',
+            'mode': mode, 'model_type': 'isolation_forest', 'model_name': 'if_model_1',
             'dataset_type': 'sat20', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME
         })
 
     for t_set in [SAT20_ATTACKS_SCALED_FILE_STEM, SAT20_FILE_STEM]:
         ROUTINE_CLASSIFICATIONS.append({
-            'mode': mode, 'model_type': 'random_forest', 'model_name': 'if_model_1',
+            'mode': mode, 'model_type': 'isolation_forest', 'model_name': 'if_model_1',
             'dataset_type': 'sat20', 'testing_dataset_name': t_set, 'data_subdir': ''
         })
 
     # ter20
     for t_set in ['Botnet', 'DDoS', 'Syn_DDoS', 'UDP_DDoS']:
         ROUTINE_CLASSIFICATIONS.append({
-            'mode': mode, 'model_type': 'random_forest', 'model_name': 'if_model_1',
+            'mode': mode, 'model_type': 'isolation_forest', 'model_name': 'if_model_1',
             'dataset_type': 'ter20', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME
         })
 
     for t_set in [TER20_ATTACKS_SCALED_FILE_STEM, TER20_FILE_STEM]:
         ROUTINE_CLASSIFICATIONS.append({
-            'mode': mode, 'model_type': 'random_forest', 'model_name': 'if_model_1',
-            'dataset_type': 'sat20', 'testing_dataset_name': t_set, 'data_subdir': ''
+            'mode': mode, 'model_type': 'isolation_forest', 'model_name': 'if_model_1',
+            'dataset_type': 'ter20', 'testing_dataset_name': t_set, 'data_subdir': ''
         })
 
     # nb15
     for t_set in ['DoS', 'Exploits', 'Fuzzers', 'Generic', 'Normal', 'Reconnaissance']:
         ROUTINE_CLASSIFICATIONS.append({
-            'mode': mode, 'model_type': 'random_forest', 'model_name': 'if_model_1',
+            'mode': mode, 'model_type': 'isolation_forest', 'model_name': 'if_model_1',
             'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME
         })
 
     for t_set in ['Normal_DoS', 'Normal_Exploits', 'Normal_Fuzzers', 'Normal_Generic', 'Normal_Reconnaissance']:
         ROUTINE_CLASSIFICATIONS.append({
-            'mode': mode, 'model_type': 'random_forest', 'model_name': 'if_model_1',
+            'mode': mode, 'model_type': 'isolation_forest', 'model_name': 'if_model_1',
             'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': NORMAL_ATTACK_DIR_NAME
         })
 
     for t_set in [NB15_FILE_STEM, NB15_SCALED_FILE_STEM, NB15_ATTACKS_SCALED_FILE_STEM]:
         ROUTINE_CLASSIFICATIONS.append({
-            'mode': mode, 'model_type': 'random_forest', 'model_name': 'if_model_1',
+            'mode': mode, 'model_type': 'isolation_forest', 'model_name': 'if_model_1',
             'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': ''
         })
 
     # joint
     for t_set in ['Normal_Syn_DDoS', 'Normal_UDP_DDoS']:
         ROUTINE_CLASSIFICATIONS.append({
-            'mode': mode, 'model_type': 'random_forest', 'model_name': 'if_model_1',
+            'mode': mode, 'model_type': 'isolation_forest', 'model_name': 'if_model_1',
             'dataset_type': 'nb15+sat20', 'testing_dataset_name': t_set, 'data_subdir': f"{JOINT_DIR_NAME}/sat20_joint"
         })
 
+    ROUTINE_CLASSIFICATIONS.append({
+        'mode': mode, 'model_type': 'isolation_forest', 'model_name': 'if_model_1',
+        'dataset_type': 'nb15+sat20', 'testing_dataset_name': JOINT_NORMAL_SAT20_FILE_STEM, 'data_subdir': JOINT_DIR_NAME
+    })
+
     for t_set in ['Normal_Botnet', 'Normal_DDoS', 'Normal_Syn_DDoS', 'Normal_UDP_DDoS']:
         ROUTINE_CLASSIFICATIONS.append({
-            'mode': mode, 'model_type': 'random_forest', 'model_name': 'if_model_1',
+            'mode': mode, 'model_type': 'isolation_forest', 'model_name': 'if_model_1',
             'dataset_type': 'nb15+ter20', 'testing_dataset_name': t_set, 'data_subdir': f"{JOINT_DIR_NAME}/ter20_joint"
         })
 
     ROUTINE_CLASSIFICATIONS.append({
-        'mode': mode, 'model_type': 'random_forest', 'model_name': 'if_model_1',
+        'mode': mode, 'model_type': 'isolation_forest', 'model_name': 'if_model_1',
         'dataset_type': 'nb15+ter20', 'testing_dataset_name': JOINT_NORMAL_TER20_FILE_STEM, 'data_subdir': JOINT_DIR_NAME
-    })
-
-    ROUTINE_CLASSIFICATIONS.append({
-        'mode': mode, 'model_type': 'random_forest', 'model_name': 'if_model_1',
-        'dataset_type': 'nb15+sat20', 'testing_dataset_name': JOINT_NORMAL_SAT20_FILE_STEM, 'data_subdir': JOINT_DIR_NAME
     })
 
 

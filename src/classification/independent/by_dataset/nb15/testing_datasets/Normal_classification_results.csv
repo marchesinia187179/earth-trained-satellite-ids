@@ -1,0 +1,10 @@
+id,timestamp,model_type,model_name,dataset_type,testing_dataset,samples,tp,tn,fp,fn,f1,precision,recall,auc_roc,pr_auc
+5,2026-06-23 16:39:41,isolation_forest,if_model_1,nb15,Normal,18600,0,16788,1812,0,None,None,None,None,None
+5,2026-06-23 16:40:01,random_forest,rf_model_1,nb15,Normal,18600,0,18546,54,0,None,None,None,None,None
+37,2026-06-23 16:40:22,random_forest,rf_model_2,nb15,Normal,18600,0,18509,91,0,None,None,None,None,None
+69,2026-06-23 16:40:46,random_forest,rf_model_3,nb15,Normal,18600,0,18206,394,0,None,None,None,None,None
+101,2026-06-23 16:41:11,random_forest,rf_model_4,nb15,Normal,18600,0,18596,4,0,None,None,None,None,None
+133,2026-06-23 16:41:30,random_forest,rf_model_5,nb15,Normal,18600,0,18522,78,0,None,None,None,None,None
+165,2026-06-23 16:41:52,random_forest,rf_model_6,nb15,Normal,18600,0,18469,131,0,None,None,None,None,None
+197,2026-06-23 16:42:16,random_forest,rf_model_7,nb15,Normal,18600,0,18600,0,0,None,None,None,None,None
+229,2026-06-23 16:42:31,random_forest,rf_model_8,nb15,Normal,18600,0,18600,0,0,None,None,None,None,None

@@ -1,0 +1,10 @@
+id,timestamp,model_type,model_name,dataset_type,testing_dataset,samples,tp,tn,fp,fn,f1,precision,recall,auc_roc,pr_auc
+25,2026-06-23 16:43:17,isolation_forest,if_model_1,sat20,sat20_attacks_preprocessed_scaled,15632,11559,0,0,4073,None,None,0.7394447287615148,None,None
+25,2026-06-23 16:43:42,random_forest,rf_model_1,sat20,sat20_attacks_preprocessed_scaled,15632,5057,0,0,10575,None,None,0.3235030706243603,None,None
+57,2026-06-23 16:44:05,random_forest,rf_model_2,sat20,sat20_attacks_preprocessed_scaled,15632,4014,0,0,11618,None,None,0.25678096212896623,None,None
+89,2026-06-23 16:44:31,random_forest,rf_model_3,sat20,sat20_attacks_preprocessed_scaled,15632,3543,0,0,12089,None,None,0.22665046059365404,None,None
+121,2026-06-23 16:44:51,random_forest,rf_model_4,sat20,sat20_attacks_preprocessed_scaled,15632,175,0,0,15457,None,None,0.011194984646878198,None,None
+153,2026-06-23 16:45:13,random_forest,rf_model_5,sat20,sat20_attacks_preprocessed_scaled,15632,6583,0,0,9049,None,None,0.4211233367451382,None,None
+185,2026-06-23 16:45:41,random_forest,rf_model_6,sat20,sat20_attacks_preprocessed_scaled,15632,6022,0,0,9610,None,None,0.3852354145342886,None,None
+217,2026-06-23 16:45:58,random_forest,rf_model_7,sat20,sat20_attacks_preprocessed_scaled,15632,15631,0,0,1,None,None,0.9999360286591606,None,None
+249,2026-06-23 16:46:14,random_forest,rf_model_8,sat20,sat20_attacks_preprocessed_scaled,15632,15631,0,0,1,None,None,0.9999360286591606,None,None

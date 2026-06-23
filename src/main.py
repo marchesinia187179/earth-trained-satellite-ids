@@ -2,7 +2,6 @@
 Main entry point for the Satellite IDS project.
 """
 import joblib
-from typing import Optional
 
 from utils.file_utils import get_data_from_csv
 from utils.input_utils import get_split_input, validate_path, validate_choice, get_y_n_choice, get_numeric_input
