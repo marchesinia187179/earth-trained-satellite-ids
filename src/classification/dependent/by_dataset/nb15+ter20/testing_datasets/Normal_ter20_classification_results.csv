@@ -1,3 +1,3 @@
-id,timestamp,model_type,model_name,dataset_type,testing_dataset,samples,tp,tn,fp,fn,f1,precision,recall,auc_roc
-14,2026-06-19 21:23:52,isolation_forest,if_model_1,nb15+ter20,Normal_ter20,20464,1808,16788,1812,56,0.6593727206418672,0.4994475138121547,0.9699570815450643,0.9524117114310766
-105,2026-06-19 21:24:55,random_forest,rf_model_7,nb15+ter20,Normal_ter20,20464,1864,18600,0,0,1.0,1.0,1.0,1.0
+id,timestamp,model_type,model_name,dataset_type,testing_dataset,samples,tp,tn,fp,fn,f1,precision,recall,auc_roc,pr_auc
+14,2026-06-23 10:57:42,isolation_forest,if_model_1,nb15+ter20,Normal_ter20,20464,1808,16788,1812,56,0.6593727206418672,0.4994475138121547,0.9699570815450643,0.9524117114310766,0.526441166604841
+105,2026-06-23 10:58:51,random_forest,rf_model_7,nb15+ter20,Normal_ter20,20464,1864,18600,0,0,1.0,1.0,1.0,1.0,1.0

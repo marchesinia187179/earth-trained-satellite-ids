@@ -1,10 +1,10 @@
-id,timestamp,model_type,model_name,dataset_type,testing_dataset,samples,tp,tn,fp,fn,f1,precision,recall,auc_roc
-20,2026-06-19 21:20:19,isolation_forest,if_model_1,ter20,UDP_DDoS,2768,1020,0,0,1748,None,None,0.3684971098265896,None
-16,2026-06-19 21:20:28,random_forest,rf_model_1,ter20,UDP_DDoS,2768,2014,0,0,754,None,None,0.7276011560693642,None
-32,2026-06-19 21:20:38,random_forest,rf_model_2,ter20,UDP_DDoS,2768,0,0,0,2768,None,None,0.0,None
-48,2026-06-19 21:20:48,random_forest,rf_model_3,ter20,UDP_DDoS,2768,1,0,0,2767,None,None,0.000361271676300578,None
-64,2026-06-19 21:20:56,random_forest,rf_model_4,ter20,UDP_DDoS,2768,0,0,0,2768,None,None,0.0,None
-80,2026-06-19 21:21:04,random_forest,rf_model_5,ter20,UDP_DDoS,2768,2460,0,0,308,None,None,0.888728323699422,None
-98,2026-06-19 21:21:15,random_forest,rf_model_6,ter20,UDP_DDoS,2768,1,0,0,2767,None,None,0.000361271676300578,None
-111,2026-06-19 21:21:21,random_forest,rf_model_7,ter20,UDP_DDoS,2768,2767,0,0,1,None,None,0.9996387283236994,None
-124,2026-06-19 21:21:27,random_forest,rf_model_8,ter20,UDP_DDoS,2768,2768,0,0,0,None,None,1.0,None
+id,timestamp,model_type,model_name,dataset_type,testing_dataset,samples,tp,tn,fp,fn,f1,precision,recall,auc_roc,pr_auc
+1,2026-06-23 10:55:54,isolation_forest,if_model_1,ter20,UDP_DDoS,2768,1020,0,0,1748,None,None,0.3684971098265896,None,None
+1,2026-06-23 10:56:03,random_forest,rf_model_1,ter20,UDP_DDoS,2768,2014,0,0,754,None,None,0.7276011560693642,None,None
+1,2026-06-23 10:56:13,random_forest,rf_model_2,ter20,UDP_DDoS,2768,0,0,0,2768,None,None,0.0,None,None
+1,2026-06-23 10:56:24,random_forest,rf_model_3,ter20,UDP_DDoS,2768,1,0,0,2767,None,None,0.000361271676300578,None,None
+1,2026-06-23 10:56:33,random_forest,rf_model_4,ter20,UDP_DDoS,2768,0,0,0,2768,None,None,0.0,None,None
+1,2026-06-23 10:56:42,random_forest,rf_model_5,ter20,UDP_DDoS,2768,2460,0,0,308,None,None,0.888728323699422,None,None
+1,2026-06-23 10:56:54,random_forest,rf_model_6,ter20,UDP_DDoS,2768,1,0,0,2767,None,None,0.000361271676300578,None,None
+1,2026-06-23 10:57:00,random_forest,rf_model_7,ter20,UDP_DDoS,2768,2767,0,0,1,None,None,0.9996387283236994,None,None
+1,2026-06-23 10:57:06,random_forest,rf_model_8,ter20,UDP_DDoS,2768,2768,0,0,0,None,None,1.0,None,None

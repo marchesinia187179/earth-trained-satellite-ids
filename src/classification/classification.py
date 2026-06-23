@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 import re
 from sklearn.ensemble import RandomForestClassifier, IsolationForest
-from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix, roc_auc_score
+from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix, roc_auc_score, average_precision_score
 from utils.file_utils import get_data_from_csv, update_or_append_csv
 from utils.paths import (
     INDEPENDENT_RESULTS_DIR, DEPENDENT_RESULTS_DIR,
@@ -186,7 +186,8 @@ def save_result(model_obj, mode, model_name, dataset_type, testing_dataset, samp
         'f1': metrics['f1'] if metrics['f1'] is not None else 'None',
         'precision': metrics['precision'] if metrics['precision'] is not None else 'None',
         'recall': metrics['recall'] if metrics['recall'] is not None else 'None',
-        'auc_roc': metrics['auc_roc'] if metrics['auc_roc'] is not None else 'None'
+        'auc_roc': metrics['auc_roc'] if metrics['auc_roc'] is not None else 'None',
+        'pr_auc': metrics['pr_auc'] if metrics['pr_auc'] is not None else 'None'
     }
 
     match_keys = ['model_name', 'dataset_type', 'testing_dataset']
@@ -335,6 +336,7 @@ def classification_processing(data, mode, models_to_test, dataset_type, testing_
 
         y_pred = model_obj.predict(X)
         auc_roc = None
+        pr_auc = None
 
         unique_classes = np.unique(y)
         has_both_classes = len(unique_classes) > 1
@@ -348,10 +350,12 @@ def classification_processing(data, mode, models_to_test, dataset_type, testing_
             if has_both_classes:
                 y_scores = -model_obj.decision_function(X)
                 auc_roc = roc_auc_score(y, y_scores)
+                pr_auc = average_precision_score(y, y_scores)
         elif hasattr(model_obj, "predict_proba"):
             if has_both_classes:
                 y_scores = model_obj.predict_proba(X)[:, 1]
                 auc_roc = roc_auc_score(y, y_scores)
+                pr_auc = average_precision_score(y, y_scores)
 
         # Calculate standard confusion matrix first to extract raw metrics reliably
         cm = confusion_matrix(y, y_pred, labels=[0, 1])
@@ -367,15 +371,17 @@ def classification_processing(data, mode, models_to_test, dataset_type, testing_
         metrics = {
             'tp': tp, 'tn': tn, 'fp': fp, 'fn': fn,
             'f1': f1, 'precision': precision, 'recall': recall,
-            'auc_roc': auc_roc
+            'auc_roc': auc_roc,
+            'pr_auc': pr_auc
         }
 
         f1_display = f"{f1:.4f}" if f1 is not None else "None"
         precision_display = f"{precision:.4f}" if precision is not None else "None"
         recall_display = f"{recall:.4f}" if recall is not None else "None"
         auc_roc_display = f"{auc_roc:.4f}" if auc_roc is not None else "None"
+        pr_auc_display = f"{pr_auc:.4f}" if pr_auc is not None else "None"
 
-        print(f"F1-score={f1_display}, Precision={precision_display}, Recall={recall_display}, AUC-ROC={auc_roc_display}")
+        print(f"F1-score={f1_display}, Precision={precision_display}, Recall={recall_display}, AUC-ROC={auc_roc_display}, PR-AUC={pr_auc_display}")
         result = save_result(model_obj, mode, model_name, dataset_type, testing_dataset, test_data.shape[0], metrics, collect_results=collect_results)
         if collect_results and result is not None:
             results.append(result)
