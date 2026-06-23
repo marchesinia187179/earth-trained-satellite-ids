@@ -10,6 +10,7 @@ from preprocessing.data_preprocessing import data_preprocessing
 from preprocessing.file_preprocessing import file_preprocessing, create_joint_datasets
 from models.models import model_processing, run_routine_models
 from classification.classification import classification_processing, run_routine_classifications
+from view.plotting import generate_custom_recall_heatmap
 
 # --- State Wrappers ---
 def file_preprocessing_state(data_preprocessed, dataset_type, base_dir, normal_attack_ratio=None, replacing_mode=None):
@@ -197,6 +198,10 @@ def run_guided_routine_pipeline():
         print(f"\n--- Running Routine Classification ({mode.upper()} Mode) ---")
         run_routine_classifications(mode)
 
+    if get_y_n_choice("Do you want to execute the routine PLOTTING phase? [y/n] ") == 'y':
+        print(f"\n--- Running Routine Plotting ({mode.upper()} Mode) ---")
+        generate_custom_recall_heatmap(mode)
+
     print("\nRoutine pipeline session concluded.")
 
 
@@ -222,6 +227,9 @@ def run_full_automated_pipeline():
         
         print(f"\n--- 3. Executing Non-Stop Routine Classifications ({mode}) ---")
         run_routine_classifications(mode)
+
+        print(f"\n--- 4. Executing Non-Stop Routine Plotting ({mode}) ---")
+        generate_custom_recall_heatmap(mode)
         
     print("\n=== FULL PIPELINE AUTOMATICALLY COMPLETED FOR BOTH MODES ===")
 
