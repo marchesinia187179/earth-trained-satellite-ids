@@ -1,7 +1,0 @@
-id,timestamp,model_type,model_name,dataset_type,testing_dataset,samples,tp,tn,fp,fn,f1,precision,recall,auc_roc,pr_auc
-6,2026-06-23 12:35:37,isolation_forest,if_model_1,nb15,Reconnaissance,2798,100,0,0,2698,None,None,0.035739814152966405,None,None
-4,2026-06-23 12:35:50,random_forest,rf_model_1,nb15,Reconnaissance,2798,778,0,0,2020,None,None,0.2780557541100786,None,None
-20,2026-06-23 12:36:02,random_forest,rf_model_2,nb15,Reconnaissance,2798,723,0,0,2075,None,None,0.2583988563259471,None,None
-36,2026-06-23 12:36:15,random_forest,rf_model_3,nb15,Reconnaissance,2798,529,0,0,2269,None,None,0.1890636168691923,None,None
-52,2026-06-23 12:36:31,random_forest,rf_model_4,nb15,Reconnaissance,2798,411,0,0,2387,None,None,0.1468906361686919,None,None
-86,2026-06-23 12:36:51,random_forest,rf_model_6,nb15,Reconnaissance,2798,2569,0,0,229,None,None,0.918155825589707,None,None

@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 import re
 from sklearn.ensemble import RandomForestClassifier, IsolationForest
-from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix, roc_auc_score, average_precision_score
+from sklearn.metrics import f1_score, precision_score, confusion_matrix, roc_auc_score, average_precision_score
 from utils.file_utils import get_data_from_csv, update_or_append_csv
 from utils.paths import (
     INDEPENDENT_RESULTS_DIR, DEPENDENT_RESULTS_DIR,
@@ -16,12 +16,11 @@ from utils.paths import (
     INDEPENDENT_RF_DIR, DEPENDENT_RF_DIR,
     INDEPENDENT_IF_DIR, DEPENDENT_IF_DIR,
     INDEPENDENT_DIR, DEPENDENT_DIR,
-    RF_RESULTS_FILENAME, IF_RESULTS_FILENAME, # Result filenames
-    ATTACK_CAT_DIR_NAME, NORMAL_ATTACK_DIR_NAME, # Subdirectory names
-    NB15_PREPROCESSED_DIR_NAME, SAT20_PREPROCESSED_DIR_NAME, TER20_PREPROCESSED_DIR_NAME, # Preprocessed dir names
-    PREPROCESSED_DIR_SUFFIX, JOINT_DIR_NAME,
+    RF_RESULTS_FILENAME, IF_RESULTS_FILENAME,
+    ATTACK_CAT_DIR_NAME, PREPROCESSED_DIR_SUFFIX, JOINT_DIR_NAME,
     JOINT_NORMAL_SAT20_FILE_STEM, JOINT_NORMAL_TER20_FILE_STEM,
-    SAT20_ATTACKS_SCALED_FILE_STEM, TER20_ATTACKS_SCALED_FILE_STEM
+    SAT20_ATTACKS_SCALED_FILE_STEM, TER20_ATTACKS_SCALED_FILE_STEM,
+    NB15_SCALED_FILE_STEM
 )
 import joblib
 
@@ -51,6 +50,13 @@ for mode in ['independent', 'dependent']:
                 'dataset_type': 'ter20', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME
             })
 
+    # Target NB15 (Pure Aggregate)
+    for i in range(1, 9):
+        ROUTINE_CLASSIFICATIONS.append({
+            'mode': mode, 'model_type': 'random_forest', 'model_name': f'rf_model_{i}',
+            'dataset_type': 'nb15', 'testing_dataset_name': NB15_SCALED_FILE_STEM, 'data_subdir': ''
+        })
+
     # Target NB15 (Pure): Internal multi-class baseline validation for global model (Model 6)
     for t_set in ['DoS', 'Exploits', 'Fuzzers', 'Generic', 'Normal', 'Reconnaissance']:
         ROUTINE_CLASSIFICATIONS.append({
@@ -70,7 +76,7 @@ for mode in ['independent', 'dependent']:
 
     # Target NB15 (Cross-Class): Map native cross-class evasion capabilities of specialized models (1-5)
     native_map = {1: 'DoS', 2: 'Exploits', 3: 'Fuzzers', 4: 'Generic', 5: 'Reconnaissance'}
-    all_nb15_attacks = ['DoS', 'Exploits', 'Fuzzers', 'Generic', 'Reconnaissance']
+    all_nb15_attacks = ['DoS', 'Exploits', 'Fuzzers', 'Generic', 'Normal', 'Reconnaissance']
     for i in range(1, 6):
         for t_set in all_nb15_attacks:
             if t_set != native_map[i]:
@@ -78,6 +84,14 @@ for mode in ['independent', 'dependent']:
                     'mode': mode, 'model_type': 'random_forest', 'model_name': f'rf_model_{i}',
                     'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME
                 })
+
+    # Target NB15 (Pure): Internal multi-class baseline validation for global STIN model (Model 7 and 8)
+    for i in range(7, 9):
+        for t_set in ['DoS', 'Exploits', 'Fuzzers', 'Generic', 'Normal', 'Reconnaissance']:
+            ROUTINE_CLASSIFICATIONS.append({
+                'mode': mode, 'model_type': 'random_forest', 'model_name': 'rf_model_{i}',
+                'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME
+            })
 
     # --- GRUPPO B: HYBRID / COMBO DATASETS (10:1 Ratio) ---
     # Target SAT20 Combo: Full metrics evaluation (F1/FPR) using balanced single-class satellite injections
@@ -119,6 +133,15 @@ for mode in ['independent', 'dependent']:
         'mode': mode, 'model_type': 'random_forest', 'model_name': 'rf_model_6',
         'dataset_type': 'nb15+ter20', 'testing_dataset_name': JOINT_NORMAL_TER20_FILE_STEM, 'data_subdir': JOINT_DIR_NAME
     })
+
+    # Target Satellite Aggregates and Terrestrial Aggregates
+    # Model 1 to 5
+    for i in range(1, 6):
+        for t_set in [JOINT_NORMAL_SAT20_FILE_STEM, JOINT_NORMAL_TER20_FILE_STEM]:
+            ROUTINE_CLASSIFICATIONS.append({
+                'mode': mode, 'model_type': 'random_forest', 'model_name': 'rf_model_{i}',
+                'dataset_type': 'nb15', 'testing_dataset_name': t_set, 'data_subdir': ATTACK_CAT_DIR_NAME
+            })
 
     # =========================================================================
     # ISOLATION FOREST MATRIX ENGINES (ANOMALY DETECTION)
