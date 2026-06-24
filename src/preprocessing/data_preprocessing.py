@@ -60,25 +60,24 @@ def align_nb15(data):
 
     new_df = pd.DataFrame()
 
-    new_df['duration'] = data['dur'] * 1000000
-    new_df['src_bytes'] = data['sbytes']
-    new_df['dst_bytes'] = data['dbytes']
-    new_df['src_pkts'] = data['spkts']
-    new_df['dst_pkts'] = data['dpkts']
-    new_df['src_win_byt'] = data['swin']
-    new_df['dst_win_byt'] = data['dwin']
-    new_df['load_s'] = ((data['sload'] + data['dload']) / 8)
-    new_df['fl_iat_min'] = data[['sinpkt', 'dinpkt']].min(axis=1) * 1000
-    new_df['down_up_ratio'] = data['dpkts'] / (data['spkts'] + 1e-6)
-    new_df['total_bytes'] = new_df['src_bytes'] + new_df['dst_bytes']
-    new_df['total_pkts'] = new_df['src_pkts'] + new_df['dst_pkts']
-    new_df['src_mean_pkt_size'] = new_df['src_bytes'] / (new_df['src_pkts'] + 1e-6)
-    new_df['dst_mean_pkt_size'] = new_df['dst_bytes'] / (new_df['dst_pkts'] + 1e-6)
-    new_df['pkts_per_sec'] = (new_df['src_pkts'] + new_df['dst_pkts']) / (data['dur'] + 1e-6)
-    new_df['win_diff'] = new_df['src_win_byt'] - new_df['dst_win_byt']
-    new_df['byte_ratio'] = new_df['dst_bytes'] / (new_df['src_bytes'] + 1e-6)
-    new_df['attack_cat'] = data['attack_cat']
-    new_df['label'] = data['label']
+    new_df['duration'] = data['dur'] * 1000000  # flow duration [sE+6 = µs]
+    new_df['src_bytes'] = data['sbytes']    # total length of forward packets [Byte]
+    new_df['dst_bytes'] = data['dbytes']    # total length of forward packets [Byte]
+    new_df['src_pkts'] = data['spkts']  # total packets in the forward direction
+    new_df['dst_pkts'] = data['dpkts']  # total packets in the backward direction
+    new_df['src_win_byt'] = data['swin']    # number of forward bytes in the initial window [Byte]
+    new_df['dst_win_byt'] = data['dwin']    # number of backward bytes in the initial window [Byte]
+    new_df['load_s'] = ((data['sload'] + data['dload']) / 8)    # packets bytes transmitted per second [(bit/8)/s = B/s]
+    new_df['down_up_ratio'] = data['dpkts'] / (data['spkts'] + 1e-6)    # asymmetry between downlink and uplink channels
+    new_df['total_bytes'] = new_df['src_bytes'] + new_df['dst_bytes']   # total bytes of channels [Byte]
+    new_df['total_pkts'] = new_df['src_pkts'] + new_df['dst_pkts']  # total number of packets of channels
+    new_df['src_mean_pkt_size'] = new_df['src_bytes'] / (new_df['src_pkts'] + 1e-6)     # mean of packets length for source channel [Byte]
+    new_df['dst_mean_pkt_size'] = new_df['dst_bytes'] / (new_df['dst_pkts'] + 1e-6)     # mean of packets length for destination channel [Byte]
+    new_df['pkts_per_sec'] = (new_df['src_pkts'] + new_df['dst_pkts']) / (data['dur'] + 1e-6)   # packets per second [1/s]
+    new_df['win_diff'] = new_df['src_win_byt'] - new_df['dst_win_byt']  # difference between number of source and destination bytes in the initial window [Byte]
+    new_df['byte_ratio'] = new_df['dst_bytes'] / (new_df['src_bytes'] + 1e-6)   # asymmetry between destination and source bytes [Byte]
+    new_df['class'] = data['attack_cat']    # string of class of the data
+    new_df['label'] = data['label']     # bolean of class of the data: 1 for anomaly or 0 for normal
 
     print("Dataset aligned (NB15).")
     return new_df
@@ -101,115 +100,30 @@ def align_stin(data):
 
     new_df = pd.DataFrame()
 
-    new_df['duration'] = data['fl_dur']
-    new_df['src_bytes'] = data['l_fw_pkt']
-    new_df['dst_bytes'] = data['l_bw_pkt']
-    new_df['src_pkts'] = data['fw_pk']
-    new_df['dst_pkts'] = data['bw_pkt_s'] * data['fl_dur'] / 1000000
-    new_df['src_win_byt'] = data['fw_win_byt']
-    new_df['dst_win_byt'] = data['bw_win_byt']
-    new_df['load_s'] = data['fl_byt_s']
-    new_df['fl_iat_min'] = data['fl_iat_min']
-    new_df['down_up_ratio'] = data['down_up_ratio']
-    new_df['total_bytes'] = new_df['src_bytes'] + new_df['dst_bytes']
-    new_df['total_pkts'] = new_df['src_pkts'] + new_df['dst_pkts']
-    new_df['src_mean_pkt_size'] = new_df['src_bytes'] / (new_df['src_pkts'] + 1e-6)
-    new_df['dst_mean_pkt_size'] = new_df['dst_bytes'] / (new_df['dst_pkts'] + 1e-6)
-    new_df['pkts_per_sec'] = ((new_df['src_pkts'] + new_df['dst_pkts']) / (new_df['duration'] + 1e-6)) * 1000000
-    new_df['win_diff'] = new_df['src_win_byt'] - new_df['dst_win_byt']
-    new_df['byte_ratio'] = new_df['dst_bytes'] / (new_df['src_bytes'] + 1e-6)
-    new_df['attack_cat'] = data['label']
-    new_df['label'] = 1
+    new_df['duration'] = data['fl_dur']     # flow duration [µs]
+    new_df['src_bytes'] = data['l_fw_pkt']  # total length of forward packets [Byte]
+    new_df['dst_bytes'] = data['l_bw_pkt']  # total length of forward packets [Byte]
+    new_df['src_pkts'] = data['fw_pk']  # total packets in the forward direction
+    new_df['dst_pkts'] = data['bw_pkt_s'] * data['fl_dur'] / 1000000    # total packets in the backward direction: backward packets per second * flow duration / 1E+6 [Byte µs / s E+6 = Byte]
+    new_df['src_win_byt'] = data['fw_win_byt']  # number of forward bytes in the initial window [Byte]
+    new_df['dst_win_byt'] = data['bw_win_byt']  # number of backward bytes in the initial window [Byte]
+    new_df['load_s'] = data['fl_byt_s']     # packets bytes transmitted per second [B/s]
+    new_df['down_up_ratio'] = data['down_up_ratio'] # asymmetry between downlink and uplink channels
+    new_df['total_bytes'] = new_df['src_bytes'] + new_df['dst_bytes']   # total bytes of channels [Byte]
+    new_df['total_pkts'] = new_df['src_pkts'] + new_df['dst_pkts']  # total number of packets of channels
+    new_df['src_mean_pkt_size'] = new_df['src_bytes'] / (new_df['src_pkts'] + 1e-6)     # mean of packets length for source channel [Byte]
+    new_df['dst_mean_pkt_size'] = new_df['dst_bytes'] / (new_df['dst_pkts'] + 1e-6)     # mean of packets length for destination channel [Byte]
+    new_df['pkts_per_sec'] = ((new_df['src_pkts'] + new_df['dst_pkts']) / (new_df['duration'] + 1e-6)) * 1000000    # packets per second [1/µs s E+6 = 1/s]
+    new_df['win_diff'] = new_df['src_win_byt'] - new_df['dst_win_byt']  # difference between number of source and destination bytes in the initial window [Byte]
+    new_df['byte_ratio'] = new_df['dst_bytes'] / (new_df['src_bytes'] + 1e-6)   # asymmetry between destination and source bytes [Byte]
+    new_df['class'] = data['label']     # string of class of the data
+    new_df['label'] = 1     # bolean of class of the data: 1 for anomaly or 0 for normal
 
     print("Dataset aligned (STIN).")
     return new_df
 
 
-def normalize_dataset_independent(data):
-    """
-    Normalizes numerical features of the dataset using Min-Max scaling.
-    Formula: X_i = (x_i - min(x_i)) / (max(x_i) - min(x_i))
-
-    :param data: Input pandas DataFrame.
-    :internal cols_to_exclude: Features that should not be normalized ('attack_cat', 'label').
-    :return: Normalized pandas DataFrame.
-    """
-    cols_to_exclude = ['attack_cat', 'label', 'split_type']
-
-    data_train = data[data['split_type'] == 'train']
-    
-    for col in data.columns:
-        if col not in cols_to_exclude and pd.api.types.is_numeric_dtype(data[col]):
-
-            if not data_train.empty:
-                min_val = data_train[col].min()
-                max_val = data_train[col].max()
-            else:
-                min_val = data[col].min()
-                max_val = data[col].max()
-            
-            diff = max_val - min_val
-            
-            if diff != 0:
-                data[col] = (data[col] - min_val) / diff
-            else:
-                data[col] = 0.0
-                
-    print("Features normalized.")
-    return data
-
-
-def normalize_dataset_dependent(data, scaler_stats=None):
-    """
-    Normalizza le feature numeriche. Se scaler_stats è None, calcola i minimi e massimi (fase di Fit).
-    Se scaler_stats è fornito, usa quei valori per normalizzare (fase di Transform).
-    """
-    cols_to_exclude = ['attack_cat', 'label', 'split_type']
-    
-    # Individuiamo le colonne numeriche da normalizzare
-    numeric_cols = [col for col in data.columns if col not in cols_to_exclude and pd.api.types.is_numeric_dtype(data[col])]
-    
-    # Se siamo sul Train Set (NB15), calcoliamo e salviamo i parametri
-    if scaler_stats is None:
-        data_train = data[data['split_type'] == 'train']
-
-        scaler_stats = {}
-        for col in numeric_cols:
-            if not data_train.empty:
-                min_val = data_train[col].min()
-                max_val = data_train[col].max()
-            else:
-                min_val = data[col].min()
-                max_val = data[col].max()
-                
-            scaler_stats[col] = {
-                'min': min_val,
-                'max': max_val
-            }
-
-        print("Parametri di normalizzazione calcolati (Fit).")
-    else:
-        print("Parametri di normalizzazione ereditati (Transform).")
-
-    # Applichiamo la normalizzazione
-    for col in numeric_cols:
-        if col in scaler_stats:
-            min_val = scaler_stats[col]['min']
-            max_val = scaler_stats[col]['max']
-            diff = max_val - min_val
-            
-            if diff != 0:
-                data[col] = (data[col] - min_val) / diff
-            else:
-                data[col] = 0.0
-                
-    print("Features normalized.")
-    return data, scaler_stats
-
-
 def stratified_split(data, train_split):
-    # Add split column for training/testing (Stratified Split per attack_cat)
-    # Using an explicit loop and concat to ensure 'attack_cat' column is preserved
     split_groups = []
     for _, group in data.groupby('attack_cat'):
         group = group.sample(frac=1, random_state=42).reset_index(drop=True)
@@ -220,15 +134,7 @@ def stratified_split(data, train_split):
     return pd.concat(split_groups)
 
 
-def data_preprocessing(data, dataset_type, dependent=True, scaler_stats=None, train_split=0.8):
-    """
-    Main orchestration function for data preprocessing based on the dataset type.
-
-    :param data: Raw pandas DataFrame.
-    :param dataset_type: String indicating the dataset type ('nb15', 'ter20', 'sat20').
-    :param train_split: Percentage of data to be assigned to training (0.0 to 1.0).
-    :return: Preprocessed and normalized pandas DataFrame.
-    """
+def data_preprocessing(data, dataset_type):
     print(f"Running data-level preprocessing for {dataset_type}...")
 
     data = data.copy()
@@ -236,23 +142,20 @@ def data_preprocessing(data, dataset_type, dependent=True, scaler_stats=None, tr
     if dataset_type == 'nb15':
         data = minority_removal_nb15(data)
         data = align_nb15(data)
-
-    if dataset_type == 'ter20':
+    elif dataset_type == 'ter20':
         data = merge_minority_stin(data)
         data = align_stin(data)
-    
-    if dataset_type == 'sat20':
+    elif dataset_type == 'sat20':
         data = align_stin(data)
 
-    data = stratified_split(data, train_split)
-    
-    if dependent:
-        data, scaler_stats = normalize_dataset_dependent(data, scaler_stats)
-    else:
-        data = normalize_dataset_independent(data)
+    data = stratified_split(data, 0.8)
 
-    # Final shuffle to mix train/test labels
     data = data.sample(frac=1, random_state=42).reset_index(drop=True)
 
     print(f"Data-level preprocessing for {dataset_type} done.")
-    return data, scaler_stats
+    return data
+
+
+if __file__ == "__main__":
+    # TODO
+    data_preprocessing("", "")
