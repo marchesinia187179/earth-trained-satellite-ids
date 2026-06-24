@@ -3,6 +3,8 @@ Centralized management of project paths.
 """
 import pathlib
 
+RANDOM_STATE = 42
+
 NB15_PREFIX = "nb15"
 STIN_PREFIX = "stin"
 SAT20_PREFIX = "sat20"
@@ -15,8 +17,7 @@ NB15_TER20_PREFIX = "nb15_ter20"
 RF_MODEL_PREFIX = "rf_model_"
 
 PREPROCESSED_SUFFIX = "_prep"
-PREPROCESSED_AGGREGATE_SUFFIX = "_prep_aggr"
-PREPROCESSED_AGGREGATE_SCALED_SUFFIX = "_prep_aggr_scaled"
+PREPROCESSED_SCALED_SUFFIX = "_prep_scaled"
 
 UNNORMALIZED = "unnorm"
 NORMALIZED = "norm"
