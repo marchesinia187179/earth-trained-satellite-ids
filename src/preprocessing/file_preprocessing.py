@@ -4,10 +4,10 @@ import sys
 from utils.file_utils import create_directory, create_csv_from_data, get_data_from_csv
 from utils.input_utils import get_numeric_input, get_y_n_bool
 from utils.paths import (
-    DATA_DIR, ATTACK_CAT_DIR_NAME,
+    CLASS_DIR_NAME, DATA_DIR, ATTACK_CAT_DIR_NAME, NB15_PREFIX, NORMAL_ANOMALY_DIR_NAME,
     NORMAL_ATTACK_DIR_NAME, JOINT_DIR_NAME,
-    NORMAL_FILE_STEM, NB15_ATTACKS_SCALED_FILE_STEM,
-    SAT20_ATTACKS_SCALED_FILE_STEM, TER20_ATTACKS_SCALED_FILE_STEM,
+    NORMAL_FILE_STEM, NB15_ATTACKS_SCALED_FILE_STEM, PREPROCESSED_SUFFIX,
+    SAT20_ATTACKS_SCALED_FILE_STEM, STIN_PREFIX, TER20_ATTACKS_SCALED_FILE_STEM,
     NB15_SCALED_FILE_STEM, NB15_PREPROCESSED_DIR_NAME,
     JOINT_NORMAL_SAT20_FILE_STEM, JOINT_NORMAL_TER20_FILE_STEM,
     PREPROCESSED_DIR_SUFFIX, PREPROCESSED_MAIN_FILE_SUFFIX
@@ -51,56 +51,74 @@ def safe_stratified_sample(df, n_samples, replacing_mode, random_state=42):
     return pd.concat(sampled_parts).sample(frac=1, random_state=random_state).reset_index(drop=True)
 
 
-def split_by_attack_cat(data, dest_path):
-    attack_cat_dir_path = create_directory(ATTACK_CAT_DIR_NAME, dest_path)
-    if 'attack_cat' not in data.columns:
-        print("Error: 'attack_cat' column not found during split.")
-        sys.exit(1)
-        
-    attack_cat_list = data['attack_cat'].unique()
-
-    for attack_cat in attack_cat_list:
-        attack_cat_data = data[data['attack_cat'] == attack_cat].copy()
-        create_csv_from_data(attack_cat_data, attack_cat, attack_cat_dir_path)
-    print("Dataset split by attack category.")
-    
-    return attack_cat_dir_path
 
 
-def merge_normal_attack(source_path, dest_path, normal_attack_ratio, replacing_mode):
-    normal_attack_dir_path = create_directory(NORMAL_ATTACK_DIR_NAME, dest_path)
-    attack_cat_list = list(source_path.iterdir())
+
+
+
+
+
+
+
+
+
+def split_by_class(data_prep, dataset_type, class_dir):
+    if 'class' not in data_prep.columns:
+        print(f"Error: 'class' column not found during split. Skipping {dataset_type}.")
+        return
+
+    for c in data_prep['class'].unique():
+        class_data = data_prep[data_prep['class'] == c].copy()
+        create_csv_from_data(class_data, c, class_dir)
+
+    print("Dataset split by class.")
+
+
+
+
+
+
+
+def merge_normal_anomaly(dataset_type, src_dir, dst_dir, normal_anomaly_ratio):
+    class_list = list(src_dir.iterdir())
     
-    normal_cat_path = next((attack_cat for attack_cat in attack_cat_list if attack_cat.stem == NORMAL_FILE_STEM), None)
-    if normal_cat_path is None:
-        print("Error: Normal category not found!")
-        return normal_attack_dir_path
+    normal_path = next((c for c in class_list if c.stem == 'Normal'), None)
+    if normal_path is None:
+        print(f"Error: Normal class not found! Skipping {dataset_type}.")
+        return
     
-    normal_data = pd.DataFrame(get_data_from_csv(normal_cat_path))
+    normal_data = pd.DataFrame(get_data_from_csv(normal_path))
     normal_samples = normal_data.shape[0]
 
-    for attack_cat_path in attack_cat_list:
-        if attack_cat_path.stem == NORMAL_FILE_STEM: continue
+    for c in class_list:
+        if c.stem == "Normal": continue
 
-        attack_data = pd.DataFrame(get_data_from_csv(attack_cat_path))
-        attack_samples = attack_data.shape[0]
+        anomaly_data = pd.DataFrame(get_data_from_csv(c))
+        anomaly_samples = anomaly_data.shape[0]
 
-        if not replacing_mode and normal_samples < attack_samples * normal_attack_ratio:
-            n_attack_target = int(normal_samples / normal_attack_ratio)
-            current_attack_data = safe_stratified_sample(attack_data, n_attack_target, replacing_mode=False)
-            current_normal_data = normal_data
+        if normal_samples < anomaly_samples * normal_anomaly_ratio:
+            n_anomaly_target = int(normal_samples / normal_anomaly_ratio)
+            curr_anomaly_data = safe_stratified_sample(anomaly_data, n_anomaly_target, replacing_mode=False)
+            curr_normal_data = normal_data
         else:
-            current_attack_data = attack_data
-            n_normal_target = int(attack_samples * normal_attack_ratio)
-            current_normal_data = safe_stratified_sample(normal_data, n_normal_target, replacing_mode=replacing_mode)
+            n_normal_target = int(anomaly_samples * normal_anomaly_ratio)
+            curr_normal_data = safe_stratified_sample(normal_data, n_normal_target, replacing_mode=False)
+            curr_anomaly_data = anomaly_data
 
-        df = pd.concat([current_normal_data, current_attack_data])
+        df = pd.concat([curr_normal_data, curr_anomaly_data])
         df = df.sample(frac=1, random_state=42).reset_index(drop=True)
 
-        create_csv_from_data(df, f"Normal_{attack_cat_path.stem}", normal_attack_dir_path)
+        create_csv_from_data(df, f"Normal_{c.stem}", dst_dir)
 
-    print("Normal and attack samples merged.")
-    return normal_attack_dir_path
+    print("Normal and anomaly samples merged.")
+
+
+
+
+
+
+
+
 
 
 def merge_attacks_scaled(source_path, dest_path, dataset_type):
@@ -240,23 +258,49 @@ def create_joint_datasets(base_dest_dir, ratio, replacing_mode):
             create_csv_from_data(df_single_joint, f"Normal_{p.stem}", sub_dir_path)
 
 
-def file_preprocessing(data, dataset_type, base_dest_dir, normal_attack_ratio=None, replacing_mode=None):
-    if dataset_type == 'nb15':
-        if normal_attack_ratio is None:
-            ratio_prompt = "Insert the normal-attack ratio: [> 0] (e.g. 10, 10 normal data for 1 attack data) "
-            normal_attack_ratio = get_numeric_input(ratio_prompt, type_func=float, min_val=0)
-        if replacing_mode is None:
-            replacing_mode = get_y_n_bool("Do you want to use replacing mode? [y/n] ")
-    
+
+
+
+
+
+
+
+def single_dataset_file_preprocessing(data_prep, dataset_type):
+    """ Create the main directories and files of the dataset preprocessed
+
+        v {dataset_type}_prep
+            {dataset_type}_prep.csv or {dataset_type}_prep_aggr.csv
+            {dataset_type}_prep_aggr_scaled.csv or None
+            > class
+            > normal_anomaly or None
+    """
+
     print(f"Running file-level preprocessing for {dataset_type}...")
 
-    main_dir_path = create_directory(f'{dataset_type}{PREPROCESSED_DIR_SUFFIX}', base_dest_dir)
-    create_csv_from_data(data, f'{dataset_type}{PREPROCESSED_MAIN_FILE_SUFFIX}', main_dir_path)
-    attack_cat_dir_path = split_by_attack_cat(data, main_dir_path)
-    merge_attacks_scaled(attack_cat_dir_path, main_dir_path, dataset_type)
+    dataset_prep_dir = create_directory(f"{dataset_type}{PREPROCESSED_SUFFIX}", DATA_DIR)
+    class_dir = create_directory(CLASS_DIR_NAME, dataset_prep_dir)
+
+    create_csv_from_data(data_prep, f'{dataset_type}{PREPROCESSED_SUFFIX}', dataset_prep_dir)
+    split_by_class(data_prep, dataset_type, class_dir)
+
+    if dataset_type == NB15_PREFIX:
+        normal_anomaly_dir = create_directory(NORMAL_ANOMALY_DIR_NAME, dataset_prep_dir)
+        merge_normal_anomaly(dataset_type, class_dir, normal_anomaly_dir, 0.8)
+
+    
+
+        
+
+    
+
+
+
+
+    
+    merge_attacks_scaled(attack_cat_dir_path, dataset_prep_dir, dataset_type)
 
     if dataset_type == 'nb15':
-        merge_normal_attack(attack_cat_dir_path, main_dir_path, normal_attack_ratio, replacing_mode)
-        create_scaled_dataset(attack_cat_dir_path, main_dir_path, normal_attack_ratio, replacing_mode)
+        
+        create_scaled_dataset(attack_cat_dir_path, dataset_prep_dir, normal_attack_ratio, replacing_mode)
 
     print(f"File-level preprocessing for {dataset_type} done.")

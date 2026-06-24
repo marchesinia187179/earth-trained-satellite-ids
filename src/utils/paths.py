@@ -3,20 +3,40 @@ Centralized management of project paths.
 """
 import pathlib
 
+NB15_PREFIX = "nb15"
+STIN_PREFIX = "stin"
+SAT20_PREFIX = "sat20"
+TER20_PREFIX = "ter20"
+
+NB15_STIN_PREFIX = "nb15_stin"
+NB15_SAT20_PREFIX = "nb15_sat20"
+NB15_TER20_PREFIX = "nb15_ter20"
+
+RF_MODEL_PREFIX = "rf_model_"
+
+PREPROCESSED_SUFFIX = "_prep"
+PREPROCESSED_AGGREGATE_SUFFIX = "_prep_aggr"
+PREPROCESSED_AGGREGATE_SCALED_SUFFIX = "_prep_aggr_scaled"
+
+UNNORMALIZED = "unnorm"
+NORMALIZED = "norm"
+
+DATA_FILE_TYPE = ".csv"
+
+# ------ FOLDERS ------
 # --- Root folder ---
 # It depends from where `path.py` is saved
 ROOT_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
-
 
 # --- Main folders ---
 DATA_DIR = ROOT_DIR / "data"
 SRC_DIR = ROOT_DIR / "src"
 
-
 # --- Sub folders ---
 # data/
-UNNORMALIZED_DATASETS_DIR = DATA_DIR / "unnormalized"
-NORMALIZED_DATASETS_DIR = DATA_DIR / "normalized"
+NB15_PREPROCESSED_DIR = DATA_DIR / f"{NB15_PREFIX}{PREPROCESSED_SUFFIX}"
+SAT20_PREPROCESSED_DIR = DATA_DIR / f"{SAT20_PREFIX}{PREPROCESSED_SUFFIX}"
+TER20_PREPROCESSED_DIR = DATA_DIR / f"{TER20_PREFIX}{PREPROCESSED_SUFFIX}"
 
 # src/
 CLASSIFICATION_DIR = SRC_DIR / "classification"
@@ -25,43 +45,34 @@ PLOTTING_DIR = SRC_DIR / "plotting"
 PREPROCESSING_DIR = SRC_DIR / "preprocessing"
 UTILS_DIR = SRC_DIR / "utils"
 
-
 # --- Sub Sub folders --- 
-# data/unnormalized/
-
-
-# data/normalized/
-
+# data/{dataset type}{preprocessed suffix}/
+CLASS_DIR_NAME = "class"
+NORMAL_ANOMALY_DIR_NAME = "normal_anomaly"
 
 # src/classification/
-UNNORMALIZED_CLASSIFICATION_DIR = CLASSIFICATION_DIR / "unnormalized"
-NORMALIZED_CLASSIFICATION_DIR = CLASSIFICATION_DIR / "normalized"
+UNNORMALIZED_CLASSIFICATION_DIR = CLASSIFICATION_DIR / UNNORMALIZED
+NORMALIZED_CLASSIFICATION_DIR = CLASSIFICATION_DIR / NORMALIZED
 
 # src/models/
-UNNORMALIZED_MODELS_DIR = MODELS_DIR / "unnormalized"
-NORMALIZED_MODELS_DIR = MODELS_DIR / "normalized"
+UNNORMALIZED_MODELS_DIR = MODELS_DIR / UNNORMALIZED
+NORMALIZED_MODELS_DIR = MODELS_DIR / NORMALIZED
 
 # src/plotting/
-UNNORMALIZED_PLOTS_DIR = PLOTTING_DIR / "unnormalized"
-NORMALIZED_PLOTS_DIR = PLOTTING_DIR / "normalized"
-
-# src/preprocessing/
-# Nothing for the moment
-
-# src/utils/
-# Nothing for the moment
+UNNORMALIZED_PLOTS_DIR = PLOTTING_DIR / UNNORMALIZED
+NORMALIZED_PLOTS_DIR = PLOTTING_DIR / NORMALIZED
 
 
-
-
+# ------ FILES ------
+# --- Raw dataset ---
+# data/
+NB15_RAW_PATH = DATA_DIR / f"{NB15_PREFIX}{DATA_FILE_TYPE}"
+SAT20_RAW_PATH = DATA_DIR / f"{SAT20_PREFIX}{DATA_FILE_TYPE}"
+TER20_RAW_PATH = DATA_DIR / f"{TER20_PREFIX}{DATA_FILE_TYPE}"
 
 
 
-
-# --- Raw dataset paths ---
-NB15_RAW_PATH = DATA_DIR / "nb15.csv"
-SAT20_RAW_PATH = DATA_DIR / "sat20.csv"
-TER20_RAW_PATH = DATA_DIR / "ter20.csv"
+# ------ MODELS ------
 
 
 
@@ -76,57 +87,8 @@ TER20_RAW_PATH = DATA_DIR / "ter20.csv"
 
 
 
-# Project Root (relative to src/utils/paths.py)
 
-
-
-
-
-
-
-
-
-# --- Directory and file naming constants ---
-ATTACK_CAT_DIR_NAME = "attack_cat"
-NORMAL_ATTACK_DIR_NAME = "normal_attack"
-JOINT_DIR_NAME = "joint_preprocessed"
-
-# Specific preprocessed filenames (stem only, .csv added by create_csv_from_data)
-NB15_SCALED_FILE_STEM = "nb15_preprocessed_scaled"
-NB15_FILE_STEM = "nb15_preprocessed"
-NB15_ATTACKS_SCALED_FILE_STEM = "nb15_attacks_preprocessed_scaled"
-SAT20_FILE_STEM = "sat20_preprocessed"
-SAT20_ATTACKS_SCALED_FILE_STEM = "sat20_attacks_preprocessed_scaled"
-TER20_FILE_STEM = "ter20_preprocessed"
-TER20_ATTACKS_SCALED_FILE_STEM = "ter20_attacks_preprocessed_scaled"
-NORMAL_FILE_STEM = "Normal"
-JOINT_NORMAL_SAT20_FILE_STEM = "Normal_sat20"
-JOINT_NORMAL_TER20_FILE_STEM = "Normal_ter20"
-
-# Preprocessed dataset directory names
-NB15_PREPROCESSED_DIR_NAME = "nb15_preprocessed"
-SAT20_PREPROCESSED_DIR_NAME = "sat20_preprocessed"
-TER20_PREPROCESSED_DIR_NAME = "ter20_preprocessed"
-JOINT_DIR_NAME = "joint_preprocessed"
-
-# General suffix for preprocessed dataset directories and main files
-PREPROCESSED_DIR_SUFFIX = "_preprocessed"
-PREPROCESSED_MAIN_FILE_SUFFIX = "_preprocessed"
-
-# --- Models ---
-RF_MODELS_SAVED_DIR = SRC_DIR / "models" / "random_forest_saved"
-IF_MODELS_SAVED_DIR = SRC_DIR / "models" / "isolation_forest_saved"
-
-# Mode-specific subdirectories for models
-INDEPENDENT_RF_DIR = RF_MODELS_SAVED_DIR / "independent"
-DEPENDENT_RF_DIR = RF_MODELS_SAVED_DIR / "dependent"
-INDEPENDENT_IF_DIR = IF_MODELS_SAVED_DIR / "independent"
-DEPENDENT_IF_DIR = IF_MODELS_SAVED_DIR / "dependent"
-
-# --- Classification ---
-CLASSIFICATION_DIR = SRC_DIR / "classification"
-INDEPENDENT_RESULTS_DIR = CLASSIFICATION_DIR / "independent"
-DEPENDENT_RESULTS_DIR = CLASSIFICATION_DIR / "dependent"
+# ------ CLASSIFICATION ------
 
 BY_MODEL_DIR_NAME = "by_model"
 BY_DATASET_DIR_NAME = "by_dataset"
@@ -145,12 +107,6 @@ def setup_project_directories():
     Call this at the very start of main().
     """
     directories_to_create = [
-        RF_MODELS_SAVED_DIR / "independent",
-        RF_MODELS_SAVED_DIR / "dependent",
-        IF_MODELS_SAVED_DIR / "independent",
-        IF_MODELS_SAVED_DIR / "dependent",
-        INDEPENDENT_RESULTS_DIR,
-        DEPENDENT_RESULTS_DIR,
         INDEPENDENT_RESULTS_MODELS_DIR,
         DEPENDENT_RESULTS_MODELS_DIR,
         INDEPENDENT_RESULTS_DATASETS_DIR,
@@ -167,8 +123,6 @@ IF_INFO_FILENAME = "isolation_forest_models_info.csv"
 RF_RESULTS_FILENAME = "random_forest_classification_results.csv"
 IF_RESULTS_FILENAME = "isolation_forest_classification_results.csv"
 
-# Preprocessed suffixes
-PREPROCESSED_DIR_SUFFIX = "_preprocessed"
 
 # General file info
 GENERAL_FILE_INFO_FILENAME = "general_file_info.csv"

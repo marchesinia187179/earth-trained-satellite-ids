@@ -5,25 +5,13 @@ import joblib
 
 from utils.file_utils import get_data_from_csv
 from utils.input_utils import get_split_input, validate_path, validate_choice, get_y_n_choice, get_numeric_input
-from utils.paths import INDEPENDENT_DIR, DEPENDENT_DIR, NB15_RAW_PATH, SAT20_RAW_PATH, TER20_RAW_PATH, setup_project_directories
+from utils.paths import INDEPENDENT_DIR, DEPENDENT_DIR, NB15_PREFIX, NB15_RAW_PATH, PREPROCESSED_SUFFIX, SAT20_PREFIX, SAT20_RAW_PATH, STIN_PREFIX, TER20_PREFIX, TER20_RAW_PATH, setup_project_directories
 from preprocessing.data_preprocessing import data_preprocessing
-from preprocessing.file_preprocessing import file_preprocessing, create_joint_datasets
+from preprocessing.file_preprocessing import file_preprocessing, create_joint_datasets, single_dataset_file_preprocessing
 from models.models import model_processing, run_routine_models
 from classification.classification import classification_processing, run_routine_classifications
 from view.plotting import generate_custom_recall_heatmap
-
-# --- State Wrappers ---
-def file_preprocessing_state(data_preprocessed, dataset_type, base_dir, normal_attack_ratio=None, replacing_mode=None):
-    """Wrapper function to trigger the file-level preprocessing state."""
-    file_preprocessing(data_preprocessed, dataset_type, base_dir, normal_attack_ratio, replacing_mode)
-
-
-def data_preprocessing_state(path, dataset_type, dependent=True, scaler_stats=None, train_split=0.8):
-    """Wrapper function to load data and trigger the data-level preprocessing state."""
-    data = get_data_from_csv(path)
-    data_preprocessed, scaler_stats = data_preprocessing(data, dataset_type, dependent, scaler_stats, train_split)
-    return data_preprocessed, scaler_stats
-
+from pathlib import Path
 
 # --- Runtime Loops ---
 def preprocessing_loop():
@@ -219,43 +207,27 @@ def _preprocessing():
     """Executes a predefined preprocessing routine for nb15, sat20, and ter20."""
     print("\n--- Starting Preprocessing Phase ---")
 
-    if mode is None:
-        mode_input = input("Choose routine preprocessing mode: [unnormalized or normalized] ").lower()
-        mode = validate_choice(mode_input, ['unnormalized', 'normalized'], "mode")
-    
     datasets = [
-        {'type': 'nb15', 'path': NB15_RAW_PATH},
-        {'type': 'sat20', 'path': SAT20_RAW_PATH},
-        {'type': 'ter20', 'path': TER20_RAW_PATH}
+        {'type': NB15_PREFIX, 'path': NB15_RAW_PATH},
+        {'type': SAT20_PREFIX, 'path': SAT20_RAW_PATH},
+        {'type': TER20_PREFIX, 'path': TER20_RAW_PATH}
     ]
     
-    nb15_ratio = 10.0
-    nb15_replacing = False
-    train_split = 0.8
-    scaler_stats = None 
-    
-    current_base_dir = DEPENDENT_DIR if mode == 'dependent' else INDEPENDENT_DIR
+    for d in datasets:
+        dataset_type = d['type']
+        dataset_path = d['path']
 
-    for ds in datasets:
-        if not ds['path'].exists():
-            print(f"Warning: Dataset file not found at {ds['path']}. Skipping {ds['type']}.")
+        if not dataset_path.exists():
+            print(f"Warning: Dataset file not found at {dataset_path}. Skipping {dataset_type}.")
             continue
             
-        print(f"\n[ROUTINE] Processing {ds['type']} ({mode.capitalize()} Mode)...")
-
-        if mode == 'dependent':
-            data_preprocessed, new_scaler_stats = data_preprocessing_state(ds['path'], ds['type'], dependent=True, scaler_stats=scaler_stats, train_split=train_split)
-            if scaler_stats is None: 
-                scaler_stats = new_scaler_stats
-        else: 
-            data_preprocessed, _ = data_preprocessing_state(ds['path'], ds['type'], dependent=False, train_split=train_split)
+        print(f"\n[ROUTINE] Processing {dataset_type}...")
         
-        if ds['type'] == 'nb15':
-            file_preprocessing_state(data_preprocessed, ds['type'], current_base_dir, normal_attack_ratio=nb15_ratio, replacing_mode=nb15_replacing)
-        else:
-            file_preprocessing_state(data_preprocessed, ds['type'], current_base_dir)
+        data = get_data_from_csv(dataset_path)
+        data_prep = data_preprocessing(data, dataset_type)
 
-    create_joint_datasets(current_base_dir, ratio=nb15_ratio, replacing_mode=nb15_replacing)
+        single_dataset_file_preprocessing(data_prep, dataset_type)
+
     print("\n--- Routine Preprocessing Phase Completed ---")
 
 
@@ -282,8 +254,7 @@ def main():
         main_choice = input("Select execution mode (1, 2, 3, or 4): ")
         
         if main_choice == '1':
-            # TODO
-            return
+            _preprocessing()
         elif main_choice == '2':
             # TODO
             return
