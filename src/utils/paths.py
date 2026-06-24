@@ -4,6 +4,7 @@ Centralized management of project paths.
 import pathlib
 
 RANDOM_STATE = 42
+NORMAL_ANOMALY_RATIO = 10
 
 NB15_PREFIX = "nb15"
 STIN_PREFIX = "stin"

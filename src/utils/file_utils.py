@@ -5,7 +5,7 @@ import pandas as pd
 import pathlib
 from datetime import datetime
 import sys
-from utils.paths import GENERAL_FILE_INFO_PATH, ROOT_DIR
+from utils.paths import GENERAL_FILE_INFO_PATH, RANDOM_STATE, ROOT_DIR
 
 
 def update_or_append_csv(file_path, data_dict, match_keys, id_column='id'):
@@ -207,3 +207,8 @@ def get_model_info(file_path):
     except Exception as e:
         print(f"Error retrieving model info: {e}")
         sys.exit(1)
+
+
+
+def concat_and_shuffle(data_list):
+    return pd.concat(data_list).sample(frac=1, random_state=RANDOM_STATE).reset_index(drop=True)

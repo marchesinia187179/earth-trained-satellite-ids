@@ -1,13 +1,12 @@
 import pandas as pd
-import sys
 
-from utils.file_utils import create_directory, create_csv_from_data, get_data_from_csv
+from utils.file_utils import concat_and_shuffle, create_directory, create_csv_from_data, get_data_from_csv
 from utils.paths import (
-    CLASS_DIR_NAME, DATA_DIR, NB15_PREFIX, NORMAL_ANOMALY_DIR_NAME, PREPROCESSED_SUFFIX, RANDOM_STATE, STIN_PREFIX
+    CLASS_DIR_NAME, DATA_DIR, NB15_PREFIX, NORMAL_ANOMALY_DIR_NAME, NORMAL_ANOMALY_RATIO, PREPROCESSED_SCALED_SUFFIX, PREPROCESSED_SUFFIX, RANDOM_STATE, STIN_PREFIX
 )
 
 
-def safe_stratified_sample(data, n_samples):
+def _safe_stratified_sample(data, n_samples):
     """
     Takes `n_samples` from `data` preserving the `split_type ratio` to avoid the Data Leakage.
 
@@ -46,14 +45,11 @@ def safe_stratified_sample(data, n_samples):
     if not sampled_parts:
         return pd.DataFrame(columns=data.columns)
         
-    # Concat the two samples and shuffle them
-    df = pd.concat(sampled_parts)
-    df = df.sample(frac=1, random_state=RANDOM_STATE).reset_index(drop=True)
-
-    return df
+    # Concatenate the two samples and shuffle them
+    return concat_and_shuffle(sampled_parts)
 
 
-def split_by_class(data, type, dst_dir):
+def _split_by_class_and_save(data, type, dst_dir):
     """
     Splits the `data` by class and
     for each `data_c` creates an own csv file into in `dst_dir`
@@ -76,7 +72,7 @@ def split_by_class(data, type, dst_dir):
     print("Dataset split by class.")
 
 
-def merge_normal_anomaly(data, type, dst_dir, normal_anomaly_ratio):
+def _merge_normal_anomaly_and_save(data, type, dst_dir):
     """
     Merges `normal class` with `anomaly class` of `data` and
     for each `normal_anomaly` combo creates a own csv file into in `dst_dir`
@@ -104,89 +100,59 @@ def merge_normal_anomaly(data, type, dst_dir, normal_anomaly_ratio):
         anomaly_samples = anomaly_data.shape[0]
 
         # Get the correct data samples based on the ratio given
-        if normal_samples < anomaly_samples * normal_anomaly_ratio:
-            n_anomaly_target = int(normal_samples / normal_anomaly_ratio)
-            curr_anomaly_data = safe_stratified_sample(anomaly_data, n_anomaly_target)
-            curr_normal_data = normal_data
+        if normal_samples < anomaly_samples * NORMAL_ANOMALY_RATIO:
+            n_anomaly_target = int(normal_samples / NORMAL_ANOMALY_RATIO)
+            anomaly_data_sample = _safe_stratified_sample(anomaly_data, n_anomaly_target)
+            normal_data_sample = normal_data
         else:
-            n_normal_target = int(anomaly_samples * normal_anomaly_ratio)
-            curr_normal_data = safe_stratified_sample(normal_data, n_normal_target)
-            curr_anomaly_data = anomaly_data
+            n_normal_target = int(anomaly_samples * NORMAL_ANOMALY_RATIO)
+            normal_data_sample = _safe_stratified_sample(normal_data, n_normal_target)
+            anomaly_data_sample = anomaly_data
 
-        df = pd.concat([curr_normal_data, curr_anomaly_data])
-        df = df.sample(frac=1, random_state=RANDOM_STATE).reset_index(drop=True)
-
+        # Save the dataset
+        df = concat_and_shuffle([normal_data_sample, anomaly_data_sample])
         create_csv_from_data(df, f"Normal_{c}", dst_dir)
 
     print("Normal and anomaly samples merged.")
 
 
-
-
-
-
-
-
-
-
-
-
-
-def merge_attacks_scaled(source_path, dest_path, dataset_type):
-    attack_cat_list = source_path.iterdir()
-    dfs = []
-
-    for attack_cat_path in attack_cat_list:
-        if attack_cat_path.name.startswith('.') or attack_cat_path.stem == 'Normal': 
-            continue
-        
-        attack_data = get_data_from_csv(attack_cat_path)
-        df_cat = pd.DataFrame(attack_data)
-        
-        if not df_cat.empty:
-            dfs.append(df_cat)
-
-    if not dfs:
-        print("Error: No attack categories found to merge.")
-        sys.exit(1)
-
-    # --- LOGICA DI EQUIPROBABILITÀ SEPARATA PER TRAIN E TEST ---
-    # 1. Trova il numero minimo di campioni train e test tra tutte le categorie
-    min_train = min(len(df[df['split_type'] == 'train']) for df in dfs)
-    min_test = min(len(df[df['split_type'] == 'test']) for df in dfs)
+def _scale_by_normal_anomaly_ratio_and_save(data, type, dst_dir):
+    """
+    Creates a new csv file with the correct `normal_anomaly_ratio` from `data`
     
-    print(f"Balancing split sub-distributions across all attack categories:")
-    print(f"  -> Each class will have exactly {min_train} 'train' samples.")
-    print(f"  -> Each class will have exactly {min_test} 'test' samples.")
-
-    balanced_dfs = []
-    for df in dfs:
-        # 2. Isola i due split per la classe corrente
-        df_train = df[df['split_type'] == 'train']
-        df_test = df[df['split_type'] == 'test']
-        
-        # 3. Campiona separatamente per garantire l'equiprobabilità interna
-        sampled_train = df_train.sample(n=min_train, random_state=RANDOM_STATE)
-        sampled_test = df_test.sample(n=min_test, random_state=RANDOM_STATE)
-        
-        # 4. Ricombina i due split bilanciati per la classe corrente
-        balanced_class_df = pd.concat([sampled_train, sampled_test])
-        balanced_dfs.append(balanced_class_df)
-
-    # 5. Concatena tutte le classi bilanciate e rimescola le righe
-    df_final = pd.concat(balanced_dfs).sample(frac=1, random_state=RANDOM_STATE).reset_index(drop=True)
+    :param data: pool of data to get normal and anomaly data
+    :param type: type of the data
+    :param dst_dir: destination directory path
+    :return: None
+    """
+    # Security check if the Normal class exists
+    class_list = data['class'].unique()
+    if not "Normal" in class_list:
+        print(f"Error: Normal class not found! Skipping {type}.")
+        return
     
-    # Salvataggio del file
-    if dataset_type == 'nb15':
-        create_csv_from_data(df_final, NB15_ATTACKS_SCALED_FILE_STEM, dest_path)
-    elif dataset_type == 'sat20':
-        create_csv_from_data(df_final, SAT20_ATTACKS_SCALED_FILE_STEM, dest_path)
-    elif dataset_type == 'ter20':
-        create_csv_from_data(df_final, TER20_ATTACKS_SCALED_FILE_STEM, dest_path)
+    # Get the Normal data
+    normal_data = data[data['class'] == "Normal"]
+    normal_samples = normal_data.shape[0]
+
+    # Get the Anomaly data
+    anomaly_data = data[data['label'] == 1]
+    n_anomaly_target = int(normal_samples / NORMAL_ANOMALY_RATIO)
+    anomaly_data_sample = _safe_stratified_sample(anomaly_data, n_anomaly_target)
+
+    # Save the dataset
+    df = concat_and_shuffle([normal_data, anomaly_data_sample])
+    create_csv_from_data(df, f"{type}{PREPROCESSED_SCALED_SUFFIX}", dst_dir)
+
+
     
-    print(f"Attack categories merged successfully. Total samples: {len(df_final)} "
-          f"(Train per class: {min_train} | Test per class: {min_test})")
-    return dest_path
+
+
+
+
+
+
+
 
 
 
@@ -235,7 +201,16 @@ def create_scaled_dataset(source_path, dest_path, ratio, replacing_mode):
 
     df_final = pd.concat(final_dfs).sample(frac=1, random_state=RANDOM_STATE).reset_index(drop=True)
     create_csv_from_data(df_final, NB15_SCALED_FILE_STEM, dest_path)
+
     print("Equi-probable scaled dataset 'nb15_preprocessed_scaled' created.")
+
+
+
+
+
+
+
+
 
 
 def create_joint_datasets(base_dest_dir, ratio, replacing_mode):
@@ -285,6 +260,11 @@ def create_joint_datasets(base_dest_dir, ratio, replacing_mode):
 
 
 
+def hybrid_dataset_file_preprocessing():
+    # TODO
+    pass
+
+
 
 
 def single_dataset_file_preprocessing(data, type):
@@ -300,13 +280,16 @@ def single_dataset_file_preprocessing(data, type):
     class_dir = create_directory(CLASS_DIR_NAME, dataset_prep_dir)
 
     create_csv_from_data(data, f'{type}{PREPROCESSED_SUFFIX}', dataset_prep_dir)
-    split_by_class(data, type, class_dir)
+    _split_by_class_and_save(data, type, class_dir)
 
     if type == NB15_PREFIX:
-        # TODO: create the nb15_prep_scaled.csv
-        # create_scaled_dataset(attack_cat_dir_path, dataset_prep_dir, normal_attack_ratio, replacing_mode)
-
+        _scale_by_normal_anomaly_ratio_and_save(data, type, dataset_prep_dir)
         normal_anomaly_dir = create_directory(NORMAL_ANOMALY_DIR_NAME, dataset_prep_dir)
-        merge_normal_anomaly(data, type, normal_anomaly_dir, 0.8)
+        _merge_normal_anomaly_and_save(data, type, normal_anomaly_dir)
 
     print(f"File-level preprocessing for {type} done.")
+
+
+if __file__ == "__name__":
+    # TODO
+    pass
