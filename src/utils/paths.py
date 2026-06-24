@@ -3,19 +3,88 @@ Centralized management of project paths.
 """
 import pathlib
 
-# Project Root (relative to src/utils/paths.py)
+# --- Root folder ---
+# It depends from where `path.py` is saved
 ROOT_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
+
 
 # --- Main folders ---
 DATA_DIR = ROOT_DIR / "data"
 SRC_DIR = ROOT_DIR / "src"
-INDEPENDENT_DIR = DATA_DIR / "independent_datasets"
-DEPENDENT_DIR = DATA_DIR / "dependent_datasets"
+
+
+# --- Sub folders ---
+# data/
+UNNORMALIZED_DATASETS_DIR = DATA_DIR / "unnormalized"
+NORMALIZED_DATASETS_DIR = DATA_DIR / "normalized"
+
+# src/
+CLASSIFICATION_DIR = SRC_DIR / "classification"
+MODELS_DIR = SRC_DIR / "models"
+PLOTTING_DIR = SRC_DIR / "plotting"
+PREPROCESSING_DIR = SRC_DIR / "preprocessing"
+UTILS_DIR = SRC_DIR / "utils"
+
+
+# --- Sub Sub folders --- 
+# data/unnormalized/
+
+
+# data/normalized/
+
+
+# src/classification/
+UNNORMALIZED_CLASSIFICATION_DIR = CLASSIFICATION_DIR / "unnormalized"
+NORMALIZED_CLASSIFICATION_DIR = CLASSIFICATION_DIR / "normalized"
+
+# src/models/
+UNNORMALIZED_MODELS_DIR = MODELS_DIR / "unnormalized"
+NORMALIZED_MODELS_DIR = MODELS_DIR / "normalized"
+
+# src/plotting/
+UNNORMALIZED_PLOTS_DIR = PLOTTING_DIR / "unnormalized"
+NORMALIZED_PLOTS_DIR = PLOTTING_DIR / "normalized"
+
+# src/preprocessing/
+# Nothing for the moment
+
+# src/utils/
+# Nothing for the moment
+
+
+
+
+
+
+
 
 # --- Raw dataset paths ---
 NB15_RAW_PATH = DATA_DIR / "nb15.csv"
 SAT20_RAW_PATH = DATA_DIR / "sat20.csv"
 TER20_RAW_PATH = DATA_DIR / "ter20.csv"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Project Root (relative to src/utils/paths.py)
+
+
+
+
+
+
+
+
 
 # --- Directory and file naming constants ---
 ATTACK_CAT_DIR_NAME = "attack_cat"
@@ -76,8 +145,6 @@ def setup_project_directories():
     Call this at the very start of main().
     """
     directories_to_create = [
-        INDEPENDENT_DIR,
-        DEPENDENT_DIR,
         RF_MODELS_SAVED_DIR / "independent",
         RF_MODELS_SAVED_DIR / "dependent",
         IF_MODELS_SAVED_DIR / "independent",

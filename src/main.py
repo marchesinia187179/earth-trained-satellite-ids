@@ -70,52 +70,6 @@ def preprocessing_loop():
     create_joint_datasets(current_base_dir, ratio=10.0, replacing_mode=False)
 
 
-# SOLVED: Added 'mode' parameter with a default value of None to prevent TypeErrors
-def run_routine_preprocessing(mode=None):
-    """Executes a predefined preprocessing routine for nb15, sat20, and ter20."""
-    print("\n--- Starting Routine Preprocessing Phase ---")
-
-    # SOLVED: Dynamic mode assignment prevents automation breaks
-    if mode is None:
-        mode_input = input("Choose routine preprocessing mode: [independent or dependent] ").lower()
-        mode = validate_choice(mode_input, ['independent', 'dependent'], "mode")
-    
-    datasets = [
-        {'type': 'nb15', 'path': NB15_RAW_PATH},
-        {'type': 'sat20', 'path': SAT20_RAW_PATH},
-        {'type': 'ter20', 'path': TER20_RAW_PATH}
-    ]
-    
-    nb15_ratio = 10.0
-    nb15_replacing = False
-    train_split = 0.8
-    scaler_stats = None 
-    
-    current_base_dir = DEPENDENT_DIR if mode == 'dependent' else INDEPENDENT_DIR
-
-    for ds in datasets:
-        if not ds['path'].exists():
-            print(f"Warning: Dataset file not found at {ds['path']}. Skipping {ds['type']}.")
-            continue
-            
-        print(f"\n[ROUTINE] Processing {ds['type']} ({mode.capitalize()} Mode)...")
-
-        if mode == 'dependent':
-            data_preprocessed, new_scaler_stats = data_preprocessing_state(ds['path'], ds['type'], dependent=True, scaler_stats=scaler_stats, train_split=train_split)
-            if scaler_stats is None: 
-                scaler_stats = new_scaler_stats
-        else: 
-            data_preprocessed, _ = data_preprocessing_state(ds['path'], ds['type'], dependent=False, train_split=train_split)
-        
-        if ds['type'] == 'nb15':
-            file_preprocessing_state(data_preprocessed, ds['type'], current_base_dir, normal_attack_ratio=nb15_ratio, replacing_mode=nb15_replacing)
-        else:
-            file_preprocessing_state(data_preprocessed, ds['type'], current_base_dir)
-
-    create_joint_datasets(current_base_dir, ratio=nb15_ratio, replacing_mode=nb15_replacing)
-    print("\n--- Routine Preprocessing Phase Completed ---")
-
-
 def build_model_loop():
     """Interactive loop for selecting, training, and saving machine learning models."""
     print("\n--- Starting Model Building Phase ---")
@@ -256,7 +210,58 @@ def run_manual_pipeline():
             break
         else:
             print("Invalid choice. Please enter a number from 1 to 4.")
+
+
+
+
+
+def _preprocessing():
+    """Executes a predefined preprocessing routine for nb15, sat20, and ter20."""
+    print("\n--- Starting Preprocessing Phase ---")
+
+    if mode is None:
+        mode_input = input("Choose routine preprocessing mode: [unnormalized or normalized] ").lower()
+        mode = validate_choice(mode_input, ['unnormalized', 'normalized'], "mode")
+    
+    datasets = [
+        {'type': 'nb15', 'path': NB15_RAW_PATH},
+        {'type': 'sat20', 'path': SAT20_RAW_PATH},
+        {'type': 'ter20', 'path': TER20_RAW_PATH}
+    ]
+    
+    nb15_ratio = 10.0
+    nb15_replacing = False
+    train_split = 0.8
+    scaler_stats = None 
+    
+    current_base_dir = DEPENDENT_DIR if mode == 'dependent' else INDEPENDENT_DIR
+
+    for ds in datasets:
+        if not ds['path'].exists():
+            print(f"Warning: Dataset file not found at {ds['path']}. Skipping {ds['type']}.")
+            continue
             
+        print(f"\n[ROUTINE] Processing {ds['type']} ({mode.capitalize()} Mode)...")
+
+        if mode == 'dependent':
+            data_preprocessed, new_scaler_stats = data_preprocessing_state(ds['path'], ds['type'], dependent=True, scaler_stats=scaler_stats, train_split=train_split)
+            if scaler_stats is None: 
+                scaler_stats = new_scaler_stats
+        else: 
+            data_preprocessed, _ = data_preprocessing_state(ds['path'], ds['type'], dependent=False, train_split=train_split)
+        
+        if ds['type'] == 'nb15':
+            file_preprocessing_state(data_preprocessed, ds['type'], current_base_dir, normal_attack_ratio=nb15_ratio, replacing_mode=nb15_replacing)
+        else:
+            file_preprocessing_state(data_preprocessed, ds['type'], current_base_dir)
+
+    create_joint_datasets(current_base_dir, ratio=nb15_ratio, replacing_mode=nb15_replacing)
+    print("\n--- Routine Preprocessing Phase Completed ---")
+
+
+
+
+
 
 def main():
     """Main entry point of the application with a main dashboard menu."""
@@ -266,21 +271,32 @@ def main():
         print("\n" + "="*60)
         print("      SATELLITE IDS - MAIN DASHBOARD")
         print("="*60)
-        print("1. Run AUTOMATED ROUTINES (Step-by-step guided choice)")
-        print("2. Run FULL AUTOMATED ROUTINES non-stop (Pre -> Train -> Test)")
-        print("3. Manage the pipeline STEP-BY-STEP manually (Interactive)")
-        print("4. Exit application")
+        print("1. Run PREPROCESSING")
+        print("2. Run MODEL BUILDING")
+        print("3. Run CLASSIFICATIONS")
+        print("4. Run PLOTTING")
+        print("5. Run ALL!")
+        print("6. Exit application")
         print("="*60)
         
         main_choice = input("Select execution mode (1, 2, 3, or 4): ")
         
         if main_choice == '1':
-            run_guided_routine_pipeline()
+            # TODO
+            return
         elif main_choice == '2':
-            run_full_automated_pipeline()
+            # TODO
+            return
         elif main_choice == '3':
-            run_manual_pipeline()
+            # TODO
+            return
         elif main_choice == '4':
+            # TODO
+            return
+        elif main_choice == '5':
+            # TODO
+            return
+        elif main_choice == '6':
             print("\nExiting application. Goodbye!")
             break
         else:
