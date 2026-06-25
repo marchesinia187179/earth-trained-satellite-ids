@@ -212,6 +212,10 @@ def _preprocessing():
         {'type': SAT20_PREFIX, 'path': SAT20_RAW_PATH},
         {'type': TER20_PREFIX, 'path': TER20_RAW_PATH}
     ]
+
+    nb15_normal_data = None
+    sat20_anomaly_data = None
+    ter20_anomaly_data = None
     
     for d in datasets:
         dataset_type = d['type']
@@ -228,7 +232,17 @@ def _preprocessing():
 
         single_dataset_file_preprocessing(data_prep, dataset_type)
 
-    hybrid_dataset_file_preprocessing() # TODO
+        if dataset_type == NB15_PREFIX:
+            nb15_normal_data = data_prep[data_prep['label'] == 0]
+        elif dataset_type == SAT20_PREFIX:
+            sat20_anomaly_data = data_prep[data_prep['label'] == 1]
+        elif dataset_type == TER20_PREFIX:
+            ter20_anomaly_data = data_prep[data_prep['label'] == 1]
+
+    data_list = [nb15_normal_data, sat20_anomaly_data, ter20_anomaly_data]
+    dataset_type_list = [NB15_PREFIX, SAT20_PREFIX, TER20_PREFIX]
+    
+    hybrid_dataset_file_preprocessing(data_list, dataset_type_list)
 
     print("\n--- Routine Preprocessing Phase Completed ---")
 

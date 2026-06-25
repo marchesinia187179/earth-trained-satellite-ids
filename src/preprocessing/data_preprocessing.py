@@ -156,6 +156,6 @@ def data_preprocessing(data, dataset_type):
     return data
 
 
-if __file__ == "__main__":
+if __name__ == "__main__":
     # TODO
-    data_preprocessing("", "")
+    pass

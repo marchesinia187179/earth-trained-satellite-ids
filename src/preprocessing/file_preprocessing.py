@@ -1,9 +1,35 @@
 import pandas as pd
 
-from utils.file_utils import concat_and_shuffle, create_directory, create_csv_from_data, get_data_from_csv
+from utils.file_utils import concat_and_shuffle, create_directory, create_csv_from_data
 from utils.paths import (
-    CLASS_DIR_NAME, DATA_DIR, NB15_PREFIX, NORMAL_ANOMALY_DIR_NAME, NORMAL_ANOMALY_RATIO, PREPROCESSED_SCALED_SUFFIX, PREPROCESSED_SUFFIX, RANDOM_STATE, STIN_PREFIX
+    CLASS_DIR_NAME, NORMAL_ANOMALY_DIR_NAME, DATA_DIR, 
+    NB15_PREFIX, NB15_STIN_PREFIX, NB15_SAT20_PREFIX, NB15_TER20_PREFIX, 
+    PREPROCESSED_SCALED_SUFFIX, PREPROCESSED_SUFFIX, 
+    RANDOM_STATE, NORMAL_ANOMALY_RATIO
 )
+
+
+def _get_correct_normal_and_anomaly_data_samples(normal_data, anomaly_data, normal_samples, anomaly_samples):
+    """
+    Calculates and return the `normal` and `anomaly data sample` based on the `NORMAL_ANOMALY_RATIO`
+    
+    :param normal_data: normal dataset
+    :param anomaly_data: anomaly dataset
+    :param normal_samples: number of data in normal dataset
+    :param anomaly_samples: number of data in anomaly dataset
+    :return: correct `normal` and `anomaly data sample`
+    """
+    # Calculate and save the normal and anomaly data sample
+    if normal_samples < anomaly_samples * NORMAL_ANOMALY_RATIO:
+        n_anomaly_target = int(normal_samples / NORMAL_ANOMALY_RATIO)
+        anomaly_data_sample = _safe_stratified_sample(anomaly_data, n_anomaly_target)
+        normal_data_sample = normal_data
+    else:
+        n_normal_target = int(anomaly_samples * NORMAL_ANOMALY_RATIO)
+        normal_data_sample = _safe_stratified_sample(normal_data, n_normal_target)
+        anomaly_data_sample = anomaly_data
+
+    return normal_data_sample, anomaly_data_sample
 
 
 def _safe_stratified_sample(data, n_samples):
@@ -12,8 +38,7 @@ def _safe_stratified_sample(data, n_samples):
 
     :param data: pool of data to get the correct data sample
     :param n_samples: number of samples
-    :param random_state: status of the `random_state` param for the sample
-    :return: the correct sample of `data`
+    :return: correct `data` sample
     """
     # Security Fallback if the split type colums doesn't exist
     if 'split_type' not in data.columns:
@@ -100,14 +125,8 @@ def _merge_normal_anomaly_and_save(data, type, dst_dir):
         anomaly_samples = anomaly_data.shape[0]
 
         # Get the correct data samples based on the ratio given
-        if normal_samples < anomaly_samples * NORMAL_ANOMALY_RATIO:
-            n_anomaly_target = int(normal_samples / NORMAL_ANOMALY_RATIO)
-            anomaly_data_sample = _safe_stratified_sample(anomaly_data, n_anomaly_target)
-            normal_data_sample = normal_data
-        else:
-            n_normal_target = int(anomaly_samples * NORMAL_ANOMALY_RATIO)
-            normal_data_sample = _safe_stratified_sample(normal_data, n_normal_target)
-            anomaly_data_sample = anomaly_data
+        normal_data_sample, anomaly_data_sample = _get_correct_normal_and_anomaly_data_samples(
+            normal_data, anomaly_data, normal_samples, anomaly_samples)
 
         # Save the dataset
         df = concat_and_shuffle([normal_data_sample, anomaly_data_sample])
@@ -118,7 +137,8 @@ def _merge_normal_anomaly_and_save(data, type, dst_dir):
 
 def _scale_by_normal_anomaly_ratio_and_save(data, type, dst_dir):
     """
-    Creates a new csv file with the correct `normal_anomaly_ratio` from `data`
+    Updates the `data` with a new data scaled by the `normal_anomaly_ratio` and
+    creates a new csv file
     
     :param data: pool of data to get normal and anomaly data
     :param type: type of the data
@@ -131,140 +151,76 @@ def _scale_by_normal_anomaly_ratio_and_save(data, type, dst_dir):
         print(f"Error: Normal class not found! Skipping {type}.")
         return
     
-    # Get the Normal data
+    # Get the Normal and Anomaly data
     normal_data = data[data['class'] == "Normal"]
-    normal_samples = normal_data.shape[0]
-
-    # Get the Anomaly data
     anomaly_data = data[data['label'] == 1]
-    n_anomaly_target = int(normal_samples / NORMAL_ANOMALY_RATIO)
-    anomaly_data_sample = _safe_stratified_sample(anomaly_data, n_anomaly_target)
+    
+    normal_samples = normal_data.shape[0]
+    anomaly_samples = anomaly_data.shape[0]
+
+    # Get the correct data samples based on the ratio given
+    normal_data_sample, anomaly_data_sample = _get_correct_normal_and_anomaly_data_samples(
+            normal_data, anomaly_data, normal_samples, anomaly_samples)
 
     # Save the dataset
-    df = concat_and_shuffle([normal_data, anomaly_data_sample])
+    df = concat_and_shuffle([normal_data_sample, anomaly_data_sample])
     create_csv_from_data(df, f"{type}{PREPROCESSED_SCALED_SUFFIX}", dst_dir)
 
 
-    
+def hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter20_anomaly_data):
+    """
+    Creates the main directories and files of the hybrid dataset
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def create_scaled_dataset(source_path, dest_path, ratio, replacing_mode):
-    attack_cat_list = list(source_path.iterdir())
-    normal_path = next((p for p in attack_cat_list if p.stem == NORMAL_FILE_STEM), None)
-    if not normal_path:
-        print("Error: Normal category not found for scaled dataset.")
+    :param nb15_normal_data: normal data from nb15 dataset
+    :param sat20_anomaly_data: anomaly data from sat20 dataset
+    :param ter20_anomaly_data: anomaly data from ter20 dataset
+    :return: None
+    """
+    print(f"Running file-level preprocessing for hybrid datasets...")
+    # Security check if the nb15 dataset contains only Normal data and the others one (sat20, ter20) only Anomaly data
+    if not nb15_normal_data[nb15_normal_data['label'] == 1].empty:
+        print(f"Error: the nb15 dataset passed must be only Normal data. \
+            You passed {len(nb15_normal_data[nb15_normal_data['label'] == 1])} Anomaly data!")
         return
-
-    normal_df = get_data_from_csv(normal_path)
-    attack_paths = [p for p in attack_cat_list if p.stem != 'Normal']
     
-    # Controllo di sicurezza inserito
-    if not attack_paths:
-        return
-        
-    num_cats = len(attack_paths)
-    attack_dfs = [get_data_from_csv(p) for p in attack_paths]
-    
-    if not replacing_mode:
-        min_atk_samples = min(len(df) for df in attack_dfs)
-        if len(normal_df) < (min_atk_samples * num_cats) * ratio:
-            atk_per_cat = int(len(normal_df) / ratio) // num_cats
-            normal_to_sample = int(atk_per_cat * num_cats * ratio)
-        else:
-            atk_per_cat = min_atk_samples
-            normal_to_sample = int(atk_per_cat * num_cats * ratio)
-    else:
-        atk_per_cat = int(len(normal_df) / ratio) // num_cats
-        normal_to_sample = len(normal_df)
+    for i, anomaly_data in enumerate([sat20_anomaly_data, ter20_anomaly_data]):
+        if not anomaly_data[anomaly_data['label'] == 0].empty:
+            print(f"Error: the dataset number {i+1} passed must be only Anomaly data. \
+                You passed {len(anomaly_data[anomaly_data['label'] == 0])} Normal data!")
+            return
 
-    final_dfs = [safe_stratified_sample(normal_df, normal_to_sample, replacing_mode)]
-    for df in attack_dfs:
-        final_dfs.append(safe_stratified_sample(df, atk_per_cat, replacing_mode))
+    # Create the main directories
+    dataset_prep_dir = create_directory(f"{NB15_STIN_PREFIX}{PREPROCESSED_SUFFIX}", DATA_DIR)
+    nb15_sat20_normal_anomaly_dir = create_directory(f"{NB15_SAT20_PREFIX}_{NORMAL_ANOMALY_DIR_NAME}", dataset_prep_dir)
+    nb15_ter20_normal_anomaly_dir = create_directory(f"{NB15_TER20_PREFIX}_{NORMAL_ANOMALY_DIR_NAME}", dataset_prep_dir)
 
-    df_final = pd.concat(final_dfs).sample(frac=1, random_state=RANDOM_STATE).reset_index(drop=True)
-    create_csv_from_data(df_final, NB15_SCALED_FILE_STEM, dest_path)
+    # Create the hybrid data
+    nb15_stin_data = concat_and_shuffle([nb15_normal_data, sat20_anomaly_data, ter20_anomaly_data])
+    nb15_sat20_data = concat_and_shuffle([nb15_normal_data, sat20_anomaly_data])
+    nb15_ter20_data = concat_and_shuffle([nb15_normal_data, ter20_anomaly_data])
 
-    print("Equi-probable scaled dataset 'nb15_preprocessed_scaled' created.")
+    # Combine the hybrid data with own dataset type
+    datasets = [
+        {'type': NB15_STIN_PREFIX, 'data': nb15_stin_data},
+        {'type': NB15_SAT20_PREFIX, 'data': nb15_sat20_data},
+        {'type': NB15_TER20_PREFIX, 'data': nb15_ter20_data}
+    ]
 
+    # Save the hybrid data
+    for d in datasets:
+        dataset_type = d['type']
+        dataset_data = d['data']
 
+        create_csv_from_data(dataset_data, f'{dataset_type}{PREPROCESSED_SUFFIX}', dataset_prep_dir)
+        _scale_by_normal_anomaly_ratio_and_save(dataset_data, dataset_type, dataset_prep_dir)
 
+        # Save the hybrid data for single normal_anomaly case
+        if dataset_type == NB15_SAT20_PREFIX:
+            _merge_normal_anomaly_and_save(dataset_data, dataset_type, nb15_sat20_normal_anomaly_dir)
+        elif dataset_type == NB15_TER20_PREFIX:
+            _merge_normal_anomaly_and_save(dataset_data, dataset_type, nb15_ter20_normal_anomaly_dir)
 
-
-
-
-
-
-
-def create_joint_datasets(base_dest_dir, ratio, replacing_mode):
-    print("\n--- Starting Joint Preprocessing Phase ---")
-    joint_dir_path = create_directory(JOINT_DIR_NAME, base_dest_dir)
-    
-    nb15_normal_path = base_dest_dir / NB15_PREPROCESSED_DIR_NAME / ATTACK_CAT_DIR_NAME / f"{NORMAL_FILE_STEM}.csv"
-    if not nb15_normal_path.exists():
-        print(f"Error: NB15 Normal file not found at {nb15_normal_path}. Skipping joint phase.")
-        return
-
-    normal_df = get_data_from_csv(nb15_normal_path)
-    
-    for ds_type, joint_file_stem in [('sat20', JOINT_NORMAL_SAT20_FILE_STEM), ('ter20', JOINT_NORMAL_TER20_FILE_STEM)]:
-        atk_source_dir = base_dest_dir / f"{ds_type}{PREPROCESSED_DIR_SUFFIX}" / ATTACK_CAT_DIR_NAME
-        if not atk_source_dir.exists():
-            print(f"Warning: Attack source for {ds_type} not found at {atk_source_dir}. Skipping.")
-            continue
-
-        attack_files = [p for p in atk_source_dir.iterdir() if p.stem != NORMAL_FILE_STEM and p.suffix == '.csv']
-        if not attack_files:
-            continue
-
-        num_cats = len(attack_files)
-        total_atk_needed = int(len(normal_df) / ratio)
-        atk_per_cat = total_atk_needed // num_cats
-
-        attack_dfs = []
-        for p in attack_files:
-            df = get_data_from_csv(p)
-            attack_dfs.append(safe_stratified_sample(df, atk_per_cat, replacing_mode))
-
-        df_joint = pd.concat([normal_df] + attack_dfs).sample(frac=1, random_state=RANDOM_STATE).reset_index(drop=True)
-        create_csv_from_data(df_joint, joint_file_stem, joint_dir_path)
-
-        sub_dir_path = create_directory(f"{ds_type}_joint", joint_dir_path)
-        
-        for p in attack_files:
-            df = get_data_from_csv(p)
-            sampled_atk = safe_stratified_sample(df, total_atk_needed, replacing_mode)
-            df_single_joint = pd.concat([normal_df, sampled_atk]).sample(frac=1, random_state=RANDOM_STATE).reset_index(drop=True)
-            create_csv_from_data(df_single_joint, f"Normal_{p.stem}", sub_dir_path)
-
-
-
-
-
-
-
-def hybrid_dataset_file_preprocessing():
-    # TODO
-    pass
-
-
+    print(f"File-level preprocessing for hybrid datasets done.")
 
 
 def single_dataset_file_preprocessing(data, type):
@@ -276,12 +232,15 @@ def single_dataset_file_preprocessing(data, type):
     """
     print(f"Running file-level preprocessing for {type}...")
 
+    # Create the main directories
     dataset_prep_dir = create_directory(f"{type}{PREPROCESSED_SUFFIX}", DATA_DIR)
     class_dir = create_directory(CLASS_DIR_NAME, dataset_prep_dir)
 
+    # Save the data
     create_csv_from_data(data, f'{type}{PREPROCESSED_SUFFIX}', dataset_prep_dir)
     _split_by_class_and_save(data, type, class_dir)
 
+    # Save the normal_anomaly data
     if type == NB15_PREFIX:
         _scale_by_normal_anomaly_ratio_and_save(data, type, dataset_prep_dir)
         normal_anomaly_dir = create_directory(NORMAL_ANOMALY_DIR_NAME, dataset_prep_dir)
@@ -290,6 +249,6 @@ def single_dataset_file_preprocessing(data, type):
     print(f"File-level preprocessing for {type} done.")
 
 
-if __file__ == "__name__":
+if __name__ == "__main__":
     # TODO
     pass
