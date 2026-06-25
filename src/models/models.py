@@ -8,18 +8,20 @@ import pandas as pd
 from datetime import datetime
 from sklearn.ensemble import RandomForestClassifier, IsolationForest
 from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix, roc_auc_score
-from utils.file_utils import get_data_from_csv, update_or_append_csv
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+from utils.file_utils import create_directory, get_data_from_csv, update_or_append_csv
 from utils.paths import (
     INDEPENDENT_RF_DIR, DEPENDENT_RF_DIR,
     INDEPENDENT_IF_DIR, DEPENDENT_IF_DIR,
-    INDEPENDENT_DIR, DEPENDENT_DIR, # Base directories for preprocessed data
+    INDEPENDENT_DIR, DEPENDENT_DIR, MODEL_VERBOSE, MODELS_DIR, NORMALIZED, RANDOM_STATE, # Base directories for preprocessed data
     RF_INFO_FILENAME, IF_INFO_FILENAME,
     NORMAL_ATTACK_DIR_NAME, JOINT_DIR_NAME, # Subdirectory names
     NB15_PREPROCESSED_DIR_NAME, # Specific preprocessed dataset directory names
     PREPROCESSED_MAIN_FILE_SUFFIX, # Suffix for main preprocessed file
     NB15_SCALED_FILE_STEM, # Specific preprocessed filenames (stem)
     JOINT_NORMAL_SAT20_FILE_STEM, JOINT_NORMAL_TER20_FILE_STEM, # Joint filenames (stem)
-    NB15_FILE_STEM
+    NB15_FILE_STEM, UNNORMALIZED
 )
 
 
@@ -125,74 +127,20 @@ def _save_model_and_metadata(model, model_type, mode, train_ratio, training_data
 
 
 # --- Public Training Functions ---
-def isolation_forest(data, mode, dataset_type, training_dataset, train_ratio=0.8):
-    """
-    Trains an Isolation Forest model using normal data and evaluates it on a mixed set.
-
-    :param data: Input DataFrame containing both normal and anomaly samples.
-    :param mode: Preprocessing mode used ('independent' or 'dependent').
-    :param dataset_type: Type of the dataset (nb15, sat20, ter20).
-    :param training_dataset: Name of the original dataset file.
-    :param train_ratio: Proportion of normal data used for training.
-    """
-    print(f"Training Isolation Forest...")
-    
-    # Use split_type column to separate data
-    train_normal = data[(data['label'] == 0) & (data['split_type'] == 'train')]
-    test_normal = data[(data['label'] == 0) & (data['split_type'] == 'test')]
-    
-    # For Anomaly test set, use only data marked as 'test'
-    data_anomaly_test = data[(data['label'] == 1) & (data['split_type'] == 'test')]
-    n_anomaly_sample = min(len(data_anomaly_test), int(len(test_normal) * 0.10))
-    test_anomaly = data_anomaly_test.sample(n=n_anomaly_sample, random_state=42)
-
-    data_test = pd.concat([test_normal, test_anomaly])
-
-    X_train = train_normal.drop(columns=['attack_cat', 'label', 'split_type'])
-    X_test = data_test.drop(columns=['attack_cat', 'label', 'split_type'])
-    y_test = data_test['label']
-
-    model = IsolationForest(random_state=42, verbose=3)
-    model.fit(X_train)
-    y_pred = model.predict(X_test)
-    y_pred = np.where(y_pred == 1, 0, 1)
-    
-    y_scores = -model.decision_function(X_test)
-    metrics = _calculate_metrics(y_test, y_pred, y_scores)
-
-    _save_model_and_metadata(model, 'if', mode, train_ratio, training_dataset, dataset_type, X_train.shape[0], metrics)
-    print("Training process done.")
 
 
-def random_forest(data, mode, dataset_type, training_dataset, train_ratio=0.8):
-    """
-    Trains a Random Forest classifier using a supervised learning approach.
 
-    :param data: Input DataFrame containing features and labels.
-    :param mode: Preprocessing mode used ('independent' or 'dependent').
-    :param dataset_type: Type of the dataset (nb15, sat20, ter20).
-    :param training_dataset: Name of the original dataset file.
-    :param train_ratio: Proportion of data used for training.
-    """
-    print(f"Training Random Forest...")
 
-    train_set = data[data['split_type'] == 'train']
-    test_set = data[data['split_type'] == 'test']
 
-    X_train = train_set.drop(columns=["label", "attack_cat", "split_type"])
-    y_train = train_set["label"]
-    X_test = test_set.drop(columns=["label", "attack_cat", "split_type"])
-    y_test = test_set["label"]
 
-    model = RandomForestClassifier(random_state=42, verbose=3)
-    model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
-    y_scores = model.predict_proba(X_test)[:, 1]
-    
-    metrics = _calculate_metrics(y_test, y_pred, y_scores)
 
-    _save_model_and_metadata(model, 'rf', mode, train_ratio, training_dataset, dataset_type, X_train.shape[0], metrics)
-    print("Training process done.")
+
+
+
+
+
+
+
 
 
 def run_routine_models(mode):
@@ -227,16 +175,84 @@ def run_routine_models(mode):
     print("\n--- Routine Model Building Completed ---")
 
 
-def model_processing(data, mode, model_type, dataset_type, training_dataset):
-    """
-    Orchestrator function to trigger training for a specific model type.
 
-    :param data: Input DataFrame.
-    :param model_type: Type of model to build ('random forest' or 'isolation forest').
-    :param dataset_type: Type of the dataset (nb15, sat20, ter20).
-    :param training_dataset: Name of the dataset file.
+
+
+
+
+def _random_forest(data, dataset_type, class_type, mode):
     """
-    if model_type == "random forest":
-        random_forest(data, mode, dataset_type, training_dataset)
-    elif model_type == "isolation forest":
-        isolation_forest(data, mode, dataset_type, training_dataset)
+    Trains a Random Forest classifier using a supervised learning approach
+
+    :param data: data to be used for the training of the model
+    :param dataset_type: type of the dataset that contains the data
+    :param class_type: type of the data class
+    :param mode: variable to choose the normalized or unnormalized method
+    :return: model built and related metrics
+    """
+    print(f"Training Random Forest...")
+
+    # Get training and testing data
+    train_set = data[data['split_type'] == 'train']
+    test_set = data[data['split_type'] == 'test']
+
+    # Drop columns not necessary
+    X_train = train_set.drop(columns=["label", "class", "split_type"])
+    X_test = test_set.drop(columns=["label", "class", "split_type"])
+
+    # Select labels
+    y_train = train_set["label"]
+    y_test = test_set["label"]
+
+    # Fit model by choosing the normalized or unnormalized way
+    if mode == NORMALIZED:
+        model = Pipeline([
+            ('scaler', StandardScaler()),
+            ('rf', RandomForestClassifier(random_state=RANDOM_STATE, verbose=MODEL_VERBOSE))
+        ])
+    elif mode == UNNORMALIZED:
+        model = RandomForestClassifier(random_state=RANDOM_STATE, verbose=MODEL_VERBOSE)
+
+    model.fit(X_train, y_train)
+
+    # Get metrics
+    y_pred = model.predict(X_test)
+    y_scores = model.predict_proba(X_test)[:, 1]
+    metrics = _calculate_metrics(y_test, y_pred, y_scores)
+
+    print("Training process done.")
+    return model, metrics
+
+
+
+
+
+
+
+
+    
+    # _save_model_and_metadata(model, 'rf', mode, train_ratio, training_dataset, dataset_type, X_train.shape[0], metrics)
+    
+
+
+
+
+
+
+
+
+def model_processing(data, type, mode):
+
+
+    # Create main directories
+    normalized_model_dir = create_directory(mode, MODELS_DIR)
+    
+
+    # Create random forest model
+    rf_model = 
+
+
+    # Save random forest model
+    
+
+    # Save scaler of the random forest model

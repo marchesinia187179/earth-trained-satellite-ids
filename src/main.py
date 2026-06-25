@@ -4,18 +4,23 @@ Main entry point for the Satellite IDS project.
 import joblib
 
 from utils.file_utils import get_data_from_csv
-from utils.input_utils import get_split_input, validate_path, validate_choice, get_y_n_choice, get_numeric_input
-from utils.paths import INDEPENDENT_DIR, DEPENDENT_DIR, NB15_PREFIX, NB15_RAW_PATH, PREPROCESSED_SUFFIX, SAT20_PREFIX, SAT20_RAW_PATH, STIN_PREFIX, TER20_PREFIX, TER20_RAW_PATH, setup_project_directories
+# from utils.input_utils import get_split_input, validate_path, validate_choice, get_y_n_choice, get_numeric_input
+from utils.paths import NB15_PREFIX, NB15_RAW_PATH, PREPROCESSED_SUFFIX, SAT20_PREFIX, SAT20_RAW_PATH, TER20_PREFIX, TER20_RAW_PATH # setup_project_directories
 from preprocessing.data_preprocessing import data_preprocessing
-from preprocessing.file_preprocessing import file_preprocessing, create_joint_datasets, hybrid_dataset_file_preprocessing, single_dataset_file_preprocessing
-from models.models import model_processing, run_routine_models
-from classification.classification import classification_processing, run_routine_classifications
-from view.plotting import generate_custom_recall_heatmap
+from preprocessing.file_preprocessing import hybrid_dataset_file_preprocessing, single_dataset_file_preprocessing
+# from models.models import model_processing, run_routine_models
+# from classification.classification import classification_processing, run_routine_classifications
+# from view.plotting import generate_custom_recall_heatmap
 from pathlib import Path
+
+
+
+"""
+
 
 # --- Runtime Loops ---
 def preprocessing_loop():
-    """Interactive loop for running the data and file preprocessing phase."""
+   Interactive loop for running the data and file preprocessing phase.
     print("\n--- Starting Preprocessing Phase ---")
     mode_input = input("Choose preprocessing mode: [independent or dependent] ").lower()
     mode = validate_choice(mode_input, ['independent', 'dependent'], "mode")
@@ -58,8 +63,11 @@ def preprocessing_loop():
     create_joint_datasets(current_base_dir, ratio=10.0, replacing_mode=False)
 
 
+    
+
+
 def build_model_loop():
-    """Interactive loop for selecting, training, and saving machine learning models."""
+    Interactive loop for selecting, training, and saving machine learning models
     print("\n--- Starting Model Building Phase ---")
     mode_input = input("Choose model building mode: [independent or dependent] ").lower()
     mode = validate_choice(mode_input, ['independent', 'dependent'], "mode")
@@ -86,9 +94,13 @@ def build_model_loop():
 
         user_choice = get_y_n_choice("Do you want to build a new model? [y/n] ")
 
+        
+
+
+
 
 def classification_loop():
-    """Interactive loop for evaluating saved models on specific testing datasets."""
+    Interactive loop for evaluating saved models on specific testing datasets
     print("\n--- Starting Classification Phase ---")
     mode_input = input("Choose classification mode: [independent or dependent] ").lower()
     mode = validate_choice(mode_input, ['independent', 'dependent'], "mode")
@@ -122,7 +134,7 @@ def classification_loop():
 
 
 def run_guided_routine_pipeline():
-    """Executes the pipeline in Routine mode but guides the user step-by-step."""
+    Executes the pipeline in Routine mode but guides the user step-by-step
     print("\n=== AUTOMATED ROUTINE PIPELINE (GUIDED STEP-BY-STEP) ===")
     
     # SOLVED: Asked once here to maintain pipeline consistency across all steps
@@ -148,10 +160,10 @@ def run_guided_routine_pipeline():
 
 
 def run_full_automated_pipeline():
-    """
+    
     Executes all routines non-stop (Pre-processing -> Training -> Testing) 
     for BOTH independent and dependent modes without any interruptions.
-    """
+    
     print("\n=== FULL AUTOMATED ROUTINE PIPELINE (NON-STOP: BOTH MODES) ===")
     
     modes_to_run = ['independent', 'dependent']
@@ -177,7 +189,7 @@ def run_full_automated_pipeline():
 
 
 def run_manual_pipeline():
-    """Secondary menu for manual, step-by-step interactive operations."""
+    Secondary menu for manual, step-by-step interactive operations
     while True:
         print("\n=== MANUAL STEP-BY-STEP FLOW ===")
         print("1. Run Interactive Preprocessing")
@@ -198,6 +210,26 @@ def run_manual_pipeline():
             break
         else:
             print("Invalid choice. Please enter a number from 1 to 4.")
+
+
+
+"""
+
+
+
+def _model_building():
+
+    # Ask to user which mode he wants to start (unnormalize or normalize)
+
+
+    # Set the directories and files to be used
+
+
+    # Build and save the model
+    # if the mode is 'normalize', then save also the own scaler
+
+    pass
+
 
 
 
@@ -244,11 +276,8 @@ def _preprocessing():
             sat20_anomaly_data = data_prep[data_prep['label'] == 1]
         elif dataset_type == TER20_PREFIX:
             ter20_anomaly_data = data_prep[data_prep['label'] == 1]
-
-    data_list = [nb15_normal_data, sat20_anomaly_data, ter20_anomaly_data]
-    dataset_type_list = [NB15_PREFIX, SAT20_PREFIX, TER20_PREFIX]
     
-    hybrid_dataset_file_preprocessing(data_list, dataset_type_list)
+    hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter20_anomaly_data)
 
     print("\n--- Routine Preprocessing Phase Completed ---")
 
@@ -262,7 +291,7 @@ def _preprocessing():
 
 def main():
     """Main entry point of the application with a main dashboard menu."""
-    setup_project_directories()
+    # setup_project_directories()
 
     while True:
         print("\n" + "="*60)
@@ -281,8 +310,7 @@ def main():
         if main_choice == '1':
             _preprocessing()
         elif main_choice == '2':
-            # TODO
-            return
+            _model_building()
         elif main_choice == '3':
             # TODO
             return

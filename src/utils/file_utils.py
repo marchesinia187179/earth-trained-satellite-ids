@@ -120,14 +120,14 @@ def create_csv_from_data(data, file_name, file_path):
     }
 
     print(f"  - Data shape: {df.shape}")
-    if 'attack_cat' in df.columns:
-        counts = df['attack_cat'].value_counts()
-        file_info['attack_cat_distribution'] = str(counts.to_dict())
-        print(f"  - Class distribution (attack_cat):\n{counts.to_string()}")
+    if 'class' in df.columns:
+        counts = df['class'].value_counts()
+        file_info['class_distribution'] = str(counts.to_dict())
+        print(f"  - Class distribution (class):\n{counts.to_string()}")
     else:
-        file_info['attack_cat_distribution'] = 'None'
-    if 'attack_cat' in df.columns and 'split_type' in df.columns:
-        pivot = df.groupby(['attack_cat', 'split_type']).size().unstack(fill_value=0)
+        file_info['class_distribution'] = 'None'
+    if 'class' in df.columns and 'split_type' in df.columns:
+        pivot = df.groupby(['class', 'split_type']).size().unstack(fill_value=0)
         file_info['train_test_distribution'] = str(pivot.to_dict())
         print(f"  - Train/Test division per class:\n{pivot.to_string()}")
     else:

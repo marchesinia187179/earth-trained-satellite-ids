@@ -2,13 +2,14 @@ import pandas as pd
 
 from utils.file_utils import concat_and_shuffle, create_directory, create_csv_from_data
 from utils.paths import (
-    CLASS_DIR_NAME, NORMAL_ANOMALY_DIR_NAME, DATA_DIR, 
-    NB15_PREFIX, NB15_STIN_PREFIX, NB15_SAT20_PREFIX, NB15_TER20_PREFIX, 
+    SINGLE_CLASSES_DIR_NAME, NORMAL_ANOMALY_DIR_NAME, SCALED_DIR_NAME, DATA_DIR, 
+    NB15_PREFIX, HYBRID_PREFIX, NB15_SAT20_PREFIX, NB15_TER20_PREFIX, 
     PREPROCESSED_SCALED_SUFFIX, PREPROCESSED_SUFFIX, 
     RANDOM_STATE, NORMAL_ANOMALY_RATIO
 )
 
 
+# --- Internal Functions ---
 def _get_correct_normal_and_anomaly_data_samples(normal_data, anomaly_data, normal_samples, anomaly_samples):
     """
     Calculates and return the `normal` and `anomaly data sample` based on the `NORMAL_ANOMALY_RATIO`
@@ -167,6 +168,7 @@ def _scale_by_normal_anomaly_ratio_and_save(data, type, dst_dir):
     create_csv_from_data(df, f"{type}{PREPROCESSED_SCALED_SUFFIX}", dst_dir)
 
 
+# --- Public Functions ---
 def hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter20_anomaly_data):
     """
     Creates the main directories and files of the hybrid dataset
@@ -190,9 +192,10 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter2
             return
 
     # Create the main directories
-    dataset_prep_dir = create_directory(f"{NB15_STIN_PREFIX}{PREPROCESSED_SUFFIX}", DATA_DIR)
+    dataset_prep_dir = create_directory(f"{HYBRID_PREFIX}{PREPROCESSED_SUFFIX}", DATA_DIR)
     nb15_sat20_normal_anomaly_dir = create_directory(f"{NB15_SAT20_PREFIX}_{NORMAL_ANOMALY_DIR_NAME}", dataset_prep_dir)
     nb15_ter20_normal_anomaly_dir = create_directory(f"{NB15_TER20_PREFIX}_{NORMAL_ANOMALY_DIR_NAME}", dataset_prep_dir)
+    scaled_dir = create_directory(SCALED_DIR_NAME, dataset_prep_dir)
 
     # Create the hybrid data
     nb15_stin_data = concat_and_shuffle([nb15_normal_data, sat20_anomaly_data, ter20_anomaly_data])
@@ -201,7 +204,7 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter2
 
     # Combine the hybrid data with own dataset type
     datasets = [
-        {'type': NB15_STIN_PREFIX, 'data': nb15_stin_data},
+        {'type': HYBRID_PREFIX, 'data': nb15_stin_data},
         {'type': NB15_SAT20_PREFIX, 'data': nb15_sat20_data},
         {'type': NB15_TER20_PREFIX, 'data': nb15_ter20_data}
     ]
@@ -212,7 +215,7 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter2
         dataset_data = d['data']
 
         create_csv_from_data(dataset_data, f'{dataset_type}{PREPROCESSED_SUFFIX}', dataset_prep_dir)
-        _scale_by_normal_anomaly_ratio_and_save(dataset_data, dataset_type, dataset_prep_dir)
+        _scale_by_normal_anomaly_ratio_and_save(dataset_data, dataset_type, scaled_dir)
 
         # Save the hybrid data for single normal_anomaly case
         if dataset_type == NB15_SAT20_PREFIX:
@@ -234,15 +237,16 @@ def single_dataset_file_preprocessing(data, type):
 
     # Create the main directories
     dataset_prep_dir = create_directory(f"{type}{PREPROCESSED_SUFFIX}", DATA_DIR)
-    class_dir = create_directory(CLASS_DIR_NAME, dataset_prep_dir)
+    single_classes_dir = create_directory(SINGLE_CLASSES_DIR_NAME, dataset_prep_dir)
+    scaled_dir = create_directory(SCALED_DIR_NAME, dataset_prep_dir)
 
     # Save the data
     create_csv_from_data(data, f'{type}{PREPROCESSED_SUFFIX}', dataset_prep_dir)
-    _split_by_class_and_save(data, type, class_dir)
+    _split_by_class_and_save(data, type, single_classes_dir)
 
     # Save the normal_anomaly data
     if type == NB15_PREFIX:
-        _scale_by_normal_anomaly_ratio_and_save(data, type, dataset_prep_dir)
+        _scale_by_normal_anomaly_ratio_and_save(data, type, scaled_dir)
         normal_anomaly_dir = create_directory(NORMAL_ANOMALY_DIR_NAME, dataset_prep_dir)
         _merge_normal_anomaly_and_save(data, type, normal_anomaly_dir)
 

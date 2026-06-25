@@ -5,12 +5,14 @@ import pathlib
 
 RANDOM_STATE = 42
 NORMAL_ANOMALY_RATIO = 10
+TRAIN_SPLIT = 0.8
+MODEL_VERBOSE = 2
 
 NB15_PREFIX = "nb15"
 SAT20_PREFIX = "sat20"
 TER20_PREFIX = "ter20"
 
-NB15_STIN_PREFIX = "nb15_stin"
+HYBRID_PREFIX = "hybrid"
 NB15_SAT20_PREFIX = "nb15_sat20"
 NB15_TER20_PREFIX = "nb15_ter20"
 
@@ -19,8 +21,8 @@ RF_MODEL_PREFIX = "rf_model_"
 PREPROCESSED_SUFFIX = "_prep"
 PREPROCESSED_SCALED_SUFFIX = "_prep_scaled"
 
-UNNORMALIZED = "unnorm"
-NORMALIZED = "norm"
+UNNORMALIZED = "unnormalized"
+NORMALIZED = "normalized"
 
 DATA_FILE_TYPE = ".csv"
 
@@ -48,8 +50,9 @@ UTILS_DIR = SRC_DIR / "utils"
 
 # --- Sub Sub folders --- 
 # data/{dataset type}{preprocessed suffix}/
-CLASS_DIR_NAME = "class"
+SINGLE_CLASSES_DIR_NAME = "single_classes"
 NORMAL_ANOMALY_DIR_NAME = "normal_anomaly"
+SCALED_DIR_NAME = "scaled"
 
 # src/classification/
 UNNORMALIZED_CLASSIFICATION_DIR = CLASSIFICATION_DIR / UNNORMALIZED
@@ -79,6 +82,8 @@ TER20_RAW_PATH = DATA_DIR / f"{TER20_PREFIX}{DATA_FILE_TYPE}"
 
 
 
+GENERAL_FILE_INFO_FILENAME = "general_file_info.csv"
+GENERAL_FILE_INFO_PATH = DATA_DIR / GENERAL_FILE_INFO_FILENAME
 
 
 
@@ -88,6 +93,7 @@ TER20_RAW_PATH = DATA_DIR / f"{TER20_PREFIX}{DATA_FILE_TYPE}"
 
 
 
+"""
 
 # ------ CLASSIFICATION ------
 
@@ -96,22 +102,15 @@ BY_DATASET_DIR_NAME = "by_dataset"
 TESTING_DATASET_DIR_NAME = "testing_datasets"
 DATASET_RESULTS_SUFFIX = "_classification_results.csv"
 TESTING_DATASET_RESULTS_SUFFIX = "_classification_results.csv"
-INDEPENDENT_RESULTS_MODELS_DIR = INDEPENDENT_RESULTS_DIR / BY_MODEL_DIR_NAME
-DEPENDENT_RESULTS_MODELS_DIR = DEPENDENT_RESULTS_DIR / BY_MODEL_DIR_NAME
-INDEPENDENT_RESULTS_DATASETS_DIR = INDEPENDENT_RESULTS_DIR / BY_DATASET_DIR_NAME
-DEPENDENT_RESULTS_DATASETS_DIR = DEPENDENT_RESULTS_DIR / BY_DATASET_DIR_NAME
+
 
 # --- Helper to ensure directories exist ---
 def setup_project_directories():
-    """
+    
     Ensures that all necessary directories exist before running the pipeline.
     Call this at the very start of main().
-    """
+    
     directories_to_create = [
-        INDEPENDENT_RESULTS_MODELS_DIR,
-        DEPENDENT_RESULTS_MODELS_DIR,
-        INDEPENDENT_RESULTS_DATASETS_DIR,
-        DEPENDENT_RESULTS_DATASETS_DIR
     ]
     
     for directory in directories_to_create:
@@ -126,5 +125,7 @@ IF_RESULTS_FILENAME = "isolation_forest_classification_results.csv"
 
 
 # General file info
-GENERAL_FILE_INFO_FILENAME = "general_file_info.csv"
-GENERAL_FILE_INFO_PATH = DATA_DIR / GENERAL_FILE_INFO_FILENAME
+
+
+
+"""

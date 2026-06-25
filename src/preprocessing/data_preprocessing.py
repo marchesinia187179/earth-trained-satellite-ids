@@ -1,6 +1,8 @@
 import pandas as pd
 import sys
 
+from utils.paths import TRAIN_SPLIT
+
 
 def minority_removal_nb15(data):
     """
@@ -123,11 +125,11 @@ def align_stin(data):
     return new_df
 
 
-def stratified_split(data, train_split):
+def stratified_split(data):
     split_groups = []
-    for _, group in data.groupby('attack_cat'):
+    for _, group in data.groupby('class'):
         group = group.sample(frac=1, random_state=42).reset_index(drop=True)
-        n_group_train = int(len(group) * train_split)
+        n_group_train = int(len(group) * TRAIN_SPLIT)
         group['split_type'] = ['train'] * n_group_train + ['test'] * (len(group) - n_group_train)
         split_groups.append(group)
     
@@ -148,7 +150,7 @@ def data_preprocessing(data, dataset_type):
     elif dataset_type == 'sat20':
         data = align_stin(data)
 
-    data = stratified_split(data, 0.8)
+    data = stratified_split(data)
 
     data = data.sample(frac=1, random_state=42).reset_index(drop=True)
 
