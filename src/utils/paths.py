@@ -89,7 +89,12 @@ GENERAL_FILE_INFO_PATH = DATA_DIR / GENERAL_FILE_INFO_FILENAME
 
 
 
-
+# --- Datasets ---
+DATASETS = [
+    {'type': NB15_PREFIX, 'path': NB15_RAW_PATH},
+    {'type': SAT20_PREFIX, 'path': SAT20_RAW_PATH},
+    {'type': TER20_PREFIX, 'path': TER20_RAW_PATH}
+]
 
 # --- Routine Model Configuration ---
 # Defines the standard set of models to be built during a routine phase

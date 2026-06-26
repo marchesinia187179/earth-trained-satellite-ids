@@ -7,7 +7,7 @@ from models.models import model_processing
 from utils.file_utils import get_data_from_csv
 # from utils.input_utils import get_split_input, validate_path, validate_choice, get_y_n_choice, get_numeric_input
 from utils.input_utils import validate_choice
-from utils.paths import NB15_PREFIX, NB15_RAW_PATH, NORMALIZED, ROUTINE_MODELS, SAT20_PREFIX, SAT20_RAW_PATH, TER20_PREFIX, TER20_RAW_PATH, UNNORMALIZED # setup_project_directories
+from utils.paths import DATASETS, NB15_PREFIX, NB15_RAW_PATH, NORMALIZED, ROUTINE_MODELS, SAT20_PREFIX, SAT20_RAW_PATH, TER20_PREFIX, TER20_RAW_PATH, UNNORMALIZED # setup_project_directories
 from preprocessing.data_preprocessing import data_preprocessing
 from preprocessing.file_preprocessing import hybrid_dataset_file_preprocessing, single_dataset_file_preprocessing
 # from models.models import model_processing, run_routine_models
@@ -214,15 +214,22 @@ def run_manual_pipeline():
             print("Invalid choice. Please enter a number from 1 to 4.")
 
 
-
 """
 
 
 
-def _model_building():
-    """
+def _classifications():
+    pass
 
-    """
+
+
+
+
+
+
+
+def _model_building():
+    """ Executes a predefined model building routine """
     print("\n--- Starting Model Building Phase ---")
     
     # Ask to user which mode he wants to start (unnormalize or normalize)
@@ -239,48 +246,36 @@ def _model_building():
     print("\n--- Routine Model Building Completed ---")
 
 
-
-
-
-
-
-
-
-
-
-
 def _preprocessing():
-    """
-    Executes a predefined preprocessing routine for nb15, sat20, and ter20
-    
-    """
+    """ Executes a predefined preprocessing routine for nb15, sat20 ter20 and hybrid datasets """
     print("\n--- Starting Preprocessing Phase ---")
 
-    datasets = [
-        {'type': NB15_PREFIX, 'path': NB15_RAW_PATH},
-        {'type': SAT20_PREFIX, 'path': SAT20_RAW_PATH},
-        {'type': TER20_PREFIX, 'path': TER20_RAW_PATH}
-    ]
-
+    # Initialize variables for hybrid dataset
     nb15_normal_data = None
     sat20_anomaly_data = None
     ter20_anomaly_data = None
     
-    for d in datasets:
+    # Do preprocessing for each dataset
+    for d in DATASETS:
+        # Get dataset params
         dataset_type = d['type']
         dataset_path = d['path']
 
+        # Security check for existing path
         if not dataset_path.exists():
             print(f"Warning: Dataset file not found at {dataset_path}. Skipping {dataset_type}.")
             continue
             
         print(f"\n[ROUTINE] Processing {dataset_type}...")
         
+        # Do data preprocessing
         data = get_data_from_csv(dataset_path)
         data_prep = data_preprocessing(data, dataset_type)
 
+        # Do file preprocessing for a single dataset
         single_dataset_file_preprocessing(data_prep, dataset_type)
 
+        # Set variables for hybrid dataset
         if dataset_type == NB15_PREFIX:
             nb15_normal_data = data_prep[data_prep['label'] == 0]
         elif dataset_type == SAT20_PREFIX:
@@ -288,23 +283,18 @@ def _preprocessing():
         elif dataset_type == TER20_PREFIX:
             ter20_anomaly_data = data_prep[data_prep['label'] == 1]
     
+    # Do file preprocessing for a hybrid dataset
     hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter20_anomaly_data)
 
     print("\n--- Routine Preprocessing Phase Completed ---")
 
 
-
-
-
-
-
-
-
 def main():
-    """Main entry point of the application with a main dashboard menu."""
+    """ Main entry point of the application with a main dashboard menu """
     # setup_project_directories()
 
     while True:
+        # Print main dashboard menu
         print("\n" + "="*60)
         print("      SATELLITE IDS - MAIN DASHBOARD")
         print("="*60)
@@ -316,22 +306,24 @@ def main():
         print("6. Exit application")
         print("="*60)
         
-        main_choice = input("Select execution mode (1, 2, 3, or 4): ")
+        # Ask user's response
+        main_choice = input("Select execution mode (1, 2, 3, 4, 5 or 6): ")
         
-        if main_choice == '1':
+        # Do user's choice
+        if main_choice == '1':  # Preprocessing case
             _preprocessing()
-        elif main_choice == '2':
+        elif main_choice == '2':    # Model building case
             _model_building()
-        elif main_choice == '3':
+        elif main_choice == '3':    # Classifications case
             # TODO
             return
-        elif main_choice == '4':
+        elif main_choice == '4':    # Plotting case
             # TODO
             return
-        elif main_choice == '5':
+        elif main_choice == '5':    # All case
             # TODO
             return
-        elif main_choice == '6':
+        elif main_choice == '6':    # Exit case
             print("\nExiting application. Goodbye!")
             break
         else:
