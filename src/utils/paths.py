@@ -7,6 +7,7 @@ RANDOM_STATE = 42
 NORMAL_ANOMALY_RATIO = 10
 TRAIN_SPLIT = 0.8
 MODEL_VERBOSE = 2
+DECIMAL_DIGITS = 4
 
 NB15_PREFIX = "nb15"
 SAT20_PREFIX = "sat20"
@@ -16,7 +17,8 @@ HYBRID_PREFIX = "hybrid"
 NB15_SAT20_PREFIX = "nb15_sat20"
 NB15_TER20_PREFIX = "nb15_ter20"
 
-RF_MODEL_PREFIX = "rf_model_"
+RF_MODEL_PREFIX = "rf_model"
+RF_INFO_FILENAME = "rf_models_info"
 
 PREPROCESSED_SUFFIX = "_prep"
 PREPROCESSED_SCALED_SUFFIX = "_prep_scaled"
@@ -85,6 +87,26 @@ TER20_RAW_PATH = DATA_DIR / f"{TER20_PREFIX}{DATA_FILE_TYPE}"
 GENERAL_FILE_INFO_FILENAME = "general_file_info.csv"
 GENERAL_FILE_INFO_PATH = DATA_DIR / GENERAL_FILE_INFO_FILENAME
 
+
+
+
+
+# --- Routine Model Configuration ---
+# Defines the standard set of models to be built during a routine phase.
+ROUTINE_MODELS = [
+    # Random Forest models on NB15 sub-datasets
+    {'model_type': 'random forest', 'dataset_type': 'nb15', 'file_rel_path': f'{NB15_PREPROCESSED_DIR_NAME}/{NORMAL_ATTACK_DIR_NAME}/Normal_DoS.csv'},
+    {'model_type': 'random forest', 'dataset_type': 'nb15', 'file_rel_path': f'{NB15_PREPROCESSED_DIR_NAME}/{NORMAL_ATTACK_DIR_NAME}/Normal_Exploits.csv'},
+    {'model_type': 'random forest', 'dataset_type': 'nb15', 'file_rel_path': f'{NB15_PREPROCESSED_DIR_NAME}/{NORMAL_ATTACK_DIR_NAME}/Normal_Fuzzers.csv'},
+    {'model_type': 'random forest', 'dataset_type': 'nb15', 'file_rel_path': f'{NB15_PREPROCESSED_DIR_NAME}/{NORMAL_ATTACK_DIR_NAME}/Normal_Generic.csv'},
+    {'model_type': 'random forest', 'dataset_type': 'nb15', 'file_rel_path': f'{NB15_PREPROCESSED_DIR_NAME}/{NORMAL_ATTACK_DIR_NAME}/Normal_Reconnaissance.csv'},
+    {'model_type': 'random forest', 'dataset_type': 'nb15', 'file_rel_path': f'{NB15_PREPROCESSED_DIR_NAME}/{NB15_SCALED_FILE_STEM}.csv'},
+    # Random Forest models on Joint datasets
+    {'model_type': 'random forest', 'dataset_type': 'nb15+sat20', 'file_rel_path': f'{JOINT_DIR_NAME}/{JOINT_NORMAL_SAT20_FILE_STEM}.csv'},
+    {'model_type': 'random forest', 'dataset_type': 'nb15+ter20', 'file_rel_path': f'{JOINT_DIR_NAME}/{JOINT_NORMAL_TER20_FILE_STEM}.csv'},
+    # Isolation Forest on NB15
+    {'model_type': 'isolation forest', 'dataset_type': 'nb15', 'file_rel_path': f'{NB15_PREPROCESSED_DIR_NAME}/{NB15_FILE_STEM}.csv'}
+]
 
 
 

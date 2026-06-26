@@ -1,192 +1,120 @@
 """
-Model training and management for Random Forest and Isolation Forest.
+Model training and management for Random Forest.
 """
 import joblib
-import numpy as np
-import pandas as pd
 
 from datetime import datetime
-from sklearn.ensemble import RandomForestClassifier, IsolationForest
-from sklearn.metrics import f1_score, precision_score, recall_score, confusion_matrix, roc_auc_score
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
-from utils.file_utils import create_directory, get_data_from_csv, update_or_append_csv
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, average_precision_score
+from utils.file_utils import create_directory, update_or_append_csv
 from utils.paths import (
-    INDEPENDENT_RF_DIR, DEPENDENT_RF_DIR,
-    INDEPENDENT_IF_DIR, DEPENDENT_IF_DIR,
-    INDEPENDENT_DIR, DEPENDENT_DIR, MODEL_VERBOSE, MODELS_DIR, NORMALIZED, RANDOM_STATE, # Base directories for preprocessed data
-    RF_INFO_FILENAME, IF_INFO_FILENAME,
-    NORMAL_ATTACK_DIR_NAME, JOINT_DIR_NAME, # Subdirectory names
-    NB15_PREPROCESSED_DIR_NAME, # Specific preprocessed dataset directory names
-    PREPROCESSED_MAIN_FILE_SUFFIX, # Suffix for main preprocessed file
-    NB15_SCALED_FILE_STEM, # Specific preprocessed filenames (stem)
-    JOINT_NORMAL_SAT20_FILE_STEM, JOINT_NORMAL_TER20_FILE_STEM, # Joint filenames (stem)
-    NB15_FILE_STEM, UNNORMALIZED
+    DECIMAL_DIGITS, MODEL_VERBOSE, MODELS_DIR, NORMALIZED, RANDOM_STATE,
+    RF_INFO_FILENAME, RF_MODEL_PREFIX, TRAIN_SPLIT, UNNORMALIZED
 )
 
-
-# --- Routine Model Configuration ---
-# Defines the standard set of models to be built during a routine phase.
-ROUTINE_MODELS = [
-    # Random Forest models on NB15 sub-datasets
-    {'model_type': 'random forest', 'dataset_type': 'nb15', 'file_rel_path': f'{NB15_PREPROCESSED_DIR_NAME}/{NORMAL_ATTACK_DIR_NAME}/Normal_DoS.csv'},
-    {'model_type': 'random forest', 'dataset_type': 'nb15', 'file_rel_path': f'{NB15_PREPROCESSED_DIR_NAME}/{NORMAL_ATTACK_DIR_NAME}/Normal_Exploits.csv'},
-    {'model_type': 'random forest', 'dataset_type': 'nb15', 'file_rel_path': f'{NB15_PREPROCESSED_DIR_NAME}/{NORMAL_ATTACK_DIR_NAME}/Normal_Fuzzers.csv'},
-    {'model_type': 'random forest', 'dataset_type': 'nb15', 'file_rel_path': f'{NB15_PREPROCESSED_DIR_NAME}/{NORMAL_ATTACK_DIR_NAME}/Normal_Generic.csv'},
-    {'model_type': 'random forest', 'dataset_type': 'nb15', 'file_rel_path': f'{NB15_PREPROCESSED_DIR_NAME}/{NORMAL_ATTACK_DIR_NAME}/Normal_Reconnaissance.csv'},
-    {'model_type': 'random forest', 'dataset_type': 'nb15', 'file_rel_path': f'{NB15_PREPROCESSED_DIR_NAME}/{NB15_SCALED_FILE_STEM}.csv'},
-    # Random Forest models on Joint datasets
-    {'model_type': 'random forest', 'dataset_type': 'nb15+sat20', 'file_rel_path': f'{JOINT_DIR_NAME}/{JOINT_NORMAL_SAT20_FILE_STEM}.csv'},
-    {'model_type': 'random forest', 'dataset_type': 'nb15+ter20', 'file_rel_path': f'{JOINT_DIR_NAME}/{JOINT_NORMAL_TER20_FILE_STEM}.csv'},
-    # Isolation Forest on NB15
-    {'model_type': 'isolation forest', 'dataset_type': 'nb15', 'file_rel_path': f'{NB15_PREPROCESSED_DIR_NAME}/{NB15_FILE_STEM}.csv'}
-]
-
-
 # --- Internal Helper Functions ---
-def _calculate_metrics(y_true, y_pred, y_scores):
-    """Internal helper to calculate metrics consistently."""
-    unique_classes = np.unique(y_true)
-    has_both = len(unique_classes) > 1
+def _calculate_metrics(y_test, y_pred, y_scores):
+    """
+    Internal helper to calculate metrics consistently
 
-    f1 = f1_score(y_true, y_pred) if has_both else None
-    precision = precision_score(y_true, y_pred) if has_both else None
-    recall = recall_score(y_true, y_pred) if has_both else None
-    auc_roc = roc_auc_score(y_true, y_scores) if has_both else None
+    :param y_test: ground truth (correct) target values containing actual classes (0 or 1)
+    :param y_pred: estimated targets (0 or 1) returned by a classifier's predict method
+    :param y_scores: predicted probabilities or decision scores for the positive class
+    :return: a dictionary mapping metric names to their calculated and formatted values
+    """
 
-    # Fix: labels=[0, 1] ensures a 2x2 matrix even if classes are missing
-    cm = confusion_matrix(y_true, y_pred, labels=[0, 1])
-    tn, fp, fn, tp = cm.ravel()
+    # Security check for number of classes to avoid metric calculation error
+    has_classes = len(y_test.unique()) > 1
+    if not has_classes:
+        print("Warrning: the test data contains only one class. Only some metrics will be calculated!")
 
+    # Get metrics
+    tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
+    accuracy = round(accuracy_score(y_test, y_pred), DECIMAL_DIGITS) if has_classes else None
+    precision = round(precision_score(y_test, y_pred), DECIMAL_DIGITS) if has_classes else None
+    recall = round(recall_score(y_test, y_pred), DECIMAL_DIGITS)
+    f1 = round(f1_score(y_test, y_pred), DECIMAL_DIGITS) if has_classes else None
+    roc = round(roc_auc_score(y_test, y_scores), DECIMAL_DIGITS) if has_classes else None
+    pr = round(average_precision_score(y_test, y_scores), DECIMAL_DIGITS) if has_classes else None
+    tpr = round(tp / (tp + fn) if (tp + fn) > 0 else None, DECIMAL_DIGITS)
+    fnr = round(fn / (tp + fn) if (tp + fn) > 0 else None, DECIMAL_DIGITS)
+    tnr = round(tn / (fp + tn) if (fp + tn) > 0 else None, DECIMAL_DIGITS)
+    fpr = round(fp / (fp + tn) if (fp + tn) > 0 else None, DECIMAL_DIGITS)
+    
     return {
-        'tp': tp, 'tn': tn, 'fp': fp, 'fn': fn,
-        'f1': f1, 'precision': precision, 'recall': recall,
-        'auc_roc': auc_roc
+        "TP": tp,   # True Positives: Number of actual attacks correctly identified as attacks
+        "TN": tn,   # True Negatives: Number of normal traffic instances correctly identified as normal
+        "FP": fp,   # False Positives: Number of normal traffic instances incorrectly flagged as attacks
+        "FN": fn,   # False Negatives: Number of actual attacks that completely bypassed the model
+        "Accuracy": accuracy,   # Accuracy: Ratio of correct predictions (both attacks and normal) over total instances
+        "Precision": precision,     # Precision: Ratio of true attacks identified over total predicted attacks (measures false alarms)
+        "Recall": recall,   # Recall: Ratio of true attacks identified over total actual attacks (same as TPR)
+        "F1-Score": f1,     # F1-Score: Harmonic mean of Precision and Recall (balances false alarms and missed attacks)
+        "ROC-AUC": roc,     # ROC-AUC: Ability of the model to distinguish between classes across all possible thresholds
+        "PR-AUC": pr,   # PR-AUC: Average precision across all recall levels (highly critical for imbalanced attack data)
+        "TPR": tpr,     # True Positive Rate: Ratio of positive predictions over Total Actual Positives
+        "FNR": fnr,     # False Negative Rate: Ratio of actual positive predicted as negative over Total Actual Positives
+        "TNR": tnr,     # Total Negative Rate: Ratio of negative predictions over Total Actual Negatives
+        "FPR": fpr      # False Positive Rate: Ratio of actual negative predicted as positive over Total Actual Negatives
     }
 
 
-def _save_model_and_metadata(model, model_type, mode, train_ratio, training_dataset, dataset_type, samples, metrics):
-    """Simplifies and unifies saving for RF and IF models."""
-    if model_type == 'rf':
-        save_dir = INDEPENDENT_RF_DIR if mode == 'independent' else DEPENDENT_RF_DIR
-        prefix = 'rf_model'
-        csv_name = RF_INFO_FILENAME
-    else:
-        save_dir = INDEPENDENT_IF_DIR if mode == 'independent' else DEPENDENT_IF_DIR
-        prefix = 'if_model'
-        csv_name = IF_INFO_FILENAME
+def _save_model_and_metadata(model, metrics, dataset_type, class_type, samples, dst_dir):
+    """
+    Simplifies and unifies saving for Random Forest models
+    
+    :param model: the trained Random Forest model object
+    :param metrics: a dictionary containing the calculated evaluation metrics
+    :param dataset_type: string describing the dataset type (nb15, sat20, ...)
+    :param class_type: string representing the class type of the data
+    :param samples: integer indicating the number of samples used
+    :param dst_dir: path object where files will be saved
+    :return: None
+    """
+    # Save model
+    existing_files = list(dst_dir.glob(f'{RF_MODEL_PREFIX}_*.joblib'))
+    model_name = f'{RF_MODEL_PREFIX}_{len(existing_files) + 1}'
+    joblib.dump(model, dst_dir / f'{model_name}.joblib')
 
-    save_dir.mkdir(parents=True, exist_ok=True)
-    info_csv = save_dir / csv_name
-
-    existing_files = list(save_dir.glob(f'{prefix}_*.joblib'))
-    model_name = f'{prefix}_{len(existing_files) + 1}'
-    joblib.dump(model, save_dir / f'{model_name}.joblib')
-
+    # Get model and data params
     params = model.get_params()
     results = {
         'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         'model_name': model_name,
-        'dataset_type': dataset_type,
-        'training_dataset': training_dataset,
-        'samples': samples,
-        'train_ratio': train_ratio,
+        'dataset_type': dataset_type, 
+        'class': class_type, 
+        'samples': samples, 
+        'train_split': TRAIN_SPLIT,
         'n_estimators': params['n_estimators'],
         'max_features': params['max_features'],
         'random_state': params.get('random_state', None),
         'n_features_in': int(model.n_features_in_),
+        'criterion': params.get('criterion', 'gini'),
+        'max_depth': params.get('max_depth', None),
+        'n_classes': len(model.classes_)
     }
 
-    # Type-specific metadata
-    if model_type == 'rf':
-        results.update({
-            'criterion': params.get('criterion', 'gini'),
-            'max_depth': params.get('max_depth', None),
-            'n_classes': len(model.classes_)
-        })
-    else:
-        results.update({
-            'max_samples': params['max_samples'],
-            'contamination': params['contamination'],
-            'model_offset': float(model.offset_)
-        })
+    # Add model metrics
+    results.update(metrics)
 
-    # Metrics formatting (None -> 'None' as requested)
-    results.update({
-        'tp': metrics['tp'], 'tn': metrics['tn'], 'fp': metrics['fp'], 'fn': metrics['fn'],
-        'f1': metrics['f1'] if metrics['f1'] is not None else 'None',
-        'precision': metrics['precision'] if metrics['precision'] is not None else 'None',
-        'recall': metrics['recall'] if metrics['recall'] is not None else 'None',
-        'auc_roc': metrics['auc_roc'] if metrics['auc_roc'] is not None else 'None'
-    })
+    # Metrics formatting (None -> 'None')
+    results = {k: (v if v is not None else 'None') for k, v in results.items()}
     
+    # Save metadata
+    info_file = dst_dir / RF_INFO_FILENAME
     match_keys = ['model_name', 'dataset_type']
-    update_or_append_csv(info_csv, results, match_keys, id_column='id')
+    update_or_append_csv(info_file, results, match_keys, id_column='id')
     
-    print(f"Model {model_name} saved to {save_dir.name} and metadata processed in {info_csv.name}")
+    print(f"Model {model_name} saved to {dst_dir.name} and metadata processed in {info_file.name}")
 
 
-# --- Public Training Functions ---
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def run_routine_models(mode):
-    """
-    Automatically builds all models defined in ROUTINE_MODELS for the selected mode.
-
-    :param mode: Preprocessing mode ('independent' or 'dependent').
-    """
-    print(f"\n--- Starting Routine Model Building ({mode.upper()}) ---")
-    base_data_dir = INDEPENDENT_DIR if mode == 'independent' else DEPENDENT_DIR
-
-    for task in ROUTINE_MODELS:
-        data_path = base_data_dir / task['file_rel_path']
-        
-        if not data_path.exists():
-            print(f"Warning: Dataset for routine training not found at {data_path}. Skipping.")
-            continue
-
-        print(f"\n[ROUTINE] Building {task['model_type']} using {task['file_rel_path']}...")
-        try:
-            data = get_data_from_csv(data_path)
-            model_processing(
-                data=data,
-                mode=mode,
-                model_type=task['model_type'],
-                dataset_type=task['dataset_type'],
-                training_dataset=data_path.stem
-            )
-        except Exception as e:
-            print(f"Error during routine building for {task['file_rel_path']}: {e}")
-
-    print("\n--- Routine Model Building Completed ---")
-
-
-
-
-
-
-
-def _random_forest(data, dataset_type, class_type, mode):
+def _random_forest(data, mode):
     """
     Trains a Random Forest classifier using a supervised learning approach
 
     :param data: data to be used for the training of the model
-    :param dataset_type: type of the dataset that contains the data
-    :param class_type: type of the data class
     :param mode: variable to choose the normalized or unnormalized method
     :return: model built and related metrics
     """
@@ -224,35 +152,22 @@ def _random_forest(data, dataset_type, class_type, mode):
     return model, metrics
 
 
-
-
-
-
-
-
-    
-    # _save_model_and_metadata(model, 'rf', mode, train_ratio, training_dataset, dataset_type, X_train.shape[0], metrics)
-    
-
-
-
-
-
-
-
-
+# --- Public Training Functions ---
 def model_processing(data, type, mode):
+    """
+    Orchestrates the Random Forest pipeline by creating the destination directory,
+    training the model, and saving the resulting model along with its metadata
 
-
-    # Create main directories
-    normalized_model_dir = create_directory(mode, MODELS_DIR)
-    
+    :param data: DataFrame containing the dataset and the 'class' attribute
+    :param type: string describing the dataset type (nb15, sat20, ...)
+    :param mode: variable to choose the normalized or unnormalized method
+    :return: None
+    """
+    # Create main directory
+    model_dir = create_directory(mode, MODELS_DIR)
 
     # Create random forest model
-    rf_model = 
+    model, metrics = _random_forest(data, mode)
 
-
-    # Save random forest model
-    
-
-    # Save scaler of the random forest model
+    # Save random forest model and metadata
+    _save_model_and_metadata(model, metrics, type, data['class'], data.shape[0], model_dir)
