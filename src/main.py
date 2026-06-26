@@ -3,11 +3,12 @@ Main entry point for the Satellite IDS project.
 """
 import joblib
 
+from classifications.classification import classification_processing
 from models.models import model_processing
 from utils.file_utils import get_data_from_csv
 # from utils.input_utils import get_split_input, validate_path, validate_choice, get_y_n_choice, get_numeric_input
-from utils.input_utils import validate_choice
-from utils.paths import DATASETS, NB15_PREFIX, NB15_RAW_PATH, NORMALIZED, ROUTINE_MODELS, SAT20_PREFIX, SAT20_RAW_PATH, TER20_PREFIX, TER20_RAW_PATH, UNNORMALIZED # setup_project_directories
+from utils.input_utils import validate_choice, validate_path
+from utils.paths import CLASSIFICATIONS, DATASETS, MODELS_PATH_FILE, NB15_PREFIX, NB15_RAW_PATH, NORMALIZED, ROUTINE_MODELS, SAT20_PREFIX, SAT20_RAW_PATH, TER20_PREFIX, TER20_RAW_PATH, UNNORMALIZED # setup_project_directories
 from preprocessing.data_preprocessing import data_preprocessing
 from preprocessing.file_preprocessing import hybrid_dataset_file_preprocessing, single_dataset_file_preprocessing
 # from models.models import model_processing, run_routine_models
@@ -21,80 +22,6 @@ from pathlib import Path
 
 
 # --- Runtime Loops ---
-def preprocessing_loop():
-   Interactive loop for running the data and file preprocessing phase.
-    print("\n--- Starting Preprocessing Phase ---")
-    mode_input = input("Choose preprocessing mode: [independent or dependent] ").lower()
-    mode = validate_choice(mode_input, ['independent', 'dependent'], "mode")
-
-    train_split = get_numeric_input("Insert the train split percentage (e.g. 80): ", type_func=float, min_val=1, max_val=99) / 100
-    current_base_dir = DEPENDENT_DIR if mode == 'dependent' else INDEPENDENT_DIR
-
-    if mode == 'dependent':
-        print("\n[DEPENDENT MODE] First dataset will be used for Fit (scaler calculation).")
-        prompt = "Insert the path and the dataset_type for FIT: [path dataset_type] "
-        user_input = get_split_input(prompt, 2)
-        path = validate_path(user_input[0])
-        dataset_type = validate_choice(user_input[1], ['nb15', 'sat20', 'ter20'], "dataset type")
-
-        data_pre, scaler_stats = data_preprocessing_state(path, dataset_type, dependent=True, scaler_stats=None, train_split=train_split)
-        file_preprocessing_state(data_pre, dataset_type, current_base_dir)
-
-        while get_y_n_choice("Do you want to add a dataset for TRANSFORM using calculated stats? [y/n] ") == 'y':
-            prompt = "Insert the path and the dataset_type for TRANSFORM: [path dataset_type] "
-            user_input = get_split_input(prompt, 2)
-            path = validate_path(user_input[0])
-            dataset_type = validate_choice(user_input[1], ['nb15', 'sat20', 'ter20'], "dataset type")
-
-            data_pre, _ = data_preprocessing_state(path, dataset_type, dependent=True, scaler_stats=scaler_stats, train_split=train_split)
-            file_preprocessing_state(data_pre, dataset_type, current_base_dir)
-    else: 
-        user_choice = 'y'
-        while user_choice == 'y':
-            prompt = "Insert path and dataset_type for independent preprocessing: [path dataset_type] "
-            user_input = get_split_input(prompt, 2)
-            path = validate_path(user_input[0])
-            dataset_type = validate_choice(user_input[1], ['nb15', 'sat20', 'ter20'], "dataset type")
-
-            data_pre, _ = data_preprocessing_state(path, dataset_type, dependent=False, train_split=train_split)
-            file_preprocessing_state(data_pre, dataset_type, current_base_dir)
-            user_choice = get_y_n_choice("Do you want to process another independent dataset? [y/n] ")
-
-    # SOLVED: Generates joint datasets also in manual mode to prevent downstream errors
-    print("\n[INFO] Generating joint datasets from preprocessed files...")
-    create_joint_datasets(current_base_dir, ratio=10.0, replacing_mode=False)
-
-
-    
-
-
-def build_model_loop():
-    Interactive loop for selecting, training, and saving machine learning models
-    print("\n--- Starting Model Building Phase ---")
-    mode_input = input("Choose model building mode: [independent or dependent] ").lower()
-    mode = validate_choice(mode_input, ['independent', 'dependent'], "mode")
-
-    routine_choice = get_y_n_choice(f"Do you want to run the routine model building for {mode} mode? [y/n] ")
-    if routine_choice == 'y':
-        run_routine_models(mode)
-        if get_y_n_choice("Do you want to build additional models manually? [y/n] ") == 'n':
-            return
-
-    user_choice = 'y'
-    while user_choice == 'y':
-        model_input = input("Choose which model do you want to use: [random forest or isolation forest] ").lower()
-        model_type = validate_choice(model_input, ['random forest', 'isolation forest'], "model type")
-
-        dataset_type_input = input("Insert the dataset_type of the training dataset: (nb15, sat20, ter20, nb15+sat20, nb15+ter20) ").lower()
-        dataset_type = validate_choice(dataset_type_input, ['nb15', 'sat20', 'ter20', 'nb15+sat20', 'nb15+ter20'], "dataset type")
-
-        path_input = input("Insert the path of the dataset: [path] ")
-        data_path = validate_path(path_input)
-
-        data = get_data_from_csv(data_path)
-        model_processing(data, mode, model_type, dataset_type, data_path.stem)
-
-        user_choice = get_y_n_choice("Do you want to build a new model? [y/n] ")
 
         
 
@@ -219,20 +146,32 @@ def run_manual_pipeline():
 
 
 def _classifications():
-    pass
+    """ Interactive loop for evaluating saved models on specific testing datasets """
+    print("\n--- Starting Classification Phase ---")
+    
+    # Ask to user which mode he wants to start (normalize or unnormalize)
+    mode_input = input(f"Choose routine pipeline mode: [{NORMALIZED} or {UNNORMALIZED}] ").lower()
+    mode = validate_choice(mode_input, [NORMALIZED, UNNORMALIZED], "mode")
 
+    # Do classification process for each classification task
+    for classification in CLASSIFICATIONS:
+        dataset_type = classification['dataset_type']
+        data = get_data_from_csv(classification['path'])
 
+        models_paths = get_data_from_csv(MODELS_PATH_FILE)['path']
+        for model_path in models_paths:
+            model = joblib.load(model_path)
 
+            classification_processing(model, data, dataset_type, mode)
 
-
-
+    print("\n--- Routine Classification Completed ---")
 
 
 def _model_building():
     """ Executes a predefined model building routine """
     print("\n--- Starting Model Building Phase ---")
     
-    # Ask to user which mode he wants to start (unnormalize or normalize)
+    # Ask to user which mode he wants to start (normalize or unnormalize)
     mode_input = input(f"Choose routine pipeline mode: [{NORMALIZED} or {UNNORMALIZED}] ").lower()
     mode = validate_choice(mode_input, [NORMALIZED, UNNORMALIZED], "mode")
 
@@ -315,8 +254,7 @@ def main():
         elif main_choice == '2':    # Model building case
             _model_building()
         elif main_choice == '3':    # Classifications case
-            # TODO
-            return
+            _classifications()
         elif main_choice == '4':    # Plotting case
             # TODO
             return
