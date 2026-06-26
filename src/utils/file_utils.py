@@ -5,7 +5,7 @@ import pandas as pd
 import pathlib
 from datetime import datetime
 import sys
-from utils.paths import GENERAL_FILE_INFO_PATH, RANDOM_STATE, ROOT_DIR
+from utils.paths import CLASSES_DIR_NAME, CLASSIFICATION_SUFFIX, GENERAL_FILE_INFO_PATH, RANDOM_STATE, ROOT_DIR
 
 
 def update_or_append_csv(file_path, data_dict, match_keys, id_column='id'):
@@ -212,3 +212,38 @@ def get_model_info(file_path):
 
 def concat_and_shuffle(data_list):
     return pd.concat(data_list).sample(frac=1, random_state=RANDOM_STATE).reset_index(drop=True)
+
+
+def group_by_model_and_save(data, dst_dir):
+    """
+    Groups the data by model and save it in CSV file
+
+    :param data: data to be grouped
+    :param dst_dir: directory path where model-specific results will be saved
+    """
+    # Get data
+    data_df = get_data_from_csv(data)
+
+    # Group and save data by model_name
+    for model_name, group in data_df.groupby('model_name'):
+        create_csv_from_data(group, f"{model_name}{CLASSIFICATION_SUFFIX}", dst_dir)
+
+
+def group_by_classes_and_save(data, dst_dir):
+    """
+    Groups the data by dataset type/classes and saves it into CSV file
+
+    :param data: data to be grouped
+    :param dst_dir: directory path where type/classes-specific results will be saved
+    """
+    # Get data
+    data_df = get_data_from_csv(data)
+
+    # Group and save data by classes for each dataset_type
+    for dataset_type, group in data_df.groupby('dataset_type'):
+        curr_dataset_dir = create_directory(dataset_type, dst_dir)
+        
+        for classes_name, classes_group in group.groupby('classes'):
+            curr_classes_dir = create_directory(CLASSES_DIR_NAME, curr_dataset_dir)
+            create_csv_from_data(classes_group, f"{classes_name}{CLASSIFICATION_SUFFIX}", curr_classes_dir)
+

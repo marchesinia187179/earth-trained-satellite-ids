@@ -1,20 +1,22 @@
 """
 Main entry point for the Satellite IDS project.
 """
+from pathlib import Path
+
 import joblib
 
 from classifications.classification import classification_processing
 from models.models import model_processing
-from utils.file_utils import get_data_from_csv
+from utils.file_utils import create_directory, get_data_from_csv, group_by_classes_and_save, group_by_model_and_save
 # from utils.input_utils import get_split_input, validate_path, validate_choice, get_y_n_choice, get_numeric_input
-from utils.input_utils import validate_choice, validate_path
-from utils.paths import CLASSIFICATIONS, DATASETS, MODELS_PATH_FILE, NB15_PREFIX, NB15_RAW_PATH, NORMALIZED, ROUTINE_MODELS, SAT20_PREFIX, SAT20_RAW_PATH, TER20_PREFIX, TER20_RAW_PATH, UNNORMALIZED # setup_project_directories
+from utils.input_utils import validate_choice
+from utils.paths import BY_DATASET_DIR_NAME, BY_MODEL_DIR_NAME, CLASSIFICATIONS, CLASSIFICATIONS_DIR, CLASSIFICATIONS_FILENAME, DATASETS, MODELS_DIR, MODELS_PATHS_FILENAME, NB15_PREFIX, NORMALIZED, ROUTINE_MODELS, SAT20_PREFIX, TER20_PREFIX, UNNORMALIZED
 from preprocessing.data_preprocessing import data_preprocessing
 from preprocessing.file_preprocessing import hybrid_dataset_file_preprocessing, single_dataset_file_preprocessing
 # from models.models import model_processing, run_routine_models
 # from classification.classification import classification_processing, run_routine_classifications
 # from view.plotting import generate_custom_recall_heatmap
-from pathlib import Path
+
 
 
 
@@ -158,11 +160,15 @@ def _classifications():
         dataset_type = classification['dataset_type']
         data = get_data_from_csv(classification['path'])
 
-        models_paths = get_data_from_csv(MODELS_PATH_FILE)['path']
+        models_paths = get_data_from_csv(MODELS_DIR / mode / MODELS_PATHS_FILENAME)['path']
         for model_path in models_paths:
-            model = joblib.load(model_path)
+            classification_processing(Path(model_path), data, dataset_type, mode)
 
-            classification_processing(model, data, dataset_type, mode)
+    curr_classifications_dir = CLASSIFICATIONS_DIR / mode
+    group_by_model_dir = create_directory(BY_MODEL_DIR_NAME, curr_classifications_dir)
+    group_by_classes_dir = create_directory(BY_DATASET_DIR_NAME, curr_classifications_dir)
+    group_by_model_and_save(curr_classifications_dir / CLASSIFICATIONS_FILENAME, group_by_model_dir)
+    group_by_classes_and_save(curr_classifications_dir / CLASSIFICATIONS_FILENAME, group_by_classes_dir)
 
     print("\n--- Routine Classification Completed ---")
 
