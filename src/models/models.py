@@ -61,14 +61,13 @@ def _calculate_metrics(y_test, y_pred, y_scores):
     }
 
 
-def _save_model_and_metadata(model, metrics, dataset_type, class_type, samples, dst_dir):
+def _save_model_and_metadata(model, metrics, dataset_type, classes, samples, dst_dir):
     """
     Simplifies and unifies saving for Random Forest models
     
     :param model: the trained Random Forest model object
     :param metrics: a dictionary containing the calculated evaluation metrics
     :param dataset_type: string describing the dataset type (nb15, sat20, ...)
-    :param class_type: string representing the class type of the data
     :param samples: integer indicating the number of samples used
     :param dst_dir: path object where files will be saved
     :return: None
@@ -78,22 +77,29 @@ def _save_model_and_metadata(model, metrics, dataset_type, class_type, samples, 
     model_name = f'{RF_MODEL_PREFIX}_{len(existing_files) + 1}'
     joblib.dump(model, dst_dir / f'{model_name}.joblib')
 
+    # If the model is into a Pipeline due to the normalizing, 
+    # get the pure Random Forest model object
+    if isinstance(model, Pipeline):
+        rf_model = model.named_steps['rf']
+    else:
+        rf_model = model
+
     # Get model and data params
-    params = model.get_params()
+    params = rf_model.get_params()
     results = {
         'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         'model_name': model_name,
         'dataset_type': dataset_type, 
-        'class': class_type, 
+        'classes': classes, 
         'samples': samples, 
         'train_split': TRAIN_SPLIT,
         'n_estimators': params['n_estimators'],
         'max_features': params['max_features'],
         'random_state': params.get('random_state', None),
-        'n_features_in': int(model.n_features_in_),
+        'n_features_in': int(rf_model.n_features_in_),
         'criterion': params.get('criterion', 'gini'),
         'max_depth': params.get('max_depth', None),
-        'n_classes': len(model.classes_)
+        'n_classes': len(rf_model.classes_)
     }
 
     # Add model metrics
@@ -169,5 +175,9 @@ def model_processing(data, type, mode):
     # Create random forest model
     model, metrics = _random_forest(data, mode)
 
+    # Get classes
+    unique_classes = data['class'].unique()
+    classes = ", ".join(str(c) for c in unique_classes)
+
     # Save random forest model and metadata
-    _save_model_and_metadata(model, metrics, type, data['class'], data.shape[0], model_dir)
+    _save_model_and_metadata(model, metrics, type, classes, data.shape[0], model_dir)

@@ -3,9 +3,11 @@ Main entry point for the Satellite IDS project.
 """
 import joblib
 
+from models.models import model_processing
 from utils.file_utils import get_data_from_csv
 # from utils.input_utils import get_split_input, validate_path, validate_choice, get_y_n_choice, get_numeric_input
-from utils.paths import NB15_PREFIX, NB15_RAW_PATH, PREPROCESSED_SUFFIX, SAT20_PREFIX, SAT20_RAW_PATH, TER20_PREFIX, TER20_RAW_PATH # setup_project_directories
+from utils.input_utils import validate_choice
+from utils.paths import NB15_PREFIX, NB15_RAW_PATH, NORMALIZED, ROUTINE_MODELS, SAT20_PREFIX, SAT20_RAW_PATH, TER20_PREFIX, TER20_RAW_PATH, UNNORMALIZED # setup_project_directories
 from preprocessing.data_preprocessing import data_preprocessing
 from preprocessing.file_preprocessing import hybrid_dataset_file_preprocessing, single_dataset_file_preprocessing
 # from models.models import model_processing, run_routine_models
@@ -218,17 +220,23 @@ def run_manual_pipeline():
 
 
 def _model_building():
+    """
 
+    """
+    print("\n--- Starting Model Building Phase ---")
+    
     # Ask to user which mode he wants to start (unnormalize or normalize)
+    mode_input = input(f"Choose routine pipeline mode: [{NORMALIZED} or {UNNORMALIZED}] ").lower()
+    mode = validate_choice(mode_input, [NORMALIZED, UNNORMALIZED], "mode")
 
+    # Start Model Processing
+    for routine_model in ROUTINE_MODELS:
+        dataset_path = routine_model['path']
+        data = get_data_from_csv(dataset_path)
+        dataset_type = routine_model['dataset_type']
+        model_processing(data, dataset_type, mode)
 
-    # Set the directories and files to be used
-
-
-    # Build and save the model
-    # if the mode is 'normalize', then save also the own scaler
-
-    pass
+    print("\n--- Routine Model Building Completed ---")
 
 
 
@@ -242,7 +250,10 @@ def _model_building():
 
 
 def _preprocessing():
-    """Executes a predefined preprocessing routine for nb15, sat20, and ter20."""
+    """
+    Executes a predefined preprocessing routine for nb15, sat20, and ter20
+    
+    """
     print("\n--- Starting Preprocessing Phase ---")
 
     datasets = [

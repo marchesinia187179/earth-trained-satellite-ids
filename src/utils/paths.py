@@ -92,20 +92,26 @@ GENERAL_FILE_INFO_PATH = DATA_DIR / GENERAL_FILE_INFO_FILENAME
 
 
 # --- Routine Model Configuration ---
-# Defines the standard set of models to be built during a routine phase.
+# Defines the standard set of models to be built during a routine phase
 ROUTINE_MODELS = [
-    # Random Forest models on NB15 sub-datasets
-    {'model_type': 'random forest', 'dataset_type': 'nb15', 'file_rel_path': f'{NB15_PREPROCESSED_DIR_NAME}/{NORMAL_ATTACK_DIR_NAME}/Normal_DoS.csv'},
-    {'model_type': 'random forest', 'dataset_type': 'nb15', 'file_rel_path': f'{NB15_PREPROCESSED_DIR_NAME}/{NORMAL_ATTACK_DIR_NAME}/Normal_Exploits.csv'},
-    {'model_type': 'random forest', 'dataset_type': 'nb15', 'file_rel_path': f'{NB15_PREPROCESSED_DIR_NAME}/{NORMAL_ATTACK_DIR_NAME}/Normal_Fuzzers.csv'},
-    {'model_type': 'random forest', 'dataset_type': 'nb15', 'file_rel_path': f'{NB15_PREPROCESSED_DIR_NAME}/{NORMAL_ATTACK_DIR_NAME}/Normal_Generic.csv'},
-    {'model_type': 'random forest', 'dataset_type': 'nb15', 'file_rel_path': f'{NB15_PREPROCESSED_DIR_NAME}/{NORMAL_ATTACK_DIR_NAME}/Normal_Reconnaissance.csv'},
-    {'model_type': 'random forest', 'dataset_type': 'nb15', 'file_rel_path': f'{NB15_PREPROCESSED_DIR_NAME}/{NB15_SCALED_FILE_STEM}.csv'},
-    # Random Forest models on Joint datasets
-    {'model_type': 'random forest', 'dataset_type': 'nb15+sat20', 'file_rel_path': f'{JOINT_DIR_NAME}/{JOINT_NORMAL_SAT20_FILE_STEM}.csv'},
-    {'model_type': 'random forest', 'dataset_type': 'nb15+ter20', 'file_rel_path': f'{JOINT_DIR_NAME}/{JOINT_NORMAL_TER20_FILE_STEM}.csv'},
-    # Isolation Forest on NB15
-    {'model_type': 'isolation forest', 'dataset_type': 'nb15', 'file_rel_path': f'{NB15_PREPROCESSED_DIR_NAME}/{NB15_FILE_STEM}.csv'}
+    # --- NB15 dataset ---
+    # Aggregate
+    {'dataset_type': (f"{NB15_PREFIX}"), 'path': (DATA_DIR / f"{NB15_PREFIX}{PREPROCESSED_SUFFIX}/{SCALED_DIR_NAME}/{NB15_PREFIX}{PREPROCESSED_SCALED_SUFFIX}{DATA_FILE_TYPE}")},
+     
+    # Single classes
+    {'dataset_type': (f"{NB15_PREFIX}"), 'path': (DATA_DIR / f"{NB15_PREFIX}{PREPROCESSED_SUFFIX}/{NORMAL_ANOMALY_DIR_NAME}/Normal_DoS{DATA_FILE_TYPE}")},
+    {'dataset_type': (f"{NB15_PREFIX}"), 'path': (DATA_DIR / f"{NB15_PREFIX}{PREPROCESSED_SUFFIX}/{NORMAL_ANOMALY_DIR_NAME}/Normal_Exploits{DATA_FILE_TYPE}")},
+    {'dataset_type': (f"{NB15_PREFIX}"), 'path': (DATA_DIR / f"{NB15_PREFIX}{PREPROCESSED_SUFFIX}/{NORMAL_ANOMALY_DIR_NAME}/Normal_Fuzzers{DATA_FILE_TYPE}")},
+    {'dataset_type': (f"{NB15_PREFIX}"), 'path': (DATA_DIR / f"{NB15_PREFIX}{PREPROCESSED_SUFFIX}/{NORMAL_ANOMALY_DIR_NAME}/Normal_Generic{DATA_FILE_TYPE}")},
+    {'dataset_type': (f"{NB15_PREFIX}"), 'path': (DATA_DIR / f"{NB15_PREFIX}{PREPROCESSED_SUFFIX}/{NORMAL_ANOMALY_DIR_NAME}/Normal_Reconnaissance{DATA_FILE_TYPE}")},
+
+    # --- Hybrid dataset ---
+    # Aggregate
+    {'dataset_type': (f"{HYBRID_PREFIX}"), 'path': (DATA_DIR / f"{HYBRID_PREFIX}{PREPROCESSED_SUFFIX}/{SCALED_DIR_NAME}/{HYBRID_PREFIX}{PREPROCESSED_SCALED_SUFFIX}{DATA_FILE_TYPE}")},
+
+    # Sub dataset
+    {'dataset_type': (f"{NB15_SAT20_PREFIX}"), 'path': (DATA_DIR / f"{HYBRID_PREFIX}{PREPROCESSED_SUFFIX}/{SCALED_DIR_NAME}/{NB15_SAT20_PREFIX}{PREPROCESSED_SCALED_SUFFIX}{DATA_FILE_TYPE}")},
+    {'dataset_type': (f"{NB15_TER20_PREFIX}"), 'path': (DATA_DIR / f"{HYBRID_PREFIX}{PREPROCESSED_SUFFIX}/{SCALED_DIR_NAME}/{NB15_TER20_PREFIX}{PREPROCESSED_SCALED_SUFFIX}{DATA_FILE_TYPE}")}
 ]
 
 
