@@ -5,7 +5,7 @@ import pandas as pd
 import pathlib
 from datetime import datetime
 import sys
-from utils.paths import CLASSES_DIR_NAME, CLASSIFICATION_SUFFIX, GENERAL_FILE_INFO_PATH, RANDOM_STATE, ROOT_DIR
+from utils.paths import CLASSES_DIR_NAME, CLASSIFICATION_SUFFIX, DATASETS_INFO_PATH, GENERAL_FILE_INFO_PATH, RANDOM_STATE, ROOT_DIR
 
 
 def update_or_append_csv(file_path, data_dict, match_keys, id_column='id'):
@@ -94,6 +94,12 @@ def get_data_from_csv(file_path):
         sys.exit(1)
 
 
+
+
+
+
+
+
 def create_csv_from_data(data, file_name, file_path):
     """
     Creates a CSV file from a DataFrame or raw data in the specified directory.
@@ -111,33 +117,40 @@ def create_csv_from_data(data, file_name, file_path):
     df.to_csv(full_path, index=False, encoding='utf-8', na_rep='None')
     print(f"Created file: {full_path.name}")
 
+    return full_path
+
+
+def add_file_info_to_datasets_info(file_path, dataset_type):
+    """
+    
+    """
+    data = get_data_from_csv(file_path)
+
     file_info = {
         'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        'filename': full_path.name,
-        'relative_path': str(full_path.relative_to(ROOT_DIR)),
-        'rows': df.shape[0],
-        'columns': df.shape[1],
+        'dataset_type': dataset_type,
+        'filename': file_path.name,
+        'path': str(file_path.relative_to(ROOT_DIR)),
+        'rows': data.shape[0],
+        'columns': data.shape[1],
     }
 
-    print(f"  - Data shape: {df.shape}")
-    if 'class' in df.columns:
-        counts = df['class'].value_counts()
-        file_info['class_distribution'] = str(counts.to_dict())
-        print(f"  - Class distribution (class):\n{counts.to_string()}")
+    if 'class' in data.columns:
+        counts = data['class'].value_counts()
+        file_info['class_distribution'] = str(counts.to_dict()).replace(" ", "_").replace(",", "_")
     else:
         file_info['class_distribution'] = 'None'
-    if 'class' in df.columns and 'split_type' in df.columns:
-        pivot = df.groupby(['class', 'split_type']).size().unstack(fill_value=0)
+    if 'class' in data.columns and 'split_type' in data.columns:
+        pivot = data.groupby(['class', 'split_type']).size().unstack(fill_value=0)
         file_info['train_test_distribution'] = str(pivot.to_dict())
-        print(f"  - Train/Test division per class:\n{pivot.to_string()}")
     else:
         file_info['train_test_distribution'] = 'None'
-    print("-" * 30)
-    
-    match_keys = ['relative_path']
-    update_or_append_csv(GENERAL_FILE_INFO_PATH, file_info, match_keys, id_column='id')
-    
-    return full_path
+
+    update_or_append_csv(DATASETS_INFO_PATH, file_info, ['path'], id_column='id')
+
+
+
+
 
 
 def create_directory(dir_name, parent_path=None):
@@ -245,5 +258,6 @@ def group_by_classes_and_save(data, dst_dir):
         
         for classes_name, classes_group in group.groupby('classes'):
             curr_classes_dir = create_directory(CLASSES_DIR_NAME, curr_dataset_dir)
+            classes_name = classes_name.replace(" ", "_").replace(",", "_")     # Formatting file name
             create_csv_from_data(classes_group, f"{classes_name}{CLASSIFICATION_SUFFIX}", curr_classes_dir)
 

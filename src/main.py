@@ -151,7 +151,7 @@ def _classifications():
     """ Interactive loop for evaluating saved models on specific testing datasets """
     print("\n--- Starting Classification Phase ---")
     
-    # Ask to user which mode he wants to start (normalize or unnormalize)
+    # Ask to user which mode he wants to start (normalized or unnormalized)
     mode_input = input(f"Choose routine pipeline mode: [{NORMALIZED} or {UNNORMALIZED}] ").lower()
     mode = validate_choice(mode_input, [NORMALIZED, UNNORMALIZED], "mode")
 
@@ -160,10 +160,11 @@ def _classifications():
         dataset_type = classification['dataset_type']
         data = get_data_from_csv(classification['path'])
 
-        models_paths = get_data_from_csv(MODELS_DIR / mode / MODELS_PATHS_FILENAME)['path']
+        models_paths = get_data_from_csv(MODELS_DIR / mode / MODELS_PATHS_FILENAME)['path']     # Get all models paths for the selected mode
         for model_path in models_paths:
             classification_processing(Path(model_path), data, dataset_type, mode)
 
+    # Group classifications by model and by dataset type and save them in separate directories
     curr_classifications_dir = CLASSIFICATIONS_DIR / mode
     group_by_model_dir = create_directory(BY_MODEL_DIR_NAME, curr_classifications_dir)
     group_by_classes_dir = create_directory(BY_DATASET_DIR_NAME, curr_classifications_dir)
@@ -177,7 +178,7 @@ def _model_building():
     """ Executes a predefined model building routine """
     print("\n--- Starting Model Building Phase ---")
     
-    # Ask to user which mode he wants to start (normalize or unnormalize)
+    # Ask to user which mode he wants to start (normalized or unnormalized)
     mode_input = input(f"Choose routine pipeline mode: [{NORMALIZED} or {UNNORMALIZED}] ").lower()
     mode = validate_choice(mode_input, [NORMALIZED, UNNORMALIZED], "mode")
 

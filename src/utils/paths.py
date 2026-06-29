@@ -91,8 +91,8 @@ TER20_RAW_PATH = DATA_DIR / f"{TER20_PREFIX}{DATA_FILE_TYPE}"
 
 
 
-GENERAL_FILE_INFO_FILENAME = "general_file_info.csv"
-GENERAL_FILE_INFO_PATH = DATA_DIR / GENERAL_FILE_INFO_FILENAME
+DATASETS_INFO_FILENAME = "datasets_info"
+DATASETS_INFO_PATH = DATA_DIR / DATASETS_INFO_FILENAME
 
 
 
@@ -106,6 +106,10 @@ DATASETS = [
     {'type': SAT20_PREFIX, 'path': SAT20_RAW_PATH},
     {'type': TER20_PREFIX, 'path': TER20_RAW_PATH}
 ]
+
+
+
+
 
 # --- Routine Model Configuration ---
 # Defines the standard set of models to be built during a routine phase
@@ -129,6 +133,9 @@ ROUTINE_MODELS = [
     {'dataset_type': (f"{NB15_SAT20_PREFIX}"), 'path': (DATA_DIR / f"{HYBRID_PREFIX}{PREPROCESSED_SUFFIX}/{SCALED_DIR_NAME}/{NB15_SAT20_PREFIX}{PREPROCESSED_SCALED_SUFFIX}{DATA_FILE_TYPE}")},
     {'dataset_type': (f"{NB15_TER20_PREFIX}"), 'path': (DATA_DIR / f"{HYBRID_PREFIX}{PREPROCESSED_SUFFIX}/{SCALED_DIR_NAME}/{NB15_TER20_PREFIX}{PREPROCESSED_SCALED_SUFFIX}{DATA_FILE_TYPE}")}
 ]
+
+
+
 
 
 

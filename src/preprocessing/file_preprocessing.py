@@ -1,6 +1,6 @@
 import pandas as pd
 
-from utils.file_utils import concat_and_shuffle, create_directory, create_csv_from_data
+from utils.file_utils import add_file_info_to_datasets_info, concat_and_shuffle, create_directory, create_csv_from_data
 from utils.paths import (
     SINGLE_CLASSES_DIR_NAME, NORMAL_ANOMALY_DIR_NAME, SCALED_DIR_NAME, DATA_DIR, 
     NB15_PREFIX, HYBRID_PREFIX, NB15_SAT20_PREFIX, NB15_TER20_PREFIX, 
@@ -93,7 +93,8 @@ def _split_by_class_and_save(data, type, dst_dir):
     # Create an own csv file for each class
     for data_c in data['class'].unique():
         class_data = data[data['class'] == data_c].copy()
-        create_csv_from_data(class_data, data_c, dst_dir)
+        file_path =  create_csv_from_data(class_data, data_c, dst_dir)
+        add_file_info_to_datasets_info(file_path, type)
 
     print("Dataset split by class.")
 
@@ -131,7 +132,8 @@ def _merge_normal_anomaly_and_save(data, type, dst_dir):
 
         # Save the dataset
         df = concat_and_shuffle([normal_data_sample, anomaly_data_sample])
-        create_csv_from_data(df, f"Normal_{c}", dst_dir)
+        file_path = create_csv_from_data(df, f"Normal_{c}", dst_dir)
+        add_file_info_to_datasets_info(file_path, type)
 
     print("Normal and anomaly samples merged.")
 
@@ -165,7 +167,8 @@ def _scale_by_normal_anomaly_ratio_and_save(data, type, dst_dir):
 
     # Save the dataset
     df = concat_and_shuffle([normal_data_sample, anomaly_data_sample])
-    create_csv_from_data(df, f"{type}{PREPROCESSED_SCALED_SUFFIX}", dst_dir)
+    file_path =  create_csv_from_data(df, f"{type}{PREPROCESSED_SCALED_SUFFIX}", dst_dir)
+    add_file_info_to_datasets_info(file_path, type)
 
 
 # --- Public Functions ---
@@ -214,7 +217,8 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter2
         dataset_type = d['type']
         dataset_data = d['data']
 
-        create_csv_from_data(dataset_data, f'{dataset_type}{PREPROCESSED_SUFFIX}', dataset_prep_dir)
+        file_path = create_csv_from_data(dataset_data, f'{dataset_type}{PREPROCESSED_SUFFIX}', dataset_prep_dir)
+        add_file_info_to_datasets_info(file_path, dataset_type)
         _scale_by_normal_anomaly_ratio_and_save(dataset_data, dataset_type, scaled_dir)
 
         # Save the hybrid data for single normal_anomaly case
@@ -241,7 +245,8 @@ def single_dataset_file_preprocessing(data, type):
     scaled_dir = create_directory(SCALED_DIR_NAME, dataset_prep_dir)
 
     # Save the data
-    create_csv_from_data(data, f'{type}{PREPROCESSED_SUFFIX}', dataset_prep_dir)
+    file_path = create_csv_from_data(data, f'{type}{PREPROCESSED_SUFFIX}', dataset_prep_dir)
+    add_file_info_to_datasets_info(file_path, type)
     _split_by_class_and_save(data, type, single_classes_dir)
 
     # Save the normal_anomaly data
