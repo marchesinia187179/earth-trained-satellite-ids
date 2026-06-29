@@ -3,3 +3,5 @@ pathlib
 scikit-learn
 joblib
 datetime
+matplotlib
+seaborn

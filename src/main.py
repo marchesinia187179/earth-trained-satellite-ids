@@ -5,80 +5,48 @@ from pathlib import Path
 
 from classifications.classification import classification_processing
 from models.models import model_processing
-from utils.file_utils import create_directory, get_data_from_csv, group_by_classes_and_save, group_by_model_and_save, group_datasets_paths_for_filename_list
-# from utils.input_utils import get_split_input, validate_path, validate_choice, get_y_n_choice, get_numeric_input
+from plotting.plotting import plotting_processing
+from utils.file_utils import (
+    create_directory, get_data_from_csv, group_by_classes_and_save, 
+    group_by_model_and_save, group_datasets_paths_for_filename_list)
 from utils.input_utils import validate_choice
-from utils.paths import BY_DATASET_DIR_NAME, BY_MODEL_DIR_NAME, CLASSIFICATIONS_DIR, CLASSIFICATIONS_FILE, DATASETS, DATASETS_FOR_CLASSIFICATIONS_PATH, DATASETS_FOR_MODEL_BUILDING_PATH, DATASETS_INFO_PATH, FILENAMES_DATASETS_FOR_CLASSIFICATIONS, FILENAMES_DATASETS_FOR_MODEL_BUILDING, MODELS_DIR, MODELS_PATHS, NB15_PREFIX, NORMALIZED, SAT20_PREFIX, TER20_PREFIX, UNNORMALIZED
+from utils.paths import (
+    BY_DATASET_DIR_NAME, BY_MODEL_DIR_NAME, CLASSIFICATIONS_DIR, CLASSIFICATIONS_FILE, 
+    DATASETS, DATASETS_FOR_CLASSIFICATIONS_PATH, DATASETS_FOR_MODEL_BUILDING_PATH, DATASETS_INFO_PATH, 
+    FILENAMES_DATASETS_FOR_CLASSIFICATIONS, FILENAMES_DATASETS_FOR_MODEL_BUILDING, MODELS_DIR, MODELS_PATHS, 
+    NB15_PREFIX, NORMALIZED, PLOTTING_METRICS, SAT20_PREFIX, TER20_PREFIX, UNNORMALIZED)
 from preprocessing.data_preprocessing import data_preprocessing
 from preprocessing.file_preprocessing import hybrid_dataset_file_preprocessing, single_dataset_file_preprocessing
-# from models.models import model_processing, run_routine_models
-# from classification.classification import classification_processing, run_routine_classifications
-# from view.plotting import generate_custom_recall_heatmap
 
 
+def _run_all_phases():
+    """ Executes all phases of the pipeline in a single run for both normalized and unnormalized modes """
+    print("\n=== FULL AUTOMATED PIPELINE (NON-STOP: BOTH MODES) ===")
 
-
-"""
-def run_guided_routine_pipeline():
-    Executes the pipeline in Routine mode but guides the user step-by-step
-    print("\n=== AUTOMATED ROUTINE PIPELINE (GUIDED STEP-BY-STEP) ===")
-    
-    # SOLVED: Asked once here to maintain pipeline consistency across all steps
-    mode_input = input("Choose routine pipeline mode: [independent or dependent] ").lower()
-    mode = validate_choice(mode_input, ['independent', 'dependent'], "mode")
-
-    if get_y_n_choice("Do you want to execute the routine PREPROCESSING phase? [y/n] ") == 'y':
-        run_routine_preprocessing(mode)
-    
-    if get_y_n_choice("Do you want to execute the routine MODEL BUILDING phase? [y/n] ") == 'y':
-        print(f"\n--- Running Routine Model Building ({mode.upper()} Mode) ---")
-        run_routine_models(mode)
-
-    if get_y_n_choice("Do you want to execute the routine CLASSIFICATION phase? [y/n] ") == 'y':
-        print(f"\n--- Running Routine Classification ({mode.upper()} Mode) ---")
-        run_routine_classifications(mode)
-
-    if get_y_n_choice("Do you want to execute the routine PLOTTING phase? [y/n] ") == 'y':
-        print(f"\n--- Running Routine Plotting ({mode.upper()} Mode) ---")
-        generate_custom_recall_heatmap(mode)
-
-    print("\nRoutine pipeline session concluded.")
-
-
-def run_full_automated_pipeline():
-    
-    Executes all routines non-stop (Pre-processing -> Training -> Testing) 
-    for BOTH independent and dependent modes without any interruptions.
-    
-    print("\n=== FULL AUTOMATED ROUTINE PIPELINE (NON-STOP: BOTH MODES) ===")
-    
-    modes_to_run = ['independent', 'dependent']
-    
-    for mode in modes_to_run:
-        print("\n" + "*"*50)
-        print(f"      STARTING PIPELINE FOR: {mode.upper()} MODE")
-        print("*"*50)
+    for mode in [NORMALIZED, UNNORMALIZED]:
+        print(f"\n--- Running Full Pipeline for {mode.upper()} Mode ---")
+        _preprocessing()
+        _model_building()
+        _classifications()
+        _plotting()
         
-        print(f"\n--- 1. Executing Non-Stop Routine Preprocessing ({mode}) ---")
-        run_routine_preprocessing(mode)
-        
-        print(f"\n--- 2. Executing Non-Stop Routine Model Building ({mode}) ---")
-        run_routine_models(mode)
-        
-        print(f"\n--- 3. Executing Non-Stop Routine Classifications ({mode}) ---")
-        run_routine_classifications(mode)
+        print(f"\n--- Full Pipeline Completed for {mode.upper()} Mode ---")
 
-        print(f"\n--- 4. Executing Non-Stop Routine Plotting ({mode}) ---")
-        generate_custom_recall_heatmap(mode)
-        
     print("\n=== FULL PIPELINE AUTOMATICALLY COMPLETED FOR BOTH MODES ===")
-"""
+
 
 def _plotting():
     """ Show classifications on TNR and TPR plots """
-    pass
+    print("\n--- Plotting Phase ---")
+    
+    # Ask to user which mode he wants to start (normalized or unnormalized)
+    mode_input = input(f"Choose routine pipeline mode: [{NORMALIZED} or {UNNORMALIZED}] ").lower()
+    mode = validate_choice(mode_input, [NORMALIZED, UNNORMALIZED], "mode")
 
+    data = get_data_from_csv(CLASSIFICATIONS_DIR / mode / CLASSIFICATIONS_FILE)
+    plotting_processing(data, mode, PLOTTING_METRICS)
 
+    print(f"\n--- Routine Plotting Phase Completed for {mode.upper()} Mode ---")
 
 
 def _classifications():
@@ -213,8 +181,7 @@ def main():
         elif main_choice == '4':    # Plotting case
             _plotting()
         elif main_choice == '5':    # All case
-            # TODO
-            return
+            _run_all_phases()
         elif main_choice == '6':    # Exit case
             print("\nExiting application. Goodbye!")
             break
