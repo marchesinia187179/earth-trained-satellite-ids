@@ -5,7 +5,7 @@ import pandas as pd
 import pathlib
 from datetime import datetime
 import sys
-from utils.paths import CLASSES_DIR_NAME, CLASSIFICATION_SUFFIX, DATASETS_INFO_PATH, GENERAL_FILE_INFO_PATH, RANDOM_STATE, ROOT_DIR
+from utils.paths import CLASSES_DIR_NAME, CLASSIFICATION_SUFFIX, DATASETS_FOR_CLASSIFICATIONS_PATH, DATASETS_FOR_MODEL_BUILDING_PATH, DATASETS_INFO_PATH, FILENAMES_DATASETS_FOR_CLASSIFICATIONS, FILENAMES_DATASETS_FOR_MODEL_BUILDING, RANDOM_STATE, ROOT_DIR
 
 
 def update_or_append_csv(file_path, data_dict, match_keys, id_column='id'):
@@ -17,7 +17,7 @@ def update_or_append_csv(file_path, data_dict, match_keys, id_column='id'):
     if file_path.exists():
         try:
             # Carica il file trattando 'None' come nullo
-            df = pd.read_csv(file_path, na_values='None')
+            df = get_data_from_csv(file_path)
             
             if not df.empty:
                 # Costruisce la maschera booleana per verificare i duplicati
@@ -149,8 +149,33 @@ def add_file_info_to_datasets_info(file_path, dataset_type):
     update_or_append_csv(DATASETS_INFO_PATH, file_info, ['path'], id_column='id')
 
 
+def group_datasets_paths_for_filename_list(src_path, dst_path, filename_list):
+    """ Groups and aggregates datasets paths """
+    print("Group datasets...")
 
+    datasets = get_data_from_csv(src_path)
+    
+    for fn in filename_list:
+        
+        filtered_df = datasets[(datasets['dataset_type'] == fn['dataset_type']) & (datasets['filename'] == fn['filename'])]
+        
+        if not filtered_df.empty:
+            dataset_type = filtered_df.iloc[0]['dataset_type']
+            path = filtered_df.iloc[0]['path']
 
+            dataset_info = {
+                'dataset_type': dataset_type,
+                'path': path
+            }
+            
+            update_or_append_csv(
+                dst_path, dataset_info, 
+                ['path'], id_column='id'
+            )
+        else:
+            print(f"Warning: Dataset file '{fn}' not found in {src_path.name}. Skipping.")
+
+    print("Group completed!")
 
 
 def create_directory(dir_name, parent_path=None):

@@ -10,7 +10,7 @@ from sklearn.ensemble import RandomForestClassifier
 from utils.file_utils import create_directory, update_or_append_csv
 from utils.metrics import calculate_metrics
 from utils.paths import (
-    DATA_FILE_TYPE, MODEL_VERBOSE, MODELS_DIR, MODELS_PATHS_FILENAME, NORMALIZED, RANDOM_STATE,
+    DATA_FILE_TYPE, MODEL_VERBOSE, MODELS_DIR, MODELS_PATHS, NORMALIZED, RANDOM_STATE,
     RF_INFO_FILENAME, RF_MODEL_PREFIX, TRAIN_SPLIT, UNNORMALIZED
 )
 
@@ -33,7 +33,7 @@ def _save_model_and_metadata(model, metrics, dataset_type, classes, samples, dst
     joblib.dump(model, model_path)
 
     # Save model path
-    update_or_append_csv(dst_dir / f"{MODELS_PATHS_FILENAME}{DATA_FILE_TYPE}", {'path': str(model_path)}, ['path'], id_column='id')
+    update_or_append_csv(dst_dir / MODELS_PATHS, {'path': str(model_path)}, ['path'], id_column='id')
 
     # If the model is into a Pipeline due to the normalizing, 
     # get the pure Random Forest model object

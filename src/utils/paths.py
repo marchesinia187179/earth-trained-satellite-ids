@@ -9,6 +9,7 @@ TRAIN_SPLIT = 0.8
 MODEL_VERBOSE = 1
 DECIMAL_DIGITS = 4
 
+DATA_FILE_TYPE = ".csv"
 NB15_PREFIX = "nb15"
 SAT20_PREFIX = "sat20"
 TER20_PREFIX = "ter20"
@@ -20,6 +21,7 @@ NB15_TER20_PREFIX = "nb15_ter20"
 RF_MODEL_PREFIX = "model"
 RF_INFO_FILENAME = "models_info"
 CLASSIFICATIONS_FILENAME = "classifications"
+CLASSIFICATIONS_FILE = f"{CLASSIFICATIONS_FILENAME}{DATA_FILE_TYPE}"
 CLASSIFICATION_SUFFIX = "_classification"
 
 PREPROCESSED_SUFFIX = "_prep"
@@ -28,8 +30,6 @@ NORMAL_ANOMALY_SUFFIX = "_normal_anomaly"
 
 UNNORMALIZED = "unnormalized"
 NORMALIZED = "normalized"
-
-DATA_FILE_TYPE = ".csv"
 
 # ------ FOLDERS ------
 # --- Root folder ---
@@ -65,11 +65,16 @@ CLASSES_DIR_NAME = "classes"
 # src/classification/
 UNNORMALIZED_CLASSIFICATION_DIR = CLASSIFICATIONS_DIR / UNNORMALIZED
 NORMALIZED_CLASSIFICATION_DIR = CLASSIFICATIONS_DIR / NORMALIZED
+DATASETS_FOR_CLASSIFICATIONS_FILENAME = "datasets_for_classifications"
+DATASETS_FOR_CLASSIFICATIONS_PATH = CLASSIFICATIONS_DIR / f"{DATASETS_FOR_CLASSIFICATIONS_FILENAME}{DATA_FILE_TYPE}"
 
 # src/models/
 UNNORMALIZED_MODELS_DIR = MODELS_DIR / UNNORMALIZED
 NORMALIZED_MODELS_DIR = MODELS_DIR / NORMALIZED
 MODELS_PATHS_FILENAME = "models_paths"
+MODELS_PATHS = f"{MODELS_PATHS_FILENAME}{DATA_FILE_TYPE}"
+DATASETS_FOR_MODEL_BUILDING_FILENAME = "datasets_for_model_building"
+DATASETS_FOR_MODEL_BUILDING_PATH = MODELS_DIR / f"{DATASETS_FOR_MODEL_BUILDING_FILENAME}{DATA_FILE_TYPE}"
 
 # src/plotting/
 UNNORMALIZED_PLOTS_DIR = PLOTTING_DIR / UNNORMALIZED
@@ -92,7 +97,7 @@ TER20_RAW_PATH = DATA_DIR / f"{TER20_PREFIX}{DATA_FILE_TYPE}"
 
 
 DATASETS_INFO_FILENAME = "datasets_info"
-DATASETS_INFO_PATH = DATA_DIR / DATASETS_INFO_FILENAME
+DATASETS_INFO_PATH = DATA_DIR / f"{DATASETS_INFO_FILENAME}{DATA_FILE_TYPE}"
 
 
 
@@ -132,6 +137,45 @@ ROUTINE_MODELS = [
     # Sub dataset
     {'dataset_type': (f"{NB15_SAT20_PREFIX}"), 'path': (DATA_DIR / f"{HYBRID_PREFIX}{PREPROCESSED_SUFFIX}/{SCALED_DIR_NAME}/{NB15_SAT20_PREFIX}{PREPROCESSED_SCALED_SUFFIX}{DATA_FILE_TYPE}")},
     {'dataset_type': (f"{NB15_TER20_PREFIX}"), 'path': (DATA_DIR / f"{HYBRID_PREFIX}{PREPROCESSED_SUFFIX}/{SCALED_DIR_NAME}/{NB15_TER20_PREFIX}{PREPROCESSED_SCALED_SUFFIX}{DATA_FILE_TYPE}")}
+]
+
+
+
+
+
+
+
+
+
+FILENAMES_DATASETS_FOR_MODEL_BUILDING = [
+    {'dataset_type': f"{NB15_PREFIX}", 'filename': f"{NB15_PREFIX}{PREPROCESSED_SCALED_SUFFIX}{DATA_FILE_TYPE}"},
+    {'dataset_type': f"{NB15_PREFIX}", 'filename': f"Normal_DoS{DATA_FILE_TYPE}"},
+    {'dataset_type': f"{NB15_PREFIX}", 'filename': f"Normal_Exploits{DATA_FILE_TYPE}"},
+    {'dataset_type': f"{NB15_PREFIX}", 'filename': f"Normal_Fuzzers{DATA_FILE_TYPE}"},
+    {'dataset_type': f"{NB15_PREFIX}", 'filename': f"Normal_Generic{DATA_FILE_TYPE}"},
+    {'dataset_type': f"{NB15_PREFIX}", 'filename': f"Normal_Reconnaissance{DATA_FILE_TYPE}"},
+    {'dataset_type': (f"{HYBRID_PREFIX}"), 'filename': f"{HYBRID_PREFIX}{PREPROCESSED_SCALED_SUFFIX}{DATA_FILE_TYPE}"},
+    {'dataset_type': (f"{NB15_SAT20_PREFIX}"), 'filename': f"{NB15_SAT20_PREFIX}{PREPROCESSED_SCALED_SUFFIX}{DATA_FILE_TYPE}"},
+    {'dataset_type': (f"{NB15_TER20_PREFIX}"), 'filename': f"{NB15_TER20_PREFIX}{PREPROCESSED_SCALED_SUFFIX}{DATA_FILE_TYPE}"}
+]
+
+FILENAMES_DATASETS_FOR_CLASSIFICATIONS = [
+    {'dataset_type': (f"{NB15_PREFIX}"), 'filename': f"{NB15_PREFIX}{PREPROCESSED_SCALED_SUFFIX}{DATA_FILE_TYPE}"},
+    {'dataset_type': (f"{NB15_PREFIX}"), 'filename': f"Normal_DoS{DATA_FILE_TYPE}"},
+    {'dataset_type': (f"{NB15_PREFIX}"), 'filename': f"Normal_Exploits{DATA_FILE_TYPE}"},
+    {'dataset_type': (f"{NB15_PREFIX}"), 'filename': f"Normal_Fuzzers{DATA_FILE_TYPE}"},
+    {'dataset_type': (f"{NB15_PREFIX}"), 'filename': f"Normal_Generic{DATA_FILE_TYPE}"},
+    {'dataset_type': (f"{NB15_PREFIX}"), 'filename': f"Normal_Reconnaissance{DATA_FILE_TYPE}"},
+
+    {'dataset_type': (f"{HYBRID_PREFIX}"), 'filename': f"{HYBRID_PREFIX}{PREPROCESSED_SCALED_SUFFIX}{DATA_FILE_TYPE}"},
+    {'dataset_type': (f"{NB15_SAT20_PREFIX}"), 'filename': f"{NB15_SAT20_PREFIX}{PREPROCESSED_SCALED_SUFFIX}{DATA_FILE_TYPE}"},
+    {'dataset_type': (f"{NB15_TER20_PREFIX}"), 'filename': f"{NB15_TER20_PREFIX}{PREPROCESSED_SCALED_SUFFIX}{DATA_FILE_TYPE}"},
+    {'dataset_type': (f"{NB15_SAT20_PREFIX}"), 'filename': f"Normal_Syn_DDoS{DATA_FILE_TYPE}"},
+    {'dataset_type': (f"{NB15_SAT20_PREFIX}"), 'filename': f"Normal_UDP_DDoS{DATA_FILE_TYPE}"},
+    {'dataset_type': (f"{NB15_TER20_PREFIX}"), 'filename': f"Normal_Botnet{DATA_FILE_TYPE}"},
+    {'dataset_type': (f"{NB15_TER20_PREFIX}"), 'filename': f"Normal_DDoS{DATA_FILE_TYPE}"},
+    {'dataset_type': (f"{NB15_TER20_PREFIX}"), 'filename': f"Normal_Syn_DDoS{DATA_FILE_TYPE}"},
+    {'dataset_type': (f"{NB15_TER20_PREFIX}"), 'filename': f"Normal_UDP_DDoS{DATA_FILE_TYPE}"}
 ]
 
 

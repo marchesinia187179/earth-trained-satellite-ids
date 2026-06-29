@@ -3,14 +3,12 @@ Main entry point for the Satellite IDS project.
 """
 from pathlib import Path
 
-import joblib
-
 from classifications.classification import classification_processing
 from models.models import model_processing
-from utils.file_utils import create_directory, get_data_from_csv, group_by_classes_and_save, group_by_model_and_save
+from utils.file_utils import create_directory, get_data_from_csv, group_by_classes_and_save, group_by_model_and_save, group_datasets_paths_for_filename_list
 # from utils.input_utils import get_split_input, validate_path, validate_choice, get_y_n_choice, get_numeric_input
 from utils.input_utils import validate_choice
-from utils.paths import BY_DATASET_DIR_NAME, BY_MODEL_DIR_NAME, CLASSIFICATIONS, CLASSIFICATIONS_DIR, CLASSIFICATIONS_FILENAME, DATASETS, MODELS_DIR, MODELS_PATHS_FILENAME, NB15_PREFIX, NORMALIZED, ROUTINE_MODELS, SAT20_PREFIX, TER20_PREFIX, UNNORMALIZED
+from utils.paths import BY_DATASET_DIR_NAME, BY_MODEL_DIR_NAME, CLASSIFICATIONS_DIR, CLASSIFICATIONS_FILE, DATASETS, DATASETS_FOR_CLASSIFICATIONS_PATH, DATASETS_FOR_MODEL_BUILDING_PATH, DATASETS_INFO_PATH, FILENAMES_DATASETS_FOR_CLASSIFICATIONS, FILENAMES_DATASETS_FOR_MODEL_BUILDING, MODELS_DIR, MODELS_PATHS, NB15_PREFIX, NORMALIZED, SAT20_PREFIX, TER20_PREFIX, UNNORMALIZED
 from preprocessing.data_preprocessing import data_preprocessing
 from preprocessing.file_preprocessing import hybrid_dataset_file_preprocessing, single_dataset_file_preprocessing
 # from models.models import model_processing, run_routine_models
@@ -156,11 +154,13 @@ def _classifications():
     mode = validate_choice(mode_input, [NORMALIZED, UNNORMALIZED], "mode")
 
     # Do classification process for each classification task
-    for classification in CLASSIFICATIONS:
-        dataset_type = classification['dataset_type']
-        data = get_data_from_csv(classification['path'])
+    datasets = get_data_from_csv(DATASETS_FOR_CLASSIFICATIONS_PATH)
+    for d in datasets.to_dict('records'):
+        dataset_type = d['dataset_type']
+        dataset_path = d['path']
 
-        models_paths = get_data_from_csv(MODELS_DIR / mode / MODELS_PATHS_FILENAME)['path']     # Get all models paths for the selected mode
+        data = get_data_from_csv(Path(dataset_path))
+        models_paths = get_data_from_csv(MODELS_DIR / mode / MODELS_PATHS)['path']     # Get all models paths for the selected mode
         for model_path in models_paths:
             classification_processing(Path(model_path), data, dataset_type, mode)
 
@@ -168,8 +168,8 @@ def _classifications():
     curr_classifications_dir = CLASSIFICATIONS_DIR / mode
     group_by_model_dir = create_directory(BY_MODEL_DIR_NAME, curr_classifications_dir)
     group_by_classes_dir = create_directory(BY_DATASET_DIR_NAME, curr_classifications_dir)
-    group_by_model_and_save(curr_classifications_dir / CLASSIFICATIONS_FILENAME, group_by_model_dir)
-    group_by_classes_and_save(curr_classifications_dir / CLASSIFICATIONS_FILENAME, group_by_classes_dir)
+    group_by_model_and_save(curr_classifications_dir / CLASSIFICATIONS_FILE, group_by_model_dir)
+    group_by_classes_and_save(curr_classifications_dir / CLASSIFICATIONS_FILE, group_by_classes_dir)
 
     print("\n--- Routine Classification Completed ---")
 
@@ -182,11 +182,13 @@ def _model_building():
     mode_input = input(f"Choose routine pipeline mode: [{NORMALIZED} or {UNNORMALIZED}] ").lower()
     mode = validate_choice(mode_input, [NORMALIZED, UNNORMALIZED], "mode")
 
-    # Start Model Processing
-    for routine_model in ROUTINE_MODELS:
-        dataset_path = routine_model['path']
-        data = get_data_from_csv(dataset_path)
-        dataset_type = routine_model['dataset_type']
+    # Start Model Processing for each model building dataset
+    datasets = get_data_from_csv(DATASETS_FOR_MODEL_BUILDING_PATH)
+    for d in datasets.to_dict('records'):
+        dataset_type = d['dataset_type']
+        dataset_path = d['path']
+
+        data = get_data_from_csv(Path(dataset_path))
         model_processing(data, dataset_type, mode)
 
     print("\n--- Routine Model Building Completed ---")
@@ -231,6 +233,16 @@ def _preprocessing():
     
     # Do file preprocessing for a hybrid dataset
     hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter20_anomaly_data)
+
+    # Group datasets paths for model building and save them in a csv file
+    group_datasets_paths_for_filename_list(
+        DATASETS_INFO_PATH, DATASETS_FOR_MODEL_BUILDING_PATH, FILENAMES_DATASETS_FOR_MODEL_BUILDING
+    )
+
+    # Group datasets paths for classifications and save them in a csv file
+    group_datasets_paths_for_filename_list(
+        DATASETS_INFO_PATH, DATASETS_FOR_CLASSIFICATIONS_PATH, FILENAMES_DATASETS_FOR_CLASSIFICATIONS
+    )
 
     print("\n--- Routine Preprocessing Phase Completed ---")
 

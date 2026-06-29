@@ -7,7 +7,7 @@ from datetime import datetime
 from utils.file_utils import create_directory, update_or_append_csv
 from utils.metrics import calculate_metrics
 from utils.paths import (
-    CLASSIFICATIONS_DIR, CLASSIFICATIONS_FILENAME
+    CLASSIFICATIONS_DIR, CLASSIFICATIONS_FILE
 )
 
 
@@ -41,7 +41,7 @@ def _save_classification(model_name, metrics, dataset_type, classes, samples, ds
     results = {k: (v if v is not None else 'None') for k, v in results.items()}
     
     # Save results
-    classification_file = dst_dir / CLASSIFICATIONS_FILENAME
+    classification_file = dst_dir / CLASSIFICATIONS_FILE
     match_keys = ['model_name', 'dataset_type', 'classes']
     update_or_append_csv(classification_file, results, match_keys)
 
