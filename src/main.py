@@ -19,49 +19,6 @@ from preprocessing.file_preprocessing import hybrid_dataset_file_preprocessing, 
 
 
 """
-
-
-# --- Runtime Loops ---
-
-        
-
-
-
-
-def classification_loop():
-    Interactive loop for evaluating saved models on specific testing datasets
-    print("\n--- Starting Classification Phase ---")
-    mode_input = input("Choose classification mode: [independent or dependent] ").lower()
-    mode = validate_choice(mode_input, ['independent', 'dependent'], "mode")
-
-    user_choice = 'y'
-    while user_choice == 'y':
-        path_input = input("Insert the path of the dataset for testing: [path] ")
-        data_path = validate_path(path_input)
-
-        dataset_type_input = input("Insert the dataset_type of the testing dataset: (nb15, sat20 or ter20) ").lower()
-        dataset_type = validate_choice(dataset_type_input, ['nb15', 'sat20', 'ter20'], "dataset type")
-
-        data = get_data_from_csv(data_path)
-        
-        models_to_test = []
-        while True:
-            model_path_input = input("Insert the path of the model: [path] ")
-            model_path = validate_path(model_path_input)
-
-            model = joblib.load(model_path)
-            models_to_test.append({
-                'model_obj': model,
-                'model_name': model_path.stem
-            })
-            
-            if get_y_n_choice("Do you want to add another model to test on this dataset? [y/n] ") == 'n':
-                break
-
-        classification_processing(data, mode, models_to_test, dataset_type, data_path.stem)
-        user_choice = get_y_n_choice("Do you want to start a new classification session (new dataset)? [y/n] ")
-
-
 def run_guided_routine_pipeline():
     Executes the pipeline in Routine mode but guides the user step-by-step
     print("\n=== AUTOMATED ROUTINE PIPELINE (GUIDED STEP-BY-STEP) ===")
@@ -115,45 +72,24 @@ def run_full_automated_pipeline():
         generate_custom_recall_heatmap(mode)
         
     print("\n=== FULL PIPELINE AUTOMATICALLY COMPLETED FOR BOTH MODES ===")
-
-
-def run_manual_pipeline():
-    Secondary menu for manual, step-by-step interactive operations
-    while True:
-        print("\n=== MANUAL STEP-BY-STEP FLOW ===")
-        print("1. Run Interactive Preprocessing")
-        print("2. Build/Train Interactive Model")
-        print("3. Start Classification / Test Model")
-        print("4. Return to main menu")
-        
-        choice = input("Select an option (1-4): ")
-        
-        if choice == '1':
-            preprocessing_loop()
-        elif choice == '2':
-            build_model_loop()
-        elif choice == '3':
-            classification_loop()
-        elif choice == '4':
-            print("Returning to main menu...")
-            break
-        else:
-            print("Invalid choice. Please enter a number from 1 to 4.")
-
-
 """
+
+def _plotting():
+    """ Show classifications on TNR and TPR plots """
+    pass
+
 
 
 
 def _classifications():
-    """ Interactive loop for evaluating saved models on specific testing datasets """
+    """ Evaluates saved models on specific testing datasets """
     print("\n--- Starting Classification Phase ---")
     
     # Ask to user which mode he wants to start (normalized or unnormalized)
     mode_input = input(f"Choose routine pipeline mode: [{NORMALIZED} or {UNNORMALIZED}] ").lower()
     mode = validate_choice(mode_input, [NORMALIZED, UNNORMALIZED], "mode")
 
-    # Do classification process for each classification task
+    # Do classification process for each classification task
     datasets = get_data_from_csv(DATASETS_FOR_CLASSIFICATIONS_PATH)
     for d in datasets.to_dict('records'):
         dataset_type = d['dataset_type']
@@ -275,8 +211,7 @@ def main():
         elif main_choice == '3':    # Classifications case
             _classifications()
         elif main_choice == '4':    # Plotting case
-            # TODO
-            return
+            _plotting()
         elif main_choice == '5':    # All case
             # TODO
             return
