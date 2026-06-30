@@ -96,11 +96,63 @@ class RoutineConfig:
         {'dataset_type': Naming.NB15_SAT20, 'filename': f"{Naming.NB15_SAT20}{Naming.PREP_SCALED}{Naming.EXT}"},
         {'dataset_type': Naming.NB15_TER20, 'filename': f"{Naming.NB15_TER20}{Naming.PREP_SCALED}{Naming.EXT}"},
 
-        # --- Specific Normal/Anomaly sub-datasets ---
+        # --- Specific Normal/Anomaly hybrid sub-datasets ---
         {'dataset_type': Naming.NB15_SAT20, 'filename': f"Normal_Syn_DDoS{Naming.EXT}"},
         {'dataset_type': Naming.NB15_SAT20, 'filename': f"Normal_UDP_DDoS{Naming.EXT}"},
         {'dataset_type': Naming.NB15_TER20, 'filename': f"Normal_Botnet{Naming.EXT}"},
         {'dataset_type': Naming.NB15_TER20, 'filename': f"Normal_DDoS{Naming.EXT}"},
         {'dataset_type': Naming.NB15_TER20, 'filename': f"Normal_Syn_DDoS{Naming.EXT}"},
         {'dataset_type': Naming.NB15_TER20, 'filename': f"Normal_UDP_DDoS{Naming.EXT}"}
+    ]
+
+
+class PlotConfig:
+    """ Custom matrix layout and axis sorting for thesis visualizations """
+
+    # Preferred vertical order (Trained models row alignment)
+    HEATMAP_ROW_ORDER = [
+        # --- NB15 dataset ---
+        "RF (Aggregate nb15)",
+        "RF (DoS nb15)",
+        "RF (Exploits nb15)",
+        "RF (Fuzzers nb15)",
+        "RF (Generic nb15)",
+        "RF (Reconnaissance nb15)",
+
+        # --- Hybrid dataset ---
+        "RF (Aggregate hybrid)"
+        "RF (Aggregate nb15_sat20)"
+        "RF (Aggregate nb15_ter20)"
+
+        # --- Specific Normal/Anomaly hybrid sub-datasets ---
+        "RF (Syn_DDoS nb15_sat20)"
+        "RF (UDP_DDoS nb15_sat20)"
+        "RF (Botnet nb15_ter20)"
+        "RF (DDoS nb15_ter20)"
+        "RF (Syn_DDoS nb15_ter20)"
+        "RF (UDP_DDoS nb15_ter20)"
+    ]
+    
+    # Preferred horizontal order (Test datasets column alignment)
+    HEATMAP_COLUMN_ORDER = [
+        # --- NB15 dataset ---
+        "Aggregate nb15",
+        "DoS nb15",
+        "Exploits nb15",
+        "Fuzzers nb15",
+        "Generic nb15",
+        "Reconnaissance nb15",
+
+        # --- Hybrid dataset ---
+        "Aggregate hybrid"
+        "Aggregate nb15_sat20"
+        "Aggregate nb15_ter20"
+
+        # --- Specific Normal/Anomaly hybrid sub-datasets ---
+        "Syn_DDoS nb15_sat20"
+        "UDP_DDoS nb15_sat20"
+        "Botnet nb15_ter20"
+        "DDoS nb15_ter20"
+        "Syn_DDoS nb15_ter20"
+        "UDP_DDoS nb15_ter20"
     ]

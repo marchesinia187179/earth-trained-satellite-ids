@@ -10,7 +10,7 @@ from utils.file_utils import (
     create_directory, get_data_from_csv, group_by_classes_and_save, 
     group_by_model_and_save, group_datasets_paths_for_filename_list)
 from utils.input_utils import validate_choice
-from utils.config import MLConstants, Naming, ProjectPaths, RoutineConfig
+from utils.config import MLConstants, Naming, ProjectPaths, RoutineConfig, PlotConfig
 from preprocessing.data_preprocessing import data_preprocessing
 from preprocessing.file_preprocessing import hybrid_dataset_file_preprocessing, single_dataset_file_preprocessing
 
@@ -40,8 +40,9 @@ def _plotting(mode):
     """ Show classifications on TNR and TPR plots """
     print("\n--- Plotting Phase ---")
 
+    models = get_data_from_csv(ProjectPaths.MODELS_DIR / mode / Naming.MODEL_INFO)
     data = get_data_from_csv(ProjectPaths.CLASSIFICATIONS_DIR / mode / Naming.CLASSIFICATIONS)
-    plotting_processing(data, mode, MLConstants.PLOTTING_METRICS)
+    plotting_processing(models, data, mode, MLConstants.PLOTTING_METRICS, PlotConfig.HEATMAP_ROW_ORDER, PlotConfig.HEATMAP_COLUMN_ORDER)
 
     print(f"\n--- Routine Plotting Phase Completed ---")
 
