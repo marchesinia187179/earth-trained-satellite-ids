@@ -7,27 +7,27 @@ from utils.config import ProjectPaths
 
 
 def _build_clean_label(classes_val, dataset_type_val, prefix=""):
-        """
-        Parses a comma-separated string of classes and returns a clean
-        condensed label string formatted for plotting axes
+    """
+    Parses a comma-separated string of classes and returns a clean
+    condensed label string formatted for plotting axes
 
-        :param classes_val: string of classes
-        :param dataset_type_val: string indicating the dataset type
-        :param prefix: optional string to prepend to the label
-        :return: string - formatted label for plotting
-        """
-        # Split, strip whitespace, and filter out empty strings
-        elements = [w.strip() for w in str(classes_val).split(',') if w.strip()]
+    :param classes_val: string of classes
+    :param dataset_type_val: string indicating the dataset type
+    :param prefix: optional string to prepend to the label
+    :return: string - formatted label for plotting
+    """
+    # Split, strip whitespace, and filter out empty strings
+    elements = [w.strip() for w in str(classes_val).split(',') if w.strip()]
+    
+    # If there are more than 2 classes (e.g., Normal + multiple attack types), it's an Aggregate dataset
+    if len(elements) > 2:
+        label_text = f"Aggregate {dataset_type_val}"
+    else:
+        # Filter out "Normal" to isolate the specific cyber-attack class
+        attack_only = ", ".join([w for w in elements if w != "Normal"])
+        label_text = f"{attack_only} {dataset_type_val}"
         
-        # If there are more than 2 classes (e.g., Normal + multiple attack types), it's an Aggregate dataset
-        if len(elements) > 2:
-            label_text = f"Aggregate {dataset_type_val}"
-        else:
-            # Filter out "Normal" to isolate the specific cyber-attack class
-            attack_only = ", ".join([w for w in elements if w != "Normal"])
-            label_text = f"{attack_only} {dataset_type_val}"
-            
-        return f"{prefix}{label_text})" if prefix else label_text
+    return f"{prefix}{label_text})" if prefix else label_text
 
 
 def _generate_heatmap_for_feature(models, data, dst_path, feature, row_order=None, col_order=None):
@@ -38,6 +38,8 @@ def _generate_heatmap_for_feature(models, data, dst_path, feature, row_order=Non
     :param data: DataFrame containing classification results with columns: ['model_name', 'dataset_type', 'classes', feature]
     :param dst_path: Path to save the generated heatmap image
     :param feature: The performance metric to visualize
+    :param row_order: optional list specifying the desired order of rows (models) in the heatmap
+    :param col_order: optional list specifying the desired order of columns (datasets) in the heatmap
     """
     print(f"Generating optimized heatmap for {feature}")
     
@@ -110,15 +112,18 @@ def _generate_heatmap_for_feature(models, data, dst_path, feature, row_order=Non
         pivot_data, 
         annot=True, 
         fmt=".3f", 
-        annot_kws={"size": 11, "weight": "bold"},  # Scaled up to occupy max internal space
+        annot_kws={                         # Scaled up to occupy max internal space
+            "size": 11, 
+            "weight": "bold"
+        }, 
         cmap="Blues",
         vmin=0.0, 
         vmax=1.0, 
-        square=True,                                # Keeps cells perfectly 1:1 square
+        square=True,                        # Keeps cells perfectly 1:1 square
         cbar_kws={
             'label': f'{feature} Value', 
-            'shrink': 0.6,                          # Prevents colorbar from stretching past the matrix
-            'pad': 0.03                             # Brings colorbar closer to the matrix
+            'shrink': 0.6,                  # Prevents colorbar from stretching past the matrix
+            'pad': 0.03                     # Brings colorbar closer to the matrix
         }
     )
     
@@ -146,6 +151,8 @@ def plotting_processing(models, data, mode, metrics, row_order=None, col_order=N
     :param data: DataFrame containing classification results with columns: ['model_name', 'dataset_type', 'classes', metrics...]
     :param mode: string indicating the mode (normalized or unnormalized)
     :param metrics: list of performance metrics to visualize
+    :param row_order: optional list specifying the desired order of rows (models) in the heatmap
+    :param col_order: optional list specifying the desired order of columns (datasets) in the heatmap
     """
     plot_dir = create_directory(mode, ProjectPaths.PLOTTING_DIR)
 
@@ -156,11 +163,4 @@ def plotting_processing(models, data, mode, metrics, row_order=None, col_order=N
 
 
 if __name__ == "__main__":
-    # Define your paths consistently with your pipeline architecture
-    # global_csv = CLASSIFICATIONS_DIR / mode / CLASSIFICATIONS_FILENAME
-    # plot_dir = global_csv.parent / "plots"
-    # plot_dir.mkdir(parents=True, exist_ok=True)
-    
-    # generate_tpr_heatmap(global_csv, plot_dir / "tpr_matrix.png")
-    # generate_tnr_heatmap(global_csv, plot_dir / "tnr_matrix.png")
     pass
