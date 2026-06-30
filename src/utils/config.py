@@ -63,8 +63,7 @@ class ProjectPaths:
     DIR_CLASSES = "classes"
 
     # --- Pipeline Essential Files ---
-    DATASETS_FOR_CLASSIFICATIONS = CLASSIFICATIONS_DIR / f"datasets_for_classifications{Naming.EXT}"
-    DATASETS_FOR_MODEL_BUILDING = MODELS_DIR / f"datasets_for_model_building{Naming.EXT}"
+    DATASETS_FOR_PIPELINE = DATA / f"datasets_for_pipeline{Naming.EXT}"
     DATASETS_INFO = DATA / f"datasets_info{Naming.EXT}"
 
     # --- Raw Datasets ---

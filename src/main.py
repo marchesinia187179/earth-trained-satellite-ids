@@ -47,7 +47,7 @@ def _classifications(mode):
     print("\n--- Starting Classification Phase ---")
    
     # Do classification process for each classification task
-    datasets = get_data_from_csv(RoutineConfig.DATASETS_TARGETS)
+    datasets = get_data_from_csv(ProjectPaths.DATASETS_FOR_PIPELINE)
     for d in datasets.to_dict('records'):
         dataset_type = d['dataset_type']
         dataset_path = d['path']
@@ -72,7 +72,7 @@ def _model_building(mode):
     print("\n--- Starting Model Building Phase ---")
 
     # Start Model Processing for each model building dataset
-    datasets = get_data_from_csv(RoutineConfig.DATASETS_TARGETS)
+    datasets = get_data_from_csv(ProjectPaths.DATASETS_FOR_PIPELINE)
     for d in datasets.to_dict('records'):
         dataset_type = d['dataset_type']
         dataset_path = d['path']
@@ -123,14 +123,9 @@ def _preprocessing():
     # Do file preprocessing for a hybrid dataset
     hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter20_anomaly_data)
 
-    # Group datasets paths for model building and save them in a csv file
+    # Group datasets paths for model building and for classifications; save them in a csv file
     group_datasets_paths_for_filename_list(
-        ProjectPaths.DATASETS_INFO, ProjectPaths.DATASETS_FOR_MODEL_BUILDING, RoutineConfig.DATASETS_TARGETS
-    )
-
-    # Group datasets paths for classifications and save them in a csv file
-    group_datasets_paths_for_filename_list(
-        ProjectPaths.DATASETS_INFO, ProjectPaths.DATASETS_FOR_CLASSIFICATIONS, RoutineConfig.DATASETS_TARGETS
+        ProjectPaths.DATASETS_INFO, ProjectPaths.DATASETS_FOR_PIPELINE, RoutineConfig.DATASETS_TARGETS
     )
 
     print("\n--- Routine Preprocessing Phase Completed ---")
