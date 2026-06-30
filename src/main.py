@@ -16,7 +16,11 @@ from preprocessing.file_preprocessing import hybrid_dataset_file_preprocessing, 
 
 
 def _run_all_phases(mode):
-    """ Executes all phases of the pipeline in a single run for both normalized and unnormalized modes """
+    """ 
+    Executes all phases of the pipeline in a single run for both normalized and unnormalized modes 
+    
+    :param mode: string indicating the mode (normalized and unnormalized)
+    """
     print("\n=== FULL AUTOMATED PIPELINE (NON-STOP: BOTH MODES) ===")
 
     _preprocessing()
@@ -43,7 +47,11 @@ def _plotting(mode):
 
 
 def _classifications(mode):
-    """ Evaluates saved models on specific testing datasets """
+    """ 
+    Evaluates saved models on specific testing datasets 
+    
+    :param mode: string indicating the mode (normalized or unnormalized)
+    """
     print("\n--- Starting Classification Phase ---")
    
     # Do classification process for each classification task
@@ -68,7 +76,11 @@ def _classifications(mode):
 
 
 def _model_building(mode):
-    """ Executes a predefined model building routine """
+    """ 
+    Executes a predefined model building routine 
+
+    :param mode: string indicating the mode (normalized or unnormalized)
+    """
     print("\n--- Starting Model Building Phase ---")
 
     # Start Model Processing for each model building dataset
@@ -132,6 +144,11 @@ def _preprocessing():
 
 
 def _get_mode_from_user():
+    """ 
+    Gets the mode (normalized or unnormalized) from the user input and validates it 
+
+    :return: mode (string) - either 'normalized' or 'unnormalized'
+    """
     # Ask to user which mode he wants to start (normalized or unnormalized)
     mode_input = input(f"Choose routine pipeline mode: [{MLConstants.NORMALIZED} or {MLConstants.UNNORMALIZED}] ").lower()
     return validate_choice(mode_input, [MLConstants.NORMALIZED, MLConstants.UNNORMALIZED], "mode")
