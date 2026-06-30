@@ -1,3 +1,7 @@
+"""
+Preprocessing functions for handling and preparing datasets.
+"""
+
 import pandas as pd
 
 from utils.file_utils import add_file_info_to_datasets_info, concat_and_shuffle, create_directory, create_csv_from_data
@@ -254,5 +258,4 @@ def single_dataset_file_preprocessing(data, type):
 
 
 if __name__ == "__main__":
-    # TODO
     pass

@@ -1,8 +1,12 @@
-from sklearn.metrics import accuracy_score, average_precision_score, confusion_matrix, f1_score, precision_score, recall_score, roc_auc_score
+"""
+This module contains utility functions for calculating various classification metrics.
+"""
 
+from sklearn.metrics import accuracy_score, average_precision_score, confusion_matrix, f1_score, precision_score, recall_score, roc_auc_score
 from utils.config import MLConstants
 
 
+# --- Public Functions ---
 def calculate_metrics(y_test, y_pred, y_scores):
     """
     Internal helper to calculate metrics consistently
@@ -47,3 +51,7 @@ def calculate_metrics(y_test, y_pred, y_scores):
         "TNR": tnr,     # Total Negative Rate: Ratio of negative predictions over Total Actual Negatives
         "FPR": fpr      # False Positive Rate: Ratio of actual negative predicted as positive over Total Actual Negatives
     }
+
+
+if __name__ == "__main__":
+    pass

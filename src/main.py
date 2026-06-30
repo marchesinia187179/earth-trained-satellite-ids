@@ -1,8 +1,8 @@
 """
 Main entry point for the Satellite IDS project.
 """
-from pathlib import Path
 
+from pathlib import Path
 from classifications.classification import classification_processing
 from models.models import model_processing
 from plotting.plotting import plotting_processing
@@ -15,6 +15,7 @@ from preprocessing.data_preprocessing import data_preprocessing
 from preprocessing.file_preprocessing import hybrid_dataset_file_preprocessing, single_dataset_file_preprocessing
 
 
+# --- Internal Helper Functions ---
 def _run_all_phases(mode):
     """ 
     Executes all phases of the pipeline in a single run for both normalized and unnormalized modes 
@@ -155,6 +156,7 @@ def _get_mode_from_user():
     return validate_choice(mode_input, [MLConstants.NORMALIZED, MLConstants.UNNORMALIZED], "mode")
 
 
+# --- Public Functions ---
 def main():
     """ Main entry point of the application with a main dashboard menu """
     # setup_project_directories()

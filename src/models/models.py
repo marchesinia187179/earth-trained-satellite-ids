@@ -11,6 +11,7 @@ from utils.file_utils import create_directory, update_or_append_csv
 from utils.metrics import calculate_metrics
 from utils.config import MLConstants, Naming, ProjectPaths
 
+
 # --- Internal Helper Functions ---
 def _save_model_and_metadata(model, metrics, dataset_type, classes, samples, dst_dir):
     """
@@ -113,7 +114,7 @@ def _random_forest(data, mode):
     return model, metrics
 
 
-# --- Public Training Functions ---
+# --- Public Functions ---
 def model_processing(data, type, mode):
     """
     Orchestrates the Random Forest pipeline by creating the destination directory,
@@ -136,3 +137,7 @@ def model_processing(data, type, mode):
 
     # Save random forest model and metadata
     _save_model_and_metadata(model, metrics, type, classes, data.shape[0], model_dir)
+
+
+if __name__ == "__main__":
+    pass

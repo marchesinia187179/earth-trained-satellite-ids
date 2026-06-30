@@ -1,3 +1,7 @@
+"""
+Heatmap generation functions for visualizing model performance across different datasets and features.
+"""
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -6,6 +10,7 @@ from utils.file_utils import create_directory
 from utils.config import ProjectPaths
 
 
+# --- Internal Helper Functions ---
 def _build_clean_label(classes_val, dataset_type_val, prefix=""):
     """
     Parses a comma-separated string of classes and returns a clean
@@ -143,6 +148,7 @@ def _generate_heatmap_for_feature(models, data, dst_path, feature, row_order=Non
     print(f"{feature} Heatmap successfully saved to: {dst_path}")
 
 
+# --- Public Functions ---
 def plotting_processing(models, data, mode, metrics, row_order=None, col_order=None):
     """
     Processing function to generate heatmaps for some metrics from classification results

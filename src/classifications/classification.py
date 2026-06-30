@@ -74,7 +74,7 @@ def _classification(model_path, data):
     return metrics
 
 
-# --- Main Processing Logic ---
+# --- Public Functions ---
 def classification_processing(model_path, data, type, mode):
     """
     Main orchestration function to run the evaluation workflow. It initializes 

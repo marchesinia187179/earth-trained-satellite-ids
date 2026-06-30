@@ -1,10 +1,15 @@
+"""
+Data preprocessing functions for aligning and cleaning the NB15 and STIN datasets.
+"""
+
 import pandas as pd
 import sys
 
 from utils.config import MLConstants
 
 
-def minority_removal_nb15(data):
+# --- Internal Helper Functions ---
+def _minority_removal_nb15(data):
     """
     Removes specific minority attack categories from the NB15 dataset to reduce noise or focus on main classes.
 
@@ -22,7 +27,7 @@ def minority_removal_nb15(data):
     return data
 
 
-def merge_minority_stin(data):
+def _merge_minority_stin(data):
     """
     Groups minority attack classes into broader categories for the STIN dataset.
 
@@ -45,7 +50,7 @@ def merge_minority_stin(data):
     return data
 
 
-def align_nb15(data):
+def _align_nb15(data):
     """
     Aligns the NB15 dataset by transforming and selecting specific features to match the required schema.
 
@@ -85,7 +90,7 @@ def align_nb15(data):
     return new_df
 
 
-def align_stin(data):
+def _align_stin(data):
     """
     Aligns the STIN dataset by transforming and selecting specific features to match the required schema.
 
@@ -125,7 +130,7 @@ def align_stin(data):
     return new_df
 
 
-def stratified_split(data):
+def _stratified_split(data):
     split_groups = []
     for _, group in data.groupby('class'):
         group = group.sample(frac=1, random_state=42).reset_index(drop=True)
@@ -136,21 +141,22 @@ def stratified_split(data):
     return pd.concat(split_groups)
 
 
+# --- Public Functions ---
 def data_preprocessing(data, dataset_type):
     print(f"Running data-level preprocessing for {dataset_type}...")
 
     data = data.copy()
         
     if dataset_type == 'nb15':
-        data = minority_removal_nb15(data)
-        data = align_nb15(data)
+        data = _minority_removal_nb15(data)
+        data = _align_nb15(data)
     elif dataset_type == 'ter20':
-        data = merge_minority_stin(data)
-        data = align_stin(data)
+        data = _merge_minority_stin(data)
+        data = _align_stin(data)
     elif dataset_type == 'sat20':
-        data = align_stin(data)
+        data = _align_stin(data)
 
-    data = stratified_split(data)
+    data = _stratified_split(data)
 
     data = data.sample(frac=1, random_state=42).reset_index(drop=True)
 
@@ -159,5 +165,4 @@ def data_preprocessing(data, dataset_type):
 
 
 if __name__ == "__main__":
-    # TODO
     pass

@@ -1,6 +1,7 @@
 """
 Centralized management of project paths, ML constants, and routine configurations.
 """
+
 import pathlib
 
 class MLConstants:
@@ -156,3 +157,7 @@ class PlotConfig:
         "Syn_DDoS nb15_ter20"
         "UDP_DDoS nb15_ter20"
     ]
+
+
+if __name__ == "__main__":
+    pass
