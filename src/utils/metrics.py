@@ -1,12 +1,6 @@
-
-
-
-
-
-
 from sklearn.metrics import accuracy_score, average_precision_score, confusion_matrix, f1_score, precision_score, recall_score, roc_auc_score
 
-from utils.paths import DECIMAL_DIGITS
+from utils.config import MLConstants
 
 
 def calculate_metrics(y_test, y_pred, y_scores):
@@ -26,16 +20,16 @@ def calculate_metrics(y_test, y_pred, y_scores):
 
     # Get metrics
     tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
-    accuracy = round(accuracy_score(y_test, y_pred), DECIMAL_DIGITS) if has_classes else None
-    precision = round(precision_score(y_test, y_pred), DECIMAL_DIGITS) if has_classes else None
-    recall = round(recall_score(y_test, y_pred), DECIMAL_DIGITS)
-    f1 = round(f1_score(y_test, y_pred), DECIMAL_DIGITS) if has_classes else None
-    roc = round(roc_auc_score(y_test, y_scores), DECIMAL_DIGITS) if has_classes else None
-    pr = round(average_precision_score(y_test, y_scores), DECIMAL_DIGITS) if has_classes else None
-    tpr = round(tp / (tp + fn) if (tp + fn) > 0 else None, DECIMAL_DIGITS)
-    fnr = round(fn / (tp + fn) if (tp + fn) > 0 else None, DECIMAL_DIGITS)
-    tnr = round(tn / (fp + tn) if (fp + tn) > 0 else None, DECIMAL_DIGITS)
-    fpr = round(fp / (fp + tn) if (fp + tn) > 0 else None, DECIMAL_DIGITS)
+    accuracy = round(accuracy_score(y_test, y_pred), MLConstants.DECIMAL_DIGITS) if has_classes else None
+    precision = round(precision_score(y_test, y_pred), MLConstants.DECIMAL_DIGITS) if has_classes else None
+    recall = round(recall_score(y_test, y_pred), MLConstants.DECIMAL_DIGITS)
+    f1 = round(f1_score(y_test, y_pred), MLConstants.DECIMAL_DIGITS) if has_classes else None
+    roc = round(roc_auc_score(y_test, y_scores), MLConstants.DECIMAL_DIGITS) if has_classes else None
+    pr = round(average_precision_score(y_test, y_scores), MLConstants.DECIMAL_DIGITS) if has_classes else None
+    tpr = round(tp / (tp + fn) if (tp + fn) > 0 else None, MLConstants.DECIMAL_DIGITS)
+    fnr = round(fn / (tp + fn) if (tp + fn) > 0 else None, MLConstants.DECIMAL_DIGITS)
+    tnr = round(tn / (fp + tn) if (fp + tn) > 0 else None, MLConstants.DECIMAL_DIGITS)
+    fpr = round(fp / (fp + tn) if (fp + tn) > 0 else None, MLConstants.DECIMAL_DIGITS)
     
     return {
         "TP": tp,   # True Positives: Number of actual attacks correctly identified as attacks

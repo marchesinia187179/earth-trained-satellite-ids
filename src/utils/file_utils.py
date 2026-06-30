@@ -5,7 +5,8 @@ import pandas as pd
 import pathlib
 from datetime import datetime
 import sys
-from utils.paths import CLASSES_DIR_NAME, CLASSIFICATION_SUFFIX, DATASETS_FOR_CLASSIFICATIONS_PATH, DATASETS_FOR_MODEL_BUILDING_PATH, DATASETS_INFO_PATH, FILENAMES_DATASETS_FOR_CLASSIFICATIONS, FILENAMES_DATASETS_FOR_MODEL_BUILDING, RANDOM_STATE, ROOT_DIR
+
+from utils.config import MLConstants, Naming, ProjectPaths
 
 
 def update_or_append_csv(file_path, data_dict, match_keys, id_column='id'):
@@ -130,7 +131,7 @@ def add_file_info_to_datasets_info(file_path, dataset_type):
         'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         'dataset_type': dataset_type,
         'filename': file_path.name,
-        'path': str(file_path.relative_to(ROOT_DIR)),
+        'path': str(file_path.relative_to(ProjectPaths.ROOT)),
         'rows': data.shape[0],
         'columns': data.shape[1],
     }
@@ -146,7 +147,7 @@ def add_file_info_to_datasets_info(file_path, dataset_type):
     else:
         file_info['train_test_distribution'] = 'None'
 
-    update_or_append_csv(DATASETS_INFO_PATH, file_info, ['path'], id_column='id')
+    update_or_append_csv(ProjectPaths.DATASETS_INFO, file_info, ['path'], id_column='id')
 
 
 def group_datasets_paths_for_filename_list(src_path, dst_path, filename_list):
@@ -249,7 +250,7 @@ def get_model_info(file_path):
 
 
 def concat_and_shuffle(data_list):
-    return pd.concat(data_list).sample(frac=1, random_state=RANDOM_STATE).reset_index(drop=True)
+    return pd.concat(data_list).sample(frac=1, random_state=MLConstants.RANDOM_STATE).reset_index(drop=True)
 
 
 def group_by_model_and_save(data, dst_dir):
@@ -264,7 +265,7 @@ def group_by_model_and_save(data, dst_dir):
 
     # Group and save data by model_name
     for model_name, group in data_df.groupby('model_name'):
-        create_csv_from_data(group, f"{model_name}{CLASSIFICATION_SUFFIX}", dst_dir)
+        create_csv_from_data(group, f"{model_name}{Naming.CLASSIFICATION}", dst_dir)
 
 
 def group_by_classes_and_save(data, dst_dir):
@@ -282,7 +283,7 @@ def group_by_classes_and_save(data, dst_dir):
         curr_dataset_dir = create_directory(dataset_type, dst_dir)
         
         for classes_name, classes_group in group.groupby('classes'):
-            curr_classes_dir = create_directory(CLASSES_DIR_NAME, curr_dataset_dir)
+            curr_classes_dir = create_directory(ProjectPaths.DIR_CLASSES, curr_dataset_dir)
             classes_name = classes_name.replace(" ", "_").replace(",", "_")     # Formatting file name
-            create_csv_from_data(classes_group, f"{classes_name}{CLASSIFICATION_SUFFIX}", curr_classes_dir)
+            create_csv_from_data(classes_group, f"{classes_name}{Naming.CLASSIFICATION}", curr_classes_dir)
 

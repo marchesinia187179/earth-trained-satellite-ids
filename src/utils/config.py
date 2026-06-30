@@ -5,13 +5,13 @@ import pathlib
 
 class MLConstants:
     """ Hyperparameters and standard metrics for the ML pipeline """
-    
+
     RANDOM_STATE = 42
     NORMAL_ANOMALY_RATIO = 10
     TRAIN_SPLIT = 0.8
     MODEL_VERBOSE = 1
     DECIMAL_DIGITS = 4
-    PLOTTING_METRICS = ['Recall', 'TNR', 'TPR']
+    PLOTTING_METRICS = ['F1-Score', 'Precision', 'Recall']
     UNNORMALIZED = "unnormalized"
     NORMALIZED = "normalized"
 
@@ -38,6 +38,7 @@ class Naming:
     MODEL_INFO = f"models_info{EXT}"
     CLASSIFICATIONS = f"classifications{EXT}"
     MODELS_PATHS = f"models_paths{EXT}"
+    MODEL = "model"
 
 
 class ProjectPaths:
@@ -81,24 +82,8 @@ class RoutineConfig:
         {'type': Naming.TER20, 'path': ProjectPaths.TER20_RAW}
     ]
 
-    # Defines the standard set of models to be built during a routine phase
-    MODEL_BUILDING_TARGETS = [
-        # --- NB15 dataset ---
-        {'dataset_type': Naming.NB15, 'filename': f"{Naming.NB15}{Naming.PREP_SCALED}{Naming.EXT}"},
-        {'dataset_type': Naming.NB15, 'filename': f"Normal_DoS{Naming.EXT}"},
-        {'dataset_type': Naming.NB15, 'filename': f"Normal_Exploits{Naming.EXT}"},
-        {'dataset_type': Naming.NB15, 'filename': f"Normal_Fuzzers{Naming.EXT}"},
-        {'dataset_type': Naming.NB15, 'filename': f"Normal_Generic{Naming.EXT}"},
-        {'dataset_type': Naming.NB15, 'filename': f"Normal_Reconnaissance{Naming.EXT}"},
-
-        # --- Hybrid dataset ---
-        {'dataset_type': Naming.HYBRID, 'filename': f"{Naming.HYBRID}{Naming.PREP_SCALED}{Naming.EXT}"},
-        {'dataset_type': Naming.NB15_SAT20, 'filename': f"{Naming.NB15_SAT20}{Naming.PREP_SCALED}{Naming.EXT}"},
-        {'dataset_type': Naming.NB15_TER20, 'filename': f"{Naming.NB15_TER20}{Naming.PREP_SCALED}{Naming.EXT}"}
-    ]
-
-    # Defines the standard set of classifications to do during a routine phase
-    CLASSIFICATION_TARGETS = [
+    # Defines the standard set of models to be built and classifications to do during a routine phase
+    DATASETS_TARGETS = [
         # --- NB15 dataset ---
         {'dataset_type': Naming.NB15, 'filename': f"{Naming.NB15}{Naming.PREP_SCALED}{Naming.EXT}"},
         {'dataset_type': Naming.NB15, 'filename': f"Normal_DoS{Naming.EXT}"},

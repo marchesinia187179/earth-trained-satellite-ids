@@ -9,10 +9,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
 from utils.file_utils import create_directory, update_or_append_csv
 from utils.metrics import calculate_metrics
-from utils.paths import (
-    MODEL_VERBOSE, MODELS_DIR, MODELS_PATHS_FILE, NORMALIZED, RANDOM_STATE,
-    MODEL_INFO_FILE, MODEL_PREFIX, TRAIN_SPLIT, UNNORMALIZED
-)
+from utils.config import MLConstants, Naming, ProjectPaths
 
 # --- Internal Helper Functions ---
 def _save_model_and_metadata(model, metrics, dataset_type, classes, samples, dst_dir):
@@ -27,13 +24,13 @@ def _save_model_and_metadata(model, metrics, dataset_type, classes, samples, dst
     :return: None
     """
     # Save model
-    existing_files = list(dst_dir.glob(f'{MODEL_PREFIX}_*.joblib'))
-    model_name = f'{MODEL_PREFIX}_{len(existing_files) + 1}'
+    existing_files = list(dst_dir.glob(f'{Naming.MODEL}_*.joblib'))
+    model_name = f'{Naming.MODEL}_{len(existing_files) + 1}'
     model_path = dst_dir / f'{model_name}.joblib'
     joblib.dump(model, model_path)
 
     # Save model path
-    update_or_append_csv(dst_dir / MODELS_PATHS_FILE, {'path': str(model_path)}, ['path'], id_column='id')
+    update_or_append_csv(dst_dir / Naming.MODELS_PATHS, {'path': str(model_path)}, ['path'], id_column='id')
 
     # If the model is into a Pipeline due to the normalizing, 
     # get the pure Random Forest model object
@@ -50,7 +47,7 @@ def _save_model_and_metadata(model, metrics, dataset_type, classes, samples, dst
         'dataset_type': dataset_type, 
         'classes': classes, 
         'samples': samples, 
-        'train_split': TRAIN_SPLIT,
+        'train_split': MLConstants.TRAIN_SPLIT,
         'n_estimators': params['n_estimators'],
         'max_features': params['max_features'],
         'random_state': params.get('random_state', None),
@@ -67,7 +64,7 @@ def _save_model_and_metadata(model, metrics, dataset_type, classes, samples, dst
     results = {k: (v if v is not None else 'None') for k, v in results.items()}
     
     # Save metadata
-    info_file = dst_dir / MODEL_INFO_FILE
+    info_file = dst_dir / Naming.MODEL_INFO
     match_keys = ['model_name', 'dataset_type']
     update_or_append_csv(info_file, results, match_keys, id_column='id')
     
@@ -97,13 +94,13 @@ def _random_forest(data, mode):
     y_test = test_set["label"]
 
     # Fit model by choosing the normalized or unnormalized way
-    if mode == NORMALIZED:
+    if mode == MLConstants.NORMALIZED:
         model = Pipeline([
             ('scaler', StandardScaler()),
-            ('rf', RandomForestClassifier(random_state=RANDOM_STATE, verbose=MODEL_VERBOSE))
+            ('rf', RandomForestClassifier(random_state=MLConstants.RANDOM_STATE, verbose=MLConstants.MODEL_VERBOSE))
         ])
-    elif mode == UNNORMALIZED:
-        model = RandomForestClassifier(random_state=RANDOM_STATE, verbose=MODEL_VERBOSE)
+    elif mode == MLConstants.UNNORMALIZED:
+        model = RandomForestClassifier(random_state=MLConstants.RANDOM_STATE, verbose=MLConstants.MODEL_VERBOSE)
 
     model.fit(X_train, y_train)
 
@@ -128,7 +125,7 @@ def model_processing(data, type, mode):
     :return: None
     """
     # Create main directory
-    model_dir = create_directory(mode, MODELS_DIR)
+    model_dir = create_directory(mode, ProjectPaths.MODELS_DIR)
 
     # Create random forest model
     model, metrics = _random_forest(data, mode)

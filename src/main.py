@@ -10,11 +10,7 @@ from utils.file_utils import (
     create_directory, get_data_from_csv, group_by_classes_and_save, 
     group_by_model_and_save, group_datasets_paths_for_filename_list)
 from utils.input_utils import validate_choice
-from utils.paths import (
-    BY_DATASET_DIR_NAME, BY_MODEL_DIR_NAME, CLASSIFICATIONS_DIR, CLASSIFICATIONS_FILE, 
-    DATASETS, DATASETS_FOR_CLASSIFICATIONS_PATH, DATASETS_FOR_MODEL_BUILDING_PATH, DATASETS_INFO_PATH, 
-    FILENAMES_DATASETS_FOR_CLASSIFICATIONS, FILENAMES_DATASETS_FOR_MODEL_BUILDING, MODELS_DIR, MODELS_PATHS_FILE, 
-    NB15_PREFIX, NORMALIZED, PLOTTING_METRICS, SAT20_PREFIX, TER20_PREFIX, UNNORMALIZED)
+from utils.config import MLConstants, Naming, ProjectPaths, RoutineConfig
 from preprocessing.data_preprocessing import data_preprocessing
 from preprocessing.file_preprocessing import hybrid_dataset_file_preprocessing, single_dataset_file_preprocessing
 
@@ -23,7 +19,7 @@ def _run_all_phases():
     """ Executes all phases of the pipeline in a single run for both normalized and unnormalized modes """
     print("\n=== FULL AUTOMATED PIPELINE (NON-STOP: BOTH MODES) ===")
 
-    for mode in [NORMALIZED, UNNORMALIZED]:
+    for mode in [MLConstants.NORMALIZED, MLConstants.UNNORMALIZED]:
         print(f"\n--- Running Full Pipeline for {mode.upper()} Mode ---")
         _preprocessing()
         _model_building()
@@ -40,11 +36,11 @@ def _plotting():
     print("\n--- Plotting Phase ---")
     
     # Ask to user which mode he wants to start (normalized or unnormalized)
-    mode_input = input(f"Choose routine pipeline mode: [{NORMALIZED} or {UNNORMALIZED}] ").lower()
-    mode = validate_choice(mode_input, [NORMALIZED, UNNORMALIZED], "mode")
+    mode_input = input(f"Choose routine pipeline mode: [{MLConstants.NORMALIZED} or {MLConstants.UNNORMALIZED}] ").lower()
+    mode = validate_choice(mode_input, [MLConstants.NORMALIZED, MLConstants.UNNORMALIZED], "mode")
 
-    data = get_data_from_csv(CLASSIFICATIONS_DIR / mode / CLASSIFICATIONS_FILE)
-    plotting_processing(data, mode, PLOTTING_METRICS)
+    data = get_data_from_csv(ProjectPaths.CLASSIFICATIONS_DIR / mode / Naming.CLASSIFICATIONS)
+    plotting_processing(data, mode, MLConstants.PLOTTING_METRICS)
 
     print(f"\n--- Routine Plotting Phase Completed for {mode.upper()} Mode ---")
 
@@ -54,26 +50,26 @@ def _classifications():
     print("\n--- Starting Classification Phase ---")
     
     # Ask to user which mode he wants to start (normalized or unnormalized)
-    mode_input = input(f"Choose routine pipeline mode: [{NORMALIZED} or {UNNORMALIZED}] ").lower()
-    mode = validate_choice(mode_input, [NORMALIZED, UNNORMALIZED], "mode")
+    mode_input = input(f"Choose routine pipeline mode: [{MLConstants.NORMALIZED} or {MLConstants.UNNORMALIZED}] ").lower()
+    mode = validate_choice(mode_input, [MLConstants.NORMALIZED, MLConstants.UNNORMALIZED], "mode")
 
     # Do classification process for each classification task
-    datasets = get_data_from_csv(DATASETS_FOR_CLASSIFICATIONS_PATH)
+    datasets = get_data_from_csv(RoutineConfig.DATASETS_TARGETS)
     for d in datasets.to_dict('records'):
         dataset_type = d['dataset_type']
         dataset_path = d['path']
 
         data = get_data_from_csv(Path(dataset_path))
-        models_paths = get_data_from_csv(MODELS_DIR / mode / MODELS_PATHS_FILE)['path']     # Get all models paths for the selected mode
+        models_paths = get_data_from_csv(ProjectPaths.MODELS_DIR / mode / Naming.MODELS_PATHS)['path']     # Get all models paths for the selected mode
         for model_path in models_paths:
             classification_processing(Path(model_path), data, dataset_type, mode)
 
     # Group classifications by model and by dataset type and save them in separate directories
-    curr_classifications_dir = CLASSIFICATIONS_DIR / mode
-    group_by_model_dir = create_directory(BY_MODEL_DIR_NAME, curr_classifications_dir)
-    group_by_classes_dir = create_directory(BY_DATASET_DIR_NAME, curr_classifications_dir)
-    group_by_model_and_save(curr_classifications_dir / CLASSIFICATIONS_FILE, group_by_model_dir)
-    group_by_classes_and_save(curr_classifications_dir / CLASSIFICATIONS_FILE, group_by_classes_dir)
+    curr_classifications_dir = ProjectPaths.CLASSIFICATIONS_DIR / mode
+    group_by_model_dir = create_directory(ProjectPaths.DIR_BY_MODEL, curr_classifications_dir)
+    group_by_classes_dir = create_directory(ProjectPaths.DIR_BY_DATASET, curr_classifications_dir)
+    group_by_model_and_save(curr_classifications_dir / Naming.CLASSIFICATIONS, group_by_model_dir)
+    group_by_classes_and_save(curr_classifications_dir / Naming.CLASSIFICATIONS, group_by_classes_dir)
 
     print("\n--- Routine Classification Completed ---")
 
@@ -83,11 +79,11 @@ def _model_building():
     print("\n--- Starting Model Building Phase ---")
     
     # Ask to user which mode he wants to start (normalized or unnormalized)
-    mode_input = input(f"Choose routine pipeline mode: [{NORMALIZED} or {UNNORMALIZED}] ").lower()
-    mode = validate_choice(mode_input, [NORMALIZED, UNNORMALIZED], "mode")
+    mode_input = input(f"Choose routine pipeline mode: [{MLConstants.NORMALIZED} or {MLConstants.UNNORMALIZED}] ").lower()
+    mode = validate_choice(mode_input, [MLConstants.NORMALIZED, MLConstants.UNNORMALIZED], "mode")
 
     # Start Model Processing for each model building dataset
-    datasets = get_data_from_csv(DATASETS_FOR_MODEL_BUILDING_PATH)
+    datasets = get_data_from_csv(RoutineConfig.DATASETS_TARGETS)
     for d in datasets.to_dict('records'):
         dataset_type = d['dataset_type']
         dataset_path = d['path']
@@ -108,7 +104,7 @@ def _preprocessing():
     ter20_anomaly_data = None
     
     # Do preprocessing for each dataset
-    for d in DATASETS:
+    for d in RoutineConfig.BASE_DATASETS:
         # Get dataset params
         dataset_type = d['type']
         dataset_path = d['path']
@@ -128,11 +124,11 @@ def _preprocessing():
         single_dataset_file_preprocessing(data_prep, dataset_type)
 
         # Set variables for hybrid dataset
-        if dataset_type == NB15_PREFIX:
+        if dataset_type == Naming.NB15:
             nb15_normal_data = data_prep[data_prep['label'] == 0]
-        elif dataset_type == SAT20_PREFIX:
+        elif dataset_type == Naming.SAT20:
             sat20_anomaly_data = data_prep[data_prep['label'] == 1]
-        elif dataset_type == TER20_PREFIX:
+        elif dataset_type == Naming.TER20:
             ter20_anomaly_data = data_prep[data_prep['label'] == 1]
     
     # Do file preprocessing for a hybrid dataset
@@ -140,12 +136,12 @@ def _preprocessing():
 
     # Group datasets paths for model building and save them in a csv file
     group_datasets_paths_for_filename_list(
-        DATASETS_INFO_PATH, DATASETS_FOR_MODEL_BUILDING_PATH, FILENAMES_DATASETS_FOR_MODEL_BUILDING
+        ProjectPaths.DATASETS_INFO, ProjectPaths.DATASETS_FOR_MODEL_BUILDING, RoutineConfig.DATASETS_TARGETS
     )
 
     # Group datasets paths for classifications and save them in a csv file
     group_datasets_paths_for_filename_list(
-        DATASETS_INFO_PATH, DATASETS_FOR_CLASSIFICATIONS_PATH, FILENAMES_DATASETS_FOR_CLASSIFICATIONS
+        ProjectPaths.DATASETS_INFO, ProjectPaths.DATASETS_FOR_CLASSIFICATIONS, RoutineConfig.DATASETS_TARGETS
     )
 
     print("\n--- Routine Preprocessing Phase Completed ---")

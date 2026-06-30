@@ -6,9 +6,7 @@ import joblib
 from datetime import datetime
 from utils.file_utils import create_directory, update_or_append_csv
 from utils.metrics import calculate_metrics
-from utils.paths import (
-    CLASSIFICATIONS_DIR, CLASSIFICATIONS_FILE
-)
+from utils.config import Naming, ProjectPaths
 
 
 # --- Internal Helper Functions ---
@@ -41,7 +39,7 @@ def _save_classification(model_name, metrics, dataset_type, classes, samples, ds
     results = {k: (v if v is not None else 'None') for k, v in results.items()}
     
     # Save results
-    classification_file = dst_dir / CLASSIFICATIONS_FILE
+    classification_file = dst_dir / Naming.CLASSIFICATIONS
     match_keys = ['model_name', 'dataset_type', 'classes']
     update_or_append_csv(classification_file, results, match_keys)
 
@@ -89,7 +87,7 @@ def classification_processing(model_path, data, type, mode):
     :param mode: execution mode, used as the main directory folder name
     """
     # Create main directory
-    classification_dir = create_directory(mode, CLASSIFICATIONS_DIR)
+    classification_dir = create_directory(mode, ProjectPaths.CLASSIFICATIONS_DIR)
     
     # Calculate classification
     metrics = _classification(model_path, data)

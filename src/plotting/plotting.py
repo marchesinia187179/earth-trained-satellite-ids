@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from utils.file_utils import create_directory
-from utils.paths import PLOTTING_DIR
+from utils.config import ProjectPaths
 
 
 def _generate_heatmap_for_feature(data, dst_path, feature):
@@ -80,7 +80,7 @@ def plotting_processing(data, mode, metrics):
 
 
     """
-    plot_dir = create_directory(mode, PLOTTING_DIR)
+    plot_dir = create_directory(mode, ProjectPaths.PLOTTING_DIR)
 
     for feature in metrics:
         dst_path = plot_dir / f"{feature}_matrix.png"

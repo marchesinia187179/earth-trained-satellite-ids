@@ -1,7 +1,7 @@
 import pandas as pd
 import sys
 
-from utils.paths import TRAIN_SPLIT
+from utils.config import MLConstants
 
 
 def minority_removal_nb15(data):
@@ -129,7 +129,7 @@ def stratified_split(data):
     split_groups = []
     for _, group in data.groupby('class'):
         group = group.sample(frac=1, random_state=42).reset_index(drop=True)
-        n_group_train = int(len(group) * TRAIN_SPLIT)
+        n_group_train = int(len(group) * MLConstants.TRAIN_SPLIT)
         group['split_type'] = ['train'] * n_group_train + ['test'] * (len(group) - n_group_train)
         split_groups.append(group)
     

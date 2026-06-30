@@ -1,18 +1,13 @@
 import pandas as pd
 
 from utils.file_utils import add_file_info_to_datasets_info, concat_and_shuffle, create_directory, create_csv_from_data
-from utils.paths import (
-    SINGLE_CLASSES_DIR_NAME, NORMAL_ANOMALY_DIR_NAME, SCALED_DIR_NAME, DATA_DIR, 
-    NB15_PREFIX, HYBRID_PREFIX, NB15_SAT20_PREFIX, NB15_TER20_PREFIX, 
-    PREPROCESSED_SCALED_SUFFIX, PREPROCESSED_SUFFIX, 
-    RANDOM_STATE, NORMAL_ANOMALY_RATIO
-)
+from utils.config import MLConstants, Naming, ProjectPaths
 
 
 # --- Internal Functions ---
 def _get_correct_normal_and_anomaly_data_samples(normal_data, anomaly_data, normal_samples, anomaly_samples):
     """
-    Calculates and return the `normal` and `anomaly data sample` based on the `NORMAL_ANOMALY_RATIO`
+    Calculates and return the `normal` and `anomaly data sample` based on the `MLConstants.NORMAL_ANOMALY_RATIO`
     
     :param normal_data: normal dataset
     :param anomaly_data: anomaly dataset
@@ -21,12 +16,12 @@ def _get_correct_normal_and_anomaly_data_samples(normal_data, anomaly_data, norm
     :return: correct `normal` and `anomaly data sample`
     """
     # Calculate and save the normal and anomaly data sample
-    if normal_samples < anomaly_samples * NORMAL_ANOMALY_RATIO:
-        n_anomaly_target = int(normal_samples / NORMAL_ANOMALY_RATIO)
+    if normal_samples < anomaly_samples * MLConstants.NORMAL_ANOMALY_RATIO:
+        n_anomaly_target = int(normal_samples / MLConstants.NORMAL_ANOMALY_RATIO)
         anomaly_data_sample = _safe_stratified_sample(anomaly_data, n_anomaly_target)
         normal_data_sample = normal_data
     else:
-        n_normal_target = int(anomaly_samples * NORMAL_ANOMALY_RATIO)
+        n_normal_target = int(anomaly_samples * MLConstants.NORMAL_ANOMALY_RATIO)
         normal_data_sample = _safe_stratified_sample(normal_data, n_normal_target)
         anomaly_data_sample = anomaly_data
 
@@ -43,7 +38,7 @@ def _safe_stratified_sample(data, n_samples):
     """
     # Security Fallback if the split type colums doesn't exist
     if 'split_type' not in data.columns:
-        return data.sample(n=n_samples, random_state=RANDOM_STATE)
+        return data.sample(n=n_samples, random_state=MLConstants.RANDOM_STATE)
     
     # Get the train and test data
     data_train = data[data['split_type'] == 'train']
@@ -64,9 +59,9 @@ def _safe_stratified_sample(data, n_samples):
     sampled_parts = []
     
     if n_train > 0 and not data_train.empty:
-        sampled_parts.append(data_train.sample(n=n_train, random_state=RANDOM_STATE))
+        sampled_parts.append(data_train.sample(n=n_train, random_state=MLConstants.RANDOM_STATE))
     if n_test > 0 and not data_test.empty:
-        sampled_parts.append(data_test.sample(n=n_test, random_state=RANDOM_STATE))
+        sampled_parts.append(data_test.sample(n=n_test, random_state=MLConstants.RANDOM_STATE))
         
     if not sampled_parts:
         return pd.DataFrame(columns=data.columns)
@@ -140,7 +135,7 @@ def _merge_normal_anomaly_and_save(data, type, dst_dir):
 
 def _scale_by_normal_anomaly_ratio_and_save(data, type, dst_dir):
     """
-    Updates the `data` with a new data scaled by the `normal_anomaly_ratio` and
+    Updates the `data` with a new data scaled by the `MLConstants.NORMAL_ANOMALY_RATIO` and
     creates a new csv file
     
     :param data: pool of data to get normal and anomaly data
@@ -167,7 +162,7 @@ def _scale_by_normal_anomaly_ratio_and_save(data, type, dst_dir):
 
     # Save the dataset
     df = concat_and_shuffle([normal_data_sample, anomaly_data_sample])
-    file_path =  create_csv_from_data(df, f"{type}{PREPROCESSED_SCALED_SUFFIX}", dst_dir)
+    file_path =  create_csv_from_data(df, f"{type}{Naming.PERP_CALED}", dst_dir)
     add_file_info_to_datasets_info(file_path, type)
 
 
@@ -195,10 +190,10 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter2
             return
 
     # Create the main directories
-    dataset_prep_dir = create_directory(f"{HYBRID_PREFIX}{PREPROCESSED_SUFFIX}", DATA_DIR)
-    nb15_sat20_normal_anomaly_dir = create_directory(f"{NB15_SAT20_PREFIX}_{NORMAL_ANOMALY_DIR_NAME}", dataset_prep_dir)
-    nb15_ter20_normal_anomaly_dir = create_directory(f"{NB15_TER20_PREFIX}_{NORMAL_ANOMALY_DIR_NAME}", dataset_prep_dir)
-    scaled_dir = create_directory(SCALED_DIR_NAME, dataset_prep_dir)
+    dataset_prep_dir = create_directory(f"{Naming.HYBRID}{Naming.PREP}", ProjectPaths.DATA)
+    nb15_sat20_normal_anomaly_dir = create_directory(f"{Naming.NB15_SAT20}_{ProjectPaths.DIR_NORMAL_ANOMALY}", dataset_prep_dir)
+    nb15_ter20_normal_anomaly_dir = create_directory(f"{Naming.NB15_TER20}_{ProjectPaths.DIR_NORMAL_ANOMALY}", dataset_prep_dir)
+    scaled_dir = create_directory(ProjectPaths.DIR_SCALED, dataset_prep_dir)
 
     # Create the hybrid data
     nb15_stin_data = concat_and_shuffle([nb15_normal_data, sat20_anomaly_data, ter20_anomaly_data])
@@ -207,9 +202,9 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter2
 
     # Combine the hybrid data with own dataset type
     datasets = [
-        {'type': HYBRID_PREFIX, 'data': nb15_stin_data},
-        {'type': NB15_SAT20_PREFIX, 'data': nb15_sat20_data},
-        {'type': NB15_TER20_PREFIX, 'data': nb15_ter20_data}
+        {'type': Naming.HYBRID, 'data': nb15_stin_data},
+        {'type': Naming.NB15_SAT20, 'data': nb15_sat20_data},
+        {'type': Naming.NB15_TER20, 'data': nb15_ter20_data}
     ]
 
     # Save the hybrid data
@@ -217,14 +212,14 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter2
         dataset_type = d['type']
         dataset_data = d['data']
 
-        file_path = create_csv_from_data(dataset_data, f'{dataset_type}{PREPROCESSED_SUFFIX}', dataset_prep_dir)
+        file_path = create_csv_from_data(dataset_data, f'{dataset_type}{Naming.PREP}', dataset_prep_dir)
         add_file_info_to_datasets_info(file_path, dataset_type)
         _scale_by_normal_anomaly_ratio_and_save(dataset_data, dataset_type, scaled_dir)
 
         # Save the hybrid data for single normal_anomaly case
-        if dataset_type == NB15_SAT20_PREFIX:
+        if dataset_type == Naming.NB15_SAT20:
             _merge_normal_anomaly_and_save(dataset_data, dataset_type, nb15_sat20_normal_anomaly_dir)
-        elif dataset_type == NB15_TER20_PREFIX:
+        elif dataset_type == Naming.NB15_TER20:
             _merge_normal_anomaly_and_save(dataset_data, dataset_type, nb15_ter20_normal_anomaly_dir)
 
     print(f"File-level preprocessing for hybrid datasets done.")
@@ -240,19 +235,19 @@ def single_dataset_file_preprocessing(data, type):
     print(f"Running file-level preprocessing for {type}...")
 
     # Create the main directories
-    dataset_prep_dir = create_directory(f"{type}{PREPROCESSED_SUFFIX}", DATA_DIR)
-    single_classes_dir = create_directory(SINGLE_CLASSES_DIR_NAME, dataset_prep_dir)
-    scaled_dir = create_directory(SCALED_DIR_NAME, dataset_prep_dir)
+    dataset_prep_dir = create_directory(f"{type}{Naming.PREP}", ProjectPaths.DATA)
+    single_classes_dir = create_directory(ProjectPaths.DIR_SINGLE_CLASSES, dataset_prep_dir)
+    scaled_dir = create_directory(ProjectPaths.DIR_SCALED, dataset_prep_dir)
 
     # Save the data
-    file_path = create_csv_from_data(data, f'{type}{PREPROCESSED_SUFFIX}', dataset_prep_dir)
+    file_path = create_csv_from_data(data, f'{type}{Naming.PREP}', dataset_prep_dir)
     add_file_info_to_datasets_info(file_path, type)
     _split_by_class_and_save(data, type, single_classes_dir)
 
     # Save the normal_anomaly data
-    if type == NB15_PREFIX:
+    if type == Naming.NB15:
         _scale_by_normal_anomaly_ratio_and_save(data, type, scaled_dir)
-        normal_anomaly_dir = create_directory(NORMAL_ANOMALY_DIR_NAME, dataset_prep_dir)
+        normal_anomaly_dir = create_directory(ProjectPaths.DIR_NORMAL_ANOMALY, dataset_prep_dir)
         _merge_normal_anomaly_and_save(data, type, normal_anomaly_dir)
 
     print(f"File-level preprocessing for {type} done.")
