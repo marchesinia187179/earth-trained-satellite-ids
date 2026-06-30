@@ -47,7 +47,7 @@ def _generate_heatmap_for_feature(data, dst_path, feature):
         annot=True, 
         fmt=".3f", 
         annot_kws={"size": 11, "weight": "bold"},  # Scaled up to occupy max internal space
-        cmap="Blues", 
+        cmap="Blues",
         vmin=0.0, 
         vmax=1.0, 
         square=True,                                # Keeps cells perfectly 1:1 square
