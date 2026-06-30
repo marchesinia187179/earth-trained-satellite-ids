@@ -121,16 +121,16 @@ class PlotConfig:
         "RF (Reconnaissance nb15)",
 
         # --- Hybrid dataset ---
-        "RF (Aggregate hybrid)"
-        "RF (Aggregate nb15_sat20)"
-        "RF (Aggregate nb15_ter20)"
+        "RF (Aggregate hybrid)",
+        "RF (Aggregate nb15_sat20)",
+        "RF (Aggregate nb15_ter20)",
 
         # --- Specific Normal/Anomaly hybrid sub-datasets ---
-        "RF (Syn_DDoS nb15_sat20)"
-        "RF (UDP_DDoS nb15_sat20)"
-        "RF (Botnet nb15_ter20)"
-        "RF (DDoS nb15_ter20)"
-        "RF (Syn_DDoS nb15_ter20)"
+        "RF (Syn_DDoS nb15_sat20)",
+        "RF (UDP_DDoS nb15_sat20)",
+        "RF (Botnet nb15_ter20)",
+        "RF (DDoS nb15_ter20)",
+        "RF (Syn_DDoS nb15_ter20)",
         "RF (UDP_DDoS nb15_ter20)"
     ]
     
@@ -145,16 +145,16 @@ class PlotConfig:
         "Reconnaissance nb15",
 
         # --- Hybrid dataset ---
-        "Aggregate hybrid"
-        "Aggregate nb15_sat20"
-        "Aggregate nb15_ter20"
+        "Aggregate hybrid",
+        "Aggregate nb15_sat20",
+        "Aggregate nb15_ter20",
 
         # --- Specific Normal/Anomaly hybrid sub-datasets ---
-        "Syn_DDoS nb15_sat20"
-        "UDP_DDoS nb15_sat20"
-        "Botnet nb15_ter20"
-        "DDoS nb15_ter20"
-        "Syn_DDoS nb15_ter20"
+        "Syn_DDoS nb15_sat20",
+        "UDP_DDoS nb15_sat20",
+        "Botnet nb15_ter20",
+        "DDoS nb15_ter20",
+        "Syn_DDoS nb15_ter20",
         "UDP_DDoS nb15_ter20"
     ]
 
