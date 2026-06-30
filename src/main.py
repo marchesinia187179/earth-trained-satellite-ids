@@ -22,74 +22,86 @@ def _run_all_phases():
     for mode in [MLConstants.NORMALIZED, MLConstants.UNNORMALIZED]:
         print(f"\n--- Running Full Pipeline for {mode.upper()} Mode ---")
         _preprocessing()
-        _model_building()
-        _classifications()
-        _plotting()
+        _model_building(autonomous=True)
+        _classifications(autonomous=True)
+        _plotting(autonomous=True)
         
         print(f"\n--- Full Pipeline Completed for {mode.upper()} Mode ---")
 
     print("\n=== FULL PIPELINE AUTOMATICALLY COMPLETED FOR BOTH MODES ===")
 
 
-def _plotting():
+def _plotting(autonomous=False):
     """ Show classifications on TNR and TPR plots """
     print("\n--- Plotting Phase ---")
-    
-    # Ask to user which mode he wants to start (normalized or unnormalized)
-    mode_input = input(f"Choose routine pipeline mode: [{MLConstants.NORMALIZED} or {MLConstants.UNNORMALIZED}] ").lower()
-    mode = validate_choice(mode_input, [MLConstants.NORMALIZED, MLConstants.UNNORMALIZED], "mode")
 
-    data = get_data_from_csv(ProjectPaths.CLASSIFICATIONS_DIR / mode / Naming.CLASSIFICATIONS)
-    plotting_processing(data, mode, MLConstants.PLOTTING_METRICS)
+    if autonomous:
+        mode = [MLConstants.NORMALIZED, MLConstants.UNNORMALIZED]
+    else:
+        # Ask to user which mode he wants to start (normalized or unnormalized)
+        mode_input = input(f"Choose routine pipeline mode: [{MLConstants.NORMALIZED} or {MLConstants.UNNORMALIZED}] ").lower()
+        mode = validate_choice(mode_input, [MLConstants.NORMALIZED, MLConstants.UNNORMALIZED], "mode")
 
-    print(f"\n--- Routine Plotting Phase Completed for {mode.upper()} Mode ---")
+    for m in mode:
+        data = get_data_from_csv(ProjectPaths.CLASSIFICATIONS_DIR / m / Naming.CLASSIFICATIONS)
+        plotting_processing(data, m, MLConstants.PLOTTING_METRICS)
+
+        print(f"\n--- Routine Plotting Phase Completed for {m.upper()} Mode ---")
 
 
-def _classifications():
+def _classifications(autonomous=False):
     """ Evaluates saved models on specific testing datasets """
     print("\n--- Starting Classification Phase ---")
     
-    # Ask to user which mode he wants to start (normalized or unnormalized)
-    mode_input = input(f"Choose routine pipeline mode: [{MLConstants.NORMALIZED} or {MLConstants.UNNORMALIZED}] ").lower()
-    mode = validate_choice(mode_input, [MLConstants.NORMALIZED, MLConstants.UNNORMALIZED], "mode")
+    if autonomous:
+        mode = [MLConstants.NORMALIZED, MLConstants.UNNORMALIZED]
+    else:
+        # Ask to user which mode he wants to start (normalized or unnormalized)
+        mode_input = input(f"Choose routine pipeline mode: [{MLConstants.NORMALIZED} or {MLConstants.UNNORMALIZED}] ").lower()
+        mode = validate_choice(mode_input, [MLConstants.NORMALIZED, MLConstants.UNNORMALIZED], "mode")
 
-    # Do classification process for each classification task
-    datasets = get_data_from_csv(RoutineConfig.DATASETS_TARGETS)
-    for d in datasets.to_dict('records'):
-        dataset_type = d['dataset_type']
-        dataset_path = d['path']
+    for m in mode:
+        # Do classification process for each classification task
+        datasets = get_data_from_csv(RoutineConfig.DATASETS_TARGETS)
+        for d in datasets.to_dict('records'):
+            dataset_type = d['dataset_type']
+            dataset_path = d['path']
 
-        data = get_data_from_csv(Path(dataset_path))
-        models_paths = get_data_from_csv(ProjectPaths.MODELS_DIR / mode / Naming.MODELS_PATHS)['path']     # Get all models paths for the selected mode
-        for model_path in models_paths:
-            classification_processing(Path(model_path), data, dataset_type, mode)
+            data = get_data_from_csv(Path(dataset_path))
+            models_paths = get_data_from_csv(ProjectPaths.MODELS_DIR / m / Naming.MODELS_PATHS)['path']     # Get all models paths for the selected mode
+            for model_path in models_paths:
+                classification_processing(Path(model_path), data, dataset_type, m)
 
-    # Group classifications by model and by dataset type and save them in separate directories
-    curr_classifications_dir = ProjectPaths.CLASSIFICATIONS_DIR / mode
-    group_by_model_dir = create_directory(ProjectPaths.DIR_BY_MODEL, curr_classifications_dir)
-    group_by_classes_dir = create_directory(ProjectPaths.DIR_BY_DATASET, curr_classifications_dir)
-    group_by_model_and_save(curr_classifications_dir / Naming.CLASSIFICATIONS, group_by_model_dir)
-    group_by_classes_and_save(curr_classifications_dir / Naming.CLASSIFICATIONS, group_by_classes_dir)
+        # Group classifications by model and by dataset type and save them in separate directories
+        curr_classifications_dir = ProjectPaths.CLASSIFICATIONS_DIR / m
+        group_by_model_dir = create_directory(ProjectPaths.DIR_BY_MODEL, curr_classifications_dir)
+        group_by_classes_dir = create_directory(ProjectPaths.DIR_BY_DATASET, curr_classifications_dir)
+        group_by_model_and_save(curr_classifications_dir / Naming.CLASSIFICATIONS, group_by_model_dir)
+        group_by_classes_and_save(curr_classifications_dir / Naming.CLASSIFICATIONS, group_by_classes_dir)
 
     print("\n--- Routine Classification Completed ---")
 
 
-def _model_building():
+def _model_building(autonomous=False):
     """ Executes a predefined model building routine """
     print("\n--- Starting Model Building Phase ---")
-    
-    # Ask to user which mode he wants to start (normalized or unnormalized)
-    mode_input = input(f"Choose routine pipeline mode: [{MLConstants.NORMALIZED} or {MLConstants.UNNORMALIZED}] ").lower()
-    mode = validate_choice(mode_input, [MLConstants.NORMALIZED, MLConstants.UNNORMALIZED], "mode")
 
-    # Start Model Processing for each model building dataset
-    datasets = get_data_from_csv(RoutineConfig.DATASETS_TARGETS)
-    for d in datasets.to_dict('records'):
-        dataset_type = d['dataset_type']
-        dataset_path = d['path']
+    if autonomous:
+        mode = [MLConstants.NORMALIZED, MLConstants.UNNORMALIZED]
+    else:
+        # Ask to user which mode he wants to start (normalized or unnormalized)
+        mode_input = input(f"Choose routine pipeline mode: [{MLConstants.NORMALIZED} or {MLConstants.UNNORMALIZED}] ").lower()
+        mode = validate_choice(mode_input, [MLConstants.NORMALIZED, MLConstants.UNNORMALIZED], "mode")
 
-        data = get_data_from_csv(Path(dataset_path))
-        model_processing(data, dataset_type, mode)
+    for m in mode:
+        # Start Model Processing for each model building dataset
+        datasets = get_data_from_csv(RoutineConfig.DATASETS_TARGETS)
+        for d in datasets.to_dict('records'):
+            dataset_type = d['dataset_type']
+            dataset_path = d['path']
+
+            data = get_data_from_csv(Path(dataset_path))
+            model_processing(data, dataset_type, m)
 
     print("\n--- Routine Model Building Completed ---")
 
