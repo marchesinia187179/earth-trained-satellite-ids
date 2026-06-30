@@ -10,8 +10,8 @@ from sklearn.ensemble import RandomForestClassifier
 from utils.file_utils import create_directory, update_or_append_csv
 from utils.metrics import calculate_metrics
 from utils.paths import (
-    DATA_FILE_TYPE, MODEL_VERBOSE, MODELS_DIR, MODELS_PATHS, NORMALIZED, RANDOM_STATE,
-    RF_INFO_FILENAME, RF_MODEL_PREFIX, TRAIN_SPLIT, UNNORMALIZED
+    MODEL_VERBOSE, MODELS_DIR, MODELS_PATHS_FILE, NORMALIZED, RANDOM_STATE,
+    MODEL_INFO_FILE, MODEL_PREFIX, TRAIN_SPLIT, UNNORMALIZED
 )
 
 # --- Internal Helper Functions ---
@@ -27,13 +27,13 @@ def _save_model_and_metadata(model, metrics, dataset_type, classes, samples, dst
     :return: None
     """
     # Save model
-    existing_files = list(dst_dir.glob(f'{RF_MODEL_PREFIX}_*.joblib'))
-    model_name = f'{RF_MODEL_PREFIX}_{len(existing_files) + 1}'
+    existing_files = list(dst_dir.glob(f'{MODEL_PREFIX}_*.joblib'))
+    model_name = f'{MODEL_PREFIX}_{len(existing_files) + 1}'
     model_path = dst_dir / f'{model_name}.joblib'
     joblib.dump(model, model_path)
 
     # Save model path
-    update_or_append_csv(dst_dir / MODELS_PATHS, {'path': str(model_path)}, ['path'], id_column='id')
+    update_or_append_csv(dst_dir / MODELS_PATHS_FILE, {'path': str(model_path)}, ['path'], id_column='id')
 
     # If the model is into a Pipeline due to the normalizing, 
     # get the pure Random Forest model object
@@ -67,7 +67,7 @@ def _save_model_and_metadata(model, metrics, dataset_type, classes, samples, dst
     results = {k: (v if v is not None else 'None') for k, v in results.items()}
     
     # Save metadata
-    info_file = dst_dir / f"{RF_INFO_FILENAME}{DATA_FILE_TYPE}"
+    info_file = dst_dir / MODEL_INFO_FILE
     match_keys = ['model_name', 'dataset_type']
     update_or_append_csv(info_file, results, match_keys, id_column='id')
     

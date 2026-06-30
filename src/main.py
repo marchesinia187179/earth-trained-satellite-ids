@@ -13,7 +13,7 @@ from utils.input_utils import validate_choice
 from utils.paths import (
     BY_DATASET_DIR_NAME, BY_MODEL_DIR_NAME, CLASSIFICATIONS_DIR, CLASSIFICATIONS_FILE, 
     DATASETS, DATASETS_FOR_CLASSIFICATIONS_PATH, DATASETS_FOR_MODEL_BUILDING_PATH, DATASETS_INFO_PATH, 
-    FILENAMES_DATASETS_FOR_CLASSIFICATIONS, FILENAMES_DATASETS_FOR_MODEL_BUILDING, MODELS_DIR, MODELS_PATHS, 
+    FILENAMES_DATASETS_FOR_CLASSIFICATIONS, FILENAMES_DATASETS_FOR_MODEL_BUILDING, MODELS_DIR, MODELS_PATHS_FILE, 
     NB15_PREFIX, NORMALIZED, PLOTTING_METRICS, SAT20_PREFIX, TER20_PREFIX, UNNORMALIZED)
 from preprocessing.data_preprocessing import data_preprocessing
 from preprocessing.file_preprocessing import hybrid_dataset_file_preprocessing, single_dataset_file_preprocessing
@@ -64,7 +64,7 @@ def _classifications():
         dataset_path = d['path']
 
         data = get_data_from_csv(Path(dataset_path))
-        models_paths = get_data_from_csv(MODELS_DIR / mode / MODELS_PATHS)['path']     # Get all models paths for the selected mode
+        models_paths = get_data_from_csv(MODELS_DIR / mode / MODELS_PATHS_FILE)['path']     # Get all models paths for the selected mode
         for model_path in models_paths:
             classification_processing(Path(model_path), data, dataset_type, mode)
 

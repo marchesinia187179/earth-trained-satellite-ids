@@ -1,0 +1,122 @@
+"""
+Centralized management of project paths, ML constants, and routine configurations.
+"""
+import pathlib
+
+class MLConstants:
+    """ Hyperparameters and standard metrics for the ML pipeline """
+    
+    RANDOM_STATE = 42
+    NORMAL_ANOMALY_RATIO = 10
+    TRAIN_SPLIT = 0.8
+    MODEL_VERBOSE = 1
+    DECIMAL_DIGITS = 4
+    PLOTTING_METRICS = ['Recall', 'TNR', 'TPR']
+    UNNORMALIZED = "unnormalized"
+    NORMALIZED = "normalized"
+
+
+class Naming:
+    """ Standardized prefixes, suffixes, and extensions for dataset and model files """
+
+    EXT = ".csv"
+    
+    # Dataset Prefixes
+    NB15 = "nb15"
+    SAT20 = "sat20"
+    TER20 = "ter20"
+    HYBRID = "hybrid"
+    NB15_SAT20 = "nb15_sat20"
+    NB15_TER20 = "nb15_ter20"
+
+    # Suffixes
+    PREP = "_prep"
+    PREP_SCALED = "_prep_scaled"
+    CLASSIFICATION = "_classification"
+
+    # Common File Names
+    MODEL_INFO = f"models_info{EXT}"
+    CLASSIFICATIONS = f"classifications{EXT}"
+    MODELS_PATHS = f"models_paths{EXT}"
+
+
+class ProjectPaths:
+    """ Absolute Pathlib structures for project directories and core files """
+
+    # --- Main Folders ---
+    ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
+    DATA = ROOT / "data"
+    SRC = ROOT / "src"
+
+    # --- SRC Subfolders ---
+    CLASSIFICATIONS_DIR = SRC / "classifications"
+    MODELS_DIR = SRC / "models"
+    PLOTTING_DIR = SRC / "plotting"
+
+    # --- Folder Name Constants (For dynamic path building) --- 
+    DIR_SINGLE_CLASSES = "single_classes"
+    DIR_NORMAL_ANOMALY = "normal_anomaly"
+    DIR_SCALED = "scaled"
+    DIR_BY_DATASET = "by_dataset"
+    DIR_BY_MODEL = "by_model"
+    DIR_CLASSES = "classes"
+
+    # --- Pipeline Essential Files ---
+    DATASETS_FOR_CLASSIFICATIONS = CLASSIFICATIONS_DIR / f"datasets_for_classifications{Naming.EXT}"
+    DATASETS_FOR_MODEL_BUILDING = MODELS_DIR / f"datasets_for_model_building{Naming.EXT}"
+    DATASETS_INFO = DATA / f"datasets_info{Naming.EXT}"
+
+    # --- Raw Datasets ---
+    NB15_RAW = DATA / f"{Naming.NB15}{Naming.EXT}"
+    SAT20_RAW = DATA / f"{Naming.SAT20}{Naming.EXT}"
+    TER20_RAW = DATA / f"{Naming.TER20}{Naming.EXT}"
+
+
+class RoutineConfig:
+    """ Pre-defined configurations for training and evaluation routines """
+
+    BASE_DATASETS = [
+        {'type': Naming.NB15, 'path': ProjectPaths.NB15_RAW},
+        {'type': Naming.SAT20, 'path': ProjectPaths.SAT20_RAW},
+        {'type': Naming.TER20, 'path': ProjectPaths.TER20_RAW}
+    ]
+
+    # Defines the standard set of models to be built during a routine phase
+    MODEL_BUILDING_TARGETS = [
+        # --- NB15 dataset ---
+        {'dataset_type': Naming.NB15, 'filename': f"{Naming.NB15}{Naming.PREP_SCALED}{Naming.EXT}"},
+        {'dataset_type': Naming.NB15, 'filename': f"Normal_DoS{Naming.EXT}"},
+        {'dataset_type': Naming.NB15, 'filename': f"Normal_Exploits{Naming.EXT}"},
+        {'dataset_type': Naming.NB15, 'filename': f"Normal_Fuzzers{Naming.EXT}"},
+        {'dataset_type': Naming.NB15, 'filename': f"Normal_Generic{Naming.EXT}"},
+        {'dataset_type': Naming.NB15, 'filename': f"Normal_Reconnaissance{Naming.EXT}"},
+
+        # --- Hybrid dataset ---
+        {'dataset_type': Naming.HYBRID, 'filename': f"{Naming.HYBRID}{Naming.PREP_SCALED}{Naming.EXT}"},
+        {'dataset_type': Naming.NB15_SAT20, 'filename': f"{Naming.NB15_SAT20}{Naming.PREP_SCALED}{Naming.EXT}"},
+        {'dataset_type': Naming.NB15_TER20, 'filename': f"{Naming.NB15_TER20}{Naming.PREP_SCALED}{Naming.EXT}"}
+    ]
+
+    # Defines the standard set of classifications to do during a routine phase
+    CLASSIFICATION_TARGETS = [
+        # --- NB15 dataset ---
+        {'dataset_type': Naming.NB15, 'filename': f"{Naming.NB15}{Naming.PREP_SCALED}{Naming.EXT}"},
+        {'dataset_type': Naming.NB15, 'filename': f"Normal_DoS{Naming.EXT}"},
+        {'dataset_type': Naming.NB15, 'filename': f"Normal_Exploits{Naming.EXT}"},
+        {'dataset_type': Naming.NB15, 'filename': f"Normal_Fuzzers{Naming.EXT}"},
+        {'dataset_type': Naming.NB15, 'filename': f"Normal_Generic{Naming.EXT}"},
+        {'dataset_type': Naming.NB15, 'filename': f"Normal_Reconnaissance{Naming.EXT}"},
+
+        # --- Hybrid dataset ---
+        {'dataset_type': Naming.HYBRID, 'filename': f"{Naming.HYBRID}{Naming.PREP_SCALED}{Naming.EXT}"},
+        {'dataset_type': Naming.NB15_SAT20, 'filename': f"{Naming.NB15_SAT20}{Naming.PREP_SCALED}{Naming.EXT}"},
+        {'dataset_type': Naming.NB15_TER20, 'filename': f"{Naming.NB15_TER20}{Naming.PREP_SCALED}{Naming.EXT}"},
+
+        # --- Specific Normal/Anomaly sub-datasets ---
+        {'dataset_type': Naming.NB15_SAT20, 'filename': f"Normal_Syn_DDoS{Naming.EXT}"},
+        {'dataset_type': Naming.NB15_SAT20, 'filename': f"Normal_UDP_DDoS{Naming.EXT}"},
+        {'dataset_type': Naming.NB15_TER20, 'filename': f"Normal_Botnet{Naming.EXT}"},
+        {'dataset_type': Naming.NB15_TER20, 'filename': f"Normal_DDoS{Naming.EXT}"},
+        {'dataset_type': Naming.NB15_TER20, 'filename': f"Normal_Syn_DDoS{Naming.EXT}"},
+        {'dataset_type': Naming.NB15_TER20, 'filename': f"Normal_UDP_DDoS{Naming.EXT}"}
+    ]
