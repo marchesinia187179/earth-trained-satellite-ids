@@ -162,7 +162,7 @@ def _scale_by_normal_anomaly_ratio_and_save(data, type, dst_dir):
 
     # Save the dataset
     df = concat_and_shuffle([normal_data_sample, anomaly_data_sample])
-    file_path =  create_csv_from_data(df, f"{type}{Naming.PERP_CALED}", dst_dir)
+    file_path =  create_csv_from_data(df, f"{type}{Naming.PREP_SCALED}", dst_dir)
     add_file_info_to_datasets_info(file_path, type)
 
 
