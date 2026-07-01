@@ -196,21 +196,19 @@ def plot_feature_importances(importances, feature_names, std, dst_path):
     plt.close()
 
 
-def plotting_processing(models, data, mode, metrics, row_order=None, col_order=None):
+def plotting_processing(models, data, metrics, row_order=None, col_order=None):
     """
     Processing function to generate heatmaps for some metrics from classification results
 
     :param models: DataFrame containing model information with columns: ['model_name', 'dataset_type', 'classes', ...]
     :param data: DataFrame containing classification results with columns: ['model_name', 'dataset_type', 'classes', metrics...]
-    :param mode: string indicating the mode (normalized or unnormalized)
     :param metrics: list of performance metrics to visualize
     :param row_order: optional list specifying the desired order of rows (models) in the heatmap
     :param col_order: optional list specifying the desired order of columns (datasets) in the heatmap
     """
-    plot_dir = create_directory(mode, ProjectPaths.PLOTTING_DIR)
 
     for feature in metrics:
-        dst_path = plot_dir / f"{feature}_matrix{Naming.PLOT_EXT}"
+        dst_path = ProjectPaths.PLOTTING_DIR / f"{feature}_matrix{Naming.PLOT_EXT}"
         
         _generate_heatmap_for_feature(models, data, dst_path, feature, row_order, col_order)
 

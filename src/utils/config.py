@@ -13,8 +13,6 @@ class MLConstants:
     MODEL_VERBOSE = 1
     DECIMAL_DIGITS = 4
     PLOTTING_METRICS = ['F1-Score', 'Precision', 'Recall']
-    UNNORMALIZED = "unnormalized"
-    NORMALIZED = "normalized"
 
 
 class Naming:

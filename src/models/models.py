@@ -6,8 +6,6 @@ import numpy as np
 import pandas as pd
 
 from datetime import datetime
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestClassifier
 from plotting.plotting import plot_feature_importances
 from utils.file_utils import create_csv_from_data, create_directory, update_or_append_csv
@@ -27,19 +25,12 @@ def _save_feature_importance_and_plots(model, feature_names, plots_dir, csv_dir)
     :param csv_dir: target directory for saving the feature importance CSV
     :return: None
     """
-    # If the model is into a Pipeline due to the normalizing, 
-    # get the pure Random Forest model object
-    if isinstance(model, Pipeline):
-        rf_model = model.named_steps['rf']
-    else:
-        rf_model = model
-
     # Get feature importance
-    importance = rf_model.feature_importances_
+    importance = model.feature_importances_
     importance_df = pd.DataFrame({'feature': feature_names, 'importance': importance})
 
     # Calculate standard deviation of feature importances across all trees in the Random Forest
-    std = np.std([tree.feature_importances_ for tree in rf_model.estimators_], axis=0)
+    std = np.std([tree.feature_importances_ for tree in model.estimators_], axis=0)
     
     # Save feature importance to CSV
     existing_files = list(csv_dir.glob(f'{Naming.MODEL}_*.csv'))
@@ -74,15 +65,8 @@ def _save_model_and_metadata(model, metrics, dataset_type, classes, samples, mai
     # Save model path
     update_or_append_csv(main_dst_dir / Naming.MODELS_PATHS, {'path': str(model_path)}, ['path'], id_column='id')
 
-    # If the model is into a Pipeline due to the normalizing, 
-    # get the pure Random Forest model object
-    if isinstance(model, Pipeline):
-        rf_model = model.named_steps['rf']
-    else:
-        rf_model = model
-
     # Get model and data params
-    params = rf_model.get_params()
+    params = model.get_params()
     results = {
         'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         'model_name': model_name,
@@ -93,10 +77,10 @@ def _save_model_and_metadata(model, metrics, dataset_type, classes, samples, mai
         'n_estimators': params['n_estimators'],
         'max_features': params['max_features'],
         'random_state': params.get('random_state', None),
-        'n_features_in': int(rf_model.n_features_in_),
+        'n_features_in': int(model.n_features_in_),
         'criterion': params.get('criterion', 'gini'),
         'max_depth': params.get('max_depth', None),
-        'n_classes': len(rf_model.classes_)
+        'n_classes': len(model.classes_)
     }
 
     # Add model metrics
@@ -113,12 +97,11 @@ def _save_model_and_metadata(model, metrics, dataset_type, classes, samples, mai
     print(f"Model {model_name} saved to {main_dst_dir.name} and metadata processed in {info_file.name}")
 
 
-def _random_forest(data, mode):
+def _random_forest(data):
     """
     Trains a Random Forest classifier using a supervised learning approach
 
     :param data: data to be used for the training of the model
-    :param mode: variable to choose the normalized or unnormalized method
     :return: model built and related metrics
     """
     print(f"Training Random Forest...")
@@ -135,15 +118,8 @@ def _random_forest(data, mode):
     y_train = train_set["label"]
     y_test = test_set["label"]
 
-    # Fit model by choosing the normalized or unnormalized way
-    if mode == MLConstants.NORMALIZED:
-        model = Pipeline([
-            ('scaler', StandardScaler()),
-            ('rf', RandomForestClassifier(random_state=MLConstants.RANDOM_STATE, verbose=MLConstants.MODEL_VERBOSE))
-        ])
-    elif mode == MLConstants.UNNORMALIZED:
-        model = RandomForestClassifier(random_state=MLConstants.RANDOM_STATE, verbose=MLConstants.MODEL_VERBOSE)
-
+    # Build and fit the model
+    model = RandomForestClassifier(random_state=MLConstants.RANDOM_STATE, verbose=MLConstants.MODEL_VERBOSE)
     model.fit(X_train, y_train)
 
     # Get metrics
@@ -159,32 +135,30 @@ def _random_forest(data, mode):
 
 
 # --- Public Functions ---
-def model_processing(data, type, mode):
+def model_processing(data, type):
     """
     Orchestrates the Random Forest pipeline by creating the destination directory,
     training the model, and saving the resulting model along with its metadata
 
     :param data: DataFrame containing the dataset and the 'class' attribute
     :param type: string describing the dataset type (nb15, sat20, ...)
-    :param mode: variable to choose the normalized or unnormalized method
     :return: None
     """
     # Create main directory
-    model_dir = create_directory(mode, ProjectPaths.MODELS_DIR)
-    joblib_dir = create_directory(ProjectPaths.DIR_MODELS, model_dir)
-    feature_importance_dir = create_directory(ProjectPaths.DIR_FEATURE_IMPORTANCE, model_dir)
+    joblib_dir = create_directory(ProjectPaths.DIR_MODELS, ProjectPaths.MODELS_DIR)
+    feature_importance_dir = create_directory(ProjectPaths.DIR_FEATURE_IMPORTANCE, ProjectPaths.MODELS_DIR)
     feature_importance_plots_dir = create_directory(ProjectPaths.DIR_PLOTS, feature_importance_dir)
     feature_importance_csv_dir = create_directory(ProjectPaths.DIR_CSV, feature_importance_dir)
 
     # Create random forest model
-    model, metrics, feature_names = _random_forest(data, mode)
+    model, metrics, feature_names = _random_forest(data)
 
     # Get classes
     unique_classes = data['class'].unique()
     classes = ", ".join(str(c) for c in unique_classes)
 
     # Save random forest model and metadata
-    _save_model_and_metadata(model, metrics, type, classes, data.shape[0], model_dir, joblib_dir)
+    _save_model_and_metadata(model, metrics, type, classes, data.shape[0], ProjectPaths.MODELS_DIR, joblib_dir)
 
     # Get feature importance and save it
     _save_feature_importance_and_plots(model, feature_names, feature_importance_plots_dir, feature_importance_csv_dir)

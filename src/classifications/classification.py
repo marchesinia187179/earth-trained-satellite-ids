@@ -4,7 +4,7 @@ Classification logic for evaluating trained models on test datasets.
 import joblib
 
 from datetime import datetime
-from utils.file_utils import create_directory, update_or_append_csv
+from utils.file_utils import update_or_append_csv
 from utils.metrics import calculate_metrics
 from utils.config import Naming, ProjectPaths
 
@@ -75,20 +75,15 @@ def _classification(model_path, data):
 
 
 # --- Public Functions ---
-def classification_processing(model_path, data, type, mode):
+def classification_processing(model_path, data, type):
     """
-    Main orchestration function to run the evaluation workflow. It initializes 
-    the output directory, triggers the classification, extracts metadata, 
-    and handles file storage
+    Main orchestration function to run the evaluation workflow. 
+    It triggers the classification, extracts metadata, and handles file storage
 
     :param model_path: path object pointing to the trained model file (.stem will be extracted)
     :param data: input dataset containing the test samples and class metadata
     :param type: type/category description of the dataset
-    :param mode: execution mode, used as the main directory folder name
     """
-    # Create main directory
-    classification_dir = create_directory(mode, ProjectPaths.CLASSIFICATIONS_DIR)
-    
     # Calculate classification
     metrics = _classification(model_path, data)
 
@@ -97,7 +92,7 @@ def classification_processing(model_path, data, type, mode):
     classes = ", ".join(str(c) for c in unique_classes)
 
     # Save random forest model and metadata
-    _save_classification(model_path.stem, metrics, type, classes, data.shape[0], classification_dir)
+    _save_classification(model_path.stem, metrics, type, classes, data.shape[0], ProjectPaths.CLASSIFICATIONS_DIR)
 
 
 if __name__ == "__main__":

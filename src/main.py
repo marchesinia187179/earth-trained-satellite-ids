@@ -9,51 +9,37 @@ from plotting.plotting import plotting_processing
 from utils.file_utils import (
     create_directory, get_data_from_csv, group_by_classes_and_save, 
     group_by_model_and_save, group_datasets_paths_for_filename_list)
-from utils.input_utils import validate_choice
 from utils.config import MLConstants, Naming, ProjectPaths, RoutineConfig, PlotConfig
 from preprocessing.data_preprocessing import data_preprocessing
 from preprocessing.file_preprocessing import hybrid_dataset_file_preprocessing, single_dataset_file_preprocessing
 
 
 # --- Internal Helper Functions ---
-def _run_all_phases(mode):
-    """ 
-    Executes all phases of the pipeline in a single run for both normalized and unnormalized modes 
-    
-    :param mode: string indicating the mode (normalized and unnormalized)
-    """
-    print("\n=== FULL AUTOMATED PIPELINE (NON-STOP: BOTH MODES) ===")
+def _run_all_phases():
+    """ Executes all phases of the pipeline in a single run """
+    print(f"\n--- Running Full Pipeline ---")
 
     _preprocessing()
-
-    for m in mode:
-        print(f"\n--- Running Full Pipeline for {m.upper()} Mode ---")
-        _model_building(m)
-        _classifications(m)
-        _plotting(m)
+    _model_building()
+    _classifications()
+    _plotting()
         
-        print(f"\n--- Full Pipeline Completed for {m.upper()} Mode ---")
-
-    print("\n=== FULL PIPELINE AUTOMATICALLY COMPLETED FOR BOTH MODES ===")
+    print(f"\n--- Full Pipeline Completed ---")
 
 
-def _plotting(mode):
+def _plotting():
     """ Show classifications on TNR and TPR plots """
     print("\n--- Plotting Phase ---")
 
-    models = get_data_from_csv(ProjectPaths.MODELS_DIR / mode / Naming.MODEL_INFO)
-    data = get_data_from_csv(ProjectPaths.CLASSIFICATIONS_DIR / mode / Naming.CLASSIFICATIONS)
-    plotting_processing(models, data, mode, MLConstants.PLOTTING_METRICS, PlotConfig.HEATMAP_ROW_ORDER, PlotConfig.HEATMAP_COLUMN_ORDER)
+    models = get_data_from_csv(ProjectPaths.MODELS_DIR / Naming.MODEL_INFO)
+    data = get_data_from_csv(ProjectPaths.CLASSIFICATIONS_DIR / Naming.CLASSIFICATIONS)
+    plotting_processing(models, data, MLConstants.PLOTTING_METRICS, PlotConfig.HEATMAP_ROW_ORDER, PlotConfig.HEATMAP_COLUMN_ORDER)
 
     print(f"\n--- Routine Plotting Phase Completed ---")
 
 
-def _classifications(mode):
-    """ 
-    Evaluates saved models on specific testing datasets 
-    
-    :param mode: string indicating the mode (normalized or unnormalized)
-    """
+def _classifications():
+    """ Evaluates saved models on specific testing datasets """
     print("\n--- Starting Classification Phase ---")
    
     # Do classification process for each classification task
@@ -63,26 +49,21 @@ def _classifications(mode):
         dataset_path = d['path']
 
         data = get_data_from_csv(Path(dataset_path))
-        models_paths = get_data_from_csv(ProjectPaths.MODELS_DIR / mode / Naming.MODELS_PATHS)['path']     # Get all models paths for the selected mode
+        models_paths = get_data_from_csv(ProjectPaths.MODELS_DIR / Naming.MODELS_PATHS)['path']
         for model_path in models_paths:
-            classification_processing(Path(model_path), data, dataset_type, mode)
+            classification_processing(Path(model_path), data, dataset_type)
 
     # Group classifications by model and by dataset type and save them in separate directories
-    curr_classifications_dir = ProjectPaths.CLASSIFICATIONS_DIR / mode
-    group_by_model_dir = create_directory(ProjectPaths.DIR_BY_MODEL, curr_classifications_dir)
-    group_by_classes_dir = create_directory(ProjectPaths.DIR_BY_DATASET, curr_classifications_dir)
-    group_by_model_and_save(curr_classifications_dir / Naming.CLASSIFICATIONS, group_by_model_dir)
-    group_by_classes_and_save(curr_classifications_dir / Naming.CLASSIFICATIONS, group_by_classes_dir)
+    group_by_model_dir = create_directory(ProjectPaths.DIR_BY_MODEL, ProjectPaths.CLASSIFICATIONS_DIR)
+    group_by_classes_dir = create_directory(ProjectPaths.DIR_BY_DATASET, ProjectPaths.CLASSIFICATIONS_DIR)
+    group_by_model_and_save(ProjectPaths.CLASSIFICATIONS_DIR / Naming.CLASSIFICATIONS, group_by_model_dir)
+    group_by_classes_and_save(ProjectPaths.CLASSIFICATIONS_DIR / Naming.CLASSIFICATIONS, group_by_classes_dir)
 
     print("\n--- Routine Classification Completed ---")
 
 
-def _model_building(mode):
-    """ 
-    Executes a predefined model building routine 
-
-    :param mode: string indicating the mode (normalized or unnormalized)
-    """
+def _model_building():
+    """ Executes a predefined model building routine """
     print("\n--- Starting Model Building Phase ---")
 
     # Start Model Processing for each model building dataset
@@ -92,7 +73,7 @@ def _model_building(mode):
         dataset_path = d['path']
 
         data = get_data_from_csv(Path(dataset_path))
-        model_processing(data, dataset_type, mode)
+        model_processing(data, dataset_type)
 
     print("\n--- Routine Model Building Completed ---")
 
@@ -145,17 +126,6 @@ def _preprocessing():
     print("\n--- Routine Preprocessing Phase Completed ---")
 
 
-def _get_mode_from_user():
-    """ 
-    Gets the mode (normalized or unnormalized) from the user input and validates it 
-
-    :return: mode (string) - either 'normalized' or 'unnormalized'
-    """
-    # Ask to user which mode he wants to start (normalized or unnormalized)
-    mode_input = input(f"Choose routine pipeline mode: [{MLConstants.NORMALIZED} or {MLConstants.UNNORMALIZED}] ").lower()
-    return validate_choice(mode_input, [MLConstants.NORMALIZED, MLConstants.UNNORMALIZED], "mode")
-
-
 # --- Public Functions ---
 def main():
     """ Main entry point of the application with a main dashboard menu """
@@ -181,17 +151,13 @@ def main():
         if main_choice == '1':  # Preprocessing case
             _preprocessing()
         elif main_choice == '2':    # Model building case
-            mode = _get_mode_from_user()
-            _model_building(mode)
+            _model_building()
         elif main_choice == '3':    # Classifications case
-            mode = _get_mode_from_user()
-            _classifications(mode)
+            _classifications()
         elif main_choice == '4':    # Plotting case
-            mode = _get_mode_from_user()
-            _plotting(mode)
+            _plotting()
         elif main_choice == '5':    # All case
-            mode = [MLConstants.NORMALIZED, MLConstants.UNNORMALIZED]
-            _run_all_phases(mode)
+            _run_all_phases()
         elif main_choice == '6':    # Exit case
             print("\nExiting application. Goodbye!")
             break
