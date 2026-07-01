@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 from utils.file_utils import create_directory
-from utils.config import ProjectPaths
+from utils.config import Naming, ProjectPaths
 
 
 # --- Internal Helper Functions ---
@@ -149,6 +149,53 @@ def _generate_heatmap_for_feature(models, data, dst_path, feature, row_order=Non
 
 
 # --- Public Functions ---
+def plot_feature_importances(importances, feature_names, std, dst_path):
+    """
+    Plots the MDI (Mean Decrease in Impurity) feature importances for a Random Forest model.
+    Features are sorted in descending order of importance to ensure clear visual analysis.
+
+    :param importances: array-like, the feature importances from the trained model (rf.feature_importances_)
+    :param feature_names: list of strings, names of the features corresponding to the importances
+    :param std: array-like, the standard deviation of feature importances across all trees
+    :param dst_path: Path object or string, target file path where the plot will be saved
+    """
+    # Align importances and standard deviations into a DataFrame to prevent misalignment during sorting
+    importance_df = pd.DataFrame({
+        'importance': importances,
+        'std': std
+    }, index=feature_names)
+
+    # Sort features in descending order based on their importance value
+    importance_df = importance_df.sort_values(by='importance', ascending=False)
+
+    # Initialize the plot with an explicit figure size to prevent label crowding
+    fig, ax = plt.subplots(figsize=(10, 6))
+    
+    # Generate the bar chart with error bars representing the standard deviation
+    importance_df['importance'].plot.bar(
+        yerr=importance_df['std'], 
+        ax=ax, 
+        capsize=4,                  # Adds clean caps to the error bar lines
+        color='skyblue',            # Solid academic-style layout color
+        edgecolor='black'
+    )
+    
+    # Set professional academic labels and typography titles
+    ax.set_title("Feature Importances via Mean Decrease in Impurity (MDI)", fontsize=14, fontweight='bold', pad=15)
+    ax.set_ylabel("Mean Decrease in Impurity", fontsize=12)
+    ax.set_xlabel("Features", fontsize=12)
+    
+    # Rotate x-axis ticks for better readability with dense feature names
+    plt.xticks(rotation=45, ha='right')
+    
+    # Finalize layout structure to avoid overlapping margins
+    fig.tight_layout()
+
+    # Save figure using 'bbox_inches' to cleanly dynamic-fit all outer elements without clipping
+    plt.savefig(dst_path, dpi=300, bbox_inches='tight')
+    plt.close()
+
+
 def plotting_processing(models, data, mode, metrics, row_order=None, col_order=None):
     """
     Processing function to generate heatmaps for some metrics from classification results
@@ -163,7 +210,7 @@ def plotting_processing(models, data, mode, metrics, row_order=None, col_order=N
     plot_dir = create_directory(mode, ProjectPaths.PLOTTING_DIR)
 
     for feature in metrics:
-        dst_path = plot_dir / f"{feature}_matrix.png"
+        dst_path = plot_dir / f"{feature}_matrix{Naming.PLOT_EXT}"
         
         _generate_heatmap_for_feature(models, data, dst_path, feature, row_order, col_order)
 

@@ -21,6 +21,7 @@ class Naming:
     """ Standardized prefixes, suffixes, and extensions for dataset and model files """
 
     EXT = ".csv"
+    PLOT_EXT = ".png"
     
     # Dataset Prefixes
     NB15 = "nb15"
@@ -40,6 +41,8 @@ class Naming:
     CLASSIFICATIONS = f"classifications{EXT}"
     MODELS_PATHS = f"models_paths{EXT}"
     MODEL = "model"     # It doesn't have an extension because it can be .pkl, .joblib, etc. depending on the model type
+    FEATURE_IMPORTANCE = f"feature_importance"  # It doesn't have an extension because it can be .csv or .png depending on the context
+    FEATURE_IMPORTANCE_BY_PERMUTATION = f"feature_importance_by_permutation{EXT}"
 
 
 class ProjectPaths:
@@ -62,6 +65,10 @@ class ProjectPaths:
     DIR_BY_DATASET = "by_dataset"
     DIR_BY_MODEL = "by_model"
     DIR_CLASSES = "classes"
+    DIR_FEATURE_IMPORTANCE = "feature_importance"
+    DIR_MODELS = "models"
+    DIR_PLOTS = "plots"
+    DIR_CSV = "csv"
 
     # --- Pipeline Essential Files ---
     DATASETS_FOR_PIPELINE = DATA / f"datasets_for_pipeline{Naming.EXT}"
