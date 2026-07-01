@@ -43,7 +43,7 @@ def _classifications():
     print("\n--- Starting Classification Phase ---")
    
     # Do classification process for each classification task
-    datasets = get_data_from_csv(ProjectPaths.DATASETS_FOR_PIPELINE)
+    datasets = get_data_from_csv(ProjectPaths.DATASETS_FOR_CLASSIFICATIONS)
     for d in datasets.to_dict('records'):
         dataset_type = d['dataset_type']
         dataset_path = d['path']
@@ -54,8 +54,9 @@ def _classifications():
             classification_processing(Path(model_path), data, dataset_type)
 
     # Group classifications by model and by dataset type and save them in separate directories
-    group_by_model_dir = create_directory(ProjectPaths.DIR_BY_MODEL, ProjectPaths.CLASSIFICATIONS_DIR)
-    group_by_classes_dir = create_directory(ProjectPaths.DIR_BY_DATASET, ProjectPaths.CLASSIFICATIONS_DIR)
+    parent_path = ProjectPaths.CLASSIFICATIONS_DIR / ProjectPaths.DIR_GROUP
+    group_by_model_dir = create_directory(ProjectPaths.DIR_BY_MODEL, parent_path)
+    group_by_classes_dir = create_directory(ProjectPaths.DIR_BY_DATASET, parent_path)
     group_by_model_and_save(ProjectPaths.CLASSIFICATIONS_DIR / Naming.CLASSIFICATIONS, group_by_model_dir)
     group_by_classes_and_save(ProjectPaths.CLASSIFICATIONS_DIR / Naming.CLASSIFICATIONS, group_by_classes_dir)
 
@@ -67,7 +68,7 @@ def _model_building():
     print("\n--- Starting Model Building Phase ---")
 
     # Start Model Processing for each model building dataset
-    datasets = get_data_from_csv(ProjectPaths.DATASETS_FOR_PIPELINE)
+    datasets = get_data_from_csv(ProjectPaths.DATASETS_FOR_MODEL_BUILDING)
     for d in datasets.to_dict('records'):
         dataset_type = d['dataset_type']
         dataset_path = d['path']
@@ -118,9 +119,14 @@ def _preprocessing():
     # Do file preprocessing for a hybrid dataset
     hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter20_anomaly_data)
 
-    # Group datasets paths for model building and for classifications; save them in a csv file
+    # Group datasets paths for model building; save them in a csv file
     group_datasets_paths_for_filename_list(
-        ProjectPaths.DATASETS_INFO, ProjectPaths.DATASETS_FOR_PIPELINE, RoutineConfig.DATASETS_TARGETS
+        ProjectPaths.DATASETS_INFO, ProjectPaths.DATASETS_FOR_MODEL_BUILDING, RoutineConfig.DATASETS_TARGETS_FOR_MODEL_BUILDING
+    )
+    
+    # Group datasets paths for classifications; save them in a csv file
+    group_datasets_paths_for_filename_list(
+        ProjectPaths.DATASETS_INFO, ProjectPaths.DATASETS_FOR_CLASSIFICATIONS, RoutineConfig.DATASETS_TARGETS_FOR_CLASSIFICATIONS
     )
 
     print("\n--- Routine Preprocessing Phase Completed ---")

@@ -10,7 +10,7 @@ class MLConstants:
     RANDOM_STATE = 42
     NORMAL_ANOMALY_RATIO = 10
     TRAIN_SPLIT = 0.8
-    MODEL_VERBOSE = 1
+    MODEL_VERBOSE = 0
     DECIMAL_DIGITS = 4
     PLOTTING_METRICS = ['F1-Score', 'Precision', 'Recall']
 
@@ -52,6 +52,8 @@ class ProjectPaths:
     SRC = ROOT / "src"
 
     # --- SRC Subfolders ---
+    RAW_DATA_DIR = DATA / "raw_data"
+    PREP_DATA_DIR = DATA / "prep_data"
     CLASSIFICATIONS_DIR = SRC / "classifications"
     MODELS_DIR = SRC / "models"
     PLOTTING_DIR = SRC / "plotting"
@@ -60,6 +62,7 @@ class ProjectPaths:
     DIR_SINGLE_CLASSES = "single_classes"
     DIR_NORMAL_ANOMALY = "normal_anomaly"
     DIR_SCALED = "scaled"
+    DIR_GROUP = "group"
     DIR_BY_DATASET = "by_dataset"
     DIR_BY_MODEL = "by_model"
     DIR_CLASSES = "classes"
@@ -69,15 +72,16 @@ class ProjectPaths:
     DIR_CSV = "csv"
 
     # --- Pipeline Essential Files ---
-    DATASETS_FOR_PIPELINE = DATA / f"datasets_for_pipeline{Naming.EXT}"
-    DATASETS_INFO = DATA / f"datasets_info{Naming.EXT}"
-    DATASETS_FEATURES_MEAN = DATA / f"datasets_feature_mean{Naming.EXT}"
-    DATASETS_FEATURES_VAR = DATA / f"datasets_feature_variance{Naming.EXT}"
+    DATASETS_FOR_MODEL_BUILDING = PREP_DATA_DIR / f"datasets_for_model_building{Naming.EXT}"
+    DATASETS_FOR_CLASSIFICATIONS = PREP_DATA_DIR / f"datasets_for_classifications{Naming.EXT}"
+    DATASETS_INFO = PREP_DATA_DIR / f"datasets_info{Naming.EXT}"
+    DATASETS_FEATURES_MEAN = PREP_DATA_DIR / f"datasets_feature_mean{Naming.EXT}"
+    DATASETS_FEATURES_VAR = PREP_DATA_DIR / f"datasets_feature_variance{Naming.EXT}"
 
     # --- Raw Datasets ---
-    NB15_RAW = DATA / f"{Naming.NB15}{Naming.EXT}"
-    SAT20_RAW = DATA / f"{Naming.SAT20}{Naming.EXT}"
-    TER20_RAW = DATA / f"{Naming.TER20}{Naming.EXT}"
+    NB15_RAW = RAW_DATA_DIR / f"{Naming.NB15}{Naming.EXT}"
+    SAT20_RAW = RAW_DATA_DIR / f"{Naming.SAT20}{Naming.EXT}"
+    TER20_RAW = RAW_DATA_DIR / f"{Naming.TER20}{Naming.EXT}"
 
 
 class RoutineConfig:
@@ -89,8 +93,19 @@ class RoutineConfig:
         {'type': Naming.TER20, 'path': ProjectPaths.TER20_RAW}
     ]
 
-    # Defines the standard set of models to be built and classifications to do during a routine phase
-    DATASETS_TARGETS = [
+    # Defines the standard set of models to be built during a routine phase
+    DATASETS_TARGETS_FOR_MODEL_BUILDING = [
+        # --- NB15 dataset ---
+        {'dataset_type': Naming.NB15, 'filename': f"{Naming.NB15}{Naming.PREP_SCALED}{Naming.EXT}"},
+        {'dataset_type': Naming.NB15, 'filename': f"Normal_DoS{Naming.EXT}"},
+        {'dataset_type': Naming.NB15, 'filename': f"Normal_Exploits{Naming.EXT}"},
+        {'dataset_type': Naming.NB15, 'filename': f"Normal_Fuzzers{Naming.EXT}"},
+        {'dataset_type': Naming.NB15, 'filename': f"Normal_Generic{Naming.EXT}"},
+        {'dataset_type': Naming.NB15, 'filename': f"Normal_Reconnaissance{Naming.EXT}"}
+    ]
+
+    # Defines the standard set of classifications to do during a routine phase
+    DATASETS_TARGETS_FOR_CLASSIFICATIONS = [
         # --- NB15 dataset ---
         {'dataset_type': Naming.NB15, 'filename': f"{Naming.NB15}{Naming.PREP_SCALED}{Naming.EXT}"},
         {'dataset_type': Naming.NB15, 'filename': f"Normal_DoS{Naming.EXT}"},

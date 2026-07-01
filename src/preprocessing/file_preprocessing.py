@@ -215,7 +215,7 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter2
             return
 
     # Create the main directories
-    dataset_prep_dir = create_directory(f"{Naming.HYBRID}{Naming.PREP}", ProjectPaths.DATA)
+    dataset_prep_dir = create_directory(f"{Naming.HYBRID}{Naming.PREP}", ProjectPaths.PREP_DATA_DIR)
     nb15_sat20_normal_anomaly_dir = create_directory(f"{Naming.NB15_SAT20}_{ProjectPaths.DIR_NORMAL_ANOMALY}", dataset_prep_dir)
     nb15_ter20_normal_anomaly_dir = create_directory(f"{Naming.NB15_TER20}_{ProjectPaths.DIR_NORMAL_ANOMALY}", dataset_prep_dir)
     scaled_dir = create_directory(ProjectPaths.DIR_SCALED, dataset_prep_dir)
@@ -263,7 +263,7 @@ def single_dataset_file_preprocessing(data, type):
     print(f"Running file-level preprocessing for {type}...")
 
     # Create the main directories
-    dataset_prep_dir = create_directory(f"{type}{Naming.PREP}", ProjectPaths.DATA)
+    dataset_prep_dir = create_directory(f"{type}{Naming.PREP}", ProjectPaths.PREP_DATA_DIR)
     single_classes_dir = create_directory(ProjectPaths.DIR_SINGLE_CLASSES, dataset_prep_dir)
     scaled_dir = create_directory(ProjectPaths.DIR_SCALED, dataset_prep_dir)
 

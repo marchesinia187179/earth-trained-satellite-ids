@@ -206,9 +206,11 @@ def plotting_processing(models, data, metrics, row_order=None, col_order=None):
     :param row_order: optional list specifying the desired order of rows (models) in the heatmap
     :param col_order: optional list specifying the desired order of columns (datasets) in the heatmap
     """
+    # Create main directory
+    plots_dir = create_directory(ProjectPaths.DIR_PLOTS, ProjectPaths.PLOTTING_DIR)
 
     for feature in metrics:
-        dst_path = ProjectPaths.PLOTTING_DIR / f"{feature}_matrix{Naming.PLOT_EXT}"
+        dst_path =  plots_dir / f"{feature}_matrix{Naming.PLOT_EXT}"
         
         _generate_heatmap_for_feature(models, data, dst_path, feature, row_order, col_order)
 
