@@ -53,5 +53,35 @@ def calculate_metrics(y_test, y_pred, y_scores):
     }
 
 
+def calculate_mean_and_variance(data, dataset_type, class_type):
+    """
+    Calculates the mean and variance of each feature in the dataset and add a column for the dataset type. 
+    This is useful for understanding the distribution of features and for normalization purposes
+
+    :param data: Input pandas DataFrame containing the dataset
+    :param dataset_type: The type of the dataset
+    :param class_type: The class of the dataset (e.g., 'normal', 'anomaly', or specific attack type)
+    :return: A tuple containing two pandas Series: (mean, variance) for each feature
+    """
+    # Calculate stats first (isolating only numeric metrics to avoid parsing crashes)
+    mean_values = data.mean(numeric_only=True).round(4).to_dict()
+    variance_values = data.var(numeric_only=True).round(4).to_dict()
+
+    # Reconstruct dictionaries forcing 'dataset_type' and 'class' as the first keys
+    mean_record = {
+        'dataset_type': dataset_type, 
+        'class': class_type, 
+        **mean_values
+    }
+    
+    variance_record = {
+        'dataset_type': dataset_type, 
+        'class': class_type, 
+        **variance_values
+    }
+
+    return mean_record, variance_record
+
+
 if __name__ == "__main__":
     pass

@@ -39,7 +39,7 @@ class Naming:
     MODEL_INFO = f"models_info{EXT}"
     CLASSIFICATIONS = f"classifications{EXT}"
     MODELS_PATHS = f"models_paths{EXT}"
-    MODEL = "model"
+    MODEL = "model"     # It doesn't have an extension because it can be .pkl, .joblib, etc. depending on the model type
 
 
 class ProjectPaths:
@@ -66,6 +66,8 @@ class ProjectPaths:
     # --- Pipeline Essential Files ---
     DATASETS_FOR_PIPELINE = DATA / f"datasets_for_pipeline{Naming.EXT}"
     DATASETS_INFO = DATA / f"datasets_info{Naming.EXT}"
+    DATASETS_FEATURES_MEAN = DATA / f"datasets_feature_mean{Naming.EXT}"
+    DATASETS_FEATURES_VAR = DATA / f"datasets_feature_variance{Naming.EXT}"
 
     # --- Raw Datasets ---
     NB15_RAW = DATA / f"{Naming.NB15}{Naming.EXT}"

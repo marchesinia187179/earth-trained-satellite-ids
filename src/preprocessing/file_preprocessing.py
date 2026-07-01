@@ -4,8 +4,9 @@ Preprocessing functions for handling and preparing datasets.
 
 import pandas as pd
 
-from utils.file_utils import add_file_info_to_datasets_info, concat_and_shuffle, create_directory, create_csv_from_data
+from utils.file_utils import add_file_info_to_datasets_info, concat_and_shuffle, create_directory, create_csv_from_data, update_or_append_csv
 from utils.config import MLConstants, Naming, ProjectPaths
+from utils.metrics import calculate_mean_and_variance
 
 
 # --- Internal Functions ---
@@ -170,6 +171,26 @@ def _scale_by_normal_anomaly_ratio_and_save(data, type, dst_dir):
     add_file_info_to_datasets_info(file_path, type)
 
 
+def _get_mean_and_variance_and_save(data, dataset_type):
+    """
+    Calculates the mean and variance of each feature in the dataset and saves them into two separate csv files.
+    
+    :param data: Input pandas DataFrame containing the dataset
+    :param dataset_type: The type of the dataset
+    """
+    # Calculate and save the mean and variance for the aggregated dataset
+    mean_record, variance_record = calculate_mean_and_variance(data, dataset_type, 'aggregated')
+    update_or_append_csv(ProjectPaths.DATASETS_FEATURES_MEAN, mean_record, ['dataset_type', 'class'], id_column='id')
+    update_or_append_csv(ProjectPaths.DATASETS_FEATURES_VAR, variance_record, ['dataset_type', 'class'], id_column='id')
+
+    # Calculate and save the mean and variance for each class in the dataset
+    for class_type in data['class'].unique():
+        class_data = data[data['class'] == class_type]
+        mean_record, variance_record = calculate_mean_and_variance(class_data, dataset_type, class_type)
+        update_or_append_csv(ProjectPaths.DATASETS_FEATURES_MEAN, mean_record, ['dataset_type', 'class'], id_column='id')
+        update_or_append_csv(ProjectPaths.DATASETS_FEATURES_VAR, variance_record, ['dataset_type', 'class'], id_column='id')
+
+
 # --- Public Functions ---
 def hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter20_anomaly_data):
     """
@@ -226,6 +247,9 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter2
         elif dataset_type == Naming.NB15_TER20:
             _merge_normal_anomaly_and_save(dataset_data, dataset_type, nb15_ter20_normal_anomaly_dir)
 
+        # Calculate and save feature mean and variance
+        _get_mean_and_variance_and_save(dataset_data, dataset_type)
+
     print(f"File-level preprocessing for hybrid datasets done.")
 
 
@@ -253,6 +277,9 @@ def single_dataset_file_preprocessing(data, type):
         _scale_by_normal_anomaly_ratio_and_save(data, type, scaled_dir)
         normal_anomaly_dir = create_directory(ProjectPaths.DIR_NORMAL_ANOMALY, dataset_prep_dir)
         _merge_normal_anomaly_and_save(data, type, normal_anomaly_dir)
+
+    # Calculate and save feature mean and variance
+    _get_mean_and_variance_and_save(data, type)
 
     print(f"File-level preprocessing for {type} done.")
 
