@@ -1,7 +1,6 @@
 """
 Centralized management of project paths, ML constants, and routine configurations.
 """
-
 import pathlib
 
 class MLConstants:
@@ -37,7 +36,7 @@ class Naming:
     # Common File Names
     MODEL_INFO = f"models_info{EXT}"
     CLASSIFICATIONS = f"classifications{EXT}"
-    MODELS_PATHS = f"models_registry{EXT}"
+    MODELS_REGISTRY = f"models_registry{EXT}"
     MODEL = "model"     # It doesn't have an extension because it can be .pkl, .joblib, etc. depending on the model type
     FEATURE_IMPORTANCE = f"feature_importance"  # It doesn't have an extension because it can be .csv or .png depending on the context
     FEATURE_IMPORTANCE_BY_PERMUTATION = f"feature_importance_by_permutation{EXT}"
@@ -47,7 +46,7 @@ class ProjectPaths:
     """ Absolute Pathlib structures for project directories and core files """
 
     # --- Main Folders ---
-    ROOT = pathlib.Path(__file__).resolve().parent.parent
+    ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
     DATA = ROOT / "data"
     SRC = ROOT / "src"
     MODELS = ROOT / "models"
@@ -61,8 +60,20 @@ class ProjectPaths:
     # --- RESULTS Subfolders ---
     RESULTS_PLOT_DIR = RESULTS / "plots"
     RESULTS_CSV_DIR = RESULTS / "csv"
+    
+    # Specific CSV Subfolders
+    CLASSIFICATIONS_CSV_DIR = RESULTS_CSV_DIR / "classifications"
+    FEATURE_IMPORTANCE_CSV_DIR = RESULTS_CSV_DIR / "feature_importance"
+    CLASSIFICATIONS_BY_MODEL_DIR = CLASSIFICATIONS_CSV_DIR / "by_model"
+    CLASSIFICATIONS_BY_DATASET_DIR = CLASSIFICATIONS_CSV_DIR / "by_dataset"
 
-    # --- SRC Subforlders ---
+    # Specific PLOTS Subfolders
+    PERFORMANCE_PLOTS_DIR = RESULTS_PLOT_DIR / "performance"
+    FEAT_IMP_PLOTS_DIR = RESULTS_PLOT_DIR / "feature_importance"
+    PCA_PLOTS_DIR = RESULTS_PLOT_DIR / "pca"
+    PROB_PLOTS_DIR = RESULTS_PLOT_DIR / "probabilities"
+
+    # --- SRC Subfolders ---
     CLASSIFICATIONS_DIR = SRC / "classifications"
     PLOTTING_DIR = SRC / "plotting"
 
@@ -79,6 +90,7 @@ class ProjectPaths:
     DIR_CSV = "csv"
     DIR_DATASETS = "datasets"
     DIR_CLASSIFICATIONS = "classifications"
+    DIR_PERFORMANCE = "performance"
 
     # --- Pipeline Essential Files ---
     DATASETS_FOR_MODEL_BUILDING = METADATA_DIR / f"model_paths{Naming.EXT}"

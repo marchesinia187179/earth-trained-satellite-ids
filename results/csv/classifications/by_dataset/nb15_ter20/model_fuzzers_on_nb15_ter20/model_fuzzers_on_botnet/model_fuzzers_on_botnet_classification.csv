@@ -1,0 +1,2 @@
+id,timestamp,model_name,dataset_type,classes,samples,TP,TN,FP,FN,Accuracy,Precision,Recall,F1-Score,ROC-AUC,PR-AUC,TPR,FNR,TNR,FPR
+70,2026-07-02 17:03:18,model_fuzzers,nb15_ter20,"Botnet, Normal",102300,1376,18004,596,485,0.9472,0.6978,0.7394,0.718,0.9726,0.6845,0.7394,0.2606,0.968,0.032

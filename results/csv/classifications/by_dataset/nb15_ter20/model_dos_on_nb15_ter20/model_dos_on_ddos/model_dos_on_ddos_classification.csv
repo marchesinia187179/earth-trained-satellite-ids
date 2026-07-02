@@ -1,0 +1,2 @@
+id,timestamp,model_name,dataset_type,classes,samples,TP,TN,FP,FN,Accuracy,Precision,Recall,F1-Score,ROC-AUC,PR-AUC,TPR,FNR,TNR,FPR
+74,2026-07-02 17:03:29,model_dos,nb15_ter20,"DDoS, Normal",102300,6,18542,58,1855,0.9065,0.0938,0.0032,0.0062,0.9815,0.7662,0.0032,0.9968,0.9969,0.0031

@@ -3,7 +3,7 @@ This module contains utility functions for calculating various classification me
 """
 
 from sklearn.metrics import accuracy_score, average_precision_score, confusion_matrix, f1_score, precision_score, recall_score, roc_auc_score
-from utils.config import MLConstants
+from .config import MLConstants
 
 
 # --- Public Functions ---

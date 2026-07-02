@@ -1,0 +1,2 @@
+id,timestamp,model_name,dataset_type,classes,samples,TP,TN,FP,FN,Accuracy,Precision,Recall,F1-Score,ROC-AUC,PR-AUC,TPR,FNR,TNR,FPR
+5,2026-07-02 17:00:44,model_generic,nb15,"Reconnaissance, Normal, DoS, Generic, Exploits, Fuzzers",102300,1091,18591,9,770,0.9619,0.9918,0.5862,0.7369,0.8889,0.7914,0.5862,0.4138,0.9995,0.0005

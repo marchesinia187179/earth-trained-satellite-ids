@@ -1,13 +1,12 @@
 """
 Utility functions for handling CSV file operations with update and append capabilities.
 """
-
 import pandas as pd
 import pathlib
 import sys
 
 from datetime import datetime
-from utils.config import MLConstants, Naming, ProjectPaths
+from .config import MLConstants, Naming, ProjectPaths
 
 
 # --- Public Functions ---
@@ -296,6 +295,15 @@ def concat_and_shuffle(data_list):
     
     return final_dataframe
 
+def _get_case_suffix_from_classes(classes, dataset_type=None):
+    """Standardizes a suffix from a classes string for output naming."""
+    unique_classes = [c.strip() for c in str(classes).split(',') if c.strip()]
+    if len(unique_classes) > 2:
+        return dataset_type if dataset_type else 'aggregate'
+    attack_classes = [c for c in unique_classes if c.lower() != 'normal']
+    return attack_classes[0].lower().replace(' ', '_') if attack_classes else 'unknown'
+
+
 def group_by_model_and_save(data, dst_dir):
     """
     Groups classification results by model name and exports each group into a separate CSV file.
@@ -312,9 +320,8 @@ def group_by_model_and_save(data, dst_dir):
 
     # Segment the data rows dynamically by splitting them into distinct sub-matrices per model architecture
     for model_name, model_group in source_dataframe.groupby('model_name'):
-        # Generate a standardized filename combining the unique model identifier with the system's naming suffix
-        # and serialize the specific model's performance logs to disk
-        create_csv_from_data(model_group, f"{model_name}{Naming.CLASSIFICATION}", dst_dir)
+        model_dir = create_directory(model_name, dst_dir)
+        create_csv_from_data(model_group, f"{model_name}{Naming.CLASSIFICATION}", model_dir)
 
 
 def group_by_classes_and_save(data, dst_dir):
@@ -324,8 +331,7 @@ def group_by_classes_and_save(data, dst_dir):
 
     This utility parses a comprehensive evaluation log, isolates rows by their top-level 
     domain environment ('dataset_type'), creates a parent folder for that domain, and then 
-    sub-segments those entries by their target attack profiles ('classes') into deep-nested 
-    storage layers.
+    further segments entries by model and class-specific case.
 
     :param data: Path-like or string pointing to the master classification results CSV file
     :param dst_dir: pathlib.Path or string pointing to the root destination directory for the layout
@@ -335,23 +341,51 @@ def group_by_classes_and_save(data, dst_dir):
 
     # Outer Split: Isolate the evaluation traces by their dataset domain (e.g., 'nb15', 'sat20')
     for dataset_type, dataset_group in source_dataframe.groupby('dataset_type'):
-        # Dynamically create a dedicated top-level directory for the specific dataset type
         target_dataset_directory = create_directory(dataset_type, dst_dir)
+
+        # Group by each model name under the dataset
+        for model_name, model_group in dataset_group.groupby('model_name'):
+            model_dataset_root = f"{model_name}_on_{dataset_type}"
+            model_directory = create_directory(model_dataset_root, target_dataset_directory)
+
+            for class_identifier, class_group in model_group.groupby('classes'):
+                case_suffix = _get_case_suffix_from_classes(class_identifier, dataset_type)
+                case_name = f"{model_name}_on_{case_suffix}"
+                case_dir = create_directory(case_name, model_directory)
+
+                create_csv_from_data(
+                    class_group,
+                    f"{case_name}{Naming.CLASSIFICATION}",
+                    case_dir
+                )
+
+
+def init_project_environment():
+    """
+    Initializes the runtime environment by automatically creating all required directories
+    for input data, metadata, models, and visualization outputs if they do not already exist on the disk.
+    """
+    required_directories = [
+        ProjectPaths.RAW_DATA_DIR,
+        ProjectPaths.PREP_DATA_DIR,
+        ProjectPaths.METADATA_DIR,
+        ProjectPaths.MODELS,
+        ProjectPaths.RESULTS_PLOT_DIR,
+        ProjectPaths.RESULTS_CSV_DIR,
+        ProjectPaths.CLASSIFICATIONS_CSV_DIR,
+        ProjectPaths.CLASSIFICATIONS_BY_MODEL_DIR,
+        ProjectPaths.CLASSIFICATIONS_BY_DATASET_DIR,
+        ProjectPaths.FEATURE_IMPORTANCE_CSV_DIR,
+        ProjectPaths.PERFORMANCE_PLOTS_DIR,
+        ProjectPaths.FEAT_IMP_PLOTS_DIR,
+        ProjectPaths.PCA_PLOTS_DIR,
+        ProjectPaths.PROB_PLOTS_DIR
+    ]
+    
+    for directory in required_directories:
+        directory.mkdir(parents=True, exist_ok=True)
         
-        # Inner Split: Further segment the domain's data by evaluated attack combinations/classes
-        for class_identifier, class_group in dataset_group.groupby('classes'):
-            # Generate the mandatory nested classes subdirectory inside the domain's folder
-            target_classes_directory = create_directory(ProjectPaths.DIR_CLASSES, target_dataset_directory)
-            
-            # Sanitize the class string to make it safe for filesystem use by clearing spaces and commas
-            formatted_class_name = class_identifier.replace(" ", "_").replace(",", "_")
-            
-            # Export the highly granular evaluation slice into its final localized CSV repository
-            create_csv_from_data(
-                class_group, 
-                f"{formatted_class_name}{Naming.CLASSIFICATION}", 
-                target_classes_directory
-            )
+    print("Folder Structure Initialized Successfully!")
 
 
 if __name__ == "__main__":

@@ -3,15 +3,17 @@ Main entry point for the Satellite IDS project.
 """
 
 from pathlib import Path
-from src.classifications.classification import classification_processing
-from src.models.models import model_processing
-from src.plotting.plotting import plotting_processing
+from src.classification import classification_processing
+from src.models import model_processing
+from src.plotting import plot_pca, plotting_processing
 from src.utils.file_utils import (
     create_directory, get_data_from_csv, group_by_classes_and_save, 
-    group_by_model_and_save, group_datasets_paths_for_filename_list)
+    group_by_model_and_save, group_datasets_paths_for_filename_list,
+    init_project_environment
+)
 from src.utils.config import MLConstants, Naming, ProjectPaths, RoutineConfig, PlotConfig
-from src.preprocessing.data_preprocessing import data_preprocessing
-from src.preprocessing.file_preprocessing import hybrid_dataset_file_preprocessing, single_dataset_file_preprocessing
+from src.data_preprocessing import data_preprocessing
+from src.file_preprocessing import hybrid_dataset_file_preprocessing, single_dataset_file_preprocessing
 
 
 # --- Internal Helper Functions ---
@@ -31,8 +33,8 @@ def _plotting():
     """ Show classifications on TNR and TPR plots """
     print("\n--- Plotting Phase ---")
 
-    models = get_data_from_csv(ProjectPaths.MODELS_DIR / Naming.MODEL_INFO)
-    data = get_data_from_csv(ProjectPaths.CLASSIFICATIONS_DIR / Naming.CLASSIFICATIONS)
+    models = get_data_from_csv(ProjectPaths.RESULTS_CSV_DIR / Naming.MODEL_INFO)
+    data = get_data_from_csv(ProjectPaths.RESULTS_CSV_DIR / ProjectPaths.DIR_CLASSIFICATIONS / Naming.CLASSIFICATIONS)
     plotting_processing(models, data, MLConstants.PLOTTING_METRICS, PlotConfig.HEATMAP_ROW_ORDER, PlotConfig.HEATMAP_COLUMN_ORDER)
 
     print(f"\n--- Routine Plotting Phase Completed ---")
@@ -46,19 +48,28 @@ def _classifications():
     datasets = get_data_from_csv(ProjectPaths.DATASETS_FOR_CLASSIFICATIONS)
     for d in datasets.to_dict('records'):
         dataset_type = d['dataset_type']
-        dataset_path = d['path']
+        dataset_path = Path(d['path'])
 
-        data = get_data_from_csv(Path(dataset_path))
-        models_paths = get_data_from_csv(ProjectPaths.MODELS_DIR / Naming.MODELS_PATHS)['path']
+        data = get_data_from_csv(dataset_path)
+
+        # Generate one PCA plot for each loaded dataset of test
+        dataset_stem = dataset_path.stem.lower().replace(' ', '_')
+        pca_output_path = ProjectPaths.PCA_PLOTS_DIR / f"pca_{dataset_stem}{Naming.PLOT_EXT}"
+        X = data.drop(columns=["label", "class", "split_type"])
+        y = data["label"]
+        plot_pca(X, y, pca_output_path)
+
+        models_paths = get_data_from_csv(ProjectPaths.MODELS / Naming.MODELS_REGISTRY)['path']
         for model_path in models_paths:
-            classification_processing(Path(model_path), data, dataset_type)
+            classification_processing(Path(model_path), data, dataset_type, dataset_stem)
 
     # Group classifications by model and by dataset type and save them in separate directories
-    parent_path = ProjectPaths.RESULTS / ProjectPaths.DIR_CLASSIFICATIONS
+    parent_path = ProjectPaths.RESULTS_CSV_DIR / ProjectPaths.DIR_CLASSIFICATIONS
     group_by_model_dir = create_directory(ProjectPaths.DIR_BY_MODEL, parent_path)
     group_by_classes_dir = create_directory(ProjectPaths.DIR_BY_DATASET, parent_path)
-    group_by_model_and_save(ProjectPaths.CLASSIFICATIONS_DIR / Naming.CLASSIFICATIONS, group_by_model_dir)
-    group_by_classes_and_save(ProjectPaths.CLASSIFICATIONS_DIR / Naming.CLASSIFICATIONS, group_by_classes_dir)
+    src_file = ProjectPaths.RESULTS_CSV_DIR / ProjectPaths.DIR_CLASSIFICATIONS / Naming.CLASSIFICATIONS
+    group_by_model_and_save(src_file, group_by_model_dir)
+    group_by_classes_and_save(src_file, group_by_classes_dir)
 
     print("\n--- Routine Classification Completed ---")
 
@@ -135,7 +146,7 @@ def _preprocessing():
 # --- Public Functions ---
 def main():
     """ Main entry point of the application with a main dashboard menu """
-    # setup_project_directories()
+    init_project_environment()
 
     while True:
         # Print main dashboard menu

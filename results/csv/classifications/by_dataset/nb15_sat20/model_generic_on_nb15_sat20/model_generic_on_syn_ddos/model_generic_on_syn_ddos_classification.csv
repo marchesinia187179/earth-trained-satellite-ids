@@ -1,0 +1,2 @@
+id,timestamp,model_name,dataset_type,classes,samples,TP,TN,FP,FN,Accuracy,Precision,Recall,F1-Score,ROC-AUC,PR-AUC,TPR,FNR,TNR,FPR
+59,2026-07-02 17:02:52,model_generic,nb15_sat20,"Syn_DDoS, Normal",102300,0,18591,9,1861,0.9086,0.0,0.0,0.0,0.6395,0.2689,0.0,1.0,0.9995,0.0005

@@ -1,0 +1,2 @@
+id,timestamp,model_name,dataset_type,classes,samples,TP,TN,FP,FN,Accuracy,Precision,Recall,F1-Score,ROC-AUC,PR-AUC,TPR,FNR,TNR,FPR
+66,2026-07-02 17:03:06,model_reconnaissance,nb15_sat20,"UDP_DDoS, Normal",102300,66,18524,76,1795,0.9086,0.4648,0.0355,0.0659,0.9806,0.7999,0.0355,0.9645,0.9959,0.0041

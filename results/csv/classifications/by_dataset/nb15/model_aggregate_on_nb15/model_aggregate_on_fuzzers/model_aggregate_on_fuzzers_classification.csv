@@ -1,0 +1,2 @@
+id,timestamp,model_name,dataset_type,classes,samples,TP,TN,FP,FN,Accuracy,Precision,Recall,F1-Score,ROC-AUC,PR-AUC,TPR,FNR,TNR,FPR
+19,2026-07-02 17:01:19,model_aggregate,nb15,"Fuzzers, Normal",102300,499,18425,175,1362,0.9249,0.7404,0.2681,0.3937,0.8571,0.5358,0.2681,0.7319,0.9906,0.0094
