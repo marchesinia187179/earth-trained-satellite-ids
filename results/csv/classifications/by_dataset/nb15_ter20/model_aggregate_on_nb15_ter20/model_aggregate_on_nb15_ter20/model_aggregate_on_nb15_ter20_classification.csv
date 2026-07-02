@@ -1,2 +1,0 @@
-id,timestamp,model_name,dataset_type,classes,samples,TP,TN,FP,FN,Accuracy,Precision,Recall,F1-Score,ROC-AUC,PR-AUC,TPR,FNR,TNR,FPR
-49,2026-07-02 17:02:33,model_aggregate,nb15_ter20,"UDP_DDoS, Normal, DDoS, Botnet, Syn_DDoS",102300,1043,18425,175,818,0.9515,0.8563,0.5605,0.6775,0.9751,0.7482,0.5605,0.4395,0.9906,0.0094

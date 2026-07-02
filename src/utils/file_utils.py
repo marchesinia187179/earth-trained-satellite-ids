@@ -304,60 +304,39 @@ def _get_case_suffix_from_classes(classes, dataset_type=None):
     return attack_classes[0].lower().replace(' ', '_') if attack_classes else 'unknown'
 
 
+def _normalize_dataset_classes_filename(dataset_type, classes):
+    """Builds a safe filename from dataset_type and classes values."""
+    raw_name = f"{dataset_type}_{classes}"
+    safe_name = raw_name.lower().replace(' ', '_').replace(',', '_')
+    safe_name = '_'.join([segment for segment in safe_name.split('_') if segment])
+    return safe_name
+
+
 def group_by_model_and_save(data, dst_dir):
     """
-    Groups classification results by model name and exports each group into a separate CSV file.
-
-    This utility takes a comprehensive evaluation log file, isolates rows based on their 
-    associated 'model_name' field, and serializes each model's experimental performance data 
-    into a dedicated partition inside the target destination directory.
+    Groups classification results by model name and exports one CSV per model.
 
     :param data: Path-like or string pointing to the master classification results CSV file
     :param dst_dir: pathlib.Path or string pointing to the directory where individual files will be saved
     """
-    # Load the unified evaluation results database into a pandas DataFrame
     source_dataframe = get_data_from_csv(data)
 
-    # Segment the data rows dynamically by splitting them into distinct sub-matrices per model architecture
     for model_name, model_group in source_dataframe.groupby('model_name'):
-        model_dir = create_directory(model_name, dst_dir)
-        create_csv_from_data(model_group, f"{model_name}{Naming.CLASSIFICATION}", model_dir)
+        create_csv_from_data(model_group, f"{model_name}_{Naming.CLASSIFICATIONS}", dst_dir)
 
 
 def group_by_classes_and_save(data, dst_dir):
     """
-    Hierarchically segments evaluation results by dataset type and attack classes, 
-    saving the granular subsets into a nested directory structure.
-
-    This utility parses a comprehensive evaluation log, isolates rows by their top-level 
-    domain environment ('dataset_type'), creates a parent folder for that domain, and then 
-    further segments entries by model and class-specific case.
+    Groups classification results by dataset_type and classes, saving one CSV per combination.
 
     :param data: Path-like or string pointing to the master classification results CSV file
     :param dst_dir: pathlib.Path or string pointing to the root destination directory for the layout
     """
-    # Load the comprehensive evaluation log data into a pandas DataFrame
     source_dataframe = get_data_from_csv(data)
 
-    # Outer Split: Isolate the evaluation traces by their dataset domain (e.g., 'nb15', 'sat20')
-    for dataset_type, dataset_group in source_dataframe.groupby('dataset_type'):
-        target_dataset_directory = create_directory(dataset_type, dst_dir)
-
-        # Group by each model name under the dataset
-        for model_name, model_group in dataset_group.groupby('model_name'):
-            model_dataset_root = f"{model_name}_on_{dataset_type}"
-            model_directory = create_directory(model_dataset_root, target_dataset_directory)
-
-            for class_identifier, class_group in model_group.groupby('classes'):
-                case_suffix = _get_case_suffix_from_classes(class_identifier, dataset_type)
-                case_name = f"{model_name}_on_{case_suffix}"
-                case_dir = create_directory(case_name, model_directory)
-
-                create_csv_from_data(
-                    class_group,
-                    f"{case_name}{Naming.CLASSIFICATION}",
-                    case_dir
-                )
+    for (dataset_type, classes), group in source_dataframe.groupby(['dataset_type', 'classes']):
+        safe_name = _normalize_dataset_classes_filename(dataset_type, classes)
+        create_csv_from_data(group, f"{safe_name}_{Naming.CLASSIFICATIONS}", dst_dir)
 
 
 def init_project_environment():

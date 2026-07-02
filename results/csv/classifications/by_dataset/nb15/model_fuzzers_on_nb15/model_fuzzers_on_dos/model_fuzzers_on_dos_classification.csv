@@ -1,2 +1,0 @@
-id,timestamp,model_name,dataset_type,classes,samples,TP,TN,FP,FN,Accuracy,Precision,Recall,F1-Score,ROC-AUC,PR-AUC,TPR,FNR,TNR,FPR
-10,2026-07-02 17:00:56,model_fuzzers,nb15,"DoS, Normal",102300,1434,18004,596,427,0.95,0.7064,0.7706,0.7371,0.9499,0.8445,0.7706,0.2294,0.968,0.032

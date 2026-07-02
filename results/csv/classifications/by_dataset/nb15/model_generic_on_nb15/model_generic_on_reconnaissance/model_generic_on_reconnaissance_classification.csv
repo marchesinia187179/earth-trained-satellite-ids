@@ -1,2 +1,0 @@
-id,timestamp,model_name,dataset_type,classes,samples,TP,TN,FP,FN,Accuracy,Precision,Recall,F1-Score,ROC-AUC,PR-AUC,TPR,FNR,TNR,FPR
-35,2026-07-02 17:01:53,model_generic,nb15,"Reconnaissance, Normal",102300,263,18591,9,1598,0.9215,0.9669,0.1413,0.2466,0.6999,0.4098,0.1413,0.8587,0.9995,0.0005

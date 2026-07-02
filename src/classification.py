@@ -76,7 +76,7 @@ def _classification(model_path, data):
 
 
 # --- Public Functions ---
-def classification_processing(model_path, data, type, dataset_name):
+def classification_processing(model_path, data, dataset_type, dataset_name):
     """
     Main orchestration function to run the evaluation workflow. 
     It triggers the classification, extracts metadata, and handles file storage
@@ -89,9 +89,8 @@ def classification_processing(model_path, data, type, dataset_name):
     classes = ", ".join(str(c) for c in unique_classes)
 
     model_name = model_path.stem
-    dataset_type = type
     dataset_stem = dataset_name.lower().replace(' ', '_')
-    prob_filename = f"{model_name}_on_{dataset_stem}{Naming.PLOT_EXT}"
+    prob_filename = f"{model_name}_on_{dataset_type.lower()}_{dataset_stem}{Naming.PLOT_EXT}"
 
     # Create model-specific probability directory and save one plot per model/dataset
     model_prob_dir = create_directory(model_name, ProjectPaths.PROB_PLOTS_DIR)

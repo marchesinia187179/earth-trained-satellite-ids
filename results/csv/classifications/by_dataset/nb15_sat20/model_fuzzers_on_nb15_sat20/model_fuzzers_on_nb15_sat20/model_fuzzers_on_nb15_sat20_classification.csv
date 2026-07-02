@@ -1,2 +1,0 @@
-id,timestamp,model_name,dataset_type,classes,samples,TP,TN,FP,FN,Accuracy,Precision,Recall,F1-Score,ROC-AUC,PR-AUC,TPR,FNR,TNR,FPR
-46,2026-07-02 17:02:23,model_fuzzers,nb15_sat20,"UDP_DDoS, Normal, Syn_DDoS",102300,952,18004,596,909,0.9264,0.615,0.5116,0.5585,0.9428,0.5414,0.5116,0.4884,0.968,0.032

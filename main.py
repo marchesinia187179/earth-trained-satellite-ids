@@ -52,9 +52,9 @@ def _classifications():
 
         data = get_data_from_csv(dataset_path)
 
-        # Generate one PCA plot for each loaded dataset of test
+        # Generate one PCA plot for each loaded test dataset and avoid filename collisions
         dataset_stem = dataset_path.stem.lower().replace(' ', '_')
-        pca_output_path = ProjectPaths.PCA_PLOTS_DIR / f"pca_{dataset_stem}{Naming.PLOT_EXT}"
+        pca_output_path = ProjectPaths.PCA_PLOTS_DIR / f"{dataset_type.lower()}_{dataset_stem}{Naming.PLOT_EXT}"
         X = data.drop(columns=["label", "class", "split_type"])
         y = data["label"]
         plot_pca(X, y, pca_output_path)
