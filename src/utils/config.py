@@ -72,6 +72,7 @@ class ProjectPaths:
     FEAT_IMP_PLOTS_DIR = RESULTS_PLOT_DIR / "feature_importance"
     PCA_PLOTS_DIR = RESULTS_PLOT_DIR / "pca"
     PROB_PLOTS_DIR = RESULTS_PLOT_DIR / "probabilities"
+    SHAP_PLOTS_DIR = RESULTS_PLOT_DIR / "shap"
 
     # --- SRC Subfolders ---
     CLASSIFICATIONS_DIR = SRC / "classifications"
@@ -205,3 +206,7 @@ class PlotConfig:
 
 if __name__ == "__main__":
     pass
+
+# --- SHAP configuration ---
+# Maximum total number of samples to use for SHAP summary plots (split evenly per class)
+SHAP_MAX_SAMPLES = 500

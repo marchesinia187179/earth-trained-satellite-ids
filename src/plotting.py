@@ -6,10 +6,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
+import shap
 
 from .utils.file_utils import create_directory
 
-from .utils.config import Naming, ProjectPaths
+from .utils.config import Naming, ProjectPaths, SHAP_MAX_SAMPLES
 
 
 # --- Internal Helper Functions ---
@@ -196,6 +197,81 @@ def plot_feature_importances(importances, feature_names, std, dst_path):
     # Save figure using 'bbox_inches' to cleanly dynamic-fit all outer elements without clipping
     plt.savefig(dst_path, dpi=300, bbox_inches='tight')
     plt.close()
+
+
+def plot_shap_summary(model, X_test, y_test, dst_path):
+    """
+    Generates a SHAP summary (beeswarm) plot for a given model and test matrix.
+
+    :param model: Trained model object compatible with shap.TreeExplainer
+    :param X_test: DataFrame or numpy array containing test features
+    :param dst_path: Path to save the generated SHAP plot
+    """
+    print("Generating SHAP summary plot (stratified sampling)...")
+    try:
+        # Ensure y_test is a pandas Series aligned to X_test
+        if hasattr(X_test, 'index'):
+            y_series = pd.Series(y_test, index=X_test.index)
+        else:
+            y_series = pd.Series(y_test)
+
+        # Separate Normal (0) and Attack (1) groups
+        normal_mask = y_series == 0
+        attack_mask = y_series == 1
+
+        X_normal = X_test[normal_mask]
+        X_attack = X_test[attack_mask]
+
+        # Determine sample sizes dynamically using central configuration
+        samples_per_class = SHAP_MAX_SAMPLES // 2
+        n_normal = min(samples_per_class, len(X_normal))
+        n_attack = min(samples_per_class, len(X_attack))
+
+        sampled_parts = []
+        if n_normal > 0:
+            sampled_parts.append(X_normal.sample(n=n_normal, random_state=42))
+        if n_attack > 0:
+            sampled_parts.append(X_attack.sample(n=n_attack, random_state=42))
+
+        if sampled_parts:
+            X_test_sampled = pd.concat(sampled_parts)
+        else:
+            # Fallback to random sample using total SHAP_MAX_SAMPLES if no labeled groups found
+            sample_n = min(SHAP_MAX_SAMPLES, len(X_test))
+            X_test_sampled = X_test.sample(n=sample_n, random_state=42)
+
+        # Compute SHAP values; some SHAP versions accept 'check_additivity' on
+        # shap_values(), others do not. Be compatible by attempting the
+        # keyword on the call and falling back if it's unsupported.
+        explainer = shap.TreeExplainer(model)
+        try:
+            shap_values = explainer.shap_values(X_test_sampled, check_additivity=False)
+        except TypeError:
+            # Older/newer versions may not accept the kwarg; call without it
+            shap_values = explainer.shap_values(X_test_sampled)
+
+        # If shap_values is a list (one array per class), select the positive class (index 1)
+        if isinstance(shap_values, list) and len(shap_values) == 2:
+            shap_values = shap_values[1]
+
+        # Ensure we display all features: set max_display dynamically
+        n_features = X_test_sampled.shape[1]
+
+        # Create a fresh figure sized according to number of features to avoid clipping
+        plt.figure(figsize=(12, max(6, n_features * 0.25)))
+
+        # Create the beeswarm summary plot based on the sampled matrix showing all features
+        shap.summary_plot(shap_values, X_test_sampled, show=False, max_display=n_features)
+
+        # Apply academic formatting and title (keeps SHAP's colorbar intact)
+        plt.title("SHAP Feature Impact Analysis", fontsize=14, fontweight='bold', pad=15)
+
+        # Save and close (bbox_inches='tight' preserves the colorbar/labels)
+        plt.savefig(dst_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        print(f"SHAP summary successfully saved to: {dst_path}")
+    except Exception as e:
+        print(f"Warning: Could not generate SHAP plot ({e}). Skipping.")
 
 
 def plotting_processing(models, data, metrics, row_order=None, col_order=None):

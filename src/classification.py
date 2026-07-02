@@ -4,10 +4,10 @@ Classification logic for evaluating trained models on test datasets.
 import joblib
 
 from datetime import datetime
-from .utils.file_utils import create_directory, update_or_append_csv
+from .utils.file_utils import create_directory, update_or_append_csv, _normalize_dataset_classes_filename
 from .utils.metrics import calculate_metrics
 from .utils.config import Naming, ProjectPaths
-from .plotting import plot_probability_distribution
+from .plotting import plot_probability_distribution, plot_shap_summary
 
 
 # --- Internal Helper Functions ---
@@ -72,7 +72,7 @@ def _classification(model_path, data):
     metrics = calculate_metrics(y_test, y_pred, y_scores)
 
     print(f"Classifying process done.")
-    return metrics, test_set, X_test, y_test, y_scores
+    return metrics, test_set, X_test, y_test, y_scores, model
 
 
 # --- Public Functions ---
@@ -82,7 +82,7 @@ def classification_processing(model_path, data, dataset_type, dataset_name):
     It triggers the classification, extracts metadata, and handles file storage
     """
     # Calculate classification and extract test data
-    metrics, test_set, X_test, y_test, y_scores = _classification(model_path, data)
+    metrics, test_set, X_test, y_test, y_scores, model = _classification(model_path, data)
 
     # Get unique classes present in the dataset
     unique_classes = data['class'].unique()
@@ -96,6 +96,16 @@ def classification_processing(model_path, data, dataset_type, dataset_name):
     model_prob_dir = create_directory(model_name, ProjectPaths.PROB_PLOTS_DIR)
     prob_output_path = model_prob_dir / prob_filename
     plot_probability_distribution(y_test, y_scores, prob_output_path)
+
+    # Generate SHAP summary plot per model/dataset
+    try:
+        safe_case = _normalize_dataset_classes_filename(dataset_type, classes)
+        shap_filename = f"{model_name}_on_{safe_case}{Naming.PLOT_EXT}"
+        model_shap_dir = create_directory(model_name, ProjectPaths.SHAP_PLOTS_DIR)
+        shap_output_path = model_shap_dir / shap_filename
+        plot_shap_summary(model, X_test, y_test, shap_output_path)
+    except Exception as e:
+        print(f"Warning: SHAP plotting skipped ({e})")
 
     # Save the summary CSV file of classifications to the aggregated master file
     dst_dir = create_directory(ProjectPaths.CLASSIFICATIONS_CSV_DIR.name, ProjectPaths.RESULTS_CSV_DIR)

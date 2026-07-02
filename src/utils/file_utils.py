@@ -350,6 +350,7 @@ def init_project_environment():
         ProjectPaths.METADATA_DIR,
         ProjectPaths.MODELS,
         ProjectPaths.RESULTS_PLOT_DIR,
+        ProjectPaths.SHAP_PLOTS_DIR,
         ProjectPaths.RESULTS_CSV_DIR,
         ProjectPaths.CLASSIFICATIONS_CSV_DIR,
         ProjectPaths.CLASSIFICATIONS_BY_MODEL_DIR,
