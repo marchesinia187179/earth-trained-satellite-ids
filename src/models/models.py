@@ -44,7 +44,7 @@ def _save_feature_importance_and_plots(model, feature_names, plots_dir, csv_dir)
     print(f"Feature importance saved to {feature_importance_name}")
 
 
-def _save_model_and_metadata(model, metrics, dataset_type, classes, samples, main_dst_dir, model_dst_dir):
+def _save_model_and_metadata(model, metrics, dataset_type, classes, samples, model_dir):
     """
     Simplifies and unifies saving for Random Forest models
     
@@ -52,18 +52,17 @@ def _save_model_and_metadata(model, metrics, dataset_type, classes, samples, mai
     :param metrics: a dictionary containing the calculated evaluation metrics
     :param dataset_type: string describing the dataset type (nb15, sat20, ...)
     :param samples: integer indicating the number of samples used
-    :param main_dst_dir: path object where main files will be saved
-    :param model_dst_dir: path object where model files will be saved
+    :param model_dir: path object where files will be saved
     :return: None
     """
     # Save model
-    existing_files = list(model_dst_dir.glob(f'{Naming.MODEL}_*.joblib'))
+    existing_files = list(model_dir.glob(f'{Naming.MODEL}_*.joblib'))
     model_name = f'{Naming.MODEL}_{len(existing_files) + 1}'
-    model_path = model_dst_dir / f'{model_name}.joblib'
+    model_path = model_dir / f'{model_name}.joblib'
     joblib.dump(model, model_path)
 
     # Save model path
-    update_or_append_csv(main_dst_dir / Naming.MODELS_PATHS, {'path': str(model_path)}, ['path'], id_column='id')
+    update_or_append_csv(model_dir / Naming.MODELS_PATHS, {'path': str(model_path)}, ['path'], id_column='id')
 
     # Get model and data params
     params = model.get_params()
@@ -90,11 +89,10 @@ def _save_model_and_metadata(model, metrics, dataset_type, classes, samples, mai
     results = {k: (v if v is not None else 'None') for k, v in results.items()}
     
     # Save metadata
-    info_file = main_dst_dir / Naming.MODEL_INFO
     match_keys = ['model_name', 'dataset_type']
-    update_or_append_csv(info_file, results, match_keys, id_column='id')
+    update_or_append_csv(ProjectPaths.MODELS_INFO, results, match_keys, id_column='id')
     
-    print(f"Model {model_name} saved to {main_dst_dir.name} and metadata processed in {info_file.name}")
+    print(f"Model {model_name} saved to {model_dir.name} and metadata processed in {ProjectPaths.MODELS_INFO.name}")
 
 
 def _random_forest(data):
@@ -144,11 +142,10 @@ def model_processing(data, type):
     :param type: string describing the dataset type (nb15, sat20, ...)
     :return: None
     """
-    # Create main directory
-    joblib_dir = create_directory(ProjectPaths.DIR_MODELS, ProjectPaths.MODELS_DIR)
-    feature_importance_dir = create_directory(ProjectPaths.DIR_FEATURE_IMPORTANCE, ProjectPaths.MODELS_DIR)
-    feature_importance_plots_dir = create_directory(ProjectPaths.DIR_PLOTS, feature_importance_dir)
-    feature_importance_csv_dir = create_directory(ProjectPaths.DIR_CSV, feature_importance_dir)
+    # Create feature importance directory
+    # TODO
+    feature_importance_plots_dir = create_directory(ProjectPaths.DIR_FEATURE_IMPORTANCE, ProjectPaths.RESULTS_PLOT_DIR)
+    feature_importance_csv_dir = create_directory(ProjectPaths.DIR_FEATURE_IMPORTANCE, ProjectPaths.RESULTS_CSV_DIR)
 
     # Create random forest model
     model, metrics, feature_names = _random_forest(data)
@@ -158,7 +155,7 @@ def model_processing(data, type):
     classes = ", ".join(str(c) for c in unique_classes)
 
     # Save random forest model and metadata
-    _save_model_and_metadata(model, metrics, type, classes, data.shape[0], ProjectPaths.MODELS_DIR, joblib_dir)
+    _save_model_and_metadata(model, metrics, type, classes, data.shape[0], ProjectPaths.MODELS)
 
     # Get feature importance and save it
     _save_feature_importance_and_plots(model, feature_names, feature_importance_plots_dir, feature_importance_csv_dir)

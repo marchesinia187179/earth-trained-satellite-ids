@@ -37,7 +37,7 @@ class Naming:
     # Common File Names
     MODEL_INFO = f"models_info{EXT}"
     CLASSIFICATIONS = f"classifications{EXT}"
-    MODELS_PATHS = f"models_paths{EXT}"
+    MODELS_PATHS = f"models_registry{EXT}"
     MODEL = "model"     # It doesn't have an extension because it can be .pkl, .joblib, etc. depending on the model type
     FEATURE_IMPORTANCE = f"feature_importance"  # It doesn't have an extension because it can be .csv or .png depending on the context
     FEATURE_IMPORTANCE_BY_PERMUTATION = f"feature_importance_by_permutation{EXT}"
@@ -47,22 +47,29 @@ class ProjectPaths:
     """ Absolute Pathlib structures for project directories and core files """
 
     # --- Main Folders ---
-    ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
+    ROOT = pathlib.Path(__file__).resolve().parent.parent
     DATA = ROOT / "data"
     SRC = ROOT / "src"
+    MODELS = ROOT / "models"
+    RESULTS = ROOT / "results"
 
-    # --- SRC Subfolders ---
-    RAW_DATA_DIR = DATA / "raw_data"
-    PREP_DATA_DIR = DATA / "prep_data"
+    # --- DATA Subfolders ---
+    RAW_DATA_DIR = DATA / "raw"
+    PREP_DATA_DIR = DATA / "preprocessed"
+    METADATA_DIR = PREP_DATA_DIR / "metadata"
+
+    # --- RESULTS Subfolders ---
+    RESULTS_PLOT_DIR = RESULTS / "plots"
+    RESULTS_CSV_DIR = RESULTS / "csv"
+
+    # --- SRC Subforlders ---
     CLASSIFICATIONS_DIR = SRC / "classifications"
-    MODELS_DIR = SRC / "models"
     PLOTTING_DIR = SRC / "plotting"
 
     # --- Folder Name Constants (For dynamic path building) --- 
     DIR_SINGLE_CLASSES = "single_classes"
     DIR_NORMAL_ANOMALY = "normal_anomaly"
     DIR_SCALED = "scaled"
-    DIR_GROUP = "group"
     DIR_BY_DATASET = "by_dataset"
     DIR_BY_MODEL = "by_model"
     DIR_CLASSES = "classes"
@@ -70,13 +77,16 @@ class ProjectPaths:
     DIR_MODELS = "models"
     DIR_PLOTS = "plots"
     DIR_CSV = "csv"
+    DIR_DATASETS = "datasets"
+    DIR_CLASSIFICATIONS = "classifications"
 
     # --- Pipeline Essential Files ---
-    DATASETS_FOR_MODEL_BUILDING = PREP_DATA_DIR / f"datasets_for_model_building{Naming.EXT}"
-    DATASETS_FOR_CLASSIFICATIONS = PREP_DATA_DIR / f"datasets_for_classifications{Naming.EXT}"
-    DATASETS_INFO = PREP_DATA_DIR / f"datasets_info{Naming.EXT}"
-    DATASETS_FEATURES_MEAN = PREP_DATA_DIR / f"datasets_feature_mean{Naming.EXT}"
-    DATASETS_FEATURES_VAR = PREP_DATA_DIR / f"datasets_feature_variance{Naming.EXT}"
+    DATASETS_FOR_MODEL_BUILDING = METADATA_DIR / f"model_paths{Naming.EXT}"
+    DATASETS_FOR_CLASSIFICATIONS = METADATA_DIR / f"classification_paths{Naming.EXT}"
+    DATASETS_INFO = METADATA_DIR / f"datasets_info{Naming.EXT}"
+    DATASETS_FEATURES_MEAN = METADATA_DIR / f"feature_mean{Naming.EXT}"
+    DATASETS_FEATURES_VAR = METADATA_DIR / f"feature_variance{Naming.EXT}"
+    MODELS_INFO = RESULTS_CSV_DIR / f"models_info{Naming.EXT}"
 
     # --- Raw Datasets ---
     NB15_RAW = RAW_DATA_DIR / f"{Naming.NB15}{Naming.EXT}"

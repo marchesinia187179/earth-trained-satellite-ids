@@ -3,15 +3,15 @@ Main entry point for the Satellite IDS project.
 """
 
 from pathlib import Path
-from classifications.classification import classification_processing
-from models.models import model_processing
-from plotting.plotting import plotting_processing
-from utils.file_utils import (
+from src.classifications.classification import classification_processing
+from src.models.models import model_processing
+from src.plotting.plotting import plotting_processing
+from src.utils.file_utils import (
     create_directory, get_data_from_csv, group_by_classes_and_save, 
     group_by_model_and_save, group_datasets_paths_for_filename_list)
-from utils.config import MLConstants, Naming, ProjectPaths, RoutineConfig, PlotConfig
-from preprocessing.data_preprocessing import data_preprocessing
-from preprocessing.file_preprocessing import hybrid_dataset_file_preprocessing, single_dataset_file_preprocessing
+from src.utils.config import MLConstants, Naming, ProjectPaths, RoutineConfig, PlotConfig
+from src.preprocessing.data_preprocessing import data_preprocessing
+from src.preprocessing.file_preprocessing import hybrid_dataset_file_preprocessing, single_dataset_file_preprocessing
 
 
 # --- Internal Helper Functions ---
@@ -54,7 +54,7 @@ def _classifications():
             classification_processing(Path(model_path), data, dataset_type)
 
     # Group classifications by model and by dataset type and save them in separate directories
-    parent_path = ProjectPaths.CLASSIFICATIONS_DIR / ProjectPaths.DIR_GROUP
+    parent_path = ProjectPaths.RESULTS / ProjectPaths.DIR_CLASSIFICATIONS
     group_by_model_dir = create_directory(ProjectPaths.DIR_BY_MODEL, parent_path)
     group_by_classes_dir = create_directory(ProjectPaths.DIR_BY_DATASET, parent_path)
     group_by_model_and_save(ProjectPaths.CLASSIFICATIONS_DIR / Naming.CLASSIFICATIONS, group_by_model_dir)

@@ -92,7 +92,8 @@ def classification_processing(model_path, data, type):
     classes = ", ".join(str(c) for c in unique_classes)
 
     # Save random forest model and metadata
-    _save_classification(model_path.stem, metrics, type, classes, data.shape[0], ProjectPaths.CLASSIFICATIONS_DIR)
+    dst_dir = ProjectPaths.RESULTS / ProjectPaths.DIR_CSV / ProjectPaths.DIR_CLASSIFICATIONS
+    _save_classification(model_path.stem, metrics, type, classes, data.shape[0], )
 
 
 if __name__ == "__main__":
