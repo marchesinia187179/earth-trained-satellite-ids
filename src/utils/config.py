@@ -204,6 +204,24 @@ class PlotConfig:
     ]
 
 
+class PlotFlags:
+    """Master Switch flags for granular control of plot generation during pipeline execution"""
+    
+    # Heavy-weight plots (computationally expensive)
+    ENABLE_SHAP_PLOTS = False              # ⚠️  Very heavy - SHAP explainability plots
+    
+    # Light-weight plots (standard visualizations)
+    ENABLE_HEATMAP_PLOTS = True            # Performance matrix heatmaps
+    ENABLE_FEATURE_IMPORTANCE = True       # Feature importance bar charts
+    ENABLE_PROBABILITY_PLOTS = True        # Probability distribution histograms
+    ENABLE_PCA_PLOTS = True                # PCA 2D scatter plots
+    ENABLE_PERFORMANCE_PLOTS = True        # Performance matrix heatmaps (F1, Precision, Recall) - generated after classifications
+    
+    # Additional lightweight plots (reserved for future use)
+    ENABLE_CONFUSION_MATRIX = True         # Confusion matrix heatmaps (planned)
+    ENABLE_ROC_PR_CURVES = True            # ROC/PR curve plots (planned)
+
+
 if __name__ == "__main__":
     pass
 

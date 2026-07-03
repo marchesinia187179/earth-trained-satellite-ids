@@ -10,7 +10,7 @@ from sklearn.ensemble import RandomForestClassifier
 from .plotting import plot_feature_importances
 from .utils.file_utils import create_csv_from_data, create_directory, update_or_append_csv
 from .utils.metrics import calculate_metrics
-from .utils.config import MLConstants, Naming, ProjectPaths
+from .utils.config import MLConstants, Naming, ProjectPaths, PlotFlags
 
 
 def _get_standardized_model_name(unique_classes):
@@ -45,9 +45,12 @@ def _save_feature_importance_and_plots(model, feature_names, plots_dir, csv_dir,
     feature_importance_name = f'{model_name}_{Naming.FEATURE_IMPORTANCE}'
     create_csv_from_data(importance_df, f"{feature_importance_name}{Naming.EXT}", csv_dir)
 
-    # Plot feature importance and save the plot directly at model scope
-    plot_path = plots_dir / f"{model_name}{Naming.PLOT_EXT}"
-    plot_feature_importances(importance, feature_names, std, plot_path)
+    # Plot feature importance if enabled, otherwise skip to save computation time
+    if PlotFlags.ENABLE_FEATURE_IMPORTANCE:
+        plot_path = plots_dir / f"{model_name}{Naming.PLOT_EXT}"
+        plot_feature_importances(importance, feature_names, std, plot_path)
+    else:
+        print(f"⏭️  Skipping feature importance plot for {model_name} (ENABLE_FEATURE_IMPORTANCE=False)")
 
     print(f"Feature importance saved to {feature_importance_name}")
 

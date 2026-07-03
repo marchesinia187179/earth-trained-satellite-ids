@@ -6,7 +6,7 @@ import joblib
 from datetime import datetime
 from .utils.file_utils import create_directory, update_or_append_csv, _normalize_dataset_classes_filename
 from .utils.metrics import calculate_metrics
-from .utils.config import Naming, ProjectPaths
+from .utils.config import Naming, ProjectPaths, PlotFlags
 from .plotting import plot_probability_distribution, plot_shap_summary
 
 
@@ -92,20 +92,26 @@ def classification_processing(model_path, data, dataset_type, dataset_name):
     dataset_stem = dataset_name.lower().replace(' ', '_')
     prob_filename = f"{model_name}_on_{dataset_type.lower()}_{dataset_stem}{Naming.PLOT_EXT}"
 
-    # Create model-specific probability directory and save one plot per model/dataset
-    model_prob_dir = create_directory(model_name, ProjectPaths.PROB_PLOTS_DIR)
-    prob_output_path = model_prob_dir / prob_filename
-    plot_probability_distribution(y_test, y_scores, prob_output_path)
+    # Generate Probability Distribution plot if enabled
+    if PlotFlags.ENABLE_PROBABILITY_PLOTS:
+        model_prob_dir = create_directory(model_name, ProjectPaths.PROB_PLOTS_DIR)
+        prob_output_path = model_prob_dir / prob_filename
+        plot_probability_distribution(y_test, y_scores, prob_output_path)
+    else:
+        print(f"⏭️  Skipping probability plot for {model_name} on {dataset_type} (ENABLE_PROBABILITY_PLOTS=False)")
 
-    # Generate SHAP summary plot per model/dataset
-    try:
-        safe_case = _normalize_dataset_classes_filename(dataset_type, classes)
-        shap_filename = f"{model_name}_on_{safe_case}{Naming.PLOT_EXT}"
-        model_shap_dir = create_directory(model_name, ProjectPaths.SHAP_PLOTS_DIR)
-        shap_output_path = model_shap_dir / shap_filename
-        plot_shap_summary(model, X_test, y_test, shap_output_path)
-    except Exception as e:
-        print(f"Warning: SHAP plotting skipped ({e})")
+    # Generate SHAP summary plot if enabled
+    if PlotFlags.ENABLE_SHAP_PLOTS:
+        try:
+            safe_case = _normalize_dataset_classes_filename(dataset_type, classes)
+            shap_filename = f"{model_name}_on_{safe_case}{Naming.PLOT_EXT}"
+            model_shap_dir = create_directory(model_name, ProjectPaths.SHAP_PLOTS_DIR)
+            shap_output_path = model_shap_dir / shap_filename
+            plot_shap_summary(model, X_test, y_test, shap_output_path)
+        except Exception as e:
+            print(f"Warning: SHAP plotting skipped ({e})")
+    else:
+        print(f"⏭️  Skipping SHAP plot for {model_name} on {dataset_type} (ENABLE_SHAP_PLOTS=False)")
 
     # Save the summary CSV file of classifications to the aggregated master file
     dst_dir = create_directory(ProjectPaths.CLASSIFICATIONS_CSV_DIR.name, ProjectPaths.RESULTS_CSV_DIR)

@@ -201,7 +201,7 @@ def plot_feature_importances(importances, feature_names, std, dst_path):
 
 def plot_shap_summary(model, X_test, y_test, dst_path):
     """
-    Generates a SHAP summary (beeswarm) plot for a given model and test matrix.
+    Generates a classic 1D SHAP summary (dot) plot for a given model and test matrix.
 
     :param model: Trained model object compatible with shap.TreeExplainer
     :param X_test: DataFrame or numpy array containing test features
@@ -209,20 +209,18 @@ def plot_shap_summary(model, X_test, y_test, dst_path):
     """
     print("Generating SHAP summary plot (stratified sampling)...")
     try:
-        # Ensure y_test is a pandas Series aligned to X_test
+        # 1. Allineamento indici e campionamento stratificato
         if hasattr(X_test, 'index'):
             y_series = pd.Series(y_test, index=X_test.index)
         else:
             y_series = pd.Series(y_test)
 
-        # Separate Normal (0) and Attack (1) groups
         normal_mask = y_series == 0
         attack_mask = y_series == 1
 
         X_normal = X_test[normal_mask]
         X_attack = X_test[attack_mask]
 
-        # Determine sample sizes dynamically using central configuration
         samples_per_class = SHAP_MAX_SAMPLES // 2
         n_normal = min(samples_per_class, len(X_normal))
         n_attack = min(samples_per_class, len(X_attack))
@@ -236,40 +234,46 @@ def plot_shap_summary(model, X_test, y_test, dst_path):
         if sampled_parts:
             X_test_sampled = pd.concat(sampled_parts)
         else:
-            # Fallback to random sample using total SHAP_MAX_SAMPLES if no labeled groups found
             sample_n = min(SHAP_MAX_SAMPLES, len(X_test))
             X_test_sampled = X_test.sample(n=sample_n, random_state=42)
 
-        # Compute SHAP values; some SHAP versions accept 'check_additivity' on
-        # shap_values(), others do not. Be compatible by attempting the
-        # keyword on the call and falling back if it's unsupported.
-        explainer = shap.TreeExplainer(model)
+        # 2. Calcolo dei SHAP values
+        explainer = shap.TreeExplainer(
+            model, 
+            feature_perturbation="tree_path_dependent", 
+            model_output="raw"
+        )
         try:
             shap_values = explainer.shap_values(X_test_sampled, check_additivity=False)
         except TypeError:
-            # Older/newer versions may not accept the kwarg; call without it
             shap_values = explainer.shap_values(X_test_sampled)
 
-        # If shap_values is a list (one array per class), select the positive class (index 1)
+        # 3. Estrazione sicura della classe "Attacco" per IDS (Nuove e Vecchie versioni SHAP)
+        # Se è una vecchia versione (restituisce una lista di array)
         if isinstance(shap_values, list) and len(shap_values) == 2:
             shap_values = shap_values[1]
+        # Se è una nuova versione (restituisce un oggetto Explanation o array 3D: campioni, feature, classi)
+        elif hasattr(shap_values, 'shape') and len(shap_values.shape) == 3:
+            # Estraiamo l'indice 1 sull'ultimo asse (le classi)
+            shap_values = shap_values[:, :, 1]
 
-        # Ensure we display all features: set max_display dynamically
+        # 4. Generazione del plot
         n_features = X_test_sampled.shape[1]
+        
+        # Dimensionamento dinamico dell'altezza per ospitare comodamente tutte le feature
+        import matplotlib.pyplot as plt
+        plt.figure(figsize=(8, max(6, n_features * 0.4)))
 
-        # Create a fresh figure sized according to number of features to avoid clipping
-        plt.figure(figsize=(12, max(6, n_features * 0.25)))
+        # Usa plot_type="dot" per forzare la vista dell'azione delle feature e max_display dinamico
+        shap.summary_plot(shap_values, X_test_sampled, show=False, max_display=n_features, plot_type="dot")
 
-        # Create the beeswarm summary plot based on the sampled matrix showing all features
-        shap.summary_plot(shap_values, X_test_sampled, show=False, max_display=n_features)
-
-        # Apply academic formatting and title (keeps SHAP's colorbar intact)
         plt.title("SHAP Feature Impact Analysis", fontsize=14, fontweight='bold', pad=15)
-
-        # Save and close (bbox_inches='tight' preserves the colorbar/labels)
+        
+        # Salva senza tagliare la legenda
         plt.savefig(dst_path, dpi=300, bbox_inches='tight')
         plt.close()
         print(f"SHAP summary successfully saved to: {dst_path}")
+        
     except Exception as e:
         print(f"Warning: Could not generate SHAP plot ({e}). Skipping.")
 
