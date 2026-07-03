@@ -32,6 +32,8 @@ class Naming:
     PREP = "_prep"
     PREP_SCALED = "_prep_scaled"
     CLASSIFICATION = "_classification"
+    AGGR = "_aggr"
+    AGGR_SCALED = "_aggr_scaled"
 
     # Common File Names
     MODEL_INFO = f"models_info{EXT}"

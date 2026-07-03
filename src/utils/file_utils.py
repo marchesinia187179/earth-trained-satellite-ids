@@ -149,7 +149,7 @@ def create_csv_from_data(data, file_name, file_path):
     return absolute_path
 
 
-def add_file_info_to_datasets_info(file_path, dataset_type):
+def store_file_info(file_path, dataset_type):
     """
     Extracts high-level statistical metadata from a specific dataset file and logs 
     it into a centralized tracking inventory CSV.

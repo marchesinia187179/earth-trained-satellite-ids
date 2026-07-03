@@ -28,8 +28,6 @@ def _run_all_phases():
     print(f"\n--- Full Pipeline Completed ---")
 
 
-
-
 def _classifications():
     """ Evaluates saved models on specific testing datasets """
     print("\n--- Starting Classification Phase ---")
@@ -108,11 +106,6 @@ def _preprocessing():
         # Get dataset params
         dataset_type = d['type']
         dataset_path = d['path']
-
-        # Security check for existing path
-        if not dataset_path.exists():
-            print(f"Warning: Dataset file not found at {dataset_path}. Skipping {dataset_type}.")
-            continue
             
         print(f"\n[ROUTINE] Processing {dataset_type}...")
         
@@ -136,12 +129,16 @@ def _preprocessing():
 
     # Group datasets paths for model building; save them in a csv file
     group_datasets_paths_for_filename_list(
-        ProjectPaths.DATASETS_INFO, ProjectPaths.DATASETS_FOR_MODEL_BUILDING, RoutineConfig.DATASETS_TARGETS_FOR_MODEL_BUILDING
+        src_path=ProjectPaths.DATASETS_INFO, 
+        dst_path=ProjectPaths.DATASETS_FOR_MODEL_BUILDING, 
+        filename_list=RoutineConfig.DATASETS_TARGETS_FOR_MODEL_BUILDING
     )
     
     # Group datasets paths for classifications; save them in a csv file
     group_datasets_paths_for_filename_list(
-        ProjectPaths.DATASETS_INFO, ProjectPaths.DATASETS_FOR_CLASSIFICATIONS, RoutineConfig.DATASETS_TARGETS_FOR_CLASSIFICATIONS
+        src_path=ProjectPaths.DATASETS_INFO, 
+        dst_path=ProjectPaths.DATASETS_FOR_CLASSIFICATIONS, 
+        filename_list=RoutineConfig.DATASETS_TARGETS_FOR_CLASSIFICATIONS
     )
 
     print("\n--- Routine Preprocessing Phase Completed ---")
