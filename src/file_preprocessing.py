@@ -263,10 +263,7 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter2
                 You passed {len(anomaly_data[anomaly_data['label'] == 0])} Normal data!")
             return
     
-    print(f"Running file-level preprocessing for hybrid datasets...")
-    
-    # --- Create the cirectories ---
-
+    # --- Create the directories ---
     # Create hybrid directory
     hybrid_dir = create_directory(
         dir_name=Naming.HYBRID, 
@@ -285,15 +282,17 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter2
         parent_path=hybrid_dir
     )
     
-    # Create normal_anomaly directory for nb15_sat20 and nb15_ter20
-    for parent_path in [nb15_sat20_dir, nb15_ter20_dir]:
-        nb15_sat20_normal_anomaly_dir = create_directory(
-            dir_name=ProjectPaths.DIR_NORMAL_ANOMALY, 
-            parent_path=parent_path
-        )
+    # Create normal_anomaly directory for nb15_sat20
+    nb15_sat20_normal_anomaly_dir = create_directory(
+        dir_name=ProjectPaths.DIR_NORMAL_ANOMALY, 
+        parent_path=nb15_sat20_dir
+    )
 
-
-
+    # Create normal_anomaly directory for nb15_ter20
+    nb15_ter20_normal_anomaly_dir = create_directory(
+        dir_name=ProjectPaths.DIR_NORMAL_ANOMALY, 
+        parent_path=nb15_ter20_dir
+    )
 
     # --- Process the data ---
     # Create the hybrid data
@@ -303,37 +302,86 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter2
 
     # Combine the hybrid data with own dataset type
     datasets = [
-        {'type': Naming.HYBRID, 'data': nb15_stin_data},
-        {'type': Naming.NB15_SAT20, 'data': nb15_sat20_data},
-        {'type': Naming.NB15_TER20, 'data': nb15_ter20_data}
+        {'dataset_type': Naming.HYBRID, 'data': nb15_stin_data},
+        {'dataset_type': Naming.NB15_SAT20, 'data': nb15_sat20_data},
+        {'dataset_type': Naming.NB15_TER20, 'data': nb15_ter20_data}
     ]
 
-    # Save the hybrid data
     for d in datasets:
-        dataset_type = d['type']
-        dataset_data = d['data']
+        # Select data and dataset_type
+        dataset_type = d['dataset_type']
+        data = d['data']
+        
+        print(f"Running file-level preprocessing for {dataset_type}...")
 
-        file_path = create_csv_from_data(dataset_data, f'{dataset_type}{Naming.PREP}', data_prep_dir)
-        store_file_info(file_path, dataset_type)
-        _scale_by_normal_anomaly_ratio_and_save(dataset_data, dataset_type, scaled_dir)
-
-        # Save the hybrid data for single normal_anomaly case
-        if dataset_type == Naming.NB15_SAT20:
-            _merge_normal_anomaly_and_save(dataset_data, dataset_type, nb15_sat20_normal_anomaly_dir)
+        # Select current directory
+        if dataset_type == Naming.HYBRID:
+            data_prep_dir = hybrid_dir
+        elif dataset_type == Naming.NB15_SAT20:
+            data_prep_dir = nb15_sat20_dir
+            normal_anomaly_dir = nb15_sat20_normal_anomaly_dir
         elif dataset_type == Naming.NB15_TER20:
-            _merge_normal_anomaly_and_save(dataset_data, dataset_type, nb15_ter20_normal_anomaly_dir)
+            data_prep_dir = nb15_ter20_dir
+            normal_anomaly_dir = nb15_ter20_normal_anomaly_dir
 
-        # Calculate and save feature mean and variance
-        _get_mean_and_variance_and_save(dataset_data, dataset_type)
+        # --- Process the data of the current dataset
+        # Scale preprocessed data by normal anomaly ratio
+        data_scaled = _scale_by_normal_anomaly_ratio(data, dataset_type)
 
+        # Create normal anomaly data
+        if dataset_type != Naming.HYBRID:
+            normal_anomaly_data_list = _merge_normal_anomaly(data, dataset_type)
 
-    print(f"File-level preprocessing for hybrid datasets done.")
+        # Get feature mean and variance
+        feature_mean_list, feature_variance_list =_get_mean_and_variance(data, dataset_type)
 
+        # --- Save the processed data of the current dataset ---
+        # Save preprocessed data
+        _save_data_and_store_info(
+            data=data,
+            file_name=f'{dataset_type}{Naming.AGGR}',
+            dst_dir=data_prep_dir,
+            dataset_type=dataset_type
+        )
+        
+        # Save preprocessed data scaled
+        _save_data_and_store_info(
+            data=data_scaled,
+            file_name=f"{dataset_type}{Naming.AGGR_SCALED}",
+            dst_dir=data_prep_dir,
+            dataset_type=dataset_type
+        )
+        
+        # Save normal_anomaly data
+        if dataset_type != Naming.HYBRID:
+            for normal_anomaly_data in normal_anomaly_data_list:
+                # Get anomaly class name for file_name
+                anomaly_class_mask = normal_anomaly_data['class'] != 'Normal'
+                anomaly_class = normal_anomaly_data[anomaly_class_mask]['class'].iloc[0]
 
+                _save_data_and_store_info(
+                    data=normal_anomaly_data,
+                    file_name=f"Normal_{anomaly_class}",
+                    dst_dir=normal_anomaly_dir,
+                    dataset_type=dataset_type
+                )
 
+        # Map mean and variance lists with own file_path
+        jobs = [
+            (feature_mean_list, ProjectPaths.DATASETS_FEATURES_MEAN),
+            (feature_variance_list, ProjectPaths.DATASETS_FEATURES_VAR)
+        ]
 
+        for data_list, file_path in jobs:
+            for feature_data in data_list:
+                update_or_append_csv(
+                    file_path=file_path,
+                    data_dict=feature_data,
+                    match_keys=['dataset_type', 'class'],
+                    id_column='id'
+                )
 
-
+        print(f"File-level preprocessing for {dataset_type} done.")
 
 
 def single_dataset_file_preprocessing(data, dataset_type):
@@ -371,7 +419,7 @@ def single_dataset_file_preprocessing(data, dataset_type):
     class_data_list = _split_by_class(data, dataset_type)
 
     # If nb15 than scale preprocessed data by normal anomaly ratio, 
-    # merge them into normal anomaly data
+    # create normal anomaly data
     if dataset_type == Naming.NB15:
         data_scaled = _scale_by_normal_anomaly_ratio(data, dataset_type)
         normal_anomaly_data_list = _merge_normal_anomaly(data, dataset_type)
@@ -383,7 +431,7 @@ def single_dataset_file_preprocessing(data, dataset_type):
     # Save preprocessed data
     _save_data_and_store_info(
         data=data,
-        file_name=f'{type}{Naming.AGGR}',
+        file_name=f'{dataset_type}{Naming.AGGR}',
         dst_dir=data_prep_dir,
         dataset_type=dataset_type
     )
@@ -391,7 +439,7 @@ def single_dataset_file_preprocessing(data, dataset_type):
     # Save preprocessed data scaled
     _save_data_and_store_info(
         data=data_scaled,
-        file_name=f"{type}{Naming.AGGR_SCALED}",
+        file_name=f"{dataset_type}{Naming.AGGR_SCALED}",
         dst_dir=data_prep_dir,
         dataset_type=dataset_type
     )
@@ -417,24 +465,21 @@ def single_dataset_file_preprocessing(data, dataset_type):
             dst_dir=normal_anomaly_dir,
             dataset_type=dataset_type
         )
+    
+    # Map mean and variance lists with own file_path
+    jobs = [
+        (feature_mean_list, ProjectPaths.DATASETS_FEATURES_MEAN),
+        (feature_variance_list, ProjectPaths.DATASETS_FEATURES_VAR)
+    ]
 
-    # Save feature mean
-    for feature_mean in feature_mean_list:
-        update_or_append_csv(
-            file_path=ProjectPaths.DATASETS_FEATURES_MEAN,
-            data_dict=feature_mean,
-            match_keys=['dataset_type', 'class'],
-            id_column='id'
-        )
-
-    # Save feature variance
-    for feature_variance in feature_variance_list:
-        update_or_append_csv(
-            file_path=ProjectPaths.DATASETS_FEATURES_VAR,
-            data_dict=feature_variance,
-            match_keys=['dataset_type', 'class'],
-            id_column='id'
-        )
+    for data_list, file_path in jobs:
+        for feature_data in data_list:
+            update_or_append_csv(
+                file_path=file_path,
+                data_dict=feature_data,
+                match_keys=['dataset_type', 'class'],
+                id_column='id'
+            )
 
     print(f"File-level preprocessing for {dataset_type} done.")
 
