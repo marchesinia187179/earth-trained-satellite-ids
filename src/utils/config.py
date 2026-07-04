@@ -38,7 +38,6 @@ class Naming:
     # Common File Names
     MODEL_INFO = f"models_info{EXT}"
     CLASSIFICATIONS = f"classifications{EXT}"
-    MODELS_REGISTRY = f"models_registry{EXT}"
     MODEL = "model"     # It doesn't have an extension because it can be .pkl, .joblib, etc. depending on the model type
     FEATURE_IMPORTANCE = f"feature_importance"  # It doesn't have an extension because it can be .csv or .png depending on the context
     FEATURE_IMPORTANCE_BY_PERMUTATION = f"feature_importance_by_permutation{EXT}"
@@ -102,6 +101,7 @@ class ProjectPaths:
     DATASETS_FEATURES_MEAN = METADATA_DIR / f"feature_mean{Naming.EXT}"
     DATASETS_FEATURES_VAR = METADATA_DIR / f"feature_variance{Naming.EXT}"
     MODELS_INFO = RESULTS_CSV_DIR / f"models_info{Naming.EXT}"
+    MODELS_REGISTRY = MODELS / f"models_registry{Naming.EXT}"
 
     # --- Raw Datasets ---
     NB15_RAW = RAW_DATA_DIR / f"{Naming.NB15}{Naming.EXT}"
@@ -113,15 +113,15 @@ class RoutineConfig:
     """ Pre-defined configurations for training and evaluation routines """
 
     BASE_DATASETS = [
-        {'type': Naming.NB15, 'path': ProjectPaths.NB15_RAW},
-        {'type': Naming.SAT20, 'path': ProjectPaths.SAT20_RAW},
-        {'type': Naming.TER20, 'path': ProjectPaths.TER20_RAW}
+        {'dataset_type': Naming.NB15, 'path': ProjectPaths.NB15_RAW},
+        {'dataset_type': Naming.SAT20, 'path': ProjectPaths.SAT20_RAW},
+        {'dataset_type': Naming.TER20, 'path': ProjectPaths.TER20_RAW}
     ]
 
     # Defines the standard set of models to be built during a routine phase
     DATASETS_TARGETS_FOR_MODEL_BUILDING = [
         # --- NB15 dataset ---
-        {'dataset_type': Naming.NB15, 'filename': f"{Naming.NB15}{Naming.PREP_SCALED}{Naming.EXT}"},
+        {'dataset_type': Naming.NB15, 'filename': f"{Naming.NB15}{Naming.AGGR_SCALED}{Naming.EXT}"},
         {'dataset_type': Naming.NB15, 'filename': f"Normal_DoS{Naming.EXT}"},
         {'dataset_type': Naming.NB15, 'filename': f"Normal_Exploits{Naming.EXT}"},
         {'dataset_type': Naming.NB15, 'filename': f"Normal_Fuzzers{Naming.EXT}"},
@@ -132,7 +132,7 @@ class RoutineConfig:
     # Defines the standard set of classifications to do during a routine phase
     DATASETS_TARGETS_FOR_CLASSIFICATIONS = [
         # --- NB15 dataset ---
-        {'dataset_type': Naming.NB15, 'filename': f"{Naming.NB15}{Naming.PREP_SCALED}{Naming.EXT}"},
+        {'dataset_type': Naming.NB15, 'filename': f"{Naming.NB15}{Naming.AGGR_SCALED}{Naming.EXT}"},
         {'dataset_type': Naming.NB15, 'filename': f"Normal_DoS{Naming.EXT}"},
         {'dataset_type': Naming.NB15, 'filename': f"Normal_Exploits{Naming.EXT}"},
         {'dataset_type': Naming.NB15, 'filename': f"Normal_Fuzzers{Naming.EXT}"},
@@ -140,9 +140,9 @@ class RoutineConfig:
         {'dataset_type': Naming.NB15, 'filename': f"Normal_Reconnaissance{Naming.EXT}"},
 
         # --- Hybrid dataset ---
-        {'dataset_type': Naming.HYBRID, 'filename': f"{Naming.HYBRID}{Naming.PREP_SCALED}{Naming.EXT}"},
-        {'dataset_type': Naming.NB15_SAT20, 'filename': f"{Naming.NB15_SAT20}{Naming.PREP_SCALED}{Naming.EXT}"},
-        {'dataset_type': Naming.NB15_TER20, 'filename': f"{Naming.NB15_TER20}{Naming.PREP_SCALED}{Naming.EXT}"},
+        {'dataset_type': Naming.HYBRID, 'filename': f"{Naming.HYBRID}{Naming.AGGR_SCALED}{Naming.EXT}"},
+        {'dataset_type': Naming.NB15_SAT20, 'filename': f"{Naming.NB15_SAT20}{Naming.AGGR_SCALED}{Naming.EXT}"},
+        {'dataset_type': Naming.NB15_TER20, 'filename': f"{Naming.NB15_TER20}{Naming.AGGR_SCALED}{Naming.EXT}"},
 
         # --- Specific Normal/Anomaly hybrid sub-datasets ---
         {'dataset_type': Naming.NB15_SAT20, 'filename': f"Normal_Syn_DDoS{Naming.EXT}"},

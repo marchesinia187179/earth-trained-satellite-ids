@@ -11,13 +11,14 @@ from .utils.metrics import calculate_mean_and_variance
 # --- Internal Functions ---
 def _get_correct_normal_and_anomaly_data_samples(normal_data, anomaly_data, normal_samples, anomaly_samples):
     """
-    Calculates and return the `normal` and `anomaly data sample` based on the `MLConstants.NORMAL_ANOMALY_RATIO`
-    
-    :param normal_data: normal dataset
-    :param anomaly_data: anomaly dataset
-    :param normal_samples: number of data in normal dataset
-    :param anomaly_samples: number of data in anomaly dataset
-    :return: correct `normal` and `anomaly data sample`
+    Determines the correct number of samples to take from the normal and anomaly data based on the
+    `MLConstants.NORMAL_ANOMALY_RATIO`. It returns the sampled normal and anomaly data as two separate pandas DataFrames.
+
+    :param normal_data: Input pandas DataFrame containing the normal data
+    :param anomaly_data: Input pandas DataFrame containing the anomaly data
+    :param normal_samples: Number of samples in the normal data
+    :param anomaly_samples: Number of samples in the anomaly data
+    :return: Two pandas DataFrames containing the sampled normal and anomaly data
     """
     # Calculate and save the normal and anomaly data sample
     if normal_samples < anomaly_samples * MLConstants.NORMAL_ANOMALY_RATIO:
@@ -34,11 +35,11 @@ def _get_correct_normal_and_anomaly_data_samples(normal_data, anomaly_data, norm
 
 def _safe_stratified_sample(data, n_samples):
     """
-    Takes `n_samples` from `data` preserving the `split_type ratio` to avoid the Data Leakage.
+    Safely samples `n_samples` from the `data` while maintaining the original split proportions of the data.
 
-    :param data: pool of data to get the correct data sample
-    :param n_samples: number of samples
-    :return: correct `data` sample
+    :param data: Input pandas DataFrame containing the dataset
+    :param n_samples: Number of samples to draw from the dataset
+    :return: A new pandas DataFrame containing the sampled data
     """
     # Security Fallback if the split type colums doesn't exist
     if 'split_type' not in data.columns:
@@ -74,49 +75,35 @@ def _safe_stratified_sample(data, n_samples):
     return concat_and_shuffle(sampled_parts)
 
 
-
-
-def _split_by_class(data, type):
+def _split_by_class(data, dataset_type):
     """
-    Splits the `data` by class and return a list of unique data
-    
-    :param data: data to be split by class
-    :param type: type of the data
-    :return: list of dataframes split by class
+    Splits the `data` by class and returns a list of data for each class.
+
+    :param data: pool of data to be split
+    :param dataset_type: type of the data
+    :return: list of data for each class
     """
     # Security check if the feature exists
     if 'class' not in data.columns:
-        print(f"Error: 'class' column not found during split. Skipping {type}.")
+        print(f"Error: 'class' column not found during split. Skipping {dataset_type}.")
         return
     
     # Split the data by class and save them in a list
     return [data[data['class'] == c].copy() for c in data['class'].unique()]
 
 
-
-
-
-
-
-
-
-
-
-
-def _merge_normal_anomaly(data, type, dst_dir):
+def _merge_normal_anomaly(data, dataset_type):
     """
-    Merges `normal class` with `anomaly class` of `data` and
-    for each `normal_anomaly` combo creates a own csv file into in `dst_dir`
+    Merges the `Normal` and `Anomaly` data based on the `MLConstants.NORMAL_ANOMALY_RATIO` and returns a list of merged data.
 
-    :param data: pool of data to get normal and anomaly data
-    :param type: type of the data
-    :param dst_dir: destination directory path
-    :return: None 
+    :param data: pool of data to be merged
+    :param dataset_type: type of the data
+    :return: list of merged data
     """
     # Security check if the Normal class exists
     class_list = data['class'].unique()
     if not "Normal" in class_list:
-        print(f"Error: Normal class not found! Skipping {type}.")
+        print(f"Error: Normal class not found! Skipping {dataset_type}.")
         return
     
     # Get the Normal data
@@ -138,29 +125,24 @@ def _merge_normal_anomaly(data, type, dst_dir):
         # Concat and shuffle the samples
         normal_anomaly_data = concat_and_shuffle([normal_data_sample, anomaly_data_sample])
 
-        normal_anomaly_data_list.append(normal_anomaly_data_list)
+        # Append normal_anomaly data
+        normal_anomaly_data_list.append(normal_anomaly_data)
 
     return normal_anomaly_data_list
 
 
-
-
-
-
-
-def _scale_by_normal_anomaly_ratio(data, type):
+def _scale_by_normal_anomaly_ratio(data, dataset_type):
     """
-    Updates the `data` with a new data scaled by the `MLConstants.NORMAL_ANOMALY_RATIO` and
-    creates a new csv file
-    
-    :param data: pool of data to get normal and anomaly data
-    :param type: type of the data
+    Scales the `data` by the `MLConstants.NORMAL_ANOMALY_RATIO` and returns the scaled data.
+
+    :param data: pool of data to be scaled
+    :param dataset_type: type of the data
     :return: scaled data
     """
     # Security check if the Normal class exists
     class_list = data['class'].unique()
     if not "Normal" in class_list:
-        print(f"Error: Normal class not found! Skipping {type}.")
+        print(f"Error: Normal class not found! Skipping {dataset_type}.")
         return
     
     # Get the Normal and Anomaly data
@@ -182,22 +164,13 @@ def _scale_by_normal_anomaly_ratio(data, type):
     return concat_and_shuffle([normal_data_sample, anomaly_data_sample])
 
 
-
-
-
-
-
-
-
-
-
-
 def _get_mean_and_variance(data, dataset_type):
     """
-    Calculates the mean and variance of each feature in the dataset and saves them into two separate csv files.
-    
+    Calculates the mean and variance for the aggregated dataset and for each class in the dataset.
+
     :param data: Input pandas DataFrame containing the dataset
     :param dataset_type: The type of the dataset
+    :return: Two lists containing the mean and variance records for the aggregated dataset and each class
     """
 
     feature_mean_list = []
@@ -220,33 +193,32 @@ def _get_mean_and_variance(data, dataset_type):
     return feature_mean_list, feature_variance_list
 
 
-
-
-
-def _save_data_and_store_info(data, file_name, dst_dir, dataset_type=None, store_info=True):
+def _save_data_and_store_info(data, file_name, dst_dir, dataset_type):
     """
-    
+    Saves the given data to a CSV file and stores the file information.
+
+    :param data: Input pandas DataFrame containing the dataset
+    :param file_name: Name of the CSV file to be created
+    :param dst_dir: Destination directory where the CSV file will be saved
+    :param dataset_type: The type of the dataset
+    :return: None
     """
 
+    # Save the data to a CSV file
     file_path = create_csv_from_data(data, file_name, dst_dir)
 
-    if store_info:
-        store_file_info(file_path, dataset_type)
-
-
-
-
-
+    # Store the file information
+    store_file_info(file_path, dataset_type)
 
 
 # --- Public Functions ---
 def hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter20_anomaly_data):
     """
-    Creates the main directories and files of the hybrid dataset
+    Creates the main directories and files of the hybrid dataset.
 
-    :param nb15_normal_data: normal data from nb15 dataset
-    :param sat20_anomaly_data: anomaly data from sat20 dataset
-    :param ter20_anomaly_data: anomaly data from ter20 dataset
+    :param nb15_normal_data: normal data from the nb15 dataset
+    :param sat20_anomaly_data: anomaly data from the sat20 dataset
+    :param ter20_anomaly_data: anomaly data from the ter20 dataset
     :return: None
     """
     # --- Security check ---
@@ -386,10 +358,10 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter2
 
 def single_dataset_file_preprocessing(data, dataset_type):
     """
-    Creates the main directories and files of a single dataset.
-
-    :param data: dataset to be preprocessed
-    :param dataset_type: type of the dataset (nb15, sat20, ter20)
+    Creates the main directories and files of the single dataset.
+    
+    :param data: Input pandas DataFrame containing the dataset
+    :param dataset_type: The type of the dataset
     :return: None
     """
     print(f"Running file-level preprocessing for {dataset_type}...")
@@ -436,14 +408,6 @@ def single_dataset_file_preprocessing(data, dataset_type):
         dataset_type=dataset_type
     )
 
-    # Save preprocessed data scaled
-    _save_data_and_store_info(
-        data=data_scaled,
-        file_name=f"{dataset_type}{Naming.AGGR_SCALED}",
-        dst_dir=data_prep_dir,
-        dataset_type=dataset_type
-    )
-
     # Save the single class data
     for class_data in class_data_list:
         _save_data_and_store_info(
@@ -453,18 +417,27 @@ def single_dataset_file_preprocessing(data, dataset_type):
             dataset_type=dataset_type
         )
 
-    # Save normal_anomaly data
-    for normal_anomaly_data in normal_anomaly_data_list:
-        # Get anomaly class name for file_name
-        anomaly_class_mask = normal_anomaly_data['class'] != 'Normal'
-        anomaly_class = normal_anomaly_data[anomaly_class_mask]['class'].iloc[0]
-
+    # Save preprocessed data scaled
+    if dataset_type == Naming.NB15:
         _save_data_and_store_info(
-            data=normal_anomaly_data,
-            file_name=f"Normal_{anomaly_class}",
-            dst_dir=normal_anomaly_dir,
+            data=data_scaled,
+            file_name=f"{dataset_type}{Naming.AGGR_SCALED}",
+            dst_dir=data_prep_dir,
             dataset_type=dataset_type
         )
+
+        # Save normal_anomaly data
+        for normal_anomaly_data in normal_anomaly_data_list:
+            # Get anomaly class name for file_name
+            anomaly_class_mask = normal_anomaly_data['class'] != 'Normal'
+            anomaly_class = normal_anomaly_data[anomaly_class_mask]['class'].iloc[0]
+
+            _save_data_and_store_info(
+                data=normal_anomaly_data,
+                file_name=f"Normal_{anomaly_class}",
+                dst_dir=normal_anomaly_dir,
+                dataset_type=dataset_type
+            )
     
     # Map mean and variance lists with own file_path
     jobs = [

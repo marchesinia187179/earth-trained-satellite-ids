@@ -50,7 +50,7 @@ def _classifications():
         else:
             print(f"⏭️  Skipping PCA plot for {dataset_type} (ENABLE_PCA_PLOTS=False)")
 
-        models_paths = get_data_from_csv(ProjectPaths.MODELS / Naming.MODELS_REGISTRY)['path']
+        models_paths = get_data_from_csv(ProjectPaths.MODELS_REGISTRY)['path']
         for model_path in models_paths:
             classification_processing(Path(model_path), data, dataset_type, dataset_stem if PlotFlags.ENABLE_PCA_PLOTS else dataset_path.stem.lower().replace(' ', '_'))
 
@@ -80,8 +80,10 @@ def _model_building():
     """ Executes a predefined model building routine """
     print("\n--- Starting Model Building Phase ---")
 
-    # Start Model Processing for each model building dataset
+    # Do model building for each dataset
     datasets = get_data_from_csv(ProjectPaths.DATASETS_FOR_MODEL_BUILDING)
+
+    # Iterate through each dataset and build models
     for d in datasets.to_dict('records'):
         dataset_type = d['dataset_type']
         dataset_path = d['path']
@@ -104,10 +106,8 @@ def _preprocessing():
     # Do preprocessing for each dataset
     for d in RoutineConfig.BASE_DATASETS:
         # Get dataset params
-        dataset_type = d['type']
+        dataset_type = d['dataset_type']
         dataset_path = d['path']
-            
-        print(f"\n[ROUTINE] Processing {dataset_type}...")
         
         # Do data preprocessing
         data = get_data_from_csv(dataset_path)

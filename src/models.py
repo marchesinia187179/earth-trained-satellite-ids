@@ -13,16 +13,28 @@ from .utils.metrics import calculate_metrics
 from .utils.config import MLConstants, Naming, ProjectPaths, PlotFlags
 
 
+# --- Internal Helper Functions ---
 def _get_standardized_model_name(unique_classes):
+    """
+    Generates a standardized model name based on the unique classes present in the dataset.
+
+    :param unique_classes: list or array of unique class labels
+    :return: standardized model name as a string
+    """
+    # Strip whitespace and convert to lowercase for consistency
     classes = [str(c).strip() for c in unique_classes if str(c).strip()]
+
+    # If there are more than two classes, return a generic name
     if len(classes) > 2:
         return "model_aggregate"
+    
+    # Identify the attack class (assuming 'normal' is the benign class)
     attack_classes = [c for c in classes if c.lower() != 'normal']
     attack_name = attack_classes[0].lower() if attack_classes else "unknown"
+    
     return f"model_{attack_name}"
 
 
-# --- Internal Helper Functions ---
 def _save_feature_importance_and_plots(model, feature_names, plots_dir, csv_dir, model_name):
     """
     Extracts and saves the feature importance of the trained Random Forest model
@@ -55,24 +67,18 @@ def _save_feature_importance_and_plots(model, feature_names, plots_dir, csv_dir,
     print(f"Feature importance saved to {feature_importance_name}")
 
 
-def _save_model_and_metadata(model, metrics, dataset_type, classes, samples, model_dir, model_name):
+def _save_metadata(model, model_name, metrics, dataset_type, classes, samples):
     """
-    Simplifies and unifies saving for Random Forest models
-    
+    Saves the metadata of the trained Random Forest model, including its parameters and evaluation metrics, to a CSV file.
+
     :param model: the trained Random Forest model object
-    :param metrics: a dictionary containing the calculated evaluation metrics
+    :param model_name: standardized name for the trained model
+    :param metrics: dictionary containing evaluation metrics of the model
     :param dataset_type: string describing the dataset type (nb15, sat20, ...)
-    :param samples: integer indicating the number of samples used
-    :param model_dir: path object where files will be saved
-    :param model_name: standardized name for the trained model file
+    :param classes: string listing the unique classes in the dataset
+    :param samples: integer representing the number of samples in the dataset
     :return: None
     """
-    # Save model
-    model_path = model_dir / f'{model_name}.joblib'
-    joblib.dump(model, model_path)
-
-    # Save model path
-    update_or_append_csv(model_dir / Naming.MODELS_REGISTRY, {'path': str(model_path)}, ['path'], id_column='id')
 
     # Get model and data params
     params = model.get_params()
@@ -102,18 +108,34 @@ def _save_model_and_metadata(model, metrics, dataset_type, classes, samples, mod
     match_keys = ['model_name', 'dataset_type']
     update_or_append_csv(ProjectPaths.MODELS_INFO, results, match_keys, id_column='id')
     
-    print(f"Model {model_name} saved to {model_dir.name} and metadata processed in {ProjectPaths.MODELS_INFO.name}")
+    print(f"Metadata saved in {ProjectPaths.MODELS_INFO.name}")
+
+
+def _save_model(model, model_name):
+    """
+    Saves the trained Random Forest model to disk and updates the models registry.
+
+    :param model: the trained Random Forest model object
+    :param model_name: standardized name for the trained model
+    :return: None
+    """
+    # Save model
+    model_path = ProjectPaths.MODELS / f'{model_name}.joblib'
+    joblib.dump(model, model_path)
+
+    # Save model path in registry
+    update_or_append_csv(ProjectPaths.MODELS_REGISTRY, {'path': str(model_path)}, ['path'], id_column='id')
+    
+    print(f"Model {model_name} saved to {ProjectPaths.MODELS_REGISTRY.name}")
 
 
 def _random_forest(data):
     """
-    Trains a Random Forest classifier using a supervised learning approach
+    Trains a Random Forest model on the provided dataset and returns the trained model, evaluation metrics, and feature names.
 
-    :param data: data to be used for the training of the model
-    :return: model built and related metrics
+    :param data: DataFrame containing the dataset and the 'class' attribute
+    :return: tuple containing the trained model, evaluation metrics, and feature names
     """
-    print(f"Training Random Forest...")
-
     # Get training and testing data
     train_set = data[data['split_type'] == 'train']
     test_set = data[data['split_type'] == 'test']
@@ -127,7 +149,10 @@ def _random_forest(data):
     y_test = test_set["label"]
 
     # Build and fit the model
-    model = RandomForestClassifier(random_state=MLConstants.RANDOM_STATE, verbose=MLConstants.MODEL_VERBOSE)
+    model = RandomForestClassifier(
+        random_state=MLConstants.RANDOM_STATE, 
+        verbose=MLConstants.MODEL_VERBOSE
+    )
     model.fit(X_train, y_train)
 
     # Get metrics
@@ -138,7 +163,6 @@ def _random_forest(data):
     # Get feature names for later use in feature importance plotting
     feature_names = X_train.columns.tolist()
 
-    print("Training process done.")
     return model, metrics, feature_names
 
 
@@ -159,13 +183,27 @@ def model_processing(data, type):
     # Create random forest model
     model, metrics, feature_names = _random_forest(data)
 
-    # Get classes
+    # Get unique classes and standardized model name
     unique_classes = data['class'].unique()
     classes = ", ".join(str(c) for c in unique_classes)
     model_name = _get_standardized_model_name(unique_classes)
 
-    # Save random forest model and metadata
-    _save_model_and_metadata(model, metrics, type, classes, data.shape[0], ProjectPaths.MODELS, model_name)
+    # --- Save tasks  ---
+    # Save model
+    _save_model(
+        model=model, 
+        model_name=model_name
+    )
+
+    # Save metadata
+    _save_metadata(
+        model=model, 
+        model_name=model_name, 
+        metrics=metrics, 
+        dataset_type=type, 
+        classes=classes, 
+        samples=data.shape[0]
+    )
 
     # Get feature importance and save it
     _save_feature_importance_and_plots(model, feature_names, feature_importance_plots_dir, feature_importance_csv_dir, model_name)

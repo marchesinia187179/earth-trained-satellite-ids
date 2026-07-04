@@ -16,12 +16,17 @@ def _minority_removal_nb15(data):
     :internal minority_classes: List of attack categories to be filtered out ('Analysis', 'Backdoor', 'Shellcode', 'Worms').
     :return: Filtered pandas DataFrame.
     """
+    # Security check for required columns
     if 'attack_cat' not in data.columns:
         print("Error: Column 'attack_cat' missing in NB15 dataset.")
         sys.exit(1)
 
+    # Define the minority classes to be removed
     minority_classes = ['Analysis', 'Backdoor', 'Shellcode', 'Worms']
+
+    # Filter out the minority classes from the dataset
     data = data[~data['attack_cat'].isin(minority_classes)]
+    
     print("Minority classes removed (NB15).")
     return data
 
@@ -35,13 +40,16 @@ def _merge_minority_stin(data):
     :internal ddos_classes: List of classes to be renamed to 'DDoS'.
     :return: Pandas DataFrame with merged labels.
     """
+    # Security check for required columns
     if 'label' not in data.columns:
         print("Error: Column 'label' missing in dataset.")
         sys.exit(1)
 
+    # Define the mapping of minority classes to broader categories
     botnet_classes = ['Botnet', 'Web Attack', 'Backdoor']
     ddos_classes = ['LDAP_DDoS', 'MSSQL_DDoS', 'NetBIOS_DDoS', 'Portmap_DDoS']
 
+    # Merge the minority classes into broader categories
     data['label'] = data['label'].replace(botnet_classes, 'Botnet')
     data['label'] = data['label'].replace(ddos_classes, 'DDoS')
 
@@ -58,6 +66,7 @@ def _align_nb15(data):
     :internal required_columns: List of columns needed for the alignment process.
     :return: Aligned pandas DataFrame with standardized feature names.
     """
+    # Security check for required columns
     required_columns = ['dur', 'sbytes', 'dbytes', 'spkts', 'dpkts', 'swin', 'dwin', 'sload', 'dload', 'sinpkt', 'dinpkt', 'attack_cat', 'label']
     missing = [col for col in required_columns if col not in data.columns]
     if missing:
@@ -98,6 +107,8 @@ def _align_stin(data):
     :internal required_columns: List of columns needed for the alignment process.
     :return: Aligned pandas DataFrame with standardized feature names.
     """
+
+    # Security check for required columns
     required_columns = ['fl_dur', 'l_fw_pkt', 'l_bw_pkt', 'fw_pk', 'bw_pkt_s', 'fw_win_byt', 'bw_win_byt', 'fl_byt_s', 'fl_iat_min', 'down_up_ratio', 'label']
     missing = [col for col in required_columns if col not in data.columns]
     if missing:
@@ -130,11 +141,36 @@ def _align_stin(data):
 
 
 def _stratified_split(data):
+    """
+    Performs a stratified split of the dataset into training and testing sets based on the 'class' column.
+
+    :param data: Input pandas DataFrame containing the dataset to be split.
+    :return: Pandas DataFrame with an additional 'split_type' column indicating 'train' or 'test'.
+    """
+
+    # Security check if the 'class' column exists
+    if 'class' not in data.columns:
+        print("Error: Column 'class' missing in dataset for stratified split.")
+        sys.exit(1)
+
+    # Security check for required columns
+    if 'split_type' in data.columns:
+        print("Error: Column 'split_type' already exists in dataset.")
+        sys.exit(1)
+
+    # Perform stratified split by class
     split_groups = []
     for _, group in data.groupby('class'):
-        group = group.sample(frac=1, random_state=42).reset_index(drop=True)
+        # Shuffle the group and split into train and test sets based on the defined TRAIN_SPLIT ratio
+        group = group.sample(frac=1, random_state=MLConstants.RANDOM_STATE).reset_index(drop=True)
+
+        # Calculate the number of training samples for the current class
         n_group_train = int(len(group) * MLConstants.TRAIN_SPLIT)
+
+        # Assign 'train' and 'test' labels to the split groups
         group['split_type'] = ['train'] * n_group_train + ['test'] * (len(group) - n_group_train)
+
+        # Append the split group to the list of split groups
         split_groups.append(group)
     
     return pd.concat(split_groups)
@@ -142,10 +178,25 @@ def _stratified_split(data):
 
 # --- Public Functions ---
 def data_preprocessing(data, dataset_type):
+    """
+    Preprocesses the input `data` based on the specified `dataset_type` (NB15, SAT20, or TER20). 
+    The preprocessing includes minority removal, alignment, and stratified splitting of the dataset.
+
+    :param data: Input pandas DataFrame containing the raw dataset.
+    :param dataset_type: Type of the dataset ('nb15', 'sat20', or 'ter20').
+    :return: Preprocessed pandas DataFrame ready for further processing.
+    """
     print(f"Running data-level preprocessing for {dataset_type}...")
 
+    # Security check for dataset_type
+    if dataset_type not in ['nb15', 'sat20', 'ter20']:
+        print(f"Error: Unsupported dataset_type '{dataset_type}'. Supported types are 'nb15', 'sat20', and 'ter20'.")
+        sys.exit(1)
+
+    # Get a copy of the data to avoid modifying the original DataFrame
     data = data.copy()
-        
+
+    # Preprocessing steps based on dataset type 
     if dataset_type == 'nb15':
         data = _minority_removal_nb15(data)
         data = _align_nb15(data)
@@ -155,9 +206,11 @@ def data_preprocessing(data, dataset_type):
     elif dataset_type == 'sat20':
         data = _align_stin(data)
 
+    # Perform stratified split to ensure balanced representation of classes in train and test sets
     data = _stratified_split(data)
 
-    data = data.sample(frac=1, random_state=42).reset_index(drop=True)
+    # Shuffle the data to ensure randomness and reset the index
+    data = data.sample(frac=1, random_state=MLConstants.RANDOM_STATE).reset_index(drop=True)
 
     print(f"Data-level preprocessing for {dataset_type} done.")
     return data
