@@ -65,7 +65,7 @@ def plot_heatmap_for_metrics(models, data):
     ]
 
     # --- Generate heatmaps for each evaluation metric defined in MLConstants.EVALUATION_METRICS ---
-    for feature in MLConstants.EVALUATION_METRICS:
+    for feature in MLConstants.PLOTTING_METRICS:
         # Define the destination path for the heatmap plot
         dst_path = dst_dir / f"{feature}_matrix{Naming.PLOT_EXT}"
     

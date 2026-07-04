@@ -5,13 +5,13 @@ Main entry point for the Satellite IDS project.
 from pathlib import Path
 from src.classification import classification_processing
 from src.models import model_processing
-from src.plotting import plot_heatmap_for_metrics, plotting_processing
+from src.plotting import plot_heatmap_for_metrics
 from src.utils.file_utils import (
     create_directory, get_data_from_csv, group_by_classes_and_save, 
     group_by_model_and_save, group_datasets_paths_for_filename_list,
     init_project_environment
 )
-from src.utils.config import MLConstants, Naming, ProjectPaths, RoutineConfig, PlotConfig, PlotFlags
+from src.utils.config import Naming, ProjectPaths, RoutineConfig, PlotFlags
 from src.data_preprocessing import data_preprocessing
 from src.file_preprocessing import hybrid_dataset_file_preprocessing, single_dataset_file_preprocessing
 
