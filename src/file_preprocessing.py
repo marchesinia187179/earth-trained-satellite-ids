@@ -284,7 +284,7 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter2
         dataset_type = d['dataset_type']
         data = d['data']
         
-        print(f"Running file-level preprocessing for {dataset_type}...")
+        print(f"\nRunning file-level preprocessing for {dataset_type}...")
 
         # Select current directory
         if dataset_type == Naming.HYBRID:
@@ -353,7 +353,7 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter2
                     id_column='id'
                 )
 
-        print(f"File-level preprocessing for {dataset_type} done.")
+        print(f"\nFile-level preprocessing for {dataset_type} done.")
 
 
 def single_dataset_file_preprocessing(data, dataset_type):
@@ -364,7 +364,7 @@ def single_dataset_file_preprocessing(data, dataset_type):
     :param dataset_type: The type of the dataset
     :return: None
     """
-    print(f"Running file-level preprocessing for {dataset_type}...")
+    print(f"\nRunning file-level preprocessing for {dataset_type}...")
 
     # --- Create the directories ---
     # Create dataset_type directory
@@ -454,7 +454,7 @@ def single_dataset_file_preprocessing(data, dataset_type):
                 id_column='id'
             )
 
-    print(f"File-level preprocessing for {dataset_type} done.")
+    print(f"\nFile-level preprocessing for {dataset_type} done.")
 
 
 if __name__ == "__main__":

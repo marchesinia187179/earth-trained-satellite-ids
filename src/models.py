@@ -3,12 +3,11 @@ Model training and management for Random Forest.
 """
 import joblib
 import numpy as np
-import pandas as pd
 
 from datetime import datetime
 from sklearn.ensemble import RandomForestClassifier
 from .plotting import plot_feature_importances
-from .utils.file_utils import create_csv_from_data, create_directory, update_or_append_csv
+from .utils.file_utils import create_directory, update_or_append_csv
 from .utils.metrics import calculate_metrics
 from .utils.config import MLConstants, Naming, ProjectPaths, PlotFlags
 
@@ -35,36 +34,30 @@ def _get_standardized_model_name(unique_classes):
     return f"model_{attack_name}"
 
 
-def _save_feature_importance_and_plots(model, feature_names, plots_dir, csv_dir, model_name):
+def _save_feature_importance_plot(model, model_name, feature_names, dst_dir):
     """
-    Extracts and saves the feature importance of the trained Random Forest model
+    Saves the feature importance of the trained Random Forest model to a PLOT.EXT file.
 
     :param model: the trained Random Forest model object
-    :param feature_names: list of feature names corresponding to the model's input features
-    :param dst_dir: target directory for saving the feature importance CSV
-    :param plots_dir: target directory for saving the feature importance plot
-    :param csv_dir: target directory for saving the feature importance CSV
+    :param model_name: standardized name for the trained model
+    :param feature_names: list of feature names used in the model
+    :param dst_dir: destination directory to save the feature importance plot
     :return: None
     """
+    # Check if feature importance plotting is enabled
+    if not PlotFlags.ENABLE_FEATURE_IMPORTANCE:
+        print(f"Skipping feature importance plot for {model_name} (ENABLE_FEATURE_IMPORTANCE=False)")
+        return
+
     # Get feature importance
     importance = model.feature_importances_
-    importance_df = pd.DataFrame({'feature': feature_names, 'importance': importance})
 
     # Calculate standard deviation of feature importances across all trees in the Random Forest
     std = np.std([tree.feature_importances_ for tree in model.estimators_], axis=0)
-    
-    # Save feature importance to CSV using the standardized model name
-    feature_importance_name = f'{model_name}_{Naming.FEATURE_IMPORTANCE}'
-    create_csv_from_data(importance_df, f"{feature_importance_name}{Naming.EXT}", csv_dir)
 
-    # Plot feature importance if enabled, otherwise skip to save computation time
-    if PlotFlags.ENABLE_FEATURE_IMPORTANCE:
-        plot_path = plots_dir / f"{model_name}{Naming.PLOT_EXT}"
-        plot_feature_importances(importance, feature_names, std, plot_path)
-    else:
-        print(f"⏭️  Skipping feature importance plot for {model_name} (ENABLE_FEATURE_IMPORTANCE=False)")
-
-    print(f"Feature importance saved to {feature_importance_name}")
+    # Plot feature importance
+    plot_path = dst_dir / f"{model_name}{Naming.PLOT_EXT}"
+    plot_feature_importances(importance, feature_names, std, plot_path)
 
 
 def _save_metadata(model, model_name, metrics, dataset_type, classes, samples):
@@ -79,7 +72,6 @@ def _save_metadata(model, model_name, metrics, dataset_type, classes, samples):
     :param samples: integer representing the number of samples in the dataset
     :return: None
     """
-
     # Get model and data params
     params = model.get_params()
     results = {
@@ -105,10 +97,12 @@ def _save_metadata(model, model_name, metrics, dataset_type, classes, samples):
     results = {k: (v if v is not None else 'None') for k, v in results.items()}
     
     # Save metadata
-    match_keys = ['model_name', 'dataset_type']
-    update_or_append_csv(ProjectPaths.MODELS_INFO, results, match_keys, id_column='id')
-    
-    print(f"Metadata saved in {ProjectPaths.MODELS_INFO.name}")
+    update_or_append_csv(
+        file_path=ProjectPaths.MODELS_INFO,
+        data_dict=results,
+        match_keys=['model_name', 'dataset_type'],
+        id_column='id'
+    )
 
 
 def _save_model(model, model_name):
@@ -124,9 +118,12 @@ def _save_model(model, model_name):
     joblib.dump(model, model_path)
 
     # Save model path in registry
-    update_or_append_csv(ProjectPaths.MODELS_REGISTRY, {'path': str(model_path)}, ['path'], id_column='id')
-    
-    print(f"Model {model_name} saved to {ProjectPaths.MODELS_REGISTRY.name}")
+    update_or_append_csv(
+        file_path=ProjectPaths.MODELS_REGISTRY, 
+        data_dict={'path': str(model_path)}, 
+        match_keys=['path'], 
+        id_column='id'
+    )
 
 
 def _random_forest(data):
@@ -167,18 +164,19 @@ def _random_forest(data):
 
 
 # --- Public Functions ---
-def model_processing(data, type):
+def model_processing(data, dataset_type):
     """
     Orchestrates the Random Forest pipeline by creating the destination directory,
     training the model, and saving the resulting model along with its metadata
 
     :param data: DataFrame containing the dataset and the 'class' attribute
-    :param type: string describing the dataset type (nb15, sat20, ...)
+    :param dataset_type: string describing the dataset type (nb15, sat20, ...)
     :return: None
     """
-    # Create feature importance directories
+    print(f"\n--- Starting Model Building for {dataset_type} ---")
+
+    # Create feature importance directory
     feature_importance_plots_dir = create_directory(ProjectPaths.DIR_FEATURE_IMPORTANCE, ProjectPaths.RESULTS_PLOT_DIR)
-    feature_importance_csv_dir = create_directory(ProjectPaths.DIR_FEATURE_IMPORTANCE, ProjectPaths.RESULTS_CSV_DIR)
 
     # Create random forest model
     model, metrics, feature_names = _random_forest(data)
@@ -188,7 +186,6 @@ def model_processing(data, type):
     classes = ", ".join(str(c) for c in unique_classes)
     model_name = _get_standardized_model_name(unique_classes)
 
-    # --- Save tasks  ---
     # Save model
     _save_model(
         model=model, 
@@ -200,13 +197,20 @@ def model_processing(data, type):
         model=model, 
         model_name=model_name, 
         metrics=metrics, 
-        dataset_type=type, 
+        dataset_type=dataset_type, 
         classes=classes, 
         samples=data.shape[0]
     )
 
-    # Get feature importance and save it
-    _save_feature_importance_and_plots(model, feature_names, feature_importance_plots_dir, feature_importance_csv_dir, model_name)
+    # Save feature importance plot
+    _save_feature_importance_plot(
+        model=model, 
+        model_name=model_name,
+        feature_names=feature_names, 
+        dst_dir=feature_importance_plots_dir
+    )
+
+    print(f"--- Model Building for {dataset_type} Completed ---\n")
 
 
 if __name__ == "__main__":

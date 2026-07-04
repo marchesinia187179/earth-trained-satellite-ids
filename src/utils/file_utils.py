@@ -355,7 +355,6 @@ def init_project_environment():
         ProjectPaths.CLASSIFICATIONS_CSV_DIR,
         ProjectPaths.CLASSIFICATIONS_BY_MODEL_DIR,
         ProjectPaths.CLASSIFICATIONS_BY_DATASET_DIR,
-        ProjectPaths.FEATURE_IMPORTANCE_CSV_DIR,
         ProjectPaths.PERFORMANCE_PLOTS_DIR,
         ProjectPaths.FEAT_IMP_PLOTS_DIR,
         ProjectPaths.PCA_PLOTS_DIR,

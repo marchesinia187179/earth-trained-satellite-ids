@@ -4,14 +4,14 @@ Classification logic for evaluating trained models on test datasets.
 import joblib
 
 from datetime import datetime
-from .utils.file_utils import create_directory, update_or_append_csv, _normalize_dataset_classes_filename
+from .utils.file_utils import create_directory, update_or_append_csv
 from .utils.metrics import calculate_metrics
 from .utils.config import Naming, ProjectPaths, PlotFlags
-from .plotting import plot_probability_distribution, plot_shap_summary
+from .plotting import plot_pca, plot_probability_distribution, plot_shap_summary
 
 
 # --- Internal Helper Functions ---
-def _save_classification(model_name, metrics, dataset_type, classes, samples, dst_dir):
+def _save_classification(model_name, metrics, dataset_type, classes, samples):
     """
     Prepares the final classification results dictionary and appends it to the 
     global summary CSV.
@@ -21,7 +21,6 @@ def _save_classification(model_name, metrics, dataset_type, classes, samples, ds
     :param dataset_type: type of the dataset being used
     :param classes: comma-separated string representing the unique classes in the dataset
     :param samples: total number of rows/samples in the dataset
-    :param dst_dir: target root directory for saving the classification outputs
     """
     # Get results
     results = {
@@ -40,11 +39,9 @@ def _save_classification(model_name, metrics, dataset_type, classes, samples, ds
     results = {k: (v if v is not None else 'None') for k, v in results.items()}
     
     # Save results in the aggregated classifications master file
-    classification_file = dst_dir / Naming.CLASSIFICATIONS
+    classification_file = ProjectPaths.CLASSIFICATIONS_CSV_DIR / Naming.CLASSIFICATIONS
     match_keys = ['model_name', 'dataset_type', 'classes']
     update_or_append_csv(classification_file, results, match_keys)
-
-    print(f"Classification for {dataset_type} on {model_name} saved in {classification_file}")
 
 
 def _classification(model_path, data):
@@ -56,8 +53,6 @@ def _classification(model_path, data):
     :param data: full dataset containing features, labels, and split indicators
     :return: dictionary containing the calculated evaluation metrics
     """
-    print(f"Classifying data...")
-
     # Get testing data, drop columns not necessary and select labels
     test_set = data[data['split_type'] == 'test']
     X_test = test_set.drop(columns=["label", "class", "split_type"])
@@ -71,52 +66,116 @@ def _classification(model_path, data):
     y_scores = model.predict_proba(X_test)[:, 1]
     metrics = calculate_metrics(y_test, y_pred, y_scores)
 
-    print(f"Classifying process done.")
-    return metrics, test_set, X_test, y_test, y_scores, model
+    return metrics, X_test, y_test, y_scores, model
+
+
+def _save_pca_plot(data, dataset_type, dataset_name):
+    """
+    Generates and saves a PCA plot for the given dataset.
+
+    :param data: full dataset containing features, labels, and split indicators
+    :param dataset_type: type of the dataset being used
+    :param dataset_name: name of the dataset being used
+    """
+    # Define the output path for the PCA plot
+    pca_output_path = ProjectPaths.PCA_PLOTS_DIR / f"{dataset_type.lower()}_{dataset_name}{Naming.PLOT_EXT}"
+
+    # Extract features and labels for PCA plotting
+    X = data.drop(columns=["label", "class", "split_type"])
+    y = data["label"]
+
+    # Generate and save the PCA plot
+    plot_pca(X, y, pca_output_path)
+
+
+def _save_probability_plot(y_test, y_scores, model_name, dataset_type, dataset_name):
+    """
+    Generates and saves a probability distribution plot for the model's predictions.
+
+    :param y_test: true labels for the test set
+    :param y_scores: predicted probabilities for the positive class
+    :param model_name: name of the evaluated model
+    :param dataset_type: type of the dataset being used
+    :param dataset_name: name of the dataset being used
+    """
+    # Create a directory for the model's probability plots
+    model_prob_dir = create_directory(model_name, ProjectPaths.PROB_PLOTS_DIR)
+
+    # Define the filename and output path for the probability distribution plot
+    prob_filename = f"{dataset_type.lower()}_{dataset_name}{Naming.PLOT_EXT}"
+    
+    # Define the full output path for the probability distribution plot
+    prob_output_path = model_prob_dir / prob_filename
+
+    # Generate and save the probability distribution plot
+    plot_probability_distribution(y_test, y_scores, prob_output_path)
+
+
+def _save_shap_plot(model, X_test, y_test, model_name, dataset_type, dataset_name):
+    """
+    Generates and saves a SHAP summary plot for the model's predictions.
+
+    :param model: trained model used for predictions
+    :param X_test: features of the test set
+    :param y_test: true labels for the test set
+    :param model_name: name of the evaluated model
+    :param dataset_type: type of the dataset being used
+    :param dataset_name: name of the dataset being used
+    """
+    # Create a directory for the model's SHAP plots
+    model_shap_dir = create_directory(model_name, ProjectPaths.SHAP_PLOTS_DIR)
+
+    # Define the filename and output path for the SHAP summary plot
+    shap_filename = f"{dataset_type.lower()}_{dataset_name}{Naming.PLOT_EXT}"
+    
+    # Define the full output path for the SHAP summary plot
+    shap_output_path = model_shap_dir / shap_filename
+
+    # Generate and save the SHAP summary plot
+    plot_shap_summary(model, X_test, y_test, shap_output_path)
 
 
 # --- Public Functions ---
 def classification_processing(model_path, data, dataset_type, dataset_name):
     """
-    Main orchestration function to run the evaluation workflow. 
-    It triggers the classification, extracts metadata, and handles file storage
+    Performs classification using a pre-trained model on a given dataset, evaluates metrics, 
+    and generates plots based on configuration flags.
+
+    :param model_path: path to the serialized joblib model file
+    :param data: full dataset containing features, labels, and split indicators
+    :param dataset_type: type of the dataset being used
+    :param dataset_name: name of the dataset being used
     """
-    # Calculate classification and extract test data
-    metrics, test_set, X_test, y_test, y_scores, model = _classification(model_path, data)
+    # Get model name from the model path
+    model_name = model_path.stem
 
     # Get unique classes present in the dataset
-    unique_classes = data['class'].unique()
-    classes = ", ".join(str(c) for c in unique_classes)
+    classes = ", ".join(str(c) for c in data['class'].unique())
 
-    model_name = model_path.stem
-    dataset_stem = dataset_name.lower().replace(' ', '_')
-    prob_filename = f"{model_name}_on_{dataset_type.lower()}_{dataset_stem}{Naming.PLOT_EXT}"
+    print(f"\n--- Classifying {dataset_type} dataset using model: {model_name} ---")
+
+    # Calculate classification and extract test data
+    metrics, X_test, y_test, y_scores, model = _classification(model_path, data)
+
+    # Save classification results to the aggregated CSV file
+    _save_classification(
+        model_name=model_name, 
+        metrics=metrics, 
+        dataset_type=dataset_type, 
+        classes=classes, 
+        samples=data.shape[0])
+
+    # --- Generate Plots Based on Flags ---
+    # Save PCA plot if enabled
+    if PlotFlags.ENABLE_PCA_PLOTS: _save_pca_plot(data, dataset_type, dataset_name)
 
     # Generate Probability Distribution plot if enabled
-    if PlotFlags.ENABLE_PROBABILITY_PLOTS:
-        model_prob_dir = create_directory(model_name, ProjectPaths.PROB_PLOTS_DIR)
-        prob_output_path = model_prob_dir / prob_filename
-        plot_probability_distribution(y_test, y_scores, prob_output_path)
-    else:
-        print(f"⏭️  Skipping probability plot for {model_name} on {dataset_type} (ENABLE_PROBABILITY_PLOTS=False)")
-
+    if PlotFlags.ENABLE_PROBABILITY_PLOTS: _save_probability_plot(y_test, y_scores, model_name, dataset_type, dataset_name)
+    
     # Generate SHAP summary plot if enabled
-    if PlotFlags.ENABLE_SHAP_PLOTS:
-        try:
-            safe_case = _normalize_dataset_classes_filename(dataset_type, classes)
-            shap_filename = f"{model_name}_on_{safe_case}{Naming.PLOT_EXT}"
-            model_shap_dir = create_directory(model_name, ProjectPaths.SHAP_PLOTS_DIR)
-            shap_output_path = model_shap_dir / shap_filename
-            plot_shap_summary(model, X_test, y_test, shap_output_path)
-        except Exception as e:
-            print(f"Warning: SHAP plotting skipped ({e})")
-    else:
-        print(f"⏭️  Skipping SHAP plot for {model_name} on {dataset_type} (ENABLE_SHAP_PLOTS=False)")
+    if PlotFlags.ENABLE_SHAP_PLOTS: _save_shap_plot(model, X_test, y_test, model_name, dataset_type, dataset_name)
 
-    # Save the summary CSV file of classifications to the aggregated master file
-    dst_dir = create_directory(ProjectPaths.CLASSIFICATIONS_CSV_DIR.name, ProjectPaths.RESULTS_CSV_DIR)
-    _save_classification(model_name, metrics, dataset_type, classes, data.shape[0], dst_dir)
-
+    print(f"--- Classification for {dataset_type} dataset using model: {model_name} completed ---")
 
 if __name__ == "__main__":
     pass
