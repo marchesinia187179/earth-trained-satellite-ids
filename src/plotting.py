@@ -4,13 +4,12 @@ Heatmap generation functions for visualizing model performance across different 
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
 import shap
 
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 from .utils.file_utils import create_directory
-
-from .utils.config import Naming, ProjectPaths, SHAP_MAX_SAMPLES
+from .utils.config import MLConstants, Naming, PlotConfig, ProjectPaths
 
 
 # --- Internal Helper Functions ---
@@ -38,306 +37,159 @@ def _build_clean_label(classes_val, dataset_type_val, prefix=""):
     return f"{prefix}{label_text})" if prefix else label_text
 
 
-def _generate_heatmap_for_feature(models, data, dst_path, feature, row_order=None, col_order=None):
-    """
-    Generates and saves an optimized, auto-scaling standalone heatmap for a given performance metric
-
-    :param models: DataFrame containing model information with columns: ['model_name', 'dataset_type', 'classes', ...]
-    :param data: DataFrame containing classification results with columns: ['model_name', 'dataset_type', 'classes', feature]
-    :param dst_path: Path to save the generated heatmap image
-    :param feature: The performance metric to visualize
-    :param row_order: optional list specifying the desired order of rows (models) in the heatmap
-    :param col_order: optional list specifying the desired order of columns (datasets) in the heatmap
-    """
-    print(f"Generating optimized heatmap for {feature}")
-    
-    # Create deep copies to avoid SettingWithCopyWarning
-    data = data.copy()
-    models = models.copy()
-
-    # Safely convert the target evaluation metric to numeric
-    data[feature] = pd.to_numeric(data[feature], errors='coerce')
-
-    # Rename columns in the models DataFrame to avoid collisions during the merge
-    models = models[['model_name', 'dataset_type', 'classes']].rename(
-        columns={
-            'dataset_type': 'model_dataset_type',
-            'classes': 'model_classes'
-        }
-    )
-
-    # Merge the data DataFrame with the models metadata on 'model_name'
-    # This brings the true training domain and classes into each test evaluation row
-    merged_data = pd.merge(data, models, on='model_name', how='left')
-
-    # Generate X-Axis Labels (Test Datasets) using 'data' columns
-    merged_data['dataset_label'] = merged_data.apply(
-        lambda row: _build_clean_label(row['classes'], row['dataset_type']), 
-        axis=1
-    )
-
-    # Generate Y-Axis Labels (Trained Models) using joined 'models' columns
-    merged_data['model_label'] = merged_data.apply(
-        lambda row: _build_clean_label(row['model_classes'], row['model_dataset_type'], prefix="RF ("), 
-        axis=1
-    )
-
-    # Pivot the merged dataframe into the final performance matrix for the heatmap
-    pivot_data = merged_data.pivot(index='model_label', columns='dataset_label', values=feature)
-
-    # Sort Rows (Models)
-    if row_order is not None:
-        valid_rows = [r for r in row_order if r in pivot_data.index]
-        remaining_rows = [r for r in pivot_data.index if r not in valid_rows]
-        pivot_data = pivot_data.reindex(index=valid_rows + remaining_rows)
-
-    # Sort Columns (Test Datasets)
-    if col_order is not None:
-        valid_cols = [c for c in col_order if c in pivot_data.columns]
-        remaining_cols = [c for c in pivot_data.columns if c not in valid_cols]
-        pivot_data = pivot_data.reindex(columns=valid_cols + remaining_cols)
-
-    # Get num of models for Y-axis and num of datasets for X-axis
-    num_models = len(pivot_data.index)       
-    num_datasets = len(pivot_data.columns)   
-
-    # Dynamic layout and size tuning to give cells maximum breathing room
-    cell_size = 1.0  # Inches per cell
-    
-    # Base padding for axes labels and long text strings
-    margin_x = 6.0  
-    margin_y = 2.5  
-    
-    fig_width = max(num_datasets * cell_size + margin_x, 14)
-    fig_height = max(num_models * cell_size + margin_y, 8)
-
-    # Initialize figure and global aesthetic style
-    plt.figure(figsize=(fig_width, fig_height))
-    sns.set_theme(style="white") 
-    
-    # Generate heatmap with maximized inner font sizes
-    sns.heatmap(
-        pivot_data, 
-        annot=True, 
-        fmt=".3f", 
-        annot_kws={                         # Scaled up to occupy max internal space
-            "size": 11, 
-            "weight": "bold"
-        }, 
-        cmap="Blues",
-        vmin=0.0, 
-        vmax=1.0, 
-        square=True,                        # Keeps cells perfectly 1:1 square
-        cbar_kws={
-            'label': f'{feature} Value', 
-            'shrink': 0.6,                  # Prevents colorbar from stretching past the matrix
-            'pad': 0.03                     # Brings colorbar closer to the matrix
-        }
-    )
-    
-    # Configure text labels and fix font size hierarchy
-    plt.title(f"{feature} Performance Matrix", pad=25, fontsize=18, fontweight='bold')
-    plt.ylabel("Trained Models", fontsize=14, fontweight='bold', labelpad=15)
-    plt.xlabel("Testing Datasets & Classes", fontsize=14, fontweight='bold', labelpad=15)
-    
-    # Rotate long dataset labels to 45° to drastically reduce required vertical space
-    plt.xticks(rotation=45, ha='right', fontsize=10)
-    plt.yticks(rotation=0, fontsize=11)
-    
-    # Save figure using 'bbox_inches' to cleanly dynamic-fit all outer elements without clipping
-    plt.savefig(dst_path, dpi=300, bbox_inches='tight')
-    plt.close()
-    
-    print(f"{feature} Heatmap successfully saved to: {dst_path}")
-
-
 # --- Public Functions ---
+def plot_heatmap_for_metrics(models, data):
+    """
+    Generates a heatmap for a specific evaluation metric across different trained models and test datasets.
+
+    :param models: DataFrame containing model metadata (model_name, dataset_type, classes)
+    :param data: DataFrame containing evaluation metrics for each model-dataset pair
+    """
+    dst_dir = create_directory(ProjectPaths.DIR_PERFORMANCE, ProjectPaths.RESULTS_PLOT_DIR)
+
+    # --- Merge model metadata with evaluation metrics to create a comprehensive DataFrame ---
+    # Prepare a DataFrame with model metadata for merging
+    models_prep = models[['model_name', 'dataset_type', 'classes']].rename(
+        columns={'dataset_type': 'model_dataset_type', 'classes': 'model_classes'}
+    )
+    
+    # Merge the evaluation metrics data with the model metadata on 'model_name'
+    merged_data = pd.merge(data, models_prep, on='model_name', how='left')
+
+    # Generate clean labels for both datasets and models to be used in the heatmap axes
+    merged_data['dataset_label'] = [
+        _build_clean_label(c, d) for c, d in zip(merged_data['classes'], merged_data['dataset_type'])
+    ]
+    merged_data['model_label'] = [
+        _build_clean_label(c, d, prefix="RF (") for c, d in zip(merged_data['model_classes'], merged_data['model_dataset_type'])
+    ]
+
+    # --- Generate heatmaps for each evaluation metric defined in MLConstants.EVALUATION_METRICS ---
+    for feature in MLConstants.EVALUATION_METRICS:
+        # Define the destination path for the heatmap plot
+        dst_path = dst_dir / f"{feature}_matrix{Naming.PLOT_EXT}"
+    
+        # This ensures that the heatmap can be generated without errors due to non-numeric values
+        merged_data[feature] = pd.to_numeric(merged_data[feature], errors='coerce')
+        
+        # Create a pivot table with models as rows, datasets as columns, and the metric values as the cell values
+        pivot_data = merged_data.pivot(index='model_label', columns='dataset_label', values=feature)
+
+        # If specific row or column orders are defined in the configuration, apply them to the pivot table
+        if PlotConfig.HEATMAP_ROW_ORDER is not None:
+            valid_rows = [r for r in PlotConfig.HEATMAP_ROW_ORDER if r in pivot_data.index]
+            remaining_rows = [r for r in pivot_data.index if r not in valid_rows]
+            pivot_data = pivot_data.reindex(index=valid_rows + remaining_rows)
+
+        if PlotConfig.HEATMAP_COLUMN_ORDER is not None:
+            valid_cols = [c for c in PlotConfig.HEATMAP_COLUMN_ORDER if c in pivot_data.columns]
+            remaining_cols = [c for c in pivot_data.columns if c not in valid_cols]
+            pivot_data = pivot_data.reindex(columns=valid_cols + remaining_cols)
+
+        # Dynamically calculate figure size based on the number of rows and columns to ensure readability
+        cell_size = 1.0  
+        fig_width = max(len(pivot_data.columns) * cell_size + 6.0, 14)
+        fig_height = max(len(pivot_data.index) * cell_size + 2.5, 8)
+
+        # Configurazione ed esportazione del Plot con Seaborn
+        # Configures and exports the heatmap using Seaborn
+        plt.figure(figsize=(fig_width, fig_height))
+        sns.set_theme(style="white") 
+        
+        sns.heatmap(
+            pivot_data, annot=True, fmt=".3f", cmap="Blues", vmin=0.0, vmax=1.0, square=True,
+            annot_kws={"size": 11, "weight": "bold"}, 
+            cbar_kws={'label': f'{feature} Value', 'shrink': 0.6, 'pad': 0.03}
+        )
+        
+        plt.title(f"{feature} Performance Matrix", pad=25, fontsize=18, fontweight='bold')
+        plt.ylabel("Trained Models", fontsize=14, fontweight='bold', labelpad=15)
+        plt.xlabel("Testing Datasets & Classes", fontsize=14, fontweight='bold', labelpad=15)
+        
+        plt.xticks(rotation=45, ha='right', fontsize=10)
+        plt.yticks(rotation=0, fontsize=11)
+        
+        plt.savefig(dst_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        print(f"{feature} Heatmap successfully saved to: {dst_path}")
+
+
 def plot_feature_importances(importances, feature_names, std, dst_path):
     """
     Plots the MDI (Mean Decrease in Impurity) feature importances for a Random Forest model.
     Features are sorted in descending order of importance to ensure clear visual analysis.
 
-    :param importances: array-like, the feature importances from the trained model (rf.feature_importances_)
-    :param feature_names: list of strings, names of the features corresponding to the importances
-    :param std: array-like, the standard deviation of feature importances across all trees
-    :param dst_path: Path object or string, target file path where the plot will be saved
+    :param importances: array-like of feature importance values
+    :param feature_names: list of feature names corresponding to the importances
+    :param std: array-like of standard deviations for the feature importances
+    :param dst_path: Path to save the generated feature importance plot
     """
-    # Align importances and standard deviations into a DataFrame to prevent misalignment during sorting
-    importance_df = pd.DataFrame({
-        'importance': importances,
-        'std': std
-    }, index=feature_names)
+    # Align and sort in one step
+    df = pd.DataFrame({'importance': importances, 'std': std}, index=feature_names)\
+           .sort_values(by='importance', ascending=False)
 
-    # Sort features in descending order based on their importance value
-    importance_df = importance_df.sort_values(by='importance', ascending=False)
-
-    # Initialize the plot with an explicit figure size to prevent label crowding
-    fig, ax = plt.subplots(figsize=(10, 6))
+    # Create a bar plot with error bars representing the standard deviation of feature importances
+    plt.figure(figsize=(10, 6))
     
-    # Generate the bar chart with error bars representing the standard deviation
-    importance_df['importance'].plot.bar(
-        yerr=importance_df['std'], 
-        ax=ax, 
-        capsize=4,                  # Adds clean caps to the error bar lines
-        color='skyblue',            # Solid academic-style layout color
-        edgecolor='black'
+    # Plot the feature importances as a bar chart with error bars
+    df['importance'].plot.bar(
+        yerr=df['std'], capsize=4, color='skyblue', edgecolor='black'
     )
     
-    # Set professional academic labels and typography titles
-    ax.set_title("Feature Importances via Mean Decrease in Impurity (MDI)", fontsize=14, fontweight='bold', pad=15)
-    ax.set_ylabel("Mean Decrease in Impurity", fontsize=12)
-    ax.set_xlabel("Features", fontsize=12)
-    
-    # Rotate x-axis ticks for better readability with dense feature names
+    # Set plot aesthetics and labels
+    plt.title("Feature Importances via Mean Decrease in Impurity (MDI)", fontsize=14, fontweight='bold', pad=15)
+    plt.ylabel("Mean Decrease in Impurity", fontsize=12)
+    plt.xlabel("Features", fontsize=12)
     plt.xticks(rotation=45, ha='right')
     
-    # Finalize layout structure to avoid overlapping margins
-    fig.tight_layout()
-
-    # Save figure using 'bbox_inches' to cleanly dynamic-fit all outer elements without clipping
+    # Save the plot to the specified destination path with high resolution and tight layout
     plt.savefig(dst_path, dpi=300, bbox_inches='tight')
     plt.close()
 
-
-def plot_shap_summary(model, X_test, y_test, dst_path):
-    """
-    Generates a classic 1D SHAP summary (dot) plot for a given model and test matrix.
-
-    :param model: Trained model object compatible with shap.TreeExplainer
-    :param X_test: DataFrame or numpy array containing test features
-    :param dst_path: Path to save the generated SHAP plot
-    """
-    print("Generating SHAP summary plot (stratified sampling)...")
-    try:
-        # 1. Allineamento indici e campionamento stratificato
-        if hasattr(X_test, 'index'):
-            y_series = pd.Series(y_test, index=X_test.index)
-        else:
-            y_series = pd.Series(y_test)
-
-        normal_mask = y_series == 0
-        attack_mask = y_series == 1
-
-        X_normal = X_test[normal_mask]
-        X_attack = X_test[attack_mask]
-
-        samples_per_class = SHAP_MAX_SAMPLES // 2
-        n_normal = min(samples_per_class, len(X_normal))
-        n_attack = min(samples_per_class, len(X_attack))
-
-        sampled_parts = []
-        if n_normal > 0:
-            sampled_parts.append(X_normal.sample(n=n_normal, random_state=42))
-        if n_attack > 0:
-            sampled_parts.append(X_attack.sample(n=n_attack, random_state=42))
-
-        if sampled_parts:
-            X_test_sampled = pd.concat(sampled_parts)
-        else:
-            sample_n = min(SHAP_MAX_SAMPLES, len(X_test))
-            X_test_sampled = X_test.sample(n=sample_n, random_state=42)
-
-        # 2. Calcolo dei SHAP values
-        explainer = shap.TreeExplainer(
-            model, 
-            feature_perturbation="tree_path_dependent", 
-            model_output="raw"
-        )
-        try:
-            shap_values = explainer.shap_values(X_test_sampled, check_additivity=False)
-        except TypeError:
-            shap_values = explainer.shap_values(X_test_sampled)
-
-        # 3. Estrazione sicura della classe "Attacco" per IDS (Nuove e Vecchie versioni SHAP)
-        # Se è una vecchia versione (restituisce una lista di array)
-        if isinstance(shap_values, list) and len(shap_values) == 2:
-            shap_values = shap_values[1]
-        # Se è una nuova versione (restituisce un oggetto Explanation o array 3D: campioni, feature, classi)
-        elif hasattr(shap_values, 'shape') and len(shap_values.shape) == 3:
-            # Estraiamo l'indice 1 sull'ultimo asse (le classi)
-            shap_values = shap_values[:, :, 1]
-
-        # 4. Generazione del plot
-        n_features = X_test_sampled.shape[1]
-        
-        # Dimensionamento dinamico dell'altezza per ospitare comodamente tutte le feature
-        import matplotlib.pyplot as plt
-        plt.figure(figsize=(8, max(6, n_features * 0.4)))
-
-        # Usa plot_type="dot" per forzare la vista dell'azione delle feature e max_display dinamico
-        shap.summary_plot(shap_values, X_test_sampled, show=False, max_display=n_features, plot_type="dot")
-
-        plt.title("SHAP Feature Impact Analysis", fontsize=14, fontweight='bold', pad=15)
-        
-        # Salva senza tagliare la legenda
-        plt.savefig(dst_path, dpi=300, bbox_inches='tight')
-        plt.close()
-        print(f"SHAP summary successfully saved to: {dst_path}")
-        
-    except Exception as e:
-        print(f"Warning: Could not generate SHAP plot ({e}). Skipping.")
-
-
-def plotting_processing(models, data, metrics, row_order=None, col_order=None):
-    """
-    Processing function to generate heatmaps for some metrics from classification results
-
-    :param models: DataFrame containing model information with columns: ['model_name', 'dataset_type', 'classes', ...]
-    :param data: DataFrame containing classification results with columns: ['model_name', 'dataset_type', 'classes', metrics...]
-    :param metrics: list of performance metrics to visualize
-    :param row_order: optional list specifying the desired order of rows (models) in the heatmap
-    :param col_order: optional list specifying the desired order of columns (datasets) in the heatmap
-    """
-    # Create main directory
-    dst_dir = create_directory(ProjectPaths.DIR_PERFORMANCE, ProjectPaths.RESULTS_PLOT_DIR)
-    for feature in metrics:
-        dst_path =  dst_dir / f"{feature}_matrix{Naming.PLOT_EXT}"
-        
-        _generate_heatmap_for_feature(models, data, dst_path, feature, row_order, col_order)
+    print(f"Feature importance plot successfully saved to: {dst_path}")
 
 
 def plot_pca(X, y, dst_path):
     """
     Applies PCA (2 components) on the feature matrix X after standard scaling,
     and plots a 2D scatter plot colored by class labels y (Normal vs Attack).
+
+    :param X: feature matrix (DataFrame or numpy array)
+    :param y: class labels (Series or array-like)
+    :param dst_path: Path to save the generated PCA plot
     """
-    print(f"Generating PCA 2D scatter plot...")
-    
-    # Scale features before applying PCA
-    X_scaled = StandardScaler().fit_transform(X)
-    
-    # Compute 2 Principal Components
+
+    # Standardize the features and apply PCA to reduce to 2 dimensions
     pca = PCA(n_components=2, random_state=42)
-    X_pca = pca.fit_transform(X_scaled)
+    X_pca = pca.fit_transform(StandardScaler().fit_transform(X))
     
-    # Create DataFrame for plotting
-    df_pca = pd.DataFrame(X_pca, columns=['Principal Component 1', 'Principal Component 2'])
-    df_pca['Class'] = y.map({0: 'Normal Traffic', 1: 'Attack/Anomaly'}).fillna(y)
+    # Map the class labels to human-readable strings for plotting
+    labels = y.map({0: 'Normal Traffic', 1: 'Attack/Anomaly'}).fillna(y)
+    var = pca.explained_variance_ratio_ * 100
     
-    # Plotting
+    # Configure the scatter plot with appropriate aesthetics and save it to the specified path
     plt.figure(figsize=(10, 6))
     ax = sns.scatterplot(
-        data=df_pca,
-        x='Principal Component 1',
-        y='Principal Component 2',
-        hue='Class',
-        alpha=0.5,
+        x=X_pca[:, 0], y=X_pca[:, 1], hue=labels, alpha=0.5,
         palette={'Normal Traffic': '#1f77b4', 'Attack/Anomaly': '#ff7f0e'}
     )
     
-    var_exp = pca.explained_variance_ratio_
-    plt.title(f"PCA 2D Projection (Total Variance Explained: {sum(var_exp)*100:.2f}%)", fontsize=14, fontweight='bold', pad=15)
-    plt.xlabel(f"PC1 ({var_exp[0]*100:.2f}% Variance)", fontsize=12)
-    plt.ylabel(f"PC2 ({var_exp[1]*100:.2f}% Variance)", fontsize=12)
+    # Set plot titles, labels, and grid for better readability
+    plt.title(f"PCA 2D Projection (Total Variance Explained: {var.sum():.2f}%)", fontsize=14, fontweight='bold', pad=15)
+    plt.xlabel(f"PC1 ({var[0]:.2f}% Variance)", fontsize=12)
+    plt.ylabel(f"PC2 ({var[1]:.2f}% Variance)", fontsize=12)
     plt.grid(True, linestyle=':', alpha=0.6)
 
-    legend = ax.legend(title='Target Traffic Class', loc='upper right', frameon=True, framealpha=0.9, facecolor='white', edgecolor='black')
-    legend.get_title().set_fontsize(11)
+    # Add a legend with a title and customize its appearance
+    legend = ax.legend(title='Target Traffic Class', loc='upper right', frameon=True, 
+                       framealpha=0.9, facecolor='white', edgecolor='black', title_fontsize=11)
     legend.get_title().set_fontweight('bold')
     
-    plt.tight_layout()
+    # Save the PCA plot to the specified destination path with high resolution and tight layout
     plt.savefig(dst_path, dpi=300, bbox_inches='tight')
     plt.close()
+
     print(f"PCA plot successfully saved to: {dst_path}")
 
 
@@ -345,46 +197,114 @@ def plot_probability_distribution(y_test, y_scores, dst_path):
     """
     Plots the overlapping probability distributions for Normal traffic vs Attacks
     to visually demonstrate the classification threshold trap.
+
+    :param y_test: true class labels (0 for Normal, 1 for Attack)
+    :param y_scores: predicted probabilities for the positive class (Attack)
+    :param dst_path: Path to save the generated probability distribution plot
     """
-    print(f"Generating Probability Threshold Plot...")
+    # Map binary numeric labels to descriptive strings for the plot legend.
+    # Wrapping in pd.Series ensures safety and compatibility with both NumPy arrays and Pandas Series.
+    labels = pd.Series(y_test).map({0: 'Normal Traffic', 1: 'Attack/Anomaly'}).fillna(y_test)
     
-    df_plot = pd.DataFrame({
-        'Probability': y_scores,
-        'Class': y_test
-    })
-    df_plot['Class'] = df_plot['Class'].map({0: 'Normal Traffic', 1: 'Attack/Anomaly'}).fillna(df_plot['Class'])
+    # Initialize the plot figure with specific dimensions
+    plt.figure(figsize=(10, 6))
     
-    fig, ax = plt.subplots(figsize=(10, 6))
-    
-    sns.histplot(
-        data=df_plot,
-        x='Probability',
-        hue='Class',
-        element='step',
-        stat='density',
-        common_norm=False,
-        alpha=0.4,
-        bins=50,
-        palette={'Normal Traffic': '#1f77b4', 'Attack/Anomaly': '#ff7f0e'},
-        ax=ax
+    # Generate overlapping density histograms directly from the arrays.
+    # Using 'step' and 'density' allows comparing distributions regardless of dataset class imbalance.
+    ax = sns.histplot(
+        x=y_scores, hue=labels, element='step', stat='density', common_norm=False, 
+        alpha=0.4, bins=50, palette={'Normal Traffic': '#1f77b4', 'Attack/Anomaly': '#ff7f0e'}
     )
     
-    threshold_line = ax.axvline(x=0.5, color='red', linestyle='--', linewidth=2, label='Standard Threshold (0.5)')
-    ax.set_title("Classification Probability Distribution (Threshold Analysis)", fontsize=14, fontweight='bold', pad=15)
-    ax.set_xlabel("Predicted Probability of Anomaly (Output of predict_proba)", fontsize=12)
-    ax.set_ylabel("Density", fontsize=12)
-    ax.set_xlim(0, 1)
+    # Add a vertical reference line marking the default 0.5 decision threshold
+    plt.axvline(x=0.5, color='red', linestyle='--', linewidth=2, label='Standard Threshold (0.5)')
+    
+    # Configure academic-style titles, axis labels, boundaries, and background grid
+    plt.title("Classification Probability Distribution (Threshold Analysis)", fontsize=14, fontweight='bold', pad=15)
+    plt.xlabel("Predicted Probability of Anomaly (Output of predict_proba)", fontsize=12)
+    plt.ylabel("Density", fontsize=12)
+    plt.xlim(0, 1)
+    plt.grid(axis='y', linestyle=':', alpha=0.6)
 
-    legend = ax.legend(title='Traffic Class / Threshold', loc='upper right', frameon=True, framealpha=0.9, facecolor='white', edgecolor='black')
-    legend.get_title().set_fontsize(11)
+    # Customize the legend aesthetics for a clean and professional layout
+    legend = ax.legend(title='Traffic Class / Threshold', loc='upper right', frameon=True, 
+                       framealpha=0.9, facecolor='white', edgecolor='black', title_fontsize=11)
     legend.get_title().set_fontweight('bold')
     
-    ax.grid(axis='y', linestyle=':', alpha=0.6)
-    
-    plt.tight_layout()
+    # Save the figure dynamically fitting all outer elements without clipping, then free up memory
     plt.savefig(dst_path, dpi=300, bbox_inches='tight')
     plt.close()
+
+    # Output console feedback
     print(f"Probability distribution plot successfully saved to: {dst_path}")
+
+
+def plot_shap_summary(model, X_test, y_test, dst_path):
+    """
+    Generates a classic 1D SHAP summary (dot) plot for a given model and test matrix.
+
+    :param model: Trained model object compatible with shap.TreeExplainer
+    :param X_test: DataFrame containing test features
+    :param y_test: Array or Series containing true class labels (0 or 1)
+    :param dst_path: Path to save the generated SHAP plot
+    """
+    print("Generating SHAP summary plot (stratified sampling)...")
+    try:
+        # Stratified sampling: Align labels with features and sample evenly per class
+        y_series = pd.Series(y_test, index=X_test.index if hasattr(X_test, 'index') else None)
+        samples_per_class = MLConstants.SHAP_MAX_SAMPLES // 2
+
+        # Extract sampled indices for both classes (0 and 1), capping at the available number of instances
+        sampled_idx = pd.concat([
+            y_series[y_series == c].sample(n=min(samples_per_class, sum(y_series == c)), random_state=42)
+            for c in [0, 1] if sum(y_series == c) > 0
+        ]).index
+
+        # Filter the original test set using the stratified indices (or fallback to standard random sampling)
+        if not sampled_idx.empty:
+            X_test_sampled = X_test.loc[sampled_idx]
+        else:
+            X_test_sampled = X_test.sample(n=min(MLConstants.SHAP_MAX_SAMPLES, len(X_test)), random_state=42)
+
+        # Compute SHAP values using the TreeExplainer
+        explainer = shap.TreeExplainer(
+            model, 
+            feature_perturbation="tree_path_dependent", 
+            model_output="raw"
+        )
+        
+        try:
+            shap_values = explainer.shap_values(X_test_sampled, check_additivity=False)
+        except TypeError:
+            shap_values = explainer.shap_values(X_test_sampled)
+
+        # Handle SHAP version disparities to safely extract the "Attack" (positive) class values
+        # Older SHAP versions return a list of arrays: [Normal_values, Attack_values]
+        if isinstance(shap_values, list) and len(shap_values) == 2:
+            shap_values = shap_values[1]
+        # Newer SHAP versions return a 3D array: (samples, features, classes)
+        elif hasattr(shap_values, 'shape') and len(shap_values.shape) == 3:
+            shap_values = shap_values[:, :, 1]
+
+        # Generate and configure the dynamic plot
+        import matplotlib.pyplot as plt
+        n_features = X_test_sampled.shape[1]
+        
+        # Dynamically scale the plot height to comfortably accommodate all features
+        plt.figure(figsize=(8, max(6, n_features * 0.4)))
+
+        # Force the "dot" view to show individual feature impacts
+        shap.summary_plot(shap_values, X_test_sampled, show=False, max_display=n_features, plot_type="dot")
+
+        # Set typography and save the figure cleanly without clipping the axes
+        plt.title("SHAP Feature Impact Analysis", fontsize=14, fontweight='bold', pad=15)
+        plt.savefig(dst_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        print(f"SHAP summary successfully saved to: {dst_path}")
+        
+    except Exception as e:
+        print(f"Warning: Could not generate SHAP plot ({e}). Skipping.")
 
 
 if __name__ == "__main__":

@@ -12,6 +12,7 @@ class MLConstants:
     MODEL_VERBOSE = 0
     DECIMAL_DIGITS = 4
     PLOTTING_METRICS = ['F1-Score', 'Precision', 'Recall']
+    SHAP_MAX_SAMPLES = 500
 
 
 class Naming:
@@ -210,23 +211,15 @@ class PlotFlags:
     """Master Switch flags for granular control of plot generation during pipeline execution"""
     
     # Heavy-weight plots (computationally expensive)
-    ENABLE_SHAP_PLOTS = False              # ⚠️  Very heavy - SHAP explainability plots
+    ENABLE_SHAP_PLOTS = False              # Very heavy - SHAP explainability plots
     
     # Light-weight plots (standard visualizations)
     ENABLE_HEATMAP_PLOTS = True            # Performance matrix heatmaps
     ENABLE_FEATURE_IMPORTANCE = True       # Feature importance bar charts
     ENABLE_PROBABILITY_PLOTS = True        # Probability distribution histograms
     ENABLE_PCA_PLOTS = True                # PCA 2D scatter plots
-    ENABLE_PERFORMANCE_PLOTS = True        # Performance matrix heatmaps (F1, Precision, Recall) - generated after classifications
-    
-    # Additional lightweight plots (reserved for future use)
-    ENABLE_CONFUSION_MATRIX = True         # Confusion matrix heatmaps (planned)
-    ENABLE_ROC_PR_CURVES = True            # ROC/PR curve plots (planned)
+    ENABLE_PERFORMANCE_PLOTS = True        # Performance matrix heatmaps
 
 
 if __name__ == "__main__":
     pass
-
-# --- SHAP configuration ---
-# Maximum total number of samples to use for SHAP summary plots (split evenly per class)
-SHAP_MAX_SAMPLES = 500

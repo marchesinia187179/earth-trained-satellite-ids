@@ -5,7 +5,7 @@ Main entry point for the Satellite IDS project.
 from pathlib import Path
 from src.classification import classification_processing
 from src.models import model_processing
-from src.plotting import plot_pca, plotting_processing
+from src.plotting import plot_heatmap_for_metrics, plotting_processing
 from src.utils.file_utils import (
     create_directory, get_data_from_csv, group_by_classes_and_save, 
     group_by_model_and_save, group_datasets_paths_for_filename_list,
@@ -31,47 +31,58 @@ def _run_all_phases():
 def _classifications():
     """ Evaluates saved models on specific testing datasets """
     print("\n--- Starting Classification Phase ---")
+
+    # --- Create directories for classification results ---
+    # Create the main classifications directory
+    classifications_dir = create_directory(ProjectPaths.DIR_CLASSIFICATIONS, ProjectPaths.RESULTS_CSV_DIR)
+
+    # Create subdirectories for grouping classifications by model and by dataset type
+    group_by_model_dir = create_directory(ProjectPaths.DIR_BY_MODEL, classifications_dir)
+    group_by_classes_dir = create_directory(ProjectPaths.DIR_BY_DATASET, classifications_dir)
    
-    # Do classification process for each classification task
+    # Define the paths for the classifications CSV file and the models info CSV file
+    classifications_file = classifications_dir / Naming.CLASSIFICATIONS
+    models_info_file = ProjectPaths.RESULTS_CSV_DIR / Naming.MODEL_INFO
+
+    # --- Perform classifications for each dataset and model ---
+    # Get datasets for classification and iterate through them
     datasets = get_data_from_csv(ProjectPaths.DATASETS_FOR_CLASSIFICATIONS)
+
+    # Iterate through each dataset and classify using the saved models
     for d in datasets.to_dict('records'):
         dataset_type = d['dataset_type']
         dataset_path = Path(d['path'])
 
+        # Get the data from the dataset CSV
         data = get_data_from_csv(dataset_path)
 
-        # Generate one PCA plot for each loaded test dataset and avoid filename collisions
-        if PlotFlags.ENABLE_PCA_PLOTS:
-            dataset_stem = dataset_path.stem.lower().replace(' ', '_')
-            pca_output_path = ProjectPaths.PCA_PLOTS_DIR / f"{dataset_type.lower()}_{dataset_stem}{Naming.PLOT_EXT}"
-            X = data.drop(columns=["label", "class", "split_type"])
-            y = data["label"]
-            plot_pca(X, y, pca_output_path)
-        else:
-            print(f"⏭️  Skipping PCA plot for {dataset_type} (ENABLE_PCA_PLOTS=False)")
-
+        # Get the paths of the saved models from the models registry
         models_paths = get_data_from_csv(ProjectPaths.MODELS_REGISTRY)['path']
-        for model_path in models_paths:
-            classification_processing(Path(model_path), data, dataset_type, dataset_stem if PlotFlags.ENABLE_PCA_PLOTS else dataset_path.stem.lower().replace(' ', '_'))
 
-    # Group classifications by model and by dataset type and save them in separate directories
-    parent_path = ProjectPaths.RESULTS_CSV_DIR / ProjectPaths.DIR_CLASSIFICATIONS
-    group_by_model_dir = create_directory(ProjectPaths.DIR_BY_MODEL, parent_path)
-    group_by_classes_dir = create_directory(ProjectPaths.DIR_BY_DATASET, parent_path)
-    src_file = ProjectPaths.RESULTS_CSV_DIR / ProjectPaths.DIR_CLASSIFICATIONS / Naming.CLASSIFICATIONS
-    group_by_model_and_save(src_file, group_by_model_dir)
-    group_by_classes_and_save(src_file, group_by_classes_dir)
+        # Iterate through each model and perform classification
+        for model_path in models_paths:
+            classification_processing(
+                model_path=Path(model_path), 
+                data=data, 
+                dataset_type=dataset_type, 
+                dataset_name=dataset_path.stem)
+
+    # --- Group and Save Classification Results ---
+    # Group classifications by model and save them in the corresponding directory
+    group_by_model_and_save(classifications_file, group_by_model_dir)
+
+    # Group classifications by dataset type and save them in the corresponding directory
+    group_by_classes_and_save(classifications_file, group_by_classes_dir)
 
     # --- Generate Performance Plots (F1-Score, Precision, Recall) ---
-    # This phase consolidates classification results and generates global performance heatmaps
+    # If the flag is enabled, generate performance plots based on the classification results
     if PlotFlags.ENABLE_PERFORMANCE_PLOTS:
-        print("\n--- Generating Global Performance Plots ---")
-        models = get_data_from_csv(ProjectPaths.RESULTS_CSV_DIR / Naming.MODEL_INFO)
-        data = get_data_from_csv(ProjectPaths.RESULTS_CSV_DIR / ProjectPaths.DIR_CLASSIFICATIONS / Naming.CLASSIFICATIONS)
-        plotting_processing(models, data, MLConstants.PLOTTING_METRICS, PlotConfig.HEATMAP_ROW_ORDER, PlotConfig.HEATMAP_COLUMN_ORDER)
-        print("Global performance plots completed.")
-    else:
-        print("⏭️  Skipping global performance plots (ENABLE_PERFORMANCE_PLOTS=False)")
+        # Get the data for models and classifications from the respective CSV files
+        models = get_data_from_csv(models_info_file)
+        data = get_data_from_csv(classifications_file)
+
+        # Generate performance plots using the plotting_processing function
+        plot_heatmap_for_metrics(models, data)
 
     print("\n--- Routine Classification Completed ---")
 
