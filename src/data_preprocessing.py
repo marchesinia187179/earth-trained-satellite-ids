@@ -83,10 +83,10 @@ def _align_nb15(data):
     new_df['src_win_byt'] = data['swin']    # number of forward bytes in the initial window [Byte]
     new_df['dst_win_byt'] = data['dwin']    # number of backward bytes in the initial window [Byte]
     new_df['load_s'] = ((data['sload'] + data['dload']) / 8)    # packets bytes transmitted per second [(bit/8)/s = B/s]
-    new_df['down_up_ratio'] = data['dpkts'] / (data['spkts'] + 1e-6)    # asymmetry between downlink and uplink channels
-    new_df['total_bytes'] = new_df['src_bytes'] + new_df['dst_bytes']   # total bytes of channels [Byte]
+    # new_df['down_up_ratio'] = data['dpkts'] / (data['spkts'] + 1e-6)    # asymmetry between downlink and uplink channels
+    # new_df['total_bytes'] = new_df['src_bytes'] + new_df['dst_bytes']   # total bytes of channels [Byte]
     new_df['total_pkts'] = new_df['src_pkts'] + new_df['dst_pkts']  # total number of packets of channels
-    new_df['src_mean_pkt_size'] = new_df['src_bytes'] / (new_df['src_pkts'] + 1e-6)     # mean of packets length for source channel [Byte]
+    # new_df['src_mean_pkt_size'] = new_df['src_bytes'] / (new_df['src_pkts'] + 1e-6)     # mean of packets length for source channel [Byte]
     new_df['dst_mean_pkt_size'] = new_df['dst_bytes'] / (new_df['dst_pkts'] + 1e-6)     # mean of packets length for destination channel [Byte]
     new_df['pkts_per_sec'] = (new_df['src_pkts'] + new_df['dst_pkts']) / (data['dur'] + 1e-6)   # packets per second [1/s]
     new_df['win_diff'] = new_df['src_win_byt'] - new_df['dst_win_byt']  # difference between number of source and destination bytes in the initial window [Byte]
@@ -125,10 +125,10 @@ def _align_stin(data):
     new_df['src_win_byt'] = data['fw_win_byt']  # number of forward bytes in the initial window [Byte]
     new_df['dst_win_byt'] = data['bw_win_byt']  # number of backward bytes in the initial window [Byte]
     new_df['load_s'] = data['fl_byt_s']     # packets bytes transmitted per second [B/s]
-    new_df['down_up_ratio'] = data['down_up_ratio'] # asymmetry between downlink and uplink channels
-    new_df['total_bytes'] = new_df['src_bytes'] + new_df['dst_bytes']   # total bytes of channels [Byte]
+    # new_df['down_up_ratio'] = data['down_up_ratio'] # asymmetry between downlink and uplink channels
+    # new_df['total_bytes'] = new_df['src_bytes'] + new_df['dst_bytes']   # total bytes of channels [Byte]
     new_df['total_pkts'] = new_df['src_pkts'] + new_df['dst_pkts']  # total number of packets of channels
-    new_df['src_mean_pkt_size'] = new_df['src_bytes'] / (new_df['src_pkts'] + 1e-6)     # mean of packets length for source channel [Byte]
+    # new_df['src_mean_pkt_size'] = new_df['src_bytes'] / (new_df['src_pkts'] + 1e-6)     # mean of packets length for source channel [Byte]
     new_df['dst_mean_pkt_size'] = new_df['dst_bytes'] / (new_df['dst_pkts'] + 1e-6)     # mean of packets length for destination channel [Byte]
     new_df['pkts_per_sec'] = ((new_df['src_pkts'] + new_df['dst_pkts']) / (new_df['duration'] + 1e-6)) * 1000000    # packets per second [1/µs s E+6 = 1/s]
     new_df['win_diff'] = new_df['src_win_byt'] - new_df['dst_win_byt']  # difference between number of source and destination bytes in the initial window [Byte]
