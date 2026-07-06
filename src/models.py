@@ -2,14 +2,13 @@
 Model training and management for Random Forest.
 """
 import joblib
-import numpy as np
 
 from datetime import datetime
 from sklearn.ensemble import RandomForestClassifier
-from .plotting import plot_feature_importances
+from .plotting import save_feature_importances_plot
 from .utils.file_utils import create_directory, update_or_append_csv
 from .utils.metrics import calculate_metrics
-from .utils.config import MLConstants, Naming, ProjectPaths, PlotFlags
+from .utils.config import MLConstants, ProjectPaths, PlotFlags
 
 
 # --- Internal Helper Functions ---
@@ -32,32 +31,6 @@ def _get_standardized_model_name(unique_classes):
     attack_name = attack_classes[0].lower() if attack_classes else "unknown"
     
     return f"model_{attack_name}"
-
-
-def _save_feature_importance_plot(model, model_name, feature_names, dst_dir):
-    """
-    Saves the feature importance of the trained Random Forest model to a PLOT.EXT file.
-
-    :param model: the trained Random Forest model object
-    :param model_name: standardized name for the trained model
-    :param feature_names: list of feature names used in the model
-    :param dst_dir: destination directory to save the feature importance plot
-    :return: None
-    """
-    # Check if feature importance plotting is enabled
-    if not PlotFlags.ENABLE_FEATURE_IMPORTANCE:
-        print(f"Skipping feature importance plot for {model_name} (ENABLE_FEATURE_IMPORTANCE=False)")
-        return
-
-    # Get feature importance
-    importance = model.feature_importances_
-
-    # Calculate standard deviation of feature importances across all trees in the Random Forest
-    std = np.std([tree.feature_importances_ for tree in model.estimators_], axis=0)
-
-    # Plot feature importance
-    plot_path = dst_dir / f"{model_name}{Naming.PLOT_EXT}"
-    plot_feature_importances(importance, feature_names, std, plot_path)
 
 
 def _save_metadata(model, model_name, metrics, dataset_type, classes, samples):
@@ -138,12 +111,12 @@ def _random_forest(data):
     test_set = data[data['split_type'] == 'test']
 
     # Drop columns not necessary
-    X_train = train_set.drop(columns=["label", "class", "split_type"])
-    X_test = test_set.drop(columns=["label", "class", "split_type"])
+    X_train = train_set.drop(columns=MLConstants.X_DROP_LABELS)
+    X_test = test_set.drop(columns=MLConstants.X_DROP_LABELS)
 
     # Select labels
-    y_train = train_set["label"]
-    y_test = test_set["label"]
+    y_train = train_set[MLConstants.Y_LABEL]
+    y_test = test_set[MLConstants.Y_LABEL]
 
     # Build and fit the model
     model = RandomForestClassifier(
@@ -203,12 +176,13 @@ def model_processing(data, dataset_type):
     )
 
     # Save feature importance plot
-    _save_feature_importance_plot(
-        model=model, 
-        model_name=model_name,
-        feature_names=feature_names, 
-        dst_dir=feature_importance_plots_dir
-    )
+    if PlotFlags.ENABLE_FEATURE_IMPORTANCE:
+        save_feature_importances_plot(
+            model=model, 
+            model_name=model_name,
+            feature_names=feature_names, 
+            dst_dir=feature_importance_plots_dir
+        )
 
     print(f"--- Model Building for {dataset_type} Completed ---\n")
 

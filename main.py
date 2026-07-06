@@ -3,15 +3,18 @@ Main entry point for the Satellite IDS project.
 """
 
 from pathlib import Path
+
+from sklearn.decomposition import PCA
+from sklearn.preprocessing import StandardScaler
 from src.classification import classification_processing
 from src.models import model_processing
-from src.plotting import plot_heatmap_for_metrics
+from src.plotting import plot_heatmap_for_metrics, save_pca_plot
 from src.utils.file_utils import (
     create_directory, get_data_from_csv, group_by_classes_and_save, 
     group_by_model_and_save, group_datasets_paths_for_filename_list,
     init_project_environment
 )
-from src.utils.config import Naming, ProjectPaths, RoutineConfig, PlotFlags
+from src.utils.config import MLConstants, Naming, ProjectPaths, RoutineConfig, PlotFlags
 from src.data_preprocessing import data_preprocessing
 from src.file_preprocessing import hybrid_dataset_file_preprocessing, single_dataset_file_preprocessing
 
@@ -48,6 +51,30 @@ def _classifications():
     # Get datasets for classification and iterate through them
     datasets = get_data_from_csv(ProjectPaths.DATASETS_FOR_CLASSIFICATIONS)
 
+    # --- Setup PCA Cross Domain ---
+    if PlotFlags.ENABLE_PCA_CROSS_DOMAIN_PLOTS:
+        baseline_record = datasets[datasets['path'].apply(lambda p: Path(p).stem) == f"{Naming.NB15}{Naming.AGGR_SCALED}"].to_dict('records')[0]
+        dataset_path = Path(baseline_record['path'])
+        dataset_type = baseline_record['dataset_type']
+        
+        data = get_data_from_csv(dataset_path)
+        train_data = data[data['split_type'] == 'train']
+
+        X_train_base = train_data.drop(columns=MLConstants.X_DROP_LABELS)
+        y_train_base = train_data[MLConstants.Y_LABEL]
+        
+        scaler = StandardScaler()
+        pca = PCA(n_components=MLConstants.PCA_COMPONENTS, random_state=MLConstants.RANDOM_STATE)
+        
+        save_pca_plot(
+            X=X_train_base,
+            y=y_train_base,
+            dataset_type=dataset_type,
+            dataset_name=dataset_path.stem,
+            precomputed_scaler=scaler, 
+            precomputed_pca=pca
+        )
+        
     # Iterate through each dataset and classify using the saved models
     for d in datasets.to_dict('records'):
         dataset_type = d['dataset_type']
@@ -66,6 +93,21 @@ def _classifications():
                 data=data, 
                 dataset_type=dataset_type, 
                 dataset_name=dataset_path.stem)
+
+        # --- PCA Cross Domain ---
+        if PlotFlags.ENABLE_PCA_CROSS_DOMAIN_PLOTS:
+            test_data = data[data['split_type'] == 'test']
+            X_test = test_data.drop(columns=MLConstants.X_DROP_LABELS)
+            y_test = test_data[MLConstants.Y_LABEL]
+            
+            save_pca_plot(
+                X=X_test,
+                y=y_test,
+                dataset_type=dataset_type,
+                dataset_name=dataset_path.stem,
+                precomputed_scaler=scaler, 
+                precomputed_pca=pca
+            )
 
     # --- Group and Save Classification Results ---
     # Group classifications by model and save them in the corresponding directory
