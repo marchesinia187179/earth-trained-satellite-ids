@@ -99,17 +99,8 @@ def classification_processing(model_path, data, dataset_type, dataset_name):
         classes=classes, 
         samples=data.shape[0])
 
-    # --- Generate Plots Based on Flags ---
-    # Save PCA plot if enabled
-    if PlotFlags.ENABLE_PCA_INDEPENDENT_PLOTS: 
-        save_pca_plot(
-            X=X_test, 
-            y=y_test, 
-            dataset_type=dataset_type, 
-            dataset_name=dataset_name
-        )
-
-    # Generate Probability Distribution plot if enabled
+    # --- Save Plots Based on Flags ---
+    # Save Probability Distribution plot if enabled
     if PlotFlags.ENABLE_PROBABILITY_PLOTS: 
         save_probability_plot(
             y_test=y_test, 
@@ -119,7 +110,7 @@ def classification_processing(model_path, data, dataset_type, dataset_name):
             dataset_name=dataset_name
         )
     
-    # Generate SHAP summary plot if enabled
+    # Save SHAP summary plot if enabled
     if PlotFlags.ENABLE_SHAP_PLOTS: 
         save_shap_plot(
             model=model, 

@@ -215,7 +215,7 @@ class PlotFlags:
     """Master Switch flags for granular control of plot generation during pipeline execution"""
     
     # Heavy-weight plots (computationally expensive)
-    ENABLE_SHAP_PLOTS = False              # Very heavy - SHAP explainability plots
+    ENABLE_SHAP_PLOTS = True              # Very heavy - SHAP explainability plots
     
     # Light-weight plots (standard visualizations)
     ENABLE_HEATMAP_PLOTS = True            # Performance matrix heatmaps

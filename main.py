@@ -52,6 +52,7 @@ def _classifications():
     datasets = get_data_from_csv(ProjectPaths.DATASETS_FOR_CLASSIFICATIONS)
 
     # --- Setup PCA Cross Domain ---
+    # Save PCA CROSS DOMAIN plot if enabled
     if PlotFlags.ENABLE_PCA_CROSS_DOMAIN_PLOTS:
         baseline_record = datasets[datasets['path'].apply(lambda p: Path(p).stem) == f"{Naming.NB15}{Naming.AGGR_SCALED}"].to_dict('records')[0]
         dataset_path = Path(baseline_record['path'])
@@ -65,12 +66,16 @@ def _classifications():
         
         scaler = StandardScaler()
         pca = PCA(n_components=MLConstants.PCA_COMPONENTS, random_state=MLConstants.RANDOM_STATE)
+
+        scaler.fit(X_train_base)
+        X_train_scaled_for_fit = scaler.transform(X_train_base)
+        pca.fit(X_train_scaled_for_fit)
         
         save_pca_plot(
             X=X_train_base,
             y=y_train_base,
             dataset_type=dataset_type,
-            dataset_name=dataset_path.stem,
+            dataset_name=f"{dataset_path.stem}_train_baseline",
             precomputed_scaler=scaler, 
             precomputed_pca=pca
         )
@@ -94,17 +99,27 @@ def _classifications():
                 dataset_type=dataset_type, 
                 dataset_name=dataset_path.stem)
 
-        # --- PCA Cross Domain ---
+        # --- Save Plots Based on Flags ---
+        # Save PCA INDEPENDENT plot if enabled
+        test_data = data[data['split_type'] == 'test']
+        X_test = test_data.drop(columns=MLConstants.X_DROP_LABELS)
+        y_test = test_data[MLConstants.Y_LABEL]
+        
+        if PlotFlags.ENABLE_PCA_INDEPENDENT_PLOTS:
+            save_pca_plot(
+                X=X_test, 
+                y=y_test, 
+                dataset_type=dataset_type, 
+                dataset_name=dataset_path.stem
+            )
+
+        # Save PCA CROSS DOMAIN plot if enabled
         if PlotFlags.ENABLE_PCA_CROSS_DOMAIN_PLOTS:
-            test_data = data[data['split_type'] == 'test']
-            X_test = test_data.drop(columns=MLConstants.X_DROP_LABELS)
-            y_test = test_data[MLConstants.Y_LABEL]
-            
             save_pca_plot(
                 X=X_test,
                 y=y_test,
                 dataset_type=dataset_type,
-                dataset_name=dataset_path.stem,
+                dataset_name=f"{dataset_path.stem}_test",
                 precomputed_scaler=scaler, 
                 precomputed_pca=pca
             )
