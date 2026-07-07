@@ -41,24 +41,35 @@ def _safe_stratified_sample(data, n_samples):
     :param n_samples: Number of samples to draw from the dataset
     :return: A new pandas DataFrame containing the sampled data
     """
-    # Security Fallback if the split type colums doesn't exist
+    # Security Fallback if the split type columns doesn't exist
     if 'split_type' not in data.columns:
         return data.sample(n=n_samples, random_state=MLConstants.RANDOM_STATE)
     
-    # Get the train and test data
+    # Get the train and test data
     data_train = data[data['split_type'] == 'train']
     data_test = data[data['split_type'] == 'test']
     
     total_len = len(data)
-    if total_len == 0:
-        return data
+    if total_len == 0 or n_samples == 0:
+        return pd.DataFrame(columns=data.columns)
     
-    # Calculate the real proportions of the data
+    # Calculate the real proportions of the data
     train_ratio = len(data_train) / total_len
     
-    # Calculate the exact number of samples to get from each split
-    n_train = int(n_samples * train_ratio)
+    # Usa round() per evitare i problemi di troncamento in virgola mobile
+    n_train = round(n_samples * train_ratio)
     n_test = n_samples - n_train
+    
+    # --- MECCANISMO DI SICUREZZA ---
+    # Ribilancia i campioni se l'arrotondamento supera la popolazione reale di uno split
+    if n_test > len(data_test):
+        diff = n_test - len(data_test)
+        n_test = len(data_test)
+        n_train += diff
+    elif n_train > len(data_train):
+        diff = n_train - len(data_train)
+        n_train = len(data_train)
+        n_test += diff
     
     # Get the correct train and test sample
     sampled_parts = []

@@ -12,10 +12,11 @@ from .utils.config import MLConstants, ProjectPaths, PlotFlags
 
 
 # --- Internal Helper Functions ---
-def _get_standardized_model_name(unique_classes):
+def _get_standardized_model_name(dataset_type, unique_classes):
     """
     Generates a standardized model name based on the unique classes present in the dataset.
 
+    :param dataset_type: string describing the dataset type
     :param unique_classes: list or array of unique class labels
     :return: standardized model name as a string
     """
@@ -24,13 +25,13 @@ def _get_standardized_model_name(unique_classes):
 
     # If there are more than two classes, return a generic name
     if len(classes) > 2:
-        return "model_aggregate"
+        return f"model_{dataset_type}_aggregate"
     
     # Identify the attack class (assuming 'normal' is the benign class)
     attack_classes = [c for c in classes if c.lower() != 'normal']
     attack_name = attack_classes[0].lower() if attack_classes else "unknown"
     
-    return f"model_{attack_name}"
+    return f"model_{dataset_type}_{attack_name}"
 
 
 def _save_metadata(model, model_name, metrics, dataset_type, classes, samples):
@@ -157,7 +158,7 @@ def model_processing(data, dataset_type):
     # Get unique classes and standardized model name
     unique_classes = data['class'].unique()
     classes = ", ".join(str(c) for c in unique_classes)
-    model_name = _get_standardized_model_name(unique_classes)
+    model_name = _get_standardized_model_name(dataset_type, unique_classes)
 
     # Save model
     _save_model(

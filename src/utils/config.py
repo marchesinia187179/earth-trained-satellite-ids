@@ -34,9 +34,6 @@ class Naming:
     NB15_TER20 = "nb15_ter20"
 
     # Suffixes
-    PREP = "_prep"
-    PREP_SCALED = "_prep_scaled"
-    CLASSIFICATION = "_classification"
     AGGR = "_aggr"
     AGGR_SCALED = "_aggr_scaled"
 
@@ -133,6 +130,8 @@ class RoutineConfig:
         {'dataset_type': Naming.NB15, 'filename': f"Normal_Fuzzers{Naming.EXT}"},
         {'dataset_type': Naming.NB15, 'filename': f"Normal_Generic{Naming.EXT}"},
         {'dataset_type': Naming.NB15, 'filename': f"Normal_Reconnaissance{Naming.EXT}"},
+
+        # --- Hybrid dataset ---
         {'dataset_type': Naming.HYBRID, 'filename': f"{Naming.HYBRID}{Naming.AGGR_SCALED}{Naming.EXT}"}
     ]
 
