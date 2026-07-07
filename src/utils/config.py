@@ -29,6 +29,7 @@ class Naming:
     SAT20 = "sat20"
     TER20 = "ter20"
     HYBRID = "hybrid"
+    NB15_STIN = "nb15_stin"
     NB15_SAT20 = "nb15_sat20"
     NB15_TER20 = "nb15_ter20"
 
@@ -131,7 +132,8 @@ class RoutineConfig:
         {'dataset_type': Naming.NB15, 'filename': f"Normal_Exploits{Naming.EXT}"},
         {'dataset_type': Naming.NB15, 'filename': f"Normal_Fuzzers{Naming.EXT}"},
         {'dataset_type': Naming.NB15, 'filename': f"Normal_Generic{Naming.EXT}"},
-        {'dataset_type': Naming.NB15, 'filename': f"Normal_Reconnaissance{Naming.EXT}"}
+        {'dataset_type': Naming.NB15, 'filename': f"Normal_Reconnaissance{Naming.EXT}"},
+        {'dataset_type': Naming.HYBRID, 'filename': f"{Naming.HYBRID}{Naming.AGGR_SCALED}{Naming.EXT}"}
     ]
 
     # Defines the standard set of classifications to do during a routine phase
@@ -146,6 +148,7 @@ class RoutineConfig:
 
         # --- Hybrid dataset ---
         {'dataset_type': Naming.HYBRID, 'filename': f"{Naming.HYBRID}{Naming.AGGR_SCALED}{Naming.EXT}"},
+        {'dataset_type': Naming.NB15_STIN, 'filename': f"{Naming.NB15_STIN}{Naming.AGGR_SCALED}{Naming.EXT}"},
         {'dataset_type': Naming.NB15_SAT20, 'filename': f"{Naming.NB15_SAT20}{Naming.AGGR_SCALED}{Naming.EXT}"},
         {'dataset_type': Naming.NB15_TER20, 'filename': f"{Naming.NB15_TER20}{Naming.AGGR_SCALED}{Naming.EXT}"},
 
@@ -173,17 +176,18 @@ class PlotConfig:
         "RF (Reconnaissance nb15)",
 
         # --- Hybrid dataset ---
-        "RF (Aggregate hybrid)",
-        "RF (Aggregate nb15_sat20)",
-        "RF (Aggregate nb15_ter20)",
+        "RF (Aggregate hybrid)"
+        # "RF (Aggregate nb15_stin)",
+        # "RF (Aggregate nb15_sat20)",
+        # "RF (Aggregate nb15_ter20)",
 
         # --- Specific Normal/Anomaly hybrid sub-datasets ---
-        "RF (Syn_DDoS nb15_sat20)",
-        "RF (UDP_DDoS nb15_sat20)",
-        "RF (Botnet nb15_ter20)",
-        "RF (DDoS nb15_ter20)",
-        "RF (Syn_DDoS nb15_ter20)",
-        "RF (UDP_DDoS nb15_ter20)"
+        # "RF (Syn_DDoS nb15_sat20)",
+        # "RF (UDP_DDoS nb15_sat20)",
+        # "RF (Botnet nb15_ter20)",
+        # "RF (DDoS nb15_ter20)",
+        # "RF (Syn_DDoS nb15_ter20)",
+        # "RF (UDP_DDoS nb15_ter20)"
     ]
     
     # Preferred horizontal order (Test datasets column alignment)
@@ -198,6 +202,7 @@ class PlotConfig:
 
         # --- Hybrid dataset ---
         "Aggregate hybrid",
+        "Aggregate nb15_stin",
         "Aggregate nb15_sat20",
         "Aggregate nb15_ter20",
 

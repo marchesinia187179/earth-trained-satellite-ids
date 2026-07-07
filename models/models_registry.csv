@@ -1,7 +1,0 @@
-id,path
-1,/home/marchesini-alessandro/Documents/progetto-tesi/codice/earth-trained-satellite-ids/models/model_aggregate.joblib
-2,/home/marchesini-alessandro/Documents/progetto-tesi/codice/earth-trained-satellite-ids/models/model_dos.joblib
-3,/home/marchesini-alessandro/Documents/progetto-tesi/codice/earth-trained-satellite-ids/models/model_exploits.joblib
-4,/home/marchesini-alessandro/Documents/progetto-tesi/codice/earth-trained-satellite-ids/models/model_fuzzers.joblib
-5,/home/marchesini-alessandro/Documents/progetto-tesi/codice/earth-trained-satellite-ids/models/model_generic.joblib
-6,/home/marchesini-alessandro/Documents/progetto-tesi/codice/earth-trained-satellite-ids/models/model_reconnaissance.joblib

@@ -168,6 +168,7 @@ def _preprocessing():
 
     # Initialize variables for hybrid dataset
     nb15_normal_data = None
+    nb15_anomaly_data = None
     sat20_anomaly_data = None
     ter20_anomaly_data = None
     
@@ -187,13 +188,14 @@ def _preprocessing():
         # Set variables for hybrid dataset
         if dataset_type == Naming.NB15:
             nb15_normal_data = data_prep[data_prep['label'] == 0]
+            nb15_anomaly_data = data_prep[data_prep['label'] == 1]
         elif dataset_type == Naming.SAT20:
             sat20_anomaly_data = data_prep[data_prep['label'] == 1]
         elif dataset_type == Naming.TER20:
             ter20_anomaly_data = data_prep[data_prep['label'] == 1]
     
     # Do file preprocessing for a hybrid dataset
-    hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter20_anomaly_data)
+    hybrid_dataset_file_preprocessing(nb15_normal_data, nb15_anomaly_data, sat20_anomaly_data, ter20_anomaly_data)
 
     # Group datasets paths for model building; save them in a csv file
     group_datasets_paths_for_filename_list(

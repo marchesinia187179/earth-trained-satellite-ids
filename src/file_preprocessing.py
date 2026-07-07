@@ -212,11 +212,12 @@ def _save_data_and_store_info(data, file_name, dst_dir, dataset_type):
 
 
 # --- Public Functions ---
-def hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter20_anomaly_data):
+def hybrid_dataset_file_preprocessing(nb15_normal_data, nb15_anomaly_data, sat20_anomaly_data, ter20_anomaly_data):
     """
     Creates the main directories and files of the hybrid dataset.
 
     :param nb15_normal_data: normal data from the nb15 dataset
+    :param nb15_anomaly_data: anomaly data from the nb15 dataset
     :param sat20_anomaly_data: anomaly data from the sat20 dataset
     :param ter20_anomaly_data: anomaly data from the ter20 dataset
     :return: None
@@ -267,14 +268,33 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter2
     )
 
     # --- Process the data ---
+    # Create stin data
+    stin_anomaly_data = concat_and_shuffle([sat20_anomaly_data, ter20_anomaly_data])
+    
+    # Get stin_anomaly and nb15_anomaly data sample with proportion equal 1/3 and 2/3
+    stin_size = min(len(stin_anomaly_data), len(nb15_anomaly_data) // 2)
+    nb15_anomaly_size = stin_size * 2
+
+    stin_anomaly_sampled = _safe_stratified_sample(
+        data=stin_anomaly_data,
+        n_samples=stin_size
+    )
+
+    nb15_anomaly_sampled = _safe_stratified_sample(
+        data=nb15_anomaly_data,
+        n_samples=nb15_anomaly_size
+    )
+
     # Create the hybrid data
-    nb15_stin_data = concat_and_shuffle([nb15_normal_data, sat20_anomaly_data, ter20_anomaly_data])
+    hybrid_data = concat_and_shuffle([nb15_normal_data, stin_anomaly_sampled, nb15_anomaly_sampled])
+    nb15_stin_data = concat_and_shuffle([nb15_normal_data, stin_anomaly_data])
     nb15_sat20_data = concat_and_shuffle([nb15_normal_data, sat20_anomaly_data])
     nb15_ter20_data = concat_and_shuffle([nb15_normal_data, ter20_anomaly_data])
 
     # Combine the hybrid data with own dataset type
     datasets = [
-        {'dataset_type': Naming.HYBRID, 'data': nb15_stin_data},
+        {'dataset_type': Naming.HYBRID, 'data': hybrid_data},
+        {'dataset_type': Naming.NB15_STIN, 'data': nb15_stin_data},
         {'dataset_type': Naming.NB15_SAT20, 'data': nb15_sat20_data},
         {'dataset_type': Naming.NB15_TER20, 'data': nb15_ter20_data}
     ]
@@ -287,7 +307,7 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter2
         print(f"\nRunning file-level preprocessing for {dataset_type}...")
 
         # Select current directory
-        if dataset_type == Naming.HYBRID:
+        if dataset_type == Naming.HYBRID or dataset_type == Naming.NB15_STIN:
             data_prep_dir = hybrid_dir
         elif dataset_type == Naming.NB15_SAT20:
             data_prep_dir = nb15_sat20_dir
@@ -301,7 +321,7 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter2
         data_scaled = _scale_by_normal_anomaly_ratio(data, dataset_type)
 
         # Create normal anomaly data
-        if dataset_type != Naming.HYBRID:
+        if dataset_type == Naming.NB15_SAT20 or dataset_type == Naming.NB15_TER20:
             normal_anomaly_data_list = _merge_normal_anomaly(data, dataset_type)
 
         # Get feature mean and variance
@@ -325,7 +345,7 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, sat20_anomaly_data, ter2
         )
         
         # Save normal_anomaly data
-        if dataset_type != Naming.HYBRID:
+        if dataset_type == Naming.NB15_SAT20 or dataset_type == Naming.NB15_TER20:
             for normal_anomaly_data in normal_anomaly_data_list:
                 # Get anomaly class name for file_name
                 anomaly_class_mask = normal_anomaly_data['class'] != 'Normal'
