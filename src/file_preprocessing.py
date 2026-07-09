@@ -2,6 +2,8 @@
 Preprocessing functions for handling and preparing datasets.
 """
 import pandas as pd
+from sklearn.neighbors import NearestNeighbors
+from sklearn.preprocessing import StandardScaler
 
 from .utils.file_utils import store_file_info, concat_and_shuffle, create_directory, create_csv_from_data, update_or_append_csv
 from .utils.config import MLConstants, Naming, ProjectPaths
@@ -222,6 +224,96 @@ def _save_data_and_store_info(data, file_name, dst_dir, dataset_type):
     store_file_info(file_path, dataset_type)
 
 
+def _generate_cross_domain_hybrid(nb15_anomaly_data, stin_anomaly_data):
+    """
+    Generates hybrid malicious samples by blending Terrestrial (NB15) and Satellite (STIN) data.
+    Separates traffic into TCP and UDP to maintain protocol consistency.
+    
+    :param nb15_anomaly_data: DataFrame containing ONLY malicious records from NB15 Train set
+    :param stin_anomaly_data: DataFrame containing ONLY malicious records from STIN
+    :return: DataFrame containing hybrid malicious records
+    """
+    
+    # Split both datasets into TCP and UDP based on source window size
+    nb15_tcp = nb15_anomaly_data[nb15_anomaly_data['src_win_byt'] > 0].copy()
+    nb15_udp = nb15_anomaly_data[nb15_anomaly_data['src_win_byt'] == 0].copy()
+    
+    stin_tcp = stin_anomaly_data[stin_anomaly_data['src_win_byt'] > 0].copy()
+    stin_udp = stin_anomaly_data[stin_anomaly_data['src_win_byt'] == 0].copy()
+    
+    print(f"[i] NB15 Malicious Split -> TCP: {len(nb15_tcp)} | UDP: {len(nb15_udp)}")
+    print(f"[i] STIN Malicious Split -> TCP: {len(stin_tcp)} | UDP: {len(stin_udp)}")
+    
+    hybrid_records = []
+    
+    # Helper function to process each protocol block
+    def process_protocol_block(nb15_block, stin_block):
+        if len(nb15_block) == 0 or len(stin_block) == 0:
+            return []
+        
+        # Scale features ONLY for accurate KNN distance calculation (prevents large scales from dominating)
+        scaler = StandardScaler()
+        stin_scaled = scaler.fit_transform(stin_block[MLConstants.FEATURE_COL])
+        nb15_scaled = scaler.transform(nb15_block[MLConstants.FEATURE_COL])
+        
+        # Fit KNN on Satellite data
+        knn = NearestNeighbors(n_neighbors=1, algorithm='auto')
+        knn.fit(stin_scaled)
+        
+        # Find the closest Satellite neighbor for each Terrestrial record
+        _, indices = knn.kneighbors(nb15_scaled)
+        
+        block_hybrids = []
+        # Interpolate using original unscaled values to preserve real network metrics
+        nb15_raw = nb15_block[MLConstants.FEATURE_COL].values
+        stin_raw = stin_block[MLConstants.FEATURE_COL].values
+        
+        for i in range(len(nb15_block)):
+            nearest_stin_idx = indices[i][0]
+            
+            # Linear interpolation formula: X_hybrid = alpha * X_NB15 + (1 - alpha) * X_STIN
+            sampled_features = MLConstants.SMOTE_ALPHA * nb15_raw[i] + (1 - MLConstants.SMOTE_ALPHA) * stin_raw[nearest_stin_idx]
+            
+            # Reconstruct the row dictionary
+            new_row = dict(zip(MLConstants.FEATURE_COL, sampled_features))
+            
+            # Preserve metadata columns from the original terrestrial attack
+            new_row['class'] = nb15_block['class'].iloc[i] + "_Hybrid"
+            new_row['label'] = 1  # Always malicious
+            new_row['split_type'] = nb15_block['split_type'].iloc[i]
+            
+            block_hybrids.append(new_row)
+            
+        return block_hybrids
+
+    # Run the pipeline for both protocol blocks
+    hybrid_records.extend(process_protocol_block(nb15_tcp, stin_tcp))
+    hybrid_records.extend(process_protocol_block(nb15_udp, stin_udp))
+    
+    # Convert the list of dictionaries back to a structured DataFrame
+    df_hybrid = pd.DataFrame(hybrid_records)
+    
+    return df_hybrid
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # --- Public Functions ---
 def hybrid_dataset_file_preprocessing(nb15_normal_data, nb15_anomaly_data, sat20_anomaly_data, ter20_anomaly_data):
     """
@@ -296,15 +388,21 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, nb15_anomaly_data, sat20
         n_samples=nb15_anomaly_size
     )
 
+    # Get smote data
+    smote_anomaly_data = _generate_cross_domain_hybrid(
+        nb15_anomaly_data=nb15_anomaly_data,
+        stin_anomaly_data=stin_anomaly_data
+ )
+
     # Create the hybrid data
-    hybrid_data = concat_and_shuffle([nb15_normal_data, stin_anomaly_sampled, nb15_anomaly_sampled])
+    injection_data = concat_and_shuffle([nb15_normal_data, stin_anomaly_sampled, nb15_anomaly_sampled])
     nb15_stin_data = concat_and_shuffle([nb15_normal_data, stin_anomaly_data])
     nb15_sat20_data = concat_and_shuffle([nb15_normal_data, sat20_anomaly_data])
     nb15_ter20_data = concat_and_shuffle([nb15_normal_data, ter20_anomaly_data])
 
     # Combine the hybrid data with own dataset type
     datasets = [
-        {'dataset_type': Naming.HYBRID, 'data': hybrid_data},
+        {'dataset_type': Naming.INJECTION, 'data': injection_data},
         {'dataset_type': Naming.NB15_STIN, 'data': nb15_stin_data},
         {'dataset_type': Naming.NB15_SAT20, 'data': nb15_sat20_data},
         {'dataset_type': Naming.NB15_TER20, 'data': nb15_ter20_data}
@@ -318,7 +416,7 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, nb15_anomaly_data, sat20
         print(f"\nRunning file-level preprocessing for {dataset_type}...")
 
         # Select current directory
-        if dataset_type == Naming.HYBRID or dataset_type == Naming.NB15_STIN:
+        if dataset_type == Naming.INJECTION or dataset_type == Naming.NB15_STIN:
             data_prep_dir = hybrid_dir
         elif dataset_type == Naming.NB15_SAT20:
             data_prep_dir = nb15_sat20_dir

@@ -16,6 +16,13 @@ class MLConstants:
     X_DROP_LABELS = ["label", "class", "split_type"]
     Y_LABEL = "label"
     PCA_COMPONENTS = 2
+    FEATURE_COL = [
+        'duration', 'src_bytes', 'dst_bytes', 'src_pkts', 'dst_pkts', 
+        'src_win_byt', 'dst_win_byt', 'load_s', 'down_up_ratio', 
+        'total_bytes', 'total_pkts', 'src_mean_pkt_size', 
+        'dst_mean_pkt_size', 'pkts_per_sec', 'win_diff', 'byte_ratio'
+    ]
+    SMOTE_ALPHA = 0.5
 
 
 class Naming:
@@ -29,9 +36,11 @@ class Naming:
     SAT20 = "sat20"
     TER20 = "ter20"
     HYBRID = "hybrid"
+    INJECTION = "injection"
     NB15_STIN = "nb15_stin"
     NB15_SAT20 = "nb15_sat20"
     NB15_TER20 = "nb15_ter20"
+    SMOTE = "smote"
 
     # Suffixes
     AGGR = "_aggr"
@@ -132,7 +141,8 @@ class RoutineConfig:
         {'dataset_type': Naming.NB15, 'filename': f"Normal_Reconnaissance{Naming.EXT}"},
 
         # --- Hybrid dataset ---
-        {'dataset_type': Naming.HYBRID, 'filename': f"{Naming.HYBRID}{Naming.AGGR_SCALED}{Naming.EXT}"}
+        {'dataset_type': Naming.SMOTE, 'filename': f"{Naming.SMOTE}{Naming.AGGR_SCALED}{Naming.EXT}"},
+        {'dataset_type': Naming.INJECTION, 'filename': f"{Naming.INJECTION}{Naming.AGGR_SCALED}{Naming.EXT}"}
     ]
 
     # Defines the standard set of classifications to do during a routine phase
@@ -146,7 +156,8 @@ class RoutineConfig:
         {'dataset_type': Naming.NB15, 'filename': f"Normal_Reconnaissance{Naming.EXT}"},
 
         # --- Hybrid dataset ---
-        {'dataset_type': Naming.HYBRID, 'filename': f"{Naming.HYBRID}{Naming.AGGR_SCALED}{Naming.EXT}"},
+        {'dataset_type': Naming.SMOTE, 'filename': f"{Naming.SMOTE}{Naming.AGGR_SCALED}{Naming.EXT}"},
+        {'dataset_type': Naming.INJECTION, 'filename': f"{Naming.INJECTION}{Naming.AGGR_SCALED}{Naming.EXT}"},
         {'dataset_type': Naming.NB15_STIN, 'filename': f"{Naming.NB15_STIN}{Naming.AGGR_SCALED}{Naming.EXT}"},
         {'dataset_type': Naming.NB15_SAT20, 'filename': f"{Naming.NB15_SAT20}{Naming.AGGR_SCALED}{Naming.EXT}"},
         {'dataset_type': Naming.NB15_TER20, 'filename': f"{Naming.NB15_TER20}{Naming.AGGR_SCALED}{Naming.EXT}"},
@@ -175,7 +186,8 @@ class PlotConfig:
         "RF (Reconnaissance nb15)",
 
         # --- Hybrid dataset ---
-        "RF (Aggregate hybrid)"
+        "RF (Aggregate smote)"
+        "RF (Aggregate injection)"
         # "RF (Aggregate nb15_stin)",
         # "RF (Aggregate nb15_sat20)",
         # "RF (Aggregate nb15_ter20)",
@@ -200,7 +212,8 @@ class PlotConfig:
         "Reconnaissance nb15",
 
         # --- Hybrid dataset ---
-        "Aggregate hybrid",
+        "Aggregate smote"
+        "Aggregate injection",
         "Aggregate nb15_stin",
         "Aggregate nb15_sat20",
         "Aggregate nb15_ter20",
