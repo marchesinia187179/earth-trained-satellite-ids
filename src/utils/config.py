@@ -186,7 +186,7 @@ class PlotConfig:
         "RF (Reconnaissance nb15)",
 
         # --- Hybrid dataset ---
-        "RF (Aggregate smote)"
+        "RF (Aggregate smote)",
         "RF (Aggregate injection)"
         # "RF (Aggregate nb15_stin)",
         # "RF (Aggregate nb15_sat20)",
@@ -212,7 +212,7 @@ class PlotConfig:
         "Reconnaissance nb15",
 
         # --- Hybrid dataset ---
-        "Aggregate smote"
+        "Aggregate smote",
         "Aggregate injection",
         "Aggregate nb15_stin",
         "Aggregate nb15_sat20",
@@ -232,7 +232,7 @@ class PlotFlags:
     """Master Switch flags for granular control of plot generation during pipeline execution"""
     
     # Heavy-weight plots (computationally expensive)
-    ENABLE_SHAP_PLOTS = True              # Very heavy - SHAP explainability plots
+    ENABLE_SHAP_PLOTS = False              # Very heavy - SHAP explainability plots
     
     # Light-weight plots (standard visualizations)
     ENABLE_HEATMAP_PLOTS = True            # Performance matrix heatmaps
