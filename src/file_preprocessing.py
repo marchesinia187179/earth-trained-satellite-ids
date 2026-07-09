@@ -236,11 +236,11 @@ def _generate_cross_domain_hybrid(nb15_anomaly_data, stin_anomaly_data):
     
     # Split both datasets into TCP and UDP based on source window size
     nb15_tcp = nb15_anomaly_data[nb15_anomaly_data['src_win_byt'] > 0].copy()
-    nb15_udp = nb15_anomaly_data[nb15_anomaly_data['src_win_byt'] == 0].copy()
-    
+    nb15_udp = nb15_anomaly_data[nb15_anomaly_data['src_win_byt'] <= 0].copy()
+
     stin_tcp = stin_anomaly_data[stin_anomaly_data['src_win_byt'] > 0].copy()
-    stin_udp = stin_anomaly_data[stin_anomaly_data['src_win_byt'] == 0].copy()
-    
+    stin_udp = stin_anomaly_data[stin_anomaly_data['src_win_byt'] <= 0].copy()
+
     print(f"[i] NB15 Malicious Split -> TCP: {len(nb15_tcp)} | UDP: {len(nb15_udp)}")
     print(f"[i] STIN Malicious Split -> TCP: {len(stin_tcp)} | UDP: {len(stin_udp)}")
     
@@ -278,7 +278,7 @@ def _generate_cross_domain_hybrid(nb15_anomaly_data, stin_anomaly_data):
             new_row = dict(zip(MLConstants.FEATURE_COL, sampled_features))
             
             # Preserve metadata columns from the original terrestrial attack
-            new_row['class'] = nb15_block['class'].iloc[i] + "_Hybrid"
+            new_row['class'] = nb15_block['class'].iloc[i] + "_Smote"
             new_row['label'] = 1  # Always malicious
             new_row['split_type'] = nb15_block['split_type'].iloc[i]
             
@@ -294,24 +294,6 @@ def _generate_cross_domain_hybrid(nb15_anomaly_data, stin_anomaly_data):
     df_hybrid = pd.DataFrame(hybrid_records)
     
     return df_hybrid
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # --- Public Functions ---
@@ -392,9 +374,10 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, nb15_anomaly_data, sat20
     smote_anomaly_data = _generate_cross_domain_hybrid(
         nb15_anomaly_data=nb15_anomaly_data,
         stin_anomaly_data=stin_anomaly_data
- )
+    )
 
     # Create the hybrid data
+    smote_data = concat_and_shuffle([nb15_normal_data, smote_anomaly_data])
     injection_data = concat_and_shuffle([nb15_normal_data, stin_anomaly_sampled, nb15_anomaly_sampled])
     nb15_stin_data = concat_and_shuffle([nb15_normal_data, stin_anomaly_data])
     nb15_sat20_data = concat_and_shuffle([nb15_normal_data, sat20_anomaly_data])
@@ -402,6 +385,7 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, nb15_anomaly_data, sat20
 
     # Combine the hybrid data with own dataset type
     datasets = [
+        {'dataset_type': Naming.SMOTE, 'data': smote_data},
         {'dataset_type': Naming.INJECTION, 'data': injection_data},
         {'dataset_type': Naming.NB15_STIN, 'data': nb15_stin_data},
         {'dataset_type': Naming.NB15_SAT20, 'data': nb15_sat20_data},
@@ -416,7 +400,7 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, nb15_anomaly_data, sat20
         print(f"\nRunning file-level preprocessing for {dataset_type}...")
 
         # Select current directory
-        if dataset_type == Naming.INJECTION or dataset_type == Naming.NB15_STIN:
+        if dataset_type == Naming.SMOTE or dataset_type == Naming.INJECTION or dataset_type == Naming.NB15_STIN:
             data_prep_dir = hybrid_dir
         elif dataset_type == Naming.NB15_SAT20:
             data_prep_dir = nb15_sat20_dir
