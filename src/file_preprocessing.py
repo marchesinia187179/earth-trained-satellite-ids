@@ -241,8 +241,8 @@ def _generate_cross_domain_hybrid(nb15_anomaly_data, stin_anomaly_data):
     stin_tcp = stin_anomaly_data[stin_anomaly_data['src_win_byt'] > 0].copy()
     stin_udp = stin_anomaly_data[stin_anomaly_data['src_win_byt'] <= 0].copy()
 
-    print(f"[i] NB15 Malicious Split -> TCP: {len(nb15_tcp)} | UDP: {len(nb15_udp)}")
-    print(f"[i] STIN Malicious Split -> TCP: {len(stin_tcp)} | UDP: {len(stin_udp)}")
+    print(f"NB15 Malicious Split -> TCP: {len(nb15_tcp)} | UDP: {len(nb15_udp)}")
+    print(f"STIN Malicious Split -> TCP: {len(stin_tcp)} | UDP: {len(stin_udp)}")
     
     hybrid_records = []
     

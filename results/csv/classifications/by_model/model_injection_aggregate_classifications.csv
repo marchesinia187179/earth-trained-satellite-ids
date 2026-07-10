@@ -1,18 +1,18 @@
 id,timestamp,model_name,dataset_type,classes,samples,TP,TN,FP,FN,Accuracy,Precision,Recall,F1-Score,ROC-AUC,PR-AUC,TPR,FNR,TNR,FPR
-8,2026-07-10 11:34:37,model_injection_aggregate,nb15,"Reconnaissance, Normal, DoS, Generic, Exploits, Fuzzers",102300,1500,18501,99,360,0.9776,0.9381,0.8065,0.8673,0.9694,0.9122,0.8065,0.1935,0.9947,0.0053
-16,2026-07-10 11:34:50,model_injection_aggregate,nb15,"DoS, Normal",102300,1674,18501,99,186,0.9861,0.9442,0.9,0.9216,0.9894,0.9642,0.9,0.1,0.9947,0.0053
-24,2026-07-10 11:35:01,model_injection_aggregate,nb15,"Exploits, Normal",102300,1535,18501,99,325,0.9793,0.9394,0.8253,0.8786,0.9765,0.9286,0.8253,0.1747,0.9947,0.0053
-32,2026-07-10 11:35:14,model_injection_aggregate,nb15,"Fuzzers, Normal",102300,385,18501,99,1475,0.9231,0.7955,0.207,0.3285,0.8368,0.5098,0.207,0.793,0.9947,0.0053
-40,2026-07-10 11:35:26,model_injection_aggregate,nb15,"Generic, Normal",102300,1844,18501,99,16,0.9944,0.949,0.9914,0.9698,0.9979,0.9937,0.9914,0.0086,0.9947,0.0053
-48,2026-07-10 11:35:37,model_injection_aggregate,nb15,"Reconnaissance, Normal",102300,1585,18501,99,275,0.9817,0.9412,0.8522,0.8945,0.9869,0.9471,0.8522,0.1478,0.9947,0.0053
-56,2026-07-10 11:35:49,model_injection_aggregate,smote,"Reconnaissance_Smote, Normal, Exploits_Smote, Generic_Smote, Fuzzers_Smote, DoS_Smote",102300,1558,18501,99,302,0.9804,0.9403,0.8376,0.886,0.9977,0.9586,0.8376,0.1624,0.9947,0.0053
-64,2026-07-10 11:36:00,model_injection_aggregate,injection,"DDoS, Normal, Generic, UDP_DDoS, Exploits, Fuzzers, DoS, Reconnaissance, Botnet, Syn_DDoS",102300,1630,18501,99,230,0.9839,0.9427,0.8763,0.9083,0.9789,0.9411,0.8763,0.1237,0.9947,0.0053
-72,2026-07-10 11:36:12,model_injection_aggregate,nb15_stin,"UDP_DDoS, Normal, Botnet, Syn_DDoS, DDoS",102300,1860,18501,99,0,0.9952,0.9495,1.0,0.9741,0.9999,0.9978,1.0,0.0,0.9947,0.0053
-80,2026-07-10 11:36:23,model_injection_aggregate,nb15_sat20,"UDP_DDoS, Normal, Syn_DDoS",102300,1860,18501,99,0,0.9952,0.9495,1.0,0.9741,0.9999,0.9978,1.0,0.0,0.9947,0.0053
-88,2026-07-10 11:36:33,model_injection_aggregate,nb15_ter20,"UDP_DDoS, Normal, DDoS, Botnet, Syn_DDoS",102300,1860,18501,99,0,0.9952,0.9495,1.0,0.9741,0.9999,0.9978,1.0,0.0,0.9947,0.0053
-96,2026-07-10 11:36:44,model_injection_aggregate,nb15_sat20,"Syn_DDoS, Normal",102300,1860,18501,99,0,0.9952,0.9495,1.0,0.9741,0.9999,0.9979,1.0,0.0,0.9947,0.0053
-104,2026-07-10 11:36:54,model_injection_aggregate,nb15_sat20,"UDP_DDoS, Normal",102300,1860,18501,99,0,0.9952,0.9495,1.0,0.9741,0.9999,0.9978,1.0,0.0,0.9947,0.0053
-112,2026-07-10 11:37:05,model_injection_aggregate,nb15_ter20,"Botnet, Normal",102300,1860,18501,99,0,0.9952,0.9495,1.0,0.9741,0.9999,0.9977,1.0,0.0,0.9947,0.0053
-120,2026-07-10 11:37:16,model_injection_aggregate,nb15_ter20,"DDoS, Normal",102300,1860,18501,99,0,0.9952,0.9495,1.0,0.9741,0.9999,0.9978,1.0,0.0,0.9947,0.0053
-128,2026-07-10 11:37:27,model_injection_aggregate,nb15_ter20,"Syn_DDoS, Normal",102300,1860,18501,99,0,0.9952,0.9495,1.0,0.9741,0.9999,0.9976,1.0,0.0,0.9947,0.0053
-136,2026-07-10 11:37:37,model_injection_aggregate,nb15_ter20,"UDP_DDoS, Normal",102300,1860,18501,99,0,0.9952,0.9495,1.0,0.9741,0.9999,0.9978,1.0,0.0,0.9947,0.0053
+7,2026-07-10 11:54:40,model_injection_aggregate,nb15,"Reconnaissance, Normal, DoS, Generic, Exploits, Fuzzers",102300,1500,18501,99,360,0.9776,0.9381,0.8065,0.8673,0.9694,0.9122,0.8065,0.1935,0.9947,0.0053
+15,2026-07-10 11:54:52,model_injection_aggregate,nb15,"DoS, Normal",102300,1674,18501,99,186,0.9861,0.9442,0.9,0.9216,0.9894,0.9642,0.9,0.1,0.9947,0.0053
+23,2026-07-10 11:55:05,model_injection_aggregate,nb15,"Exploits, Normal",102300,1535,18501,99,325,0.9793,0.9394,0.8253,0.8786,0.9765,0.9286,0.8253,0.1747,0.9947,0.0053
+31,2026-07-10 11:55:18,model_injection_aggregate,nb15,"Fuzzers, Normal",102300,385,18501,99,1475,0.9231,0.7955,0.207,0.3285,0.8368,0.5098,0.207,0.793,0.9947,0.0053
+39,2026-07-10 11:55:31,model_injection_aggregate,nb15,"Generic, Normal",102300,1844,18501,99,16,0.9944,0.949,0.9914,0.9698,0.9979,0.9937,0.9914,0.0086,0.9947,0.0053
+47,2026-07-10 11:55:43,model_injection_aggregate,nb15,"Reconnaissance, Normal",102300,1585,18501,99,275,0.9817,0.9412,0.8522,0.8945,0.9869,0.9471,0.8522,0.1478,0.9947,0.0053
+55,2026-07-10 11:55:55,model_injection_aggregate,injection,"DDoS, Normal, Generic, UDP_DDoS, Exploits, Fuzzers, DoS, Reconnaissance, Botnet, Syn_DDoS",102300,1630,18501,99,230,0.9839,0.9427,0.8763,0.9083,0.9789,0.9411,0.8763,0.1237,0.9947,0.0053
+63,2026-07-10 11:56:06,model_injection_aggregate,smote,"Reconnaissance_Smote, Normal, Exploits_Smote, Generic_Smote, Fuzzers_Smote, DoS_Smote",102300,1558,18501,99,302,0.9804,0.9403,0.8376,0.886,0.9977,0.9586,0.8376,0.1624,0.9947,0.0053
+71,2026-07-10 11:56:17,model_injection_aggregate,nb15_stin,"UDP_DDoS, Normal, Botnet, Syn_DDoS, DDoS",102300,1860,18501,99,0,0.9952,0.9495,1.0,0.9741,0.9999,0.9978,1.0,0.0,0.9947,0.0053
+79,2026-07-10 11:56:27,model_injection_aggregate,nb15_sat20,"UDP_DDoS, Normal, Syn_DDoS",102300,1860,18501,99,0,0.9952,0.9495,1.0,0.9741,0.9999,0.9978,1.0,0.0,0.9947,0.0053
+87,2026-07-10 11:56:39,model_injection_aggregate,nb15_ter20,"UDP_DDoS, Normal, DDoS, Botnet, Syn_DDoS",102300,1860,18501,99,0,0.9952,0.9495,1.0,0.9741,0.9999,0.9978,1.0,0.0,0.9947,0.0053
+95,2026-07-10 11:56:49,model_injection_aggregate,nb15_sat20,"Syn_DDoS, Normal",102300,1860,18501,99,0,0.9952,0.9495,1.0,0.9741,0.9999,0.9979,1.0,0.0,0.9947,0.0053
+103,2026-07-10 11:57:00,model_injection_aggregate,nb15_sat20,"UDP_DDoS, Normal",102300,1860,18501,99,0,0.9952,0.9495,1.0,0.9741,0.9999,0.9978,1.0,0.0,0.9947,0.0053
+111,2026-07-10 11:57:10,model_injection_aggregate,nb15_ter20,"Botnet, Normal",102300,1860,18501,99,0,0.9952,0.9495,1.0,0.9741,0.9999,0.9977,1.0,0.0,0.9947,0.0053
+119,2026-07-10 11:57:21,model_injection_aggregate,nb15_ter20,"DDoS, Normal",102300,1860,18501,99,0,0.9952,0.9495,1.0,0.9741,0.9999,0.9978,1.0,0.0,0.9947,0.0053
+127,2026-07-10 11:57:31,model_injection_aggregate,nb15_ter20,"Syn_DDoS, Normal",102300,1860,18501,99,0,0.9952,0.9495,1.0,0.9741,0.9999,0.9976,1.0,0.0,0.9947,0.0053
+135,2026-07-10 11:57:42,model_injection_aggregate,nb15_ter20,"UDP_DDoS, Normal",102300,1860,18501,99,0,0.9952,0.9495,1.0,0.9741,0.9999,0.9978,1.0,0.0,0.9947,0.0053

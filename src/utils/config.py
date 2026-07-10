@@ -141,8 +141,8 @@ class RoutineConfig:
         {'dataset_type': Naming.NB15, 'filename': f"Normal_Reconnaissance{Naming.EXT}"},
 
         # --- Hybrid dataset ---
-        {'dataset_type': Naming.SMOTE, 'filename': f"{Naming.SMOTE}{Naming.AGGR_SCALED}{Naming.EXT}"},
-        {'dataset_type': Naming.INJECTION, 'filename': f"{Naming.INJECTION}{Naming.AGGR_SCALED}{Naming.EXT}"}
+        {'dataset_type': Naming.INJECTION, 'filename': f"{Naming.INJECTION}{Naming.AGGR_SCALED}{Naming.EXT}"},
+        {'dataset_type': Naming.SMOTE, 'filename': f"{Naming.SMOTE}{Naming.AGGR_SCALED}{Naming.EXT}"}
     ]
 
     # Defines the standard set of classifications to do during a routine phase
@@ -156,8 +156,8 @@ class RoutineConfig:
         {'dataset_type': Naming.NB15, 'filename': f"Normal_Reconnaissance{Naming.EXT}"},
 
         # --- Hybrid dataset ---
-        {'dataset_type': Naming.SMOTE, 'filename': f"{Naming.SMOTE}{Naming.AGGR_SCALED}{Naming.EXT}"},
         {'dataset_type': Naming.INJECTION, 'filename': f"{Naming.INJECTION}{Naming.AGGR_SCALED}{Naming.EXT}"},
+        {'dataset_type': Naming.SMOTE, 'filename': f"{Naming.SMOTE}{Naming.AGGR_SCALED}{Naming.EXT}"},
         {'dataset_type': Naming.NB15_STIN, 'filename': f"{Naming.NB15_STIN}{Naming.AGGR_SCALED}{Naming.EXT}"},
         {'dataset_type': Naming.NB15_SAT20, 'filename': f"{Naming.NB15_SAT20}{Naming.AGGR_SCALED}{Naming.EXT}"},
         {'dataset_type': Naming.NB15_TER20, 'filename': f"{Naming.NB15_TER20}{Naming.AGGR_SCALED}{Naming.EXT}"},
@@ -186,8 +186,8 @@ class PlotConfig:
         "RF (Reconnaissance nb15)",
 
         # --- Hybrid dataset ---
-        "RF (Aggregate smote)",
-        "RF (Aggregate injection)"
+        "RF (Aggregate injection)",
+        "RF (Aggregate smote)"
         # "RF (Aggregate nb15_stin)",
         # "RF (Aggregate nb15_sat20)",
         # "RF (Aggregate nb15_ter20)",
@@ -212,8 +212,8 @@ class PlotConfig:
         "Reconnaissance nb15",
 
         # --- Hybrid dataset ---
-        "Aggregate smote",
         "Aggregate injection",
+        "Aggregate smote",
         "Aggregate nb15_stin",
         "Aggregate nb15_sat20",
         "Aggregate nb15_ter20",

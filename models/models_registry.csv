@@ -5,5 +5,5 @@ id,path
 4,/home/marchesini-alessandro/Documents/progetto-tesi/codice/earth-trained-satellite-ids/models/model_nb15_fuzzers.joblib
 5,/home/marchesini-alessandro/Documents/progetto-tesi/codice/earth-trained-satellite-ids/models/model_nb15_generic.joblib
 6,/home/marchesini-alessandro/Documents/progetto-tesi/codice/earth-trained-satellite-ids/models/model_nb15_reconnaissance.joblib
-7,/home/marchesini-alessandro/Documents/progetto-tesi/codice/earth-trained-satellite-ids/models/model_smote_aggregate.joblib
-8,/home/marchesini-alessandro/Documents/progetto-tesi/codice/earth-trained-satellite-ids/models/model_injection_aggregate.joblib
+7,/home/marchesini-alessandro/Documents/progetto-tesi/codice/earth-trained-satellite-ids/models/model_injection_aggregate.joblib
+8,/home/marchesini-alessandro/Documents/progetto-tesi/codice/earth-trained-satellite-ids/models/model_smote_aggregate.joblib
