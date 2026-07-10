@@ -224,7 +224,7 @@ def _save_data_and_store_info(data, file_name, dst_dir, dataset_type):
     store_file_info(file_path, dataset_type)
 
 
-def _generate_cross_domain_hybrid(nb15_anomaly_data, stin_anomaly_data):
+def _generate_smote_data(nb15_anomaly_data, stin_anomaly_data):
     """
     Generates hybrid malicious samples by blending Terrestrial (NB15) and Satellite (STIN) data.
     Separates traffic into TCP and UDP to maintain protocol consistency.
@@ -371,7 +371,7 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, nb15_anomaly_data, sat20
     )
 
     # Get smote data
-    smote_anomaly_data = _generate_cross_domain_hybrid(
+    smote_anomaly_data = _generate_smote_data(
         nb15_anomaly_data=nb15_anomaly_data,
         stin_anomaly_data=stin_anomaly_data
     )
