@@ -222,15 +222,32 @@ def save_shap_plot(model, X_test, y_test, model_name, dataset_type, dataset_name
     dst_path = model_shap_dir / shap_filename
 
     try:
-        # Stratified sampling: Align labels with features and sample evenly per class
+        # Stratified sampling: Align labels with features
         y_series = pd.Series(y_test, index=X_test.index if hasattr(X_test, 'index') else None)
-        samples_per_class = MLConstants.SHAP_MAX_SAMPLES // 2
+        
+        # --- MODIFICA SPLIT (es. 10:1 su 500 records) ---
+        # Calcola le quote: 500 // 10 = 50 Anomaly, il resto (450) è Normal
+        n_anomaly = MLConstants.SHAP_MAX_SAMPLES // MLConstants.NORMAL_ANOMALY_RATIO
+        n_normal = MLConstants.SHAP_MAX_SAMPLES - n_anomaly
 
-        # Extract sampled indices for both classes (0 and 1), capping at the available number of instances
-        sampled_idx = pd.concat([
-            y_series[y_series == c].sample(n=min(samples_per_class, sum(y_series == c)), random_state=MLConstants.RANDOM_STATE)
-            for c in [0, 1] if sum(y_series == c) > 0
-        ]).index
+        # Extract sampled indices for both classes, capping at available instances
+        idx_normal = pd.Index([])
+        if sum(y_series == 0) > 0:
+            idx_normal = y_series[y_series == 0].sample(
+                n=min(n_normal, sum(y_series == 0)), 
+                random_state=MLConstants.RANDOM_STATE
+            ).index
+            
+        idx_anomaly = pd.Index([])
+        if sum(y_series == 1) > 0:
+            idx_anomaly = y_series[y_series == 1].sample(
+                n=min(n_anomaly, sum(y_series == 1)), 
+                random_state=MLConstants.RANDOM_STATE
+            ).index
+
+        # Unione degli indici
+        sampled_idx = idx_normal.append(idx_anomaly)
+        # --- FINE MODIFICA ---
 
         # Filter the original test set using the stratified indices (or fallback to standard random sampling)
         if not sampled_idx.empty:
