@@ -13,7 +13,8 @@ from .plotting import (
     save_probability_plot, 
     save_shap_plot, 
     save_pr_curve_plot, 
-    save_threshold_metrics_plot
+    save_threshold_metrics_plot,
+    save_feature_kde_plot
 )
 
 
@@ -142,6 +143,17 @@ def classification_processing(model_path, data, dataset_type, dataset_name):
             model_name=model_name, 
             dataset_type=dataset_type, 
             dataset_name=dataset_name
+        )
+
+    # Save Feature KDE distributions plot if enabled
+    if PlotFlags.ENABLE_KDE_PLOTS:
+        save_feature_kde_plot(
+            X_test=X_test, 
+            y_test=y_test, 
+            model_name=model_name, 
+            dataset_type=dataset_type, 
+            dataset_name=dataset_name,
+            features_to_plot=MLConstants.KDE_TOP_FEATURES
         )
     
     # Save SHAP summary plot if enabled

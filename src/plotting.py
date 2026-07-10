@@ -355,6 +355,91 @@ def save_threshold_metrics_plot(y_test, y_scores, model_name, dataset_type, data
     print(f"Threshold sensitivity plot successfully saved to: {dst_path}")
 
 
+def save_feature_kde_plot(X_test, y_test, model_name, dataset_type, dataset_name, features_to_plot):
+    """
+    Plots the Kernel Density Estimation (KDE) for a selected subset of top features.
+    This helps visually detect 'Concept Drift' across different domains by showing
+    how feature distributions change for Normal vs Attack traffic.
+
+    :param X_test: DataFrame containing test features
+    :param y_test: true class labels (0 for Normal, 1 for Attack)
+    :param model_name: name of the evaluated model
+    :param dataset_type: type of the dataset being used
+    :param dataset_name: name of the dataset being used
+    :param features_to_plot: list of feature column names to plot
+    """
+    # Create a directory for the model's KDE plots
+    model_kde_dir = create_directory(model_name, ProjectPaths.KDE_PLOTS_DIR)
+
+    # Define the filename and output path
+    kde_filename = f"{dataset_type.lower()}_{dataset_name}{Naming.PLOT_EXT}"
+    dst_path = model_kde_dir / kde_filename
+
+    # Filter out features that might not exist in the current X_test DataFrame
+    valid_features = [f for f in features_to_plot if f in X_test.columns]
+    
+    if not valid_features:
+        print(f"Skipping KDE Plot for {dataset_name}: No valid features found to plot.")
+        return
+
+    # Map numeric labels to descriptive strings for the legend
+    labels = pd.Series(y_test, index=X_test.index).map({0: 'Normal Traffic', 1: 'Attack/Anomaly'})
+    
+    # Determine grid size (e.g., up to 4 features, plotted in a 2x2 grid or 1x3 row)
+    n_features = len(valid_features)
+    cols = min(2, n_features)
+    rows = (n_features + 1) // cols
+    
+    fig, axes = plt.subplots(rows, cols, figsize=(6 * cols, 5 * rows))
+    
+    # Flatten axes array for easy iteration, even if it's 1D or a single plot
+    if n_features == 1:
+        axes = [axes]
+    else:
+        axes = axes.flatten()
+
+    for i, feature in enumerate(valid_features):
+        ax = axes[i]
+        
+        # Plot KDE with overlapping filled areas. 
+        # common_norm=False ensures both classes are visible even with 10:1 imbalance
+        sns.kdeplot(
+            data=X_test, x=feature, hue=labels, fill=True, alpha=0.3, 
+            common_norm=False, linewidth=2, palette={'Normal Traffic': '#1f77b4', 'Attack/Anomaly': '#ff7f0e'},
+            ax=ax, warn_singular=False
+        )
+        
+        # Subplot aesthetics
+        ax.set_title(f"Distribution of '{feature}'", fontsize=12, fontweight='bold')
+        ax.set_xlabel(feature, fontsize=10)
+        ax.set_ylabel("Density", fontsize=10)
+        ax.grid(True, linestyle=':', alpha=0.6)
+        
+        # Remove the internal legend created by seaborn to use a single global one later
+        if ax.get_legend() is not None:
+            ax.get_legend().remove()
+
+    # Hide any unused subplots (if features count is odd)
+    for j in range(i + 1, len(axes)):
+        fig.delaxes(axes[j])
+
+    # Add a global title
+    fig.suptitle(f"Feature Distribution Analysis ({dataset_type})", fontsize=16, fontweight='bold', y=1.02)
+    
+    # Create a single global legend for the entire figure
+    handles, labels_list = ax.get_legend_handles_labels()
+    fig.legend(handles, labels_list, title='Traffic Class', loc='upper right', 
+               bbox_to_anchor=(1.0, 1.0), frameon=True, framealpha=0.9, 
+               facecolor='white', edgecolor='black', title_fontsize=11)
+
+    # Save the plot cleanly
+    plt.tight_layout()
+    plt.savefig(dst_path, dpi=300, bbox_inches='tight')
+    plt.close()
+
+    print(f"KDE Density plot successfully saved to: {dst_path}")
+
+
 def save_shap_plot(model, X_test, y_test, model_name, dataset_type, dataset_name):
     """
     Generates a classic 1D SHAP summary (dot) plot for a given model and test matrix.

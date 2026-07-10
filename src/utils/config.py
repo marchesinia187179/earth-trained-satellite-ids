@@ -23,6 +23,7 @@ class MLConstants:
         'dst_mean_pkt_size', 'pkts_per_sec', 'win_diff', 'byte_ratio'
     ]
     SMOTE_ALPHA = 0.5
+    KDE_TOP_FEATURES = ['src_bytes', 'dst_bytes', 'duration', 'src_pkts']
 
 
 class Naming:
@@ -91,6 +92,7 @@ class ProjectPaths:
     PROB_PLOTS_DIR = RESULTS_PLOT_DIR / "probabilities"
     PR_CURVE_PLOTS_DIR = RESULTS_PLOT_DIR / "pr_curves"
     THRESHOLD_PLOTS_DIR = RESULTS_PLOT_DIR / "threshold_metrics"
+    KDE_PLOTS_DIR = RESULTS_PLOT_DIR / "kde_distributions"
     SHAP_PLOTS_DIR = RESULTS_PLOT_DIR / "shap"
 
     # --- SRC Subfolders ---
@@ -265,6 +267,7 @@ class PlotFlags:
     ENABLE_PERFORMANCE_PLOTS = True     # Performance matrix heatmaps
     ENABLE_PR_CURVE_PLOTS = True    # Precision-Recall (PR) Curve (Cross-Domain)
     ENABLE_THRESHOLD_PLOTS = True   # F1-Score vs Threshold
+    ENABLE_KDE_PLOTS = True     # KDE Plot about important features
 
 
 if __name__ == "__main__":
