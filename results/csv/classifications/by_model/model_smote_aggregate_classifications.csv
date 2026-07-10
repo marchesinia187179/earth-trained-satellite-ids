@@ -1,18 +1,18 @@
 id,timestamp,model_name,dataset_type,classes,samples,TP,TN,FP,FN,Accuracy,Precision,Recall,F1-Score,ROC-AUC,PR-AUC,TPR,FNR,TNR,FPR
-7,2026-07-09 17:21:00,model_smote_aggregate,nb15,"Reconnaissance, Normal, DoS, Generic, Exploits, Fuzzers",102300,0,18600,0,1860,0.9091,0.0,0.0,0.0,0.5747,0.2143,0.0,1.0,1.0,0.0
-15,2026-07-09 17:21:11,model_smote_aggregate,nb15,"DoS, Normal",102300,0,18600,0,1860,0.9091,0.0,0.0,0.0,0.6973,0.4365,0.0,1.0,1.0,0.0
-23,2026-07-09 17:21:24,model_smote_aggregate,nb15,"Exploits, Normal",102300,0,18600,0,1860,0.9091,0.0,0.0,0.0,0.6226,0.3007,0.0,1.0,1.0,0.0
-31,2026-07-09 17:21:36,model_smote_aggregate,nb15,"Fuzzers, Normal",102300,0,18600,0,1860,0.9091,0.0,0.0,0.0,0.5457,0.1638,0.0,1.0,1.0,0.0
-39,2026-07-09 17:21:49,model_smote_aggregate,nb15,"Generic, Normal",102300,0,18600,0,1860,0.9091,0.0,0.0,0.0,0.528,0.1367,0.0,1.0,1.0,0.0
-47,2026-07-09 17:22:01,model_smote_aggregate,nb15,"Reconnaissance, Normal",102300,0,18600,0,1860,0.9091,0.0,0.0,0.0,0.5438,0.1595,0.0,1.0,1.0,0.0
-55,2026-07-09 17:22:12,model_smote_aggregate,smote,"Reconnaissance_Smote, Normal, Exploits_Smote, Generic_Smote, Fuzzers_Smote, DoS_Smote",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
-63,2026-07-09 17:22:23,model_smote_aggregate,injection,"DDoS, Normal, Generic, UDP_DDoS, Exploits, Fuzzers, DoS, Reconnaissance, Botnet, Syn_DDoS",102300,603,18600,0,1257,0.9386,1.0,0.3242,0.4896,0.7134,0.4775,0.3242,0.6758,1.0,0.0
-71,2026-07-09 17:22:33,model_smote_aggregate,nb15_stin,"UDP_DDoS, Normal, Botnet, Syn_DDoS, DDoS",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
-79,2026-07-09 17:22:44,model_smote_aggregate,nb15_sat20,"UDP_DDoS, Normal, Syn_DDoS",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
-87,2026-07-09 17:22:55,model_smote_aggregate,nb15_ter20,"UDP_DDoS, Normal, DDoS, Botnet, Syn_DDoS",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
-95,2026-07-09 17:23:06,model_smote_aggregate,nb15_sat20,"Syn_DDoS, Normal",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
-103,2026-07-09 17:23:18,model_smote_aggregate,nb15_sat20,"UDP_DDoS, Normal",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
-111,2026-07-09 17:23:29,model_smote_aggregate,nb15_ter20,"Botnet, Normal",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
-119,2026-07-09 17:23:40,model_smote_aggregate,nb15_ter20,"DDoS, Normal",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
-127,2026-07-09 17:23:50,model_smote_aggregate,nb15_ter20,"Syn_DDoS, Normal",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
-135,2026-07-09 17:24:00,model_smote_aggregate,nb15_ter20,"UDP_DDoS, Normal",102300,1858,18600,0,2,0.9999,1.0,0.9989,0.9995,1.0,1.0,0.9989,0.0011,1.0,0.0
+7,2026-07-10 11:34:36,model_smote_aggregate,nb15,"Reconnaissance, Normal, DoS, Generic, Exploits, Fuzzers",102300,0,18600,0,1860,0.9091,0.0,0.0,0.0,0.5747,0.2143,0.0,1.0,1.0,0.0
+15,2026-07-10 11:34:49,model_smote_aggregate,nb15,"DoS, Normal",102300,0,18600,0,1860,0.9091,0.0,0.0,0.0,0.6973,0.4365,0.0,1.0,1.0,0.0
+23,2026-07-10 11:35:00,model_smote_aggregate,nb15,"Exploits, Normal",102300,0,18600,0,1860,0.9091,0.0,0.0,0.0,0.6226,0.3007,0.0,1.0,1.0,0.0
+31,2026-07-10 11:35:12,model_smote_aggregate,nb15,"Fuzzers, Normal",102300,0,18600,0,1860,0.9091,0.0,0.0,0.0,0.5457,0.1638,0.0,1.0,1.0,0.0
+39,2026-07-10 11:35:25,model_smote_aggregate,nb15,"Generic, Normal",102300,0,18600,0,1860,0.9091,0.0,0.0,0.0,0.528,0.1367,0.0,1.0,1.0,0.0
+47,2026-07-10 11:35:36,model_smote_aggregate,nb15,"Reconnaissance, Normal",102300,0,18600,0,1860,0.9091,0.0,0.0,0.0,0.5438,0.1595,0.0,1.0,1.0,0.0
+55,2026-07-10 11:35:48,model_smote_aggregate,smote,"Reconnaissance_Smote, Normal, Exploits_Smote, Generic_Smote, Fuzzers_Smote, DoS_Smote",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
+63,2026-07-10 11:35:59,model_smote_aggregate,injection,"DDoS, Normal, Generic, UDP_DDoS, Exploits, Fuzzers, DoS, Reconnaissance, Botnet, Syn_DDoS",102300,603,18600,0,1257,0.9386,1.0,0.3242,0.4896,0.7134,0.4775,0.3242,0.6758,1.0,0.0
+71,2026-07-10 11:36:11,model_smote_aggregate,nb15_stin,"UDP_DDoS, Normal, Botnet, Syn_DDoS, DDoS",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
+79,2026-07-10 11:36:22,model_smote_aggregate,nb15_sat20,"UDP_DDoS, Normal, Syn_DDoS",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
+87,2026-07-10 11:36:32,model_smote_aggregate,nb15_ter20,"UDP_DDoS, Normal, DDoS, Botnet, Syn_DDoS",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
+95,2026-07-10 11:36:43,model_smote_aggregate,nb15_sat20,"Syn_DDoS, Normal",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
+103,2026-07-10 11:36:53,model_smote_aggregate,nb15_sat20,"UDP_DDoS, Normal",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
+111,2026-07-10 11:37:04,model_smote_aggregate,nb15_ter20,"Botnet, Normal",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
+119,2026-07-10 11:37:15,model_smote_aggregate,nb15_ter20,"DDoS, Normal",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
+127,2026-07-10 11:37:26,model_smote_aggregate,nb15_ter20,"Syn_DDoS, Normal",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
+135,2026-07-10 11:37:36,model_smote_aggregate,nb15_ter20,"UDP_DDoS, Normal",102300,1858,18600,0,2,0.9999,1.0,0.9989,0.9995,1.0,1.0,0.9989,0.0011,1.0,0.0
