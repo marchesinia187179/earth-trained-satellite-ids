@@ -27,11 +27,12 @@ def _build_clean_label(classes_val, dataset_type_val, prefix=""):
     # Split, strip whitespace, and filter out empty strings
     elements = [w.strip() for w in str(classes_val).split(',') if w.strip()]
     
-    # If there are more than 2 classes (e.g., Normal + multiple attack types), it's an Aggregate dataset
+    # Create label
     if len(elements) > 2:
         label_text = f"Aggregate {dataset_type_val}"
+    elif len(elements) == 1 and elements[0] == "Normal":
+        label_text = f"Normal {dataset_type_val}"
     else:
-        # Filter out "Normal" to isolate the specific cyber-attack class
         attack_only = ", ".join([w for w in elements if w != "Normal"])
         label_text = f"{attack_only} {dataset_type_val}"
         
@@ -177,17 +178,23 @@ def save_probability_plot(y_test, y_scores, model_name, dataset_type, dataset_na
         x=y_scores, hue=labels, element='step', stat='density', common_norm=False, 
         alpha=0.4, bins=50, palette={'Normal Traffic': '#1f77b4', 'Attack/Anomaly': '#ff7f0e'}
     )
-    
-    # Add a vertical reference line marking the default 0.5 decision threshold
-    plt.axvline(x=0.5, color='red', linestyle='--', linewidth=2, label='Standard Threshold (0.5)')
-    
-    # Configure academic-style titles, axis labels, boundaries, and background grid
-    plt.title("Classification Probability Distribution (Threshold Analysis)", fontsize=14, fontweight='bold', pad=15)
-    plt.xlabel("Predicted Probability of Anomaly (Output of predict_proba)", fontsize=12)
-    plt.ylabel("Density", fontsize=12)
-    plt.xlim(0, 1)
+
+    # Get dynamic range (Probability vs Anomaly Score)
+    is_probability = (np.min(y_scores) >= 0.0) and (np.max(y_scores) <= 1.0)
+
+    if is_probability:
+        plt.axvline(x=0.5, color='red', linestyle='--', linewidth=2, label='Standard Threshold (0.5)')
+        plt.xlabel("Predicted Probability of Anomaly (Output of predict_proba)", fontsize=12)
+        plt.xlim(0, 1)
+    else:
+        plt.axvline(x=0.0, color='red', linestyle='--', linewidth=2, label='Decision Threshold (0.0)')
+        plt.xlabel("Anomaly Score (Output of decision_function)", fontsize=12)
+        
+    plt.title("Classification Score Distribution (Threshold Analysis)", fontsize=14, fontweight='bold', pad=15)
     plt.grid(axis='y', linestyle=':', alpha=0.6)
 
+    plt.ylabel("Density", fontsize=12)
+    
     # Customize the legend aesthetics for a clean and professional layout
     legend = ax.legend(title='Traffic Class / Threshold', loc='upper right', frameon=True, 
                        framealpha=0.9, facecolor='white', edgecolor='black', title_fontsize=11)
@@ -319,7 +326,8 @@ def plot_heatmap_for_metrics(models, data):
         _build_clean_label(c, d) for c, d in zip(merged_data['classes'], merged_data['dataset_type'])
     ]
     merged_data['model_label'] = [
-        _build_clean_label(c, d, prefix="RF (") for c, d in zip(merged_data['model_classes'], merged_data['model_dataset_type'])
+        _build_clean_label(c, d, prefix=f"{m.split('_')[0].upper()} (") 
+        for c, d, m in zip(merged_data['model_classes'], merged_data['model_dataset_type'], merged_data['model_name'])
     ]
 
     # --- Generate heatmaps for each evaluation metric defined in MLConstants.EVALUATION_METRICS ---

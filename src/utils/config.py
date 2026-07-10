@@ -30,6 +30,10 @@ class Naming:
 
     EXT = ".csv"
     PLOT_EXT = ".png"
+
+    # Models Prefixes
+    RANDOM_FOREST = "rf"
+    ISOLATION_FOREST = "if"
     
     # Dataset Prefixes
     NB15 = "nb15"
@@ -107,7 +111,9 @@ class ProjectPaths:
     DIR_PERFORMANCE = "performance"
 
     # --- Pipeline Essential Files ---
-    DATASETS_FOR_MODEL_BUILDING = METADATA_DIR / f"model_paths{Naming.EXT}"
+    DATASETS_FOR_RANDOM_FOREST = METADATA_DIR / f"{Naming.RANDOM_FOREST}_model_paths{Naming.EXT}"
+    DATASETS_FOR_ISOLATION_FOREST = METADATA_DIR / f"{Naming.ISOLATION_FOREST}_model_paths{Naming.EXT}"
+    
     DATASETS_FOR_CLASSIFICATIONS = METADATA_DIR / f"classification_paths{Naming.EXT}"
     DATASETS_INFO = METADATA_DIR / f"datasets_info{Naming.EXT}"
     DATASETS_FEATURES_MEAN = METADATA_DIR / f"feature_mean{Naming.EXT}"
@@ -131,7 +137,7 @@ class RoutineConfig:
     ]
 
     # Defines the standard set of models to be built during a routine phase
-    DATASETS_TARGETS_FOR_MODEL_BUILDING = [
+    DATASETS_TARGETS_FOR_RANDOM_FOREST = [
         # --- NB15 dataset ---
         {'dataset_type': Naming.NB15, 'filename': f"{Naming.NB15}{Naming.AGGR_SCALED}{Naming.EXT}"},
         {'dataset_type': Naming.NB15, 'filename': f"Normal_DoS{Naming.EXT}"},
@@ -145,9 +151,16 @@ class RoutineConfig:
         {'dataset_type': Naming.SMOTE, 'filename': f"{Naming.SMOTE}{Naming.AGGR_SCALED}{Naming.EXT}"}
     ]
 
+    DATASETS_TARGETS_FOR_ISOLATION_FOREST = [
+        # --- NB15 dataset ---
+        {'dataset_type': Naming.NB15, 'filename': f"Normal{Naming.EXT}"},
+        {'dataset_type': Naming.NB15, 'filename': f"{Naming.NB15}{Naming.AGGR_SCALED}{Naming.EXT}"}
+    ]
+
     # Defines the standard set of classifications to do during a routine phase
     DATASETS_TARGETS_FOR_CLASSIFICATIONS = [
         # --- NB15 dataset ---
+        {'dataset_type': Naming.NB15, 'filename': f"Normal{Naming.EXT}"},
         {'dataset_type': Naming.NB15, 'filename': f"{Naming.NB15}{Naming.AGGR_SCALED}{Naming.EXT}"},
         {'dataset_type': Naming.NB15, 'filename': f"Normal_DoS{Naming.EXT}"},
         {'dataset_type': Naming.NB15, 'filename': f"Normal_Exploits{Naming.EXT}"},
@@ -177,7 +190,8 @@ class PlotConfig:
 
     # Preferred vertical order (Trained models row alignment)
     HEATMAP_ROW_ORDER = [
-        # --- NB15 dataset ---
+        # --- Random Forest Models ---
+        # NB15 dataset
         "RF (Aggregate nb15)",
         "RF (DoS nb15)",
         "RF (Exploits nb15)",
@@ -185,25 +199,31 @@ class PlotConfig:
         "RF (Generic nb15)",
         "RF (Reconnaissance nb15)",
 
-        # --- Hybrid dataset ---
+        # Hybrid dataset
         "RF (Aggregate injection)",
-        "RF (Aggregate smote)"
+        "RF (Aggregate smote)",
         # "RF (Aggregate nb15_stin)",
         # "RF (Aggregate nb15_sat20)",
         # "RF (Aggregate nb15_ter20)",
 
-        # --- Specific Normal/Anomaly hybrid sub-datasets ---
+        # Specific Normal/Anomaly hybrid sub-datasets
         # "RF (Syn_DDoS nb15_sat20)",
         # "RF (UDP_DDoS nb15_sat20)",
         # "RF (Botnet nb15_ter20)",
         # "RF (DDoS nb15_ter20)",
         # "RF (Syn_DDoS nb15_ter20)",
         # "RF (UDP_DDoS nb15_ter20)"
+
+        # --- Isolation Forest Models ---
+        # NB15 dataset
+        "IF (Normal nb15)",
+        "IF (Aggregate nb15)"
     ]
     
     # Preferred horizontal order (Test datasets column alignment)
     HEATMAP_COLUMN_ORDER = [
         # --- NB15 dataset ---
+        "Normal nb15",
         "Aggregate nb15",
         "DoS nb15",
         "Exploits nb15",

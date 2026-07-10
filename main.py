@@ -148,16 +148,27 @@ def _model_building():
     """ Executes a predefined model building routine """
     print("\n--- Starting Model Building Phase ---")
 
-    # Do model building for each dataset
-    datasets = get_data_from_csv(ProjectPaths.DATASETS_FOR_MODEL_BUILDING)
+    # Get dataset for random forest models
+    datasets = get_data_from_csv(ProjectPaths.DATASETS_FOR_RANDOM_FOREST)
 
-    # Iterate through each dataset and build models
+    # Iterate through each dataset and build random forest models
     for d in datasets.to_dict('records'):
         dataset_type = d['dataset_type']
         dataset_path = d['path']
 
         data = get_data_from_csv(Path(dataset_path))
-        model_processing(data, dataset_type)
+        model_processing(data, dataset_type, Naming.RANDOM_FOREST)
+
+    # Get dataset for isolation forest models
+    datasets = get_data_from_csv(ProjectPaths.DATASETS_FOR_ISOLATION_FOREST)
+
+    # Iterate through each dataset and build isolation forest models
+    for d in datasets.to_dict('records'):
+        dataset_type = d['dataset_type']
+        dataset_path = d['path']
+
+        data = get_data_from_csv(Path(dataset_path))
+        model_processing(data, dataset_type, Naming.ISOLATION_FOREST)
 
     print("\n--- Routine Model Building Completed ---")
 
@@ -198,12 +209,18 @@ def _preprocessing():
     hybrid_dataset_file_preprocessing(nb15_normal_data, nb15_anomaly_data, sat20_anomaly_data, ter20_anomaly_data)
 
     # Group datasets paths for model building; save them in a csv file
-    group_datasets_paths_for_filename_list(
-        src_path=ProjectPaths.DATASETS_INFO, 
-        dst_path=ProjectPaths.DATASETS_FOR_MODEL_BUILDING, 
-        filename_list=RoutineConfig.DATASETS_TARGETS_FOR_MODEL_BUILDING
-    )
+    jobs = [
+        (ProjectPaths.DATASETS_FOR_RANDOM_FOREST, RoutineConfig.DATASETS_TARGETS_FOR_RANDOM_FOREST), 
+        (ProjectPaths.DATASETS_FOR_ISOLATION_FOREST, RoutineConfig.DATASETS_TARGETS_FOR_ISOLATION_FOREST)
+    ]
     
+    for dst_path, filename_list in jobs:
+        group_datasets_paths_for_filename_list(
+            src_path=ProjectPaths.DATASETS_INFO, 
+            dst_path=dst_path, 
+            filename_list=filename_list
+        )
+
     # Group datasets paths for classifications; save them in a csv file
     group_datasets_paths_for_filename_list(
         src_path=ProjectPaths.DATASETS_INFO, 

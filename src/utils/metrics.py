@@ -23,17 +23,21 @@ def calculate_metrics(y_test, y_pred, y_scores):
         print("Warrning: the test data contains only one class. Only some metrics will be calculated!")
 
     # Get metrics
-    tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
+    # tn, fp, fn, tp = confusion_matrix(y_test, y_pred).ravel()
+    tn, fp, fn, tp = confusion_matrix(y_test, y_pred, labels=[0, 1]).ravel()
+    
     accuracy = round(accuracy_score(y_test, y_pred), MLConstants.DECIMAL_DIGITS) if has_classes else None
     precision = round(precision_score(y_test, y_pred), MLConstants.DECIMAL_DIGITS) if has_classes else None
     recall = round(recall_score(y_test, y_pred), MLConstants.DECIMAL_DIGITS)
     f1 = round(f1_score(y_test, y_pred), MLConstants.DECIMAL_DIGITS) if has_classes else None
     roc = round(roc_auc_score(y_test, y_scores), MLConstants.DECIMAL_DIGITS) if has_classes else None
     pr = round(average_precision_score(y_test, y_scores), MLConstants.DECIMAL_DIGITS) if has_classes else None
-    tpr = round(tp / (tp + fn) if (tp + fn) > 0 else None, MLConstants.DECIMAL_DIGITS)
-    fnr = round(fn / (tp + fn) if (tp + fn) > 0 else None, MLConstants.DECIMAL_DIGITS)
-    tnr = round(tn / (fp + tn) if (fp + tn) > 0 else None, MLConstants.DECIMAL_DIGITS)
-    fpr = round(fp / (fp + tn) if (fp + tn) > 0 else None, MLConstants.DECIMAL_DIGITS)
+    
+    # --- CORREZIONE: Spostato il costrutto 'if-else' all'esterno del round ---
+    tpr = round(tp / (tp + fn), MLConstants.DECIMAL_DIGITS) if (tp + fn) > 0 else None
+    fnr = round(fn / (tp + fn), MLConstants.DECIMAL_DIGITS) if (tp + fn) > 0 else None
+    tnr = round(tn / (fp + tn), MLConstants.DECIMAL_DIGITS) if (fp + tn) > 0 else None
+    fpr = round(fp / (fp + tn), MLConstants.DECIMAL_DIGITS) if (fp + tn) > 0 else None
     
     return {
         "TP": tp,   # True Positives: Number of actual attacks correctly identified as attacks

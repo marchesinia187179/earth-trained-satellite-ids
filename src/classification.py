@@ -2,8 +2,10 @@
 Classification logic for evaluating trained models on test datasets.
 """
 import joblib
+import numpy as np
 
 from datetime import datetime
+
 from .utils.file_utils import update_or_append_csv
 from .utils.metrics import calculate_metrics
 from .utils.config import MLConstants, Naming, ProjectPaths, PlotFlags
@@ -61,9 +63,16 @@ def _classification(model_path, data):
     # Load model
     model = joblib.load(model_path)
 
-    # Get metrics
-    y_pred = model.predict(X_test)
-    y_scores = model.predict_proba(X_test)[:, 1]
+    # Get metrics - Riconoscimento dinamico del tipo di modello
+    if hasattr(model, "predict_proba"):     # Supervised learning
+        y_pred = model.predict(X_test)
+        y_scores = model.predict_proba(X_test)[:, 1]
+    else:   # Unsupervised learning
+        raw_pred = model.predict(X_test)
+        y_pred = np.where(raw_pred == -1, 1, 0)
+        y_scores = -model.decision_function(X_test)
+
+    # Get final metrics
     metrics = calculate_metrics(y_test, y_pred, y_scores)
 
     return metrics, X_test, y_test, y_scores, model
