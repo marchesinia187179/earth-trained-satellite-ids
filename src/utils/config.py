@@ -89,6 +89,7 @@ class ProjectPaths:
     PCA_PLOTS_INDEPENDENT_DIR = RESULTS_PLOT_DIR / "pca_independent_domain"
     PCA_PLOTS_CROSS_DOMAIN_DIR = RESULTS_PLOT_DIR / "pca_cross_domain"
     PROB_PLOTS_DIR = RESULTS_PLOT_DIR / "probabilities"
+    PR_CURVE_PLOTS_DIR = RESULTS_PLOT_DIR / "pr_curves"
     SHAP_PLOTS_DIR = RESULTS_PLOT_DIR / "shap"
 
     # --- SRC Subfolders ---
@@ -255,12 +256,13 @@ class PlotFlags:
     ENABLE_SHAP_PLOTS = False              # Very heavy - SHAP explainability plots
     
     # Light-weight plots (standard visualizations)
-    ENABLE_HEATMAP_PLOTS = True            # Performance matrix heatmaps
-    ENABLE_FEATURE_IMPORTANCE = True       # Feature importance bar charts
-    ENABLE_PROBABILITY_PLOTS = True        # Probability distribution histograms
-    ENABLE_PCA_INDEPENDENT_PLOTS = True    # PCA 2D scatter plots for independent domain
-    ENABLE_PCA_CROSS_DOMAIN_PLOTS = True   # PCA 2D scatter plots for cross domain
-    ENABLE_PERFORMANCE_PLOTS = True        # Performance matrix heatmaps
+    ENABLE_HEATMAP_PLOTS = True     # Performance matrix heatmaps
+    ENABLE_FEATURE_IMPORTANCE = True    # Feature importance bar charts
+    ENABLE_PROBABILITY_PLOTS = True     # Probability distribution histograms
+    ENABLE_PCA_INDEPENDENT_PLOTS = True     # PCA 2D scatter plots for independent domain
+    ENABLE_PCA_CROSS_DOMAIN_PLOTS = True    # PCA 2D scatter plots for cross domain
+    ENABLE_PERFORMANCE_PLOTS = True     # Performance matrix heatmaps
+    ENABLE_PR_CURVE_PLOTS = True    # PR curve
 
 
 if __name__ == "__main__":

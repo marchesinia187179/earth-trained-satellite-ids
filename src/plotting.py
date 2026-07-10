@@ -11,6 +11,7 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from .utils.file_utils import create_directory
 from .utils.config import MLConstants, Naming, PlotConfig, ProjectPaths
+from sklearn.metrics import precision_recall_curve, average_precision_score
 
 
 # --- Internal Helper Functions ---
@@ -206,6 +207,73 @@ def save_probability_plot(y_test, y_scores, model_name, dataset_type, dataset_na
 
     # Output console feedback
     print(f"Probability distribution plot successfully saved to: {dst_path}")
+
+
+def save_pr_curve_plot(y_test, y_scores, model_name, dataset_type, dataset_name):
+    """
+    Plots the Precision-Recall (PR) Curve to evaluate model performance, 
+    especially useful for highly imbalanced datasets (e.g., Anomaly Detection).
+
+    :param y_test: true class labels (0 for Normal, 1 for Attack)
+    :param y_scores: predicted probabilities or anomaly scores for the positive class
+    :param model_name: name of the evaluated model
+    :param dataset_type: type of the dataset being used
+    :param dataset_name: name of the dataset being used
+    """
+    # Guard clause: Cannot compute PR curve if there are no positive samples (Attacks)
+    # This prevents errors when evaluating on purely "Normal" datasets
+    if np.sum(y_test) == 0:
+        print(f"Skipping PR Curve for {dataset_name}: No attack/anomaly samples present.")
+        return
+
+    # Create a directory for the model's PR Curve plots
+    model_pr_dir = create_directory(model_name, ProjectPaths.PR_CURVE_PLOTS_DIR)
+
+    # Define the filename and output path
+    pr_filename = f"{dataset_type.lower()}_{dataset_name}{Naming.PLOT_EXT}"
+    dst_path = model_pr_dir / pr_filename
+
+    # Calculate Precision, Recall and the Average Precision (AP) score
+    precision, recall, _ = precision_recall_curve(y_test, y_scores)
+    ap_score = average_precision_score(y_test, y_scores)
+
+    # Calculate the baseline (No-skill classifier) which is just the ratio of positive cases
+    baseline = np.sum(y_test) / len(y_test)
+
+    # Initialize the plot figure
+    plt.figure(figsize=(10, 6))
+
+    # Plot the baseline (Random chance for imbalanced datasets)
+    plt.plot([0, 1], [baseline, baseline], linestyle='--', color='gray', 
+             linewidth=2, label=f'Baseline (AP = {baseline:.3f})')
+
+    # Plot the actual PR Curve
+    plt.plot(recall, precision, color='#1f77b4', linewidth=2, 
+             label=f'Model PR Curve (AP = {ap_score:.3f})')
+    
+    # Lightly fill the area under the PR curve for visual emphasis
+    plt.fill_between(recall, precision, alpha=0.1, color='#1f77b4')
+
+    # Set plot aesthetics, labels, and limits
+    plt.title(f"Precision-Recall Curve ({dataset_type})", fontsize=14, fontweight='bold', pad=15)
+    plt.xlabel("Recall (True Positive Rate)", fontsize=12)
+    plt.ylabel("Precision (Positive Predictive Value)", fontsize=12)
+    
+    # PR curves must always be shown on a strictly [0, 1] grid
+    plt.xlim([-0.02, 1.02])
+    plt.ylim([-0.02, 1.02])
+    plt.grid(True, linestyle=':', alpha=0.6)
+
+    # Customize the legend
+    legend = plt.legend(title='Classifier Performance', loc='upper right', frameon=True, 
+                        framealpha=0.9, facecolor='white', edgecolor='black', title_fontsize=11)
+    legend.get_title().set_fontweight('bold')
+
+    # Save the plot
+    plt.savefig(dst_path, dpi=300, bbox_inches='tight')
+    plt.close()
+
+    print(f"Precision-Recall Curve successfully saved to: {dst_path}")
 
 
 def save_shap_plot(model, X_test, y_test, model_name, dataset_type, dataset_name):
