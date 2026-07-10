@@ -276,6 +276,85 @@ def save_pr_curve_plot(y_test, y_scores, model_name, dataset_type, dataset_name)
     print(f"Precision-Recall Curve successfully saved to: {dst_path}")
 
 
+def save_threshold_metrics_plot(y_test, y_scores, model_name, dataset_type, dataset_name):
+    """
+    Plots Precision, Recall, and F1-Score as a function of the decision threshold.
+    Highlights the threshold that maximizes the F1-Score to demonstrate domain shift adaptations.
+
+    :param y_test: true class labels (0 for Normal, 1 for Attack)
+    :param y_scores: predicted probabilities or anomaly scores for the positive class
+    :param model_name: name of the evaluated model
+    :param dataset_type: type of the dataset being used
+    :param dataset_name: name of the dataset being used
+    """
+    # Guard clause: Skip if no attacks exist in the ground truth
+    if np.sum(y_test) == 0:
+        print(f"Skipping Threshold Plot for {dataset_name}: No attack/anomaly samples present.")
+        return
+
+    # Create a directory for the model's Threshold Sensitivity plots
+    model_thr_dir = create_directory(model_name, ProjectPaths.THRESHOLD_PLOTS_DIR)
+
+    # Define the filename and output path
+    thr_filename = f"{dataset_type.lower()}_{dataset_name}{Naming.PLOT_EXT}"
+    dst_path = model_thr_dir / thr_filename
+
+    # Calculate precision, recall, and thresholds dynamically via scikit-learn
+    # Note: len(precisions) == len(thresholds) + 1 (the last element corresponds to precision=1, recall=0)
+    precisions, recalls, thresholds = precision_recall_curve(y_test, y_scores)
+
+    # Calculate F1-Score for each threshold using numpy vectorization
+    # Suppress zero division warnings for thresholds where precision + recall = 0
+    with np.errstate(divide='ignore', invalid='ignore'):
+        f1_scores = 2 * (precisions[:-1] * recalls[:-1]) / (precisions[:-1] + recalls[:-1])
+        # Replace resulting NaNs with 0 to keep the plot clean
+        f1_scores = np.nan_to_num(f1_scores)
+
+    # Initialize the plot figure
+    plt.figure(figsize=(10, 6))
+
+    # Plot the three metric curves against the thresholds array
+    plt.plot(thresholds, precisions[:-1], label='Precision', color='#1f77b4', linestyle='--', linewidth=2)
+    plt.plot(thresholds, recalls[:-1], label='Recall', color='#ff7f0e', linestyle='--', linewidth=2)
+    plt.plot(thresholds, f1_scores, label='F1-Score', color='#2ca02c', linewidth=3)
+
+    # Automatically find and highlight the optimal threshold (Max F1-Score)
+    optimal_idx = np.argmax(f1_scores)
+    optimal_threshold = thresholds[optimal_idx]
+    optimal_f1 = f1_scores[optimal_idx]
+    
+    plt.scatter(optimal_threshold, optimal_f1, color='red', s=80, zorder=5, 
+                label=f'Max F1 ({optimal_f1:.3f} at Thr={optimal_threshold:.2f})')
+
+    # Detect dynamic range (Probability vs Anomaly Score) to draw the correct default baseline
+    is_probability = (np.min(y_scores) >= 0.0) and (np.max(y_scores) <= 1.0)
+
+    if is_probability:
+        plt.axvline(x=0.5, color='gray', linestyle=':', linewidth=2, label='Default Threshold (0.5)')
+        plt.xlim(0, 1)
+        plt.xlabel("Classification Threshold (Probability Score)", fontsize=12)
+    else:
+        plt.axvline(x=0.0, color='gray', linestyle=':', linewidth=2, label='Default Threshold (0.0)')
+        plt.xlabel("Classification Threshold (Anomaly Score)", fontsize=12)
+
+    # Set plot aesthetics, labels, and limits
+    plt.title(f"Sensitivity Analysis: Metrics vs Threshold ({dataset_type})", fontsize=14, fontweight='bold', pad=15)
+    plt.ylabel("Metric Score", fontsize=12)
+    plt.ylim(-0.05, 1.05)
+    plt.grid(True, linestyle=':', alpha=0.6)
+
+    # Customize the legend to appear outside at the bottom so it doesn't cover the lines
+    legend = plt.legend(title='Metrics & Thresholds', loc='lower center', bbox_to_anchor=(0.5, -0.25), 
+                        ncol=3, frameon=True, framealpha=0.9, facecolor='white', edgecolor='black', title_fontsize=11)
+    legend.get_title().set_fontweight('bold')
+
+    # Save the plot with extra bottom margin to accommodate the external legend
+    plt.savefig(dst_path, dpi=300, bbox_inches='tight')
+    plt.close()
+
+    print(f"Threshold sensitivity plot successfully saved to: {dst_path}")
+
+
 def save_shap_plot(model, X_test, y_test, model_name, dataset_type, dataset_name):
     """
     Generates a classic 1D SHAP summary (dot) plot for a given model and test matrix.

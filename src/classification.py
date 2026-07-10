@@ -9,7 +9,12 @@ from datetime import datetime
 from .utils.file_utils import update_or_append_csv
 from .utils.metrics import calculate_metrics
 from .utils.config import MLConstants, Naming, ProjectPaths, PlotFlags
-from .plotting import save_probability_plot, save_shap_plot, save_pr_curve_plot
+from .plotting import (
+    save_probability_plot, 
+    save_shap_plot, 
+    save_pr_curve_plot, 
+    save_threshold_metrics_plot
+)
 
 
 # --- Internal Helper Functions ---
@@ -122,6 +127,16 @@ def classification_processing(model_path, data, dataset_type, dataset_name):
     # Save Precision-Recall (PR) Curve plot if enabled
     if PlotFlags.ENABLE_PR_CURVE_PLOTS:
         save_pr_curve_plot(
+            y_test=y_test, 
+            y_scores=y_scores, 
+            model_name=model_name, 
+            dataset_type=dataset_type, 
+            dataset_name=dataset_name
+        )
+
+    # Save Threshold Sensitivity plot if enabled
+    if PlotFlags.ENABLE_THRESHOLD_PLOTS:
+        save_threshold_metrics_plot(
             y_test=y_test, 
             y_scores=y_scores, 
             model_name=model_name, 
