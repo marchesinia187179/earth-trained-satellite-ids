@@ -5,3 +5,4 @@ joblib
 datetime
 matplotlib
 seaborn
+numpy
