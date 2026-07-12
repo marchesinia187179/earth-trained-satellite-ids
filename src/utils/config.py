@@ -164,7 +164,7 @@ class RoutineConfig:
     # Defines the standard set of classifications to do during a routine phase
     DATASETS_TARGETS_FOR_CLASSIFICATIONS = [
         # --- NB15 dataset ---
-        {'dataset_type': Naming.NB15, 'filename': f"Normal{Naming.EXT}"},
+        # {'dataset_type': Naming.NB15, 'filename': f"Normal{Naming.EXT}"},
         {'dataset_type': Naming.NB15, 'filename': f"{Naming.NB15}{Naming.AGGR_SCALED}{Naming.EXT}"},
         {'dataset_type': Naming.NB15, 'filename': f"Normal_DoS{Naming.EXT}"},
         {'dataset_type': Naming.NB15, 'filename': f"Normal_Exploits{Naming.EXT}"},
@@ -227,7 +227,7 @@ class PlotConfig:
     # Preferred horizontal order (Test datasets column alignment)
     HEATMAP_COLUMN_ORDER = [
         # --- NB15 dataset ---
-        "Normal nb15",
+        # "Normal nb15",
         "Aggregate nb15",
         "DoS nb15",
         "Exploits nb15",
