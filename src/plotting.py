@@ -135,8 +135,8 @@ def save_pca_plot(X, y, dataset_type, dataset_name, precomputed_scaler=None, pre
     plt.grid(True, linestyle=':', alpha=0.6)
 
     # Add a legend with a title and customize its appearance
-    legend = ax.legend(title='Target Traffic Class', loc='upper right', frameon=True, 
-                       framealpha=0.9, facecolor='white', edgecolor='black', title_fontsize=11)
+    legend = ax.legend(title='Target Traffic Class', loc='upper left', bbox_to_anchor=(1.02, 1.0), ncol=1, 
+                       frameon=True, framealpha=0.9, facecolor='white', edgecolor='black', title_fontsize=11)
     legend.get_title().set_fontweight('bold')
     
     # Save the PCA plot to the specified destination path
@@ -197,8 +197,8 @@ def save_probability_plot(y_test, y_scores, model_name, dataset_type, dataset_na
     plt.ylabel("Density", fontsize=12)
     
     # Customize the legend aesthetics for a clean and professional layout
-    legend = ax.legend(title='Traffic Class / Threshold', loc='upper right', frameon=True, 
-                       framealpha=0.9, facecolor='white', edgecolor='black', title_fontsize=11)
+    legend = ax.legend(title='Traffic Class / Threshold', loc='upper left', bbox_to_anchor=(1.02, 1.0), ncol=1, 
+                       frameon=True, framealpha=0.9, facecolor='white', edgecolor='black', title_fontsize=11)
     legend.get_title().set_fontweight('bold')
     
     # Save the figure dynamically fitting all outer elements without clipping, then free up memory
@@ -265,8 +265,8 @@ def save_pr_curve_plot(y_test, y_scores, model_name, dataset_type, dataset_name)
     plt.grid(True, linestyle=':', alpha=0.6)
 
     # Customize the legend
-    legend = plt.legend(title='Classifier Performance', loc='upper right', frameon=True, 
-                        framealpha=0.9, facecolor='white', edgecolor='black', title_fontsize=11)
+    legend = plt.legend(title='Classifier Performance', loc='upper left', bbox_to_anchor=(1.02, 1.0), ncol=1, 
+                        frameon=True, framealpha=0.9, facecolor='white', edgecolor='black', title_fontsize=11)
     legend.get_title().set_fontweight('bold')
 
     # Save the plot
@@ -344,8 +344,8 @@ def save_threshold_metrics_plot(y_test, y_scores, model_name, dataset_type, data
     plt.grid(True, linestyle=':', alpha=0.6)
 
     # Customize the legend to appear outside at the bottom so it doesn't cover the lines
-    legend = plt.legend(title='Metrics & Thresholds', loc='lower center', bbox_to_anchor=(0.5, -0.25), 
-                        ncol=3, frameon=True, framealpha=0.9, facecolor='white', edgecolor='black', title_fontsize=11)
+    legend = plt.legend(title='Metrics & Thresholds', loc='upper left', bbox_to_anchor=(1.02, 1.0), ncol=1, 
+                        frameon=True, framealpha=0.9, facecolor='white', edgecolor='black', title_fontsize=11)
     legend.get_title().set_fontweight('bold')
 
     # Save the plot with extra bottom margin to accommodate the external legend
@@ -428,9 +428,8 @@ def save_feature_kde_plot(X_test, y_test, model_name, dataset_type, dataset_name
     
     # Create a single global legend for the entire figure
     handles, labels_list = ax.get_legend_handles_labels()
-    fig.legend(handles, labels_list, title='Traffic Class', loc='upper right', 
-               bbox_to_anchor=(1.0, 1.0), frameon=True, framealpha=0.9, 
-               facecolor='white', edgecolor='black', title_fontsize=11)
+    fig.legend(handles, labels_list, title='Traffic Class', loc='upper left', bbox_to_anchor=(1.02, 1.0), ncol=1, 
+               frameon=True, framealpha=0.9, facecolor='white', edgecolor='black', title_fontsize=11)
 
     # Save the plot cleanly
     plt.tight_layout()

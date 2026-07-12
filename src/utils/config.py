@@ -23,7 +23,7 @@ class MLConstants:
         'dst_mean_pkt_size', 'pkts_per_sec', 'win_diff', 'byte_ratio'
     ]
     SMOTE_ALPHA = 0.5
-    KDE_TOP_FEATURES = ['src_bytes', 'dst_bytes', 'duration', 'src_pkts']
+    KDE_TOP_FEATURES = ['src_mean_pkt_size', 'total_bytes', 'down_up_ratio']
 
 
 class Naming:
