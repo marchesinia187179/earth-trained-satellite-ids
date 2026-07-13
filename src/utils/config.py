@@ -24,7 +24,7 @@ class MLConstants:
     ]
     SMOTE_ALPHA = 0.5
     KDE_TOP_FEATURES = ['pkts_per_sec', 'total_bytes', 'dst_win_byt']
-    INJECTION_RATIO = 29     # Must be 1 digit less than the denominator that we want (e.g. 1/3 than INJ_RATIO = 2)
+    INJECTION_RATIO = 49     # Must be 1 digit less than the denominator that we want (e.g. 1/3 than INJ_RATIO = 2)
 
 
 class Naming:
@@ -274,13 +274,13 @@ class PlotFlags:
     
     # Light-weight plots (standard visualizations)
     ENABLE_HEATMAP_PLOTS = True     # Performance matrix heatmaps
-    ENABLE_FEATURE_IMPORTANCE = True    # Feature importance bar charts
-    ENABLE_PROBABILITY_PLOTS = True     # Probability distribution histograms
-    ENABLE_PCA_INDEPENDENT_PLOTS = True     # PCA 2D scatter plots for independent domain
-    ENABLE_PCA_CROSS_DOMAIN_PLOTS = True    # PCA 2D scatter plots for cross domain
-    ENABLE_PERFORMANCE_PLOTS = True     # Performance matrix heatmaps
-    ENABLE_PR_CURVE_PLOTS = True    # Precision-Recall (PR) Curve (Cross-Domain)
-    ENABLE_THRESHOLD_PLOTS = True   # F1-Score vs Threshold
+    ENABLE_FEATURE_IMPORTANCE = False    # Feature importance bar charts
+    ENABLE_PROBABILITY_PLOTS = False     # Probability distribution histograms
+    ENABLE_PCA_INDEPENDENT_PLOTS = False     # PCA 2D scatter plots for independent domain
+    ENABLE_PCA_CROSS_DOMAIN_PLOTS = False    # PCA 2D scatter plots for cross domain
+    ENABLE_PERFORMANCE_PLOTS = False     # Performance matrix heatmaps
+    ENABLE_PR_CURVE_PLOTS = False    # Precision-Recall (PR) Curve (Cross-Domain)
+    ENABLE_THRESHOLD_PLOTS = False   # F1-Score vs Threshold
     ENABLE_KDE_PLOTS = True     # KDE Plot about important features
 
 

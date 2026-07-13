@@ -241,6 +241,7 @@ def _preprocessing():
         filename_list=RoutineConfig.DATASETS_TARGETS_FOR_KDE_GLOBAL_LIMITS
     )
 
+    # Calculate kde global limits
     calculate_kde_limits_csv(
         config_csv_path=ProjectPaths.DATASETS_FOR_KDE_GLOBAL_LIMITS,
         features=MLConstants.KDE_TOP_FEATURES,

@@ -151,7 +151,6 @@ def classification_processing(model_path, data, dataset_type, dataset_name, kde_
         save_feature_kde_plot(
             X_test=X_test, 
             y_test=y_test, 
-            model_name=model_name, 
             dataset_type=dataset_type, 
             dataset_name=dataset_name,
             features_to_plot=MLConstants.KDE_TOP_FEATURES,
