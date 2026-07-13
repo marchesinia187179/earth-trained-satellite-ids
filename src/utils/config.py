@@ -144,7 +144,7 @@ class RoutineConfig:
 
     DATASETS_TARGETS_FOR_KDE_GLOBAL_LIMITS = [
         # --- NB15 dataset ---
-        {'dataset_type': Naming.NB15, 'path': f"{Naming.NB15}{Naming.AGGR_SCALED}{Naming.EXT}"},
+        {'dataset_type': Naming.NB15, 'filename': f"{Naming.NB15}{Naming.AGGR_SCALED}{Naming.EXT}"},
 
         # --- Hybrid dataset ---
         {'dataset_type': Naming.INJECTION, 'filename': f"{Naming.INJECTION}{Naming.AGGR_SCALED}{Naming.EXT}"},
