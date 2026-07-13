@@ -85,7 +85,7 @@ def _classification(model_path, data):
 
 
 # --- Public Functions ---
-def classification_processing(model_path, data, dataset_type, dataset_name, kde_limits_dict):
+def classification_processing(model_path, data, dataset_type, dataset_name):
     """
     Performs classification using a pre-trained model on a given dataset, evaluates metrics, 
     and generates plots based on configuration flags.
@@ -94,7 +94,6 @@ def classification_processing(model_path, data, dataset_type, dataset_name, kde_
     :param data: full dataset containing features, labels, and split indicators
     :param dataset_type: type of the dataset being used
     :param dataset_name: name of the dataset being used
-    :param kde_limits_dict: limit values for the kde plot
     """
     # Get model name from the model path
     model_name = model_path.stem
@@ -144,17 +143,6 @@ def classification_processing(model_path, data, dataset_type, dataset_name, kde_
             model_name=model_name, 
             dataset_type=dataset_type, 
             dataset_name=dataset_name
-        )
-
-    # Save Feature KDE distributions plot if enabled
-    if PlotFlags.ENABLE_KDE_PLOTS:
-        save_feature_kde_plot(
-            X_test=X_test, 
-            y_test=y_test, 
-            dataset_type=dataset_type, 
-            dataset_name=dataset_name,
-            features_to_plot=MLConstants.KDE_TOP_FEATURES,
-            global_limits=kde_limits_dict
         )
     
     # Save SHAP summary plot if enabled
