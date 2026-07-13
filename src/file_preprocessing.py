@@ -356,9 +356,11 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, nb15_anomaly_data, sat20
     # Create stin data
     stin_anomaly_data = concat_and_shuffle([sat20_anomaly_data, ter20_anomaly_data])
     
-    # Get stin_anomaly and nb15_anomaly data sample with proportion equal 1/3 and 2/3
-    stin_size = min(len(stin_anomaly_data), len(nb15_anomaly_data) // 2)
-    nb15_anomaly_size = stin_size * 2
+    # Get stin_anomaly and nb15_anomaly data sample with proportion equal 
+    # 1 / (MLConstants.INJECTION_RATIO + 1) and 
+    # ((MLConstants.INJECTION_RATIO + 1) - 1) / (MLConstants.INJECTION_RATIO + 1)
+    stin_size = min(len(stin_anomaly_data), len(nb15_anomaly_data) // MLConstants.INJECTION_RATIO)
+    nb15_anomaly_size = stin_size * MLConstants.INJECTION_RATIO
 
     stin_anomaly_sampled = _safe_stratified_sample(
         data=stin_anomaly_data,

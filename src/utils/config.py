@@ -24,6 +24,7 @@ class MLConstants:
     ]
     SMOTE_ALPHA = 0.5
     KDE_TOP_FEATURES = ['src_mean_pkt_size', 'total_bytes', 'down_up_ratio']
+    INJECTION_RATIO = 3     # Must be 1 digit less than the denominator that we want (e.g. 1/3 than INJ_RATIO = 2)
 
 
 class Naming:
