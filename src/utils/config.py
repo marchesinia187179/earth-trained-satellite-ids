@@ -24,7 +24,7 @@ class MLConstants:
     ]
     SMOTE_ALPHA = 0.5
     KDE_TOP_FEATURES = ['pkts_per_sec', 'total_bytes', 'dst_win_byt']
-    INJECTION_RATIO = 3     # Must be 1 digit less than the denominator that we want (e.g. 1/3 than INJ_RATIO = 2)
+    INJECTION_RATIO = 5     # Must be 1 digit less than the denominator that we want (e.g. 1/3 than INJ_RATIO = 2)
     KDE_GLOBAL_LIMITS = {
         'pkts_per_sec': {
             'xlim': (-1e10, 2.5e12),      # Copre dai valori standard fino ai 250+ miliardi dei DDoS satellitari
@@ -271,7 +271,7 @@ class PlotFlags:
     """Master Switch flags for granular control of plot generation during pipeline execution"""
     
     # Heavy-weight plots (computationally expensive)
-    ENABLE_SHAP_PLOTS = True              # Very heavy - SHAP explainability plots
+    ENABLE_SHAP_PLOTS = False              # Very heavy - SHAP explainability plots
     
     # Light-weight plots (standard visualizations)
     ENABLE_HEATMAP_PLOTS = True     # Performance matrix heatmaps
