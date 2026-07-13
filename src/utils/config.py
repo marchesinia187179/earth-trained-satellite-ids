@@ -23,7 +23,7 @@ class MLConstants:
         'dst_mean_pkt_size', 'pkts_per_sec', 'win_diff', 'byte_ratio'
     ]
     SMOTE_ALPHA = 0.5
-    KDE_TOP_FEATURES = ['src_mean_pkt_size', 'total_bytes', 'down_up_ratio']
+    KDE_TOP_FEATURES = ['pkts_per_sec', 'total_bytes', 'dst_win_byt']
     INJECTION_RATIO = 3     # Must be 1 digit less than the denominator that we want (e.g. 1/3 than INJ_RATIO = 2)
 
 
