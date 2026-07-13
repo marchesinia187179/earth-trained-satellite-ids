@@ -24,7 +24,7 @@ class MLConstants:
     ]
     SMOTE_ALPHA = 0.5
     KDE_TOP_FEATURES = ['pkts_per_sec', 'total_bytes', 'dst_win_byt']
-    INJECTION_RATIO = 49     # Must be 1 digit less than the denominator that we want (e.g. 1/3 than INJ_RATIO = 2)
+    INJECTION_RATIO = 499     # Must be 1 digit less than the denominator that we want (e.g. 1/3 than INJ_RATIO = 2)
 
 
 class Naming:
@@ -141,18 +141,6 @@ class RoutineConfig:
         {'dataset_type': Naming.TER20, 'path': ProjectPaths.TER20_RAW}
     ]
 
-    DATASETS_TARGETS_FOR_KDE_GLOBAL_LIMITS = [
-        # --- NB15 dataset ---
-        {'dataset_type': Naming.NB15, 'filename': f"{Naming.NB15}{Naming.AGGR_SCALED}{Naming.EXT}"},
-
-        # --- Hybrid dataset ---
-        {'dataset_type': Naming.INJECTION, 'filename': f"{Naming.INJECTION}{Naming.AGGR_SCALED}{Naming.EXT}"},
-        {'dataset_type': Naming.SMOTE, 'filename': f"{Naming.SMOTE}{Naming.AGGR_SCALED}{Naming.EXT}"},
-        {'dataset_type': Naming.NB15_STIN, 'filename': f"{Naming.NB15_STIN}{Naming.AGGR_SCALED}{Naming.EXT}"},
-        {'dataset_type': Naming.NB15_SAT20, 'filename': f"{Naming.NB15_SAT20}{Naming.AGGR_SCALED}{Naming.EXT}"},
-        {'dataset_type': Naming.NB15_TER20, 'filename': f"{Naming.NB15_TER20}{Naming.AGGR_SCALED}{Naming.EXT}"}
-    ]
-
     # Defines the standard set of models to be built during a routine phase
     DATASETS_TARGETS_FOR_RANDOM_FOREST = [
         # --- NB15 dataset ---
@@ -177,7 +165,7 @@ class RoutineConfig:
     # Defines the standard set of classifications to do during a routine phase
     DATASETS_TARGETS_FOR_CLASSIFICATIONS = [
         # --- NB15 dataset ---
-        # {'dataset_type': Naming.NB15, 'filename': f"Normal{Naming.EXT}"},
+        {'dataset_type': Naming.NB15, 'filename': f"Normal{Naming.EXT}"},
         {'dataset_type': Naming.NB15, 'filename': f"{Naming.NB15}{Naming.AGGR_SCALED}{Naming.EXT}"},
         {'dataset_type': Naming.NB15, 'filename': f"Normal_DoS{Naming.EXT}"},
         {'dataset_type': Naming.NB15, 'filename': f"Normal_Exploits{Naming.EXT}"},
@@ -240,7 +228,7 @@ class PlotConfig:
     # Preferred horizontal order (Test datasets column alignment)
     HEATMAP_COLUMN_ORDER = [
         # --- NB15 dataset ---
-        # "Normal nb15",
+        "Normal nb15",
         "Aggregate nb15",
         "DoS nb15",
         "Exploits nb15",
@@ -279,7 +267,7 @@ class PlotFlags:
     ENABLE_PERFORMANCE_PLOTS = True     # Performance matrix heatmaps
     ENABLE_PR_CURVE_PLOTS = False    # Precision-Recall (PR) Curve (Cross-Domain)
     ENABLE_THRESHOLD_PLOTS = False   # F1-Score vs Threshold
-    ENABLE_KDE_PLOTS = True     # KDE Plot about important features
+    ENABLE_KDE_PLOTS = False     # KDE Plot about important features
 
 
 if __name__ == "__main__":

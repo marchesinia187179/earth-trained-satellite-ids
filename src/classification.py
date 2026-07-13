@@ -13,8 +13,7 @@ from .plotting import (
     save_probability_plot, 
     save_shap_plot, 
     save_pr_curve_plot, 
-    save_threshold_metrics_plot,
-    save_feature_kde_plot
+    save_threshold_metrics_plot
 )
 
 
