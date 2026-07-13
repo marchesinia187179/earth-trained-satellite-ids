@@ -295,14 +295,6 @@ def concat_and_shuffle(data_list):
     
     return final_dataframe
 
-def _get_case_suffix_from_classes(classes, dataset_type=None):
-    """Standardizes a suffix from a classes string for output naming."""
-    unique_classes = [c.strip() for c in str(classes).split(',') if c.strip()]
-    if len(unique_classes) > 2:
-        return dataset_type if dataset_type else 'aggregate'
-    attack_classes = [c for c in unique_classes if c.lower() != 'normal']
-    return attack_classes[0].lower().replace(' ', '_') if attack_classes else 'unknown'
-
 
 def _normalize_dataset_classes_filename(dataset_type, classes):
     """Builds a safe filename from dataset_type and classes values."""
@@ -366,6 +358,30 @@ def init_project_environment():
         directory.mkdir(parents=True, exist_ok=True)
         
     print("Folder Structure Initialized Successfully!")
+
+
+def load_kde_limits_from_csv(limits_csv_path):
+    """
+    Loads the previously generated limits CSV file and formats it into a dictionary
+    compatible with the KDE plotting function.
+    
+    :param limits_csv_path: Path to the limits CSV file
+    :return: Dictionary containing 'xlim' tuples for each feature, or None if file doesn't exist
+    """
+    path = pathlib.Path(limits_csv_path)
+    if not path.exists():
+        print(f"Warning: {limits_csv_path} not found. Using automatic axes scaling.")
+        return None
+        
+    df = pd.read_csv(path)
+    global_limits = {}
+    
+    for _, row in df.iterrows():
+        global_limits[row['feature']] = {
+            'xlim': (float(row['xmin']), float(row['xmax']))
+            # Y-axis is kept free (automatic) to dynamically adjust to density heights
+        }
+    return global_limits
 
 
 if __name__ == "__main__":

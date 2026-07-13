@@ -10,13 +10,14 @@ from src.classification import classification_processing
 from src.models import model_processing
 from src.plotting import save_heatmap_for_metrics_plot, save_pca_plot
 from src.utils.file_utils import (
-    create_directory, get_data_from_csv, group_by_classes_and_save, 
+    concat_and_shuffle, create_directory, get_data_from_csv, group_by_classes_and_save, 
     group_by_model_and_save, group_datasets_paths_for_filename_list,
-    init_project_environment
+    init_project_environment, load_kde_limits_from_csv
 )
 from src.utils.config import MLConstants, Naming, ProjectPaths, RoutineConfig, PlotFlags
 from src.data_preprocessing import data_preprocessing
 from src.file_preprocessing import hybrid_dataset_file_preprocessing, single_dataset_file_preprocessing
+from utils.metrics import calculate_kde_limits_csv
 
 
 # --- Internal Helper Functions ---
@@ -79,6 +80,9 @@ def _classifications():
             precomputed_scaler=scaler, 
             precomputed_pca=pca
         )
+
+    # Get KDE limits
+    kde_limits_dict = load_kde_limits_from_csv(ProjectPaths.KDE_GLOBAL_LIMITS)
         
     # Iterate through each dataset and classify using the saved models
     for d in datasets.to_dict('records'):
@@ -97,7 +101,9 @@ def _classifications():
                 model_path=Path(model_path), 
                 data=data, 
                 dataset_type=dataset_type, 
-                dataset_name=dataset_path.stem)
+                dataset_name=dataset_path.stem,
+                kde_limits_dict=kde_limits_dict
+            )
 
         # --- Save Plots Based on Flags ---
         # Save PCA INDEPENDENT plot if enabled
@@ -228,6 +234,19 @@ def _preprocessing():
         filename_list=RoutineConfig.DATASETS_TARGETS_FOR_CLASSIFICATIONS
     )
 
+    # Group datasets path for kde global limits
+    group_datasets_paths_for_filename_list(
+        src_path=ProjectPaths.DATASETS_INFO, 
+        dst_path=ProjectPaths.DATASETS_FOR_KDE_GLOBAL_LIMITS, 
+        filename_list=RoutineConfig.DATASETS_TARGETS_FOR_KDE_GLOBAL_LIMITS
+    )
+
+    calculate_kde_limits_csv(
+        config_csv_path=ProjectPaths.DATASETS_FOR_KDE_GLOBAL_LIMITS,
+        features=MLConstants.KDE_TOP_FEATURES,
+        output_csv_path=ProjectPaths.KDE_GLOBAL_LIMITS
+    )
+    
     print("\n--- Routine Preprocessing Phase Completed ---")
 
 
