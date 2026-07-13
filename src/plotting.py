@@ -355,7 +355,7 @@ def save_threshold_metrics_plot(y_test, y_scores, model_name, dataset_type, data
     print(f"Threshold sensitivity plot successfully saved to: {dst_path}")
 
 
-def save_feature_kde_plot(X_test, y_test, model_name, dataset_type, dataset_name, features_to_plot):
+def save_feature_kde_plot(X_test, y_test, model_name, dataset_type, dataset_name, features_to_plot, global_limits=None):
     """
     Plots the Kernel Density Estimation (KDE) for a selected subset of top features.
     This helps visually detect 'Concept Drift' across different domains by showing
@@ -367,6 +367,7 @@ def save_feature_kde_plot(X_test, y_test, model_name, dataset_type, dataset_name
     :param dataset_type: type of the dataset being used
     :param dataset_name: name of the dataset being used
     :param features_to_plot: list of feature column names to plot
+    :param global_limits: dict containing uniform axes scales (e.g., MLConstants.KDE_GLOBAL_LIMITS)
     """
     # Create a directory for the model's KDE plots
     model_kde_dir = create_directory(model_name, ProjectPaths.KDE_PLOTS_DIR)
@@ -385,14 +386,13 @@ def save_feature_kde_plot(X_test, y_test, model_name, dataset_type, dataset_name
     # Map numeric labels to descriptive strings for the legend
     labels = pd.Series(y_test, index=X_test.index).map({0: 'Normal Traffic', 1: 'Attack/Anomaly'})
     
-    # Determine grid size (e.g., up to 4 features, plotted in a 2x2 grid or 1x3 row)
+    # Determine grid size
     n_features = len(valid_features)
     cols = min(2, n_features)
     rows = (n_features + 1) // cols
     
     fig, axes = plt.subplots(rows, cols, figsize=(6 * cols, 5 * rows))
     
-    # Flatten axes array for easy iteration, even if it's 1D or a single plot
     if n_features == 1:
         axes = [axes]
     else:
@@ -401,13 +401,19 @@ def save_feature_kde_plot(X_test, y_test, model_name, dataset_type, dataset_name
     for i, feature in enumerate(valid_features):
         ax = axes[i]
         
-        # Plot KDE with overlapping filled areas. 
-        # common_norm=False ensures both classes are visible even with 10:1 imbalance
+        # Plot KDE with overlapping filled areas
         sns.kdeplot(
             data=X_test, x=feature, hue=labels, fill=True, alpha=0.3, 
             common_norm=False, linewidth=2, palette={'Normal Traffic': '#1f77b4', 'Attack/Anomaly': '#ff7f0e'},
             ax=ax, warn_singular=False
         )
+        
+        # Uniform scale
+        if global_limits and feature in global_limits:
+            if 'xlim' in global_limits[feature]:
+                ax.set_xlim(global_limits[feature]['xlim'])
+            if 'ylim' in global_limits[feature]:
+                ax.set_ylim(global_limits[feature]['ylim'])
         
         # Subplot aesthetics
         ax.set_title(f"Distribution of '{feature}'", fontsize=12, fontweight='bold')
@@ -415,18 +421,17 @@ def save_feature_kde_plot(X_test, y_test, model_name, dataset_type, dataset_name
         ax.set_ylabel("Density", fontsize=10)
         ax.grid(True, linestyle=':', alpha=0.6)
         
-        # Remove the internal legend created by seaborn to use a single global one later
         if ax.get_legend() is not None:
             ax.get_legend().remove()
 
-    # Hide any unused subplots (if features count is odd)
+    # Hide any unused subplots
     for j in range(i + 1, len(axes)):
         fig.delaxes(axes[j])
 
     # Add a global title
     fig.suptitle(f"Feature Distribution Analysis ({dataset_type})", fontsize=16, fontweight='bold', y=1.02)
     
-    # Create a single global legend for the entire figure
+    # Create a single global legend
     handles, labels_list = ax.get_legend_handles_labels()
     fig.legend(handles, labels_list, title='Traffic Class', loc='upper left', bbox_to_anchor=(1.02, 1.0), ncol=1, 
                frameon=True, framealpha=0.9, facecolor='white', edgecolor='black', title_fontsize=11)
@@ -534,7 +539,7 @@ def save_shap_plot(model, X_test, y_test, model_name, dataset_type, dataset_name
         print(f"Warning: Could not generate SHAP plot ({e}). Skipping.")
 
 
-def plot_heatmap_for_metrics(models, data):
+def save_heatmap_for_metrics_plot(models, data):
     """
     Generates a heatmap for a specific evaluation metric across different trained models and test datasets.
 

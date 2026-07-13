@@ -8,7 +8,7 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from src.classification import classification_processing
 from src.models import model_processing
-from src.plotting import plot_heatmap_for_metrics, save_pca_plot
+from src.plotting import save_heatmap_for_metrics_plot, save_pca_plot
 from src.utils.file_utils import (
     create_directory, get_data_from_csv, group_by_classes_and_save, 
     group_by_model_and_save, group_datasets_paths_for_filename_list,
@@ -139,7 +139,7 @@ def _classifications():
         data = get_data_from_csv(classifications_file)
 
         # Generate performance plots using the plotting_processing function
-        plot_heatmap_for_metrics(models, data)
+        save_heatmap_for_metrics_plot(models, data)
 
     print("\n--- Routine Classification Completed ---")
 

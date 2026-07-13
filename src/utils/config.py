@@ -25,6 +25,20 @@ class MLConstants:
     SMOTE_ALPHA = 0.5
     KDE_TOP_FEATURES = ['pkts_per_sec', 'total_bytes', 'dst_win_byt']
     INJECTION_RATIO = 3     # Must be 1 digit less than the denominator that we want (e.g. 1/3 than INJ_RATIO = 2)
+    KDE_GLOBAL_LIMITS = {
+        'pkts_per_sec': {
+            'xlim': (-1e10, 2.5e12),      # Copre dai valori standard fino ai 250+ miliardi dei DDoS satellitari
+            'ylim': (0.0, 1e-11)          # Altezza calibrata per la grandissima dispersione di questa feature
+        },
+        'total_bytes': {
+            'xlim': (-50000, 1300000),    # Calcolato sulla deviazione standard della classe Exploits (la più estesa)
+            'ylim': (0.0, 0.00002)        # Calibrazione Y per evidenziare sia il traffico normale che gli attacchi volumetrici
+        },
+        'dst_win_byt': {
+            'xlim': (-50, 600),           # Range ottimale per i valori di window size presenti nei vari domini
+            'ylim': (0.0, 0.012)          # Permette di vedere chiaramente i picchi senza tagliarli
+        }
+    }
 
 
 class Naming:

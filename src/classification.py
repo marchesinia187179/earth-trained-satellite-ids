@@ -153,7 +153,8 @@ def classification_processing(model_path, data, dataset_type, dataset_name):
             model_name=model_name, 
             dataset_type=dataset_type, 
             dataset_name=dataset_name,
-            features_to_plot=MLConstants.KDE_TOP_FEATURES
+            features_to_plot=MLConstants.KDE_TOP_FEATURES,
+            global_limits=MLConstants.KDE_GLOBAL_LIMITS
         )
     
     # Save SHAP summary plot if enabled
