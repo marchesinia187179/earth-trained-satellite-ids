@@ -362,15 +362,11 @@ def init_project_environment():
 
 def load_kde_limits_from_csv(limits_csv_path):
     """
-    Loads the previously generated limits CSV file and formats it into a dictionary
-    compatible with the KDE plotting function.
-    
-    :param limits_csv_path: Path to the limits CSV file
-    :return: Dictionary containing 'xlim' tuples for each feature, or None if file doesn't exist
+    Loads the limits CSV file and formats it into a dictionary containing both xlim and ylim.
     """
     path = pathlib.Path(limits_csv_path)
     if not path.exists():
-        print(f"Warning: {limits_csv_path} not found. Using automatic axes scaling.")
+        print(f"Warning: {limits_csv_path} not found. Using automatic scaling.")
         return None
         
     df = pd.read_csv(path)
@@ -379,8 +375,11 @@ def load_kde_limits_from_csv(limits_csv_path):
     for _, row in df.iterrows():
         global_limits[row['feature']] = {
             'xlim': (float(row['xmin']), float(row['xmax']))
-            # Y-axis is kept free (automatic) to dynamically adjust to density heights
         }
+        # Only add ylim if ymax was successfully calculated and is not NaN
+        if 'ymax' in df.columns and not pd.isna(row['ymax']):
+            global_limits[row['feature']]['ylim'] = (0.0, float(row['ymax']))
+            
     return global_limits
 
 
