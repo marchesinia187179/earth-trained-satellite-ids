@@ -405,7 +405,7 @@ def save_feature_kde_plot(X_test, y_test, model_name, dataset_type, dataset_name
         sns.kdeplot(
             data=X_test, x=feature, hue=labels, fill=True, alpha=0.3, 
             common_norm=False, linewidth=2, palette={'Normal Traffic': '#1f77b4', 'Attack/Anomaly': '#ff7f0e'},
-            ax=ax, warn_singular=False
+            ax=ax, warn_singular=False, cut=0
         )
         
         # Uniform scale

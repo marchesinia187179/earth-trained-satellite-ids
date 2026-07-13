@@ -155,7 +155,7 @@ def calculate_kde_limits_csv(config_csv_path, features, output_csv_path):
         if f in ['pkts_per_sec', 'total_bytes'] and min_val < 0:
             min_val = 0.0
             
-        max_robust = np.percentile(data, 99.5)
+        max_robust = np.percentile(data, 100)
         padding_x = (max_robust - min_val) * 0.05 if max_robust > min_val else 1.0
         
         xmin = min_val - (padding_x if min_val > 0 else 0)
@@ -176,7 +176,7 @@ def calculate_kde_limits_csv(config_csv_path, features, output_csv_path):
             peak_density = np.max(y_densities)
             
             # Add 10% padding to the top so the highest peak doesn't touch the upper border
-            ymax = peak_density * 1.10
+            ymax = peak_density * 1.30
         except Exception as e:
             print(f" -> [WARNING] Could not compute Y limit for {f}, using automatic: {e}")
             ymax = None

@@ -1,0 +1,18 @@
+id,timestamp,model_name,dataset_type,classes,samples,TP,TN,FP,FN,Accuracy,Precision,Recall,F1-Score,ROC-AUC,PR-AUC,TPR,FNR,TNR,FPR
+7,2026-07-13 15:45:57,rf_model_injection_aggregate,nb15,"Reconnaissance, Normal, DoS, Generic, Exploits, Fuzzers",102300,1540,18452,148,320,0.9771,0.9123,0.828,0.8681,0.971,0.9135,0.828,0.172,0.992,0.008
+17,2026-07-13 15:46:52,rf_model_injection_aggregate,nb15,"DoS, Normal",102300,1723,18452,148,137,0.9861,0.9209,0.9263,0.9236,0.989,0.962,0.9263,0.0737,0.992,0.008
+27,2026-07-13 15:47:46,rf_model_injection_aggregate,nb15,"Exploits, Normal",102300,1604,18452,148,256,0.9803,0.9155,0.8624,0.8882,0.9797,0.9327,0.8624,0.1376,0.992,0.008
+37,2026-07-13 15:48:38,rf_model_injection_aggregate,nb15,"Fuzzers, Normal",102300,447,18452,148,1413,0.9237,0.7513,0.2403,0.3642,0.843,0.5181,0.2403,0.7597,0.992,0.008
+47,2026-07-13 15:49:27,rf_model_injection_aggregate,nb15,"Generic, Normal",102300,1846,18452,148,14,0.9921,0.9258,0.9925,0.958,0.9986,0.9926,0.9925,0.0075,0.992,0.008
+57,2026-07-13 15:50:15,rf_model_injection_aggregate,nb15,"Reconnaissance, Normal",102300,1628,18452,148,232,0.9814,0.9167,0.8753,0.8955,0.9901,0.9518,0.8753,0.1247,0.992,0.008
+67,2026-07-13 15:51:03,rf_model_injection_aggregate,injection,"Generic, Normal, Fuzzers, DoS, Exploits, Reconnaissance, Syn_DDoS, Botnet, DDoS, UDP_DDoS",102300,1544,18452,148,316,0.9773,0.9125,0.8301,0.8694,0.9652,0.9074,0.8301,0.1699,0.992,0.008
+77,2026-07-13 15:51:53,rf_model_injection_aggregate,smote,"Reconnaissance_Smote, Normal, Exploits_Smote, Generic_Smote, Fuzzers_Smote, DoS_Smote",102300,1252,18452,148,608,0.963,0.8943,0.6731,0.7681,0.9926,0.8729,0.6731,0.3269,0.992,0.008
+87,2026-07-13 15:52:41,rf_model_injection_aggregate,nb15_stin,"UDP_DDoS, Normal, Botnet, Syn_DDoS, DDoS",102300,1860,18452,148,0,0.9928,0.9263,1.0,0.9617,0.9997,0.9951,1.0,0.0,0.992,0.008
+97,2026-07-13 15:53:28,rf_model_injection_aggregate,nb15_sat20,"UDP_DDoS, Normal, Syn_DDoS",102300,1860,18452,148,0,0.9928,0.9263,1.0,0.9617,0.9998,0.9954,1.0,0.0,0.992,0.008
+107,2026-07-13 15:54:16,rf_model_injection_aggregate,nb15_ter20,"UDP_DDoS, Normal, DDoS, Botnet, Syn_DDoS",102300,1859,18452,148,1,0.9927,0.9263,0.9995,0.9615,0.9997,0.9949,0.9995,0.0005,0.992,0.008
+117,2026-07-13 15:55:06,rf_model_injection_aggregate,nb15_sat20,"Syn_DDoS, Normal",102300,1860,18452,148,0,0.9928,0.9263,1.0,0.9617,0.9998,0.9955,1.0,0.0,0.992,0.008
+127,2026-07-13 15:55:54,rf_model_injection_aggregate,nb15_sat20,"UDP_DDoS, Normal",102300,1860,18452,148,0,0.9928,0.9263,1.0,0.9617,0.9998,0.9954,1.0,0.0,0.992,0.008
+137,2026-07-13 15:56:43,rf_model_injection_aggregate,nb15_ter20,"Botnet, Normal",102300,1857,18452,148,3,0.9926,0.9262,0.9984,0.9609,0.9997,0.9945,0.9984,0.0016,0.992,0.008
+147,2026-07-13 15:57:31,rf_model_injection_aggregate,nb15_ter20,"DDoS, Normal",102300,1860,18452,148,0,0.9928,0.9263,1.0,0.9617,0.9997,0.9951,1.0,0.0,0.992,0.008
+157,2026-07-13 15:58:18,rf_model_injection_aggregate,nb15_ter20,"Syn_DDoS, Normal",102300,1860,18452,148,0,0.9928,0.9263,1.0,0.9617,0.9997,0.9947,1.0,0.0,0.992,0.008
+167,2026-07-13 15:59:09,rf_model_injection_aggregate,nb15_ter20,"UDP_DDoS, Normal",102300,1859,18452,148,1,0.9927,0.9263,0.9995,0.9615,0.9998,0.9954,0.9995,0.0005,0.992,0.008
