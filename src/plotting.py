@@ -1,7 +1,6 @@
 """
 Heatmap generation functions for visualizing model performance across different datasets and features.
 """
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -9,6 +8,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import shap
 
+from pathlib import Path
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from .utils.file_utils import create_directory
@@ -357,95 +357,139 @@ def save_threshold_metrics_plot(y_test, y_scores, model_name, dataset_type, data
     print(f"Threshold sensitivity plot successfully saved to: {dst_path}")
 
 
-def save_feature_kde_plot(X_test, y_test, dataset_type, dataset_name, features_to_plot, global_limits=None):
+def save_all_kde_plots(config_csv_path, features_to_plot, global_limits=None, label_column=MLConstants.Y_LABEL):
     """
-    Plots the Kernel Density Estimation (KDE) for a selected subset of top features.
-    This helps visually detect 'Concept Drift' across different domains by showing
-    how feature distributions change for Normal vs Attack traffic independently of any model.
+    Automated batch runner that reads a configuration CSV, automatically loads each dataset,
+    extracts metadata using Path.stem, and generates uniform KDE plots to detect Concept Drift.
 
-    :param X_test: DataFrame containing test features
-    :param y_test: true class labels (0 for Normal, 1 for Attack)
-    :param dataset_type: type of the dataset being used (e.g., 'NB15', 'SAT20')
-    :param dataset_name: specific name of the dataset being used
-    :param features_to_plot: list of feature column names to plot
-    :param global_limits: dict containing uniform axes scales (e.g., loaded from KDE_GLOBAL_LIMITS)
+    :param config_csv_path: Path to the configuration CSV file containing 'path' and 'dataset_type'
+    :param features_to_plot: List of feature column names to analyze and plot
+    :param global_limits: Dict containing uniform axes scales (loaded from the limits CSV)
+    :param label_column: The name of the ground-truth target column in your datasets (default: 'label')
     """
-    # Ensure the main directory for KDE plots exists (no model subdirectories anymore)
+    config_path = Path(config_csv_path)
+    if not config_path.exists():
+        print(f"[ERROR] Configuration CSV file not found at: {config_csv_path}")
+        return
+
+    # Load the master configuration file
+    try:
+        df_config = pd.read_csv(config_path)
+    except Exception as e:
+        print(f"[ERROR] Failed to read configuration CSV: {e}")
+        return
+
+    # Validate required columns in the configuration file
+    if 'path' not in df_config.columns or 'dataset_type' not in df_config.columns:
+        print("[ERROR] The configuration CSV must contain both 'path' and 'dataset_type' columns.")
+        return
+
+    # Ensure the main output directory for KDE plots exists
     base_kde_dir = Path(ProjectPaths.KDE_PLOTS_DIR)
     base_kde_dir.mkdir(parents=True, exist_ok=True)
 
-    # Define the filename and output path directly in the main KDE folder
-    kde_filename = f"{dataset_type.lower()}_{dataset_name}{Naming.PLOT_EXT}"
-    dst_path = base_kde_dir / kde_filename
-
-    # Filter out features that might not exist in the current X_test DataFrame
-    valid_features = [f for f in features_to_plot if f in X_test.columns]
+    print("Starting automated batch KDE plotting...")
     
-    if not valid_features:
-        print(f"Skipping KDE Plot for {dataset_name}: No valid features found to plot.")
-        return
-
-    # Map numeric labels to descriptive strings for the legend
-    labels = pd.Series(y_test, index=X_test.index).map({0: 'Normal Traffic', 1: 'Attack/Anomaly'})
-    
-    # Determine grid size dynamically based on the number of valid features
-    n_features = len(valid_features)
-    cols = min(2, n_features)
-    rows = (n_features + 1) // cols
-    
-    fig, axes = plt.subplots(rows, cols, figsize=(6 * cols, 5 * rows))
-    
-    # Flatten axes array for easy iteration
-    if n_features == 1:
-        axes = [axes]
-    else:
-        axes = axes.flatten()
-
-    for i, feature in enumerate(valid_features):
-        ax = axes[i]
+    # Iterate through each dataset defined in the config file
+    for _, row in df_config.iterrows():
+        dataset_path_str = row['path']
+        dataset_type = row['dataset_type']
         
-        # Plot KDE with overlapping filled areas, cut=0 ensures data is not artificially truncated
-        sns.kdeplot(
-            data=X_test, x=feature, hue=labels, fill=True, alpha=0.3, 
-            common_norm=False, linewidth=2, palette={'Normal Traffic': '#1f77b4', 'Attack/Anomaly': '#ff7f0e'},
-            ax=ax, warn_singular=False, cut=0
-        )
-        
-        # Apply uniform global scales if provided
-        if global_limits and feature in global_limits:
-            if 'xlim' in global_limits[feature]:
-                ax.set_xlim(global_limits[feature]['xlim'])
-            if 'ylim' in global_limits[feature]:
-                ax.set_ylim(global_limits[feature]['ylim'])
-        
-        # Subplot aesthetics
-        ax.set_title(f"Distribution of '{feature}'", fontsize=12, fontweight='bold')
-        ax.set_xlabel(feature, fontsize=10)
-        ax.set_ylabel("Density", fontsize=10)
-        ax.grid(True, linestyle=':', alpha=0.6)
-        
-        # Remove the internal legend created by seaborn to use a single global one later
-        if ax.get_legend() is not None:
-            ax.get_legend().remove()
+        if pd.isna(dataset_path_str) or pd.isna(dataset_type):
+            continue
+            
+        file_path = Path(dataset_path_str)
+        if not file_path.exists():
+            print(f" -> [WARNING] Dataset file not found, skipping: {file_path}")
+            continue
 
-    # Hide any unused subplots (useful if feature count is odd)
-    for j in range(i + 1, len(axes)):
-        fig.delaxes(axes[j])
+        # Automatically extract the dataset name from the file path using .stem
+        # e.g., "/data/NB15_aggregated_scaled.csv" -> "NB15_aggregated_scaled"
+        dataset_name = file_path.stem
 
-    # Add a global title indicating the dataset
-    fig.suptitle(f"Feature Distribution Analysis ({dataset_type} - {dataset_name})", fontsize=16, fontweight='bold', y=1.02)
-    
-    # Create a single global legend for the entire figure
-    handles, labels_list = ax.get_legend_handles_labels()
-    fig.legend(handles, labels_list, title='Traffic Class', loc='upper left', bbox_to_anchor=(1.02, 1.0), ncol=1, 
-               frameon=True, framealpha=0.9, facecolor='white', edgecolor='black', title_fontsize=11)
+        # Define the final plot filename and destination path
+        kde_filename = f"{dataset_type.lower()}_{dataset_name}{Naming.PLOT_EXT}"
+        dst_path = base_kde_dir / kde_filename
 
-    # Save the plot cleanly without cropping external elements like legends
-    plt.tight_layout()
-    plt.savefig(dst_path, dpi=300, bbox_inches='tight')
-    plt.close()
+        try:
+            # Preview columns first to optimize memory allocation
+            df_preview = pd.read_csv(file_path, nrows=1)
+            valid_features = [f for f in features_to_plot if f in df_preview.columns]
+            
+            if not valid_features:
+                print(f" -> [SKIP] No target features found in {dataset_name}")
+                continue
+                
+            if label_column not in df_preview.columns:
+                print(f" -> [SKIP] Label column '{label_column}' not found in {dataset_name}")
+                continue
+            
+            # Load ONLY the required features and the label column to keep RAM safe
+            cols_to_load = valid_features + [label_column]
+            df_data = pd.read_csv(file_path, usecols=cols_to_load)
+            
+            X_test = df_data[valid_features]
+            y_test = df_data[label_column]
 
-    print(f"KDE Density plot successfully saved to: {dst_path}")
+            # Map numeric labels to descriptive strings for the legend
+            labels = pd.Series(y_test).map({0: 'Normal Traffic', 1: 'Attack/Anomaly'})
+            
+            # Determine dynamic grid layout
+            n_features = len(valid_features)
+            cols = min(2, n_features)
+            rows = (n_features + 1) // cols
+            
+            fig, axes = plt.subplots(rows, cols, figsize=(6 * cols, 5 * rows))
+            axes = [axes] if n_features == 1 else axes.flatten()
+
+            # Plot each valid feature
+            for i, feature in enumerate(valid_features):
+                ax = axes[i]
+                
+                sns.kdeplot(
+                    data=X_test, x=feature, hue=labels, fill=True, alpha=0.3, 
+                    common_norm=False, linewidth=2, palette={'Normal Traffic': '#1f77b4', 'Attack/Anomaly': '#ff7f0e'},
+                    ax=ax, warn_singular=False, cut=0
+                )
+                
+                # Inject uniform pre-calculated axes limits
+                if global_limits and feature in global_limits:
+                    if 'xlim' in global_limits[feature]:
+                        ax.set_xlim(global_limits[feature]['xlim'])
+                    if 'ylim' in global_limits[feature]:
+                        ax.set_ylim(global_limits[feature]['ylim'])
+                
+                # Subplot styling
+                ax.set_title(f"Distribution of '{feature}'", fontsize=12, fontweight='bold')
+                ax.set_xlabel(feature, fontsize=10)
+                ax.set_ylabel("Density", fontsize=10)
+                ax.grid(True, linestyle=':', alpha=0.6)
+                
+                if ax.get_legend() is not None:
+                    ax.get_legend().remove()
+
+            # Clean up empty subplots if the grid has an odd number of features
+            for j in range(i + 1, len(axes)):
+                fig.delaxes(axes[j])
+
+            # Global figure formatting
+            fig.suptitle(f"Feature Distribution Analysis ({dataset_type} - {dataset_name})", fontsize=16, fontweight='bold', y=1.02)
+            
+            handles, labels_list = ax.get_legend_handles_labels()
+            fig.legend(handles, labels_list, title='Traffic Class', loc='upper left', bbox_to_anchor=(1.02, 1.0), ncol=1, 
+                       frameon=True, framealpha=0.9, facecolor='white', edgecolor='black', title_fontsize=11)
+
+            # Save the clean plot
+            plt.tight_layout()
+            plt.savefig(dst_path, dpi=300, bbox_inches='tight')
+            plt.close()
+
+            print(f" -> [OK] Saved: {kde_filename}")
+
+        except Exception as e:
+            print(f" -> [ERROR] Failed to process {dataset_name}: {e}")
+            
+    print("\n[COMPLETED] All KDE plots have been generated and saved directly to the target directory.")
 
 
 def save_shap_plot(model, X_test, y_test, model_name, dataset_type, dataset_name):

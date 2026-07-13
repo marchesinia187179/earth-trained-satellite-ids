@@ -122,7 +122,6 @@ class ProjectPaths:
     DATASETS_INFO = METADATA_DIR / f"datasets_info{Naming.EXT}"
     DATASETS_FEATURES_MEAN = METADATA_DIR / f"feature_mean{Naming.EXT}"
     DATASETS_FEATURES_VAR = METADATA_DIR / f"feature_variance{Naming.EXT}"
-    DATASETS_FOR_KDE_GLOBAL_LIMITS = METADATA_DIR / f"kde_global_limits_paths{Naming.EXT}"
     KDE_GLOBAL_LIMITS = METADATA_DIR / f"kde_global_limits{Naming.EXT}"
     MODELS_INFO = RESULTS_CSV_DIR / f"models_info{Naming.EXT}"
     MODELS_REGISTRY = MODELS / f"models_registry{Naming.EXT}"
@@ -273,12 +272,11 @@ class PlotFlags:
     ENABLE_SHAP_PLOTS = False              # Very heavy - SHAP explainability plots
     
     # Light-weight plots (standard visualizations)
-    ENABLE_HEATMAP_PLOTS = True     # Performance matrix heatmaps
     ENABLE_FEATURE_IMPORTANCE = False    # Feature importance bar charts
     ENABLE_PROBABILITY_PLOTS = False     # Probability distribution histograms
     ENABLE_PCA_INDEPENDENT_PLOTS = False     # PCA 2D scatter plots for independent domain
     ENABLE_PCA_CROSS_DOMAIN_PLOTS = False    # PCA 2D scatter plots for cross domain
-    ENABLE_PERFORMANCE_PLOTS = False     # Performance matrix heatmaps
+    ENABLE_PERFORMANCE_PLOTS = True     # Performance matrix heatmaps
     ENABLE_PR_CURVE_PLOTS = False    # Precision-Recall (PR) Curve (Cross-Domain)
     ENABLE_THRESHOLD_PLOTS = False   # F1-Score vs Threshold
     ENABLE_KDE_PLOTS = True     # KDE Plot about important features

@@ -94,8 +94,9 @@ def calculate_mean_and_variance(data, dataset_type, class_type):
 def calculate_kde_limits_csv(config_csv_path, features, output_csv_path):
     """
     Reads a configuration CSV file containing dataset paths, calculates optimal 
-    real limits for both X (robust percentiles) and Y (peak density), and saves 
-    the results into a configuration CSV.
+    real limits for both X (absolute min/max with padding) and Y (peak density), 
+    and saves the results into a configuration CSV. 
+    Hardcoded constraints (like forcing 0 for network metrics) have been removed.
     """
     config_path = Path(config_csv_path)
     if not config_path.exists():
@@ -142,7 +143,7 @@ def calculate_kde_limits_csv(config_csv_path, features, output_csv_path):
         except Exception as e:
             print(f" -> Error reading {file_path.name}: {e}")
 
-    print("\nPhase 2: Calculating optimal robust X and Y limits...")
+    print("\nPhase 2: Calculating purely data-driven X and Y limits...")
     limits_rows = []
     
     for f in features:
@@ -150,15 +151,15 @@ def calculate_kde_limits_csv(config_csv_path, features, output_csv_path):
         if len(data) == 0:
             continue
             
-        # --- X Limits Calculation ---
+        # --- X Limits Calculation (No Hardcoded Constraints) ---
         min_val = np.min(data)
-        if f in ['pkts_per_sec', 'total_bytes'] and min_val < 0:
-            min_val = 0.0
-            
         max_robust = np.percentile(data, 100)
+        
+        # Calculate a 5% visual padding based on the actual range
         padding_x = (max_robust - min_val) * 0.05 if max_robust > min_val else 1.0
         
-        xmin = min_val - (padding_x if min_val > 0 else 0)
+        # Unconditionally apply padding to both sides to allow the curve to breathe
+        xmin = min_val - padding_x
         xmax = max_robust + padding_x
         
         # --- Y Limits Calculation (Density Peak) ---
@@ -175,7 +176,7 @@ def calculate_kde_limits_csv(config_csv_path, features, output_csv_path):
             # The maximum density peak across all datasets
             peak_density = np.max(y_densities)
             
-            # Add 10% padding to the top so the highest peak doesn't touch the upper border
+            # Add 30% padding to the top so the highest peak doesn't touch the upper border
             ymax = peak_density * 1.30
         except Exception as e:
             print(f" -> [WARNING] Could not compute Y limit for {f}, using automatic: {e}")

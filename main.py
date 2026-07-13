@@ -8,7 +8,7 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from src.classification import classification_processing
 from src.models import model_processing
-from src.plotting import save_heatmap_for_metrics_plot, save_pca_plot
+from src.plotting import save_all_kde_plots, save_heatmap_for_metrics_plot, save_pca_plot
 from src.utils.file_utils import (
     create_directory, get_data_from_csv, group_by_classes_and_save, 
     group_by_model_and_save, group_datasets_paths_for_filename_list,
@@ -80,9 +80,6 @@ def _classifications():
             precomputed_scaler=scaler, 
             precomputed_pca=pca
         )
-
-    # Get KDE limits
-    kde_limits_dict = load_kde_limits_from_csv(ProjectPaths.KDE_GLOBAL_LIMITS)
         
     # Iterate through each dataset and classify using the saved models
     for d in datasets.to_dict('records'):
@@ -101,8 +98,7 @@ def _classifications():
                 model_path=Path(model_path), 
                 data=data, 
                 dataset_type=dataset_type, 
-                dataset_name=dataset_path.stem,
-                kde_limits_dict=kde_limits_dict
+                dataset_name=dataset_path.stem
             )
 
         # --- Save Plots Based on Flags ---
@@ -234,19 +230,23 @@ def _preprocessing():
         filename_list=RoutineConfig.DATASETS_TARGETS_FOR_CLASSIFICATIONS
     )
 
-    # Group datasets path for kde global limits
-    group_datasets_paths_for_filename_list(
-        src_path=ProjectPaths.DATASETS_INFO, 
-        dst_path=ProjectPaths.DATASETS_FOR_KDE_GLOBAL_LIMITS, 
-        filename_list=RoutineConfig.DATASETS_TARGETS_FOR_KDE_GLOBAL_LIMITS
-    )
-
     # Calculate kde global limits
     calculate_kde_limits_csv(
-        config_csv_path=ProjectPaths.DATASETS_FOR_KDE_GLOBAL_LIMITS,
+        config_csv_path=ProjectPaths.DATASETS_FOR_CLASSIFICATIONS,
         features=MLConstants.KDE_TOP_FEATURES,
         output_csv_path=ProjectPaths.KDE_GLOBAL_LIMITS
     )
+
+    # Get KDE limits
+    kde_limits_dict = load_kde_limits_from_csv(ProjectPaths.KDE_GLOBAL_LIMITS)
+
+    # Save Feature KDE distributions plot if enabled
+    if PlotFlags.ENABLE_KDE_PLOTS:
+        save_all_kde_plots(
+            config_csv_path=ProjectPaths.DATASETS_FOR_CLASSIFICATIONS,
+            features_to_plot=MLConstants.KDE_TOP_FEATURES,
+            global_limits=kde_limits_dict
+        )
 
     print("\n--- Routine Preprocessing Phase Completed ---")
 
