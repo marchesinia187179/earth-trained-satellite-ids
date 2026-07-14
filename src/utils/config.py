@@ -24,7 +24,7 @@ class MLConstants:
     ]
     SMOTE_ALPHA = 0.5
     KDE_TOP_FEATURES = ['pkts_per_sec', 'total_bytes', 'dst_win_byt']
-    INJECTION_RATIO = 399     # Must be 1 digit less than the denominator that we want (e.g. 1/3 than INJ_RATIO = 2)
+    INJECTION_RATIO = 299     # Must be 1 digit less than the denominator that we want (e.g. 1/3 than INJ_RATIO = 2)
 
 
 class Naming:
@@ -122,7 +122,7 @@ class ProjectPaths:
     DATASETS_INFO = METADATA_DIR / f"datasets_info{Naming.EXT}"
     DATASETS_FEATURES_MEAN = METADATA_DIR / f"feature_mean{Naming.EXT}"
     DATASETS_FEATURES_VAR = METADATA_DIR / f"feature_variance{Naming.EXT}"
-    KDE_GLOBAL_LIMITS = METADATA_DIR / f"kde_global_limits{Naming.EXT}"
+    # KDE_GLOBAL_LIMITS = METADATA_DIR / f"kde_global_limits{Naming.EXT}"
     MODELS_INFO = RESULTS_CSV_DIR / f"models_info{Naming.EXT}"
     MODELS_REGISTRY = MODELS / f"models_registry{Naming.EXT}"
 
@@ -260,14 +260,14 @@ class PlotFlags:
     ENABLE_SHAP_PLOTS = False              # Very heavy - SHAP explainability plots
     
     # Light-weight plots (standard visualizations)
-    ENABLE_FEATURE_IMPORTANCE = False    # Feature importance bar charts
-    ENABLE_PROBABILITY_PLOTS = False     # Probability distribution histograms
-    ENABLE_PCA_INDEPENDENT_PLOTS = False     # PCA 2D scatter plots for independent domain
-    ENABLE_PCA_CROSS_DOMAIN_PLOTS = False    # PCA 2D scatter plots for cross domain
+    ENABLE_FEATURE_IMPORTANCE = True    # Feature importance bar charts
+    ENABLE_PROBABILITY_PLOTS = True     # Probability distribution histograms
+    ENABLE_PCA_INDEPENDENT_PLOTS = True     # PCA 2D scatter plots for independent domain
+    ENABLE_PCA_CROSS_DOMAIN_PLOTS = True    # PCA 2D scatter plots for cross domain
     ENABLE_PERFORMANCE_PLOTS = True     # Performance matrix heatmaps
-    ENABLE_PR_CURVE_PLOTS = False    # Precision-Recall (PR) Curve (Cross-Domain)
-    ENABLE_THRESHOLD_PLOTS = False   # F1-Score vs Threshold
-    ENABLE_KDE_PLOTS = False     # KDE Plot about important features
+    ENABLE_PR_CURVE_PLOTS = True    # Precision-Recall (PR) Curve (Cross-Domain)
+    ENABLE_THRESHOLD_PLOTS = True   # F1-Score vs Threshold
+    ENABLE_KDE_PLOTS = True     # KDE Plot about important features
 
 
 if __name__ == "__main__":

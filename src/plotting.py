@@ -182,25 +182,43 @@ def save_probability_plot(y_test, y_scores, model_name, dataset_type, dataset_na
         alpha=0.4, bins=50, palette={'Normal Traffic': '#1f77b4', 'Attack/Anomaly': '#ff7f0e'}
     )
 
+    # 1. Extract auto-generated legend elements from Seaborn before adding manual lines
+    sb_legend = ax.get_legend()
+    if sb_legend is not None:
+        # Cross-version compatibility for Matplotlib legend handles extraction
+        handles = list(getattr(sb_legend, 'legend_handles', getattr(sb_legend, 'legendHandles', [])))
+        labels_list = [t.get_text() for t in sb_legend.get_texts()]
+        # Remove the default seaborn legend to avoid overlapping
+        sb_legend.remove()
+    else:
+        handles, labels_list = ax.get_legend_handles_labels()
+
     # Get dynamic range (Probability vs Anomaly Score)
     is_probability = (np.min(y_scores) >= 0.0) and (np.max(y_scores) <= 1.0)
 
+    # 2. Add decision threshold line and capture its handle explicitly
     if is_probability:
-        plt.axvline(x=0.5, color='red', linestyle='--', linewidth=2, label='Standard Threshold (0.5)')
+        thr_line = plt.axvline(x=0.5, color='red', linestyle='--', linewidth=2, label='Standard Threshold (0.5)')
         plt.xlabel("Predicted Probability of Anomaly (Output of predict_proba)", fontsize=12)
         plt.xlim(0, 1)
     else:
-        plt.axvline(x=0.0, color='red', linestyle='--', linewidth=2, label='Decision Threshold (0.0)')
+        thr_line = plt.axvline(x=0.0, color='red', linestyle='--', linewidth=2, label='Decision Threshold (0.0)')
         plt.xlabel("Anomaly Score (Output of decision_function)", fontsize=12)
         
     plt.title("Classification Score Distribution (Threshold Analysis)", fontsize=14, fontweight='bold', pad=15)
     plt.grid(axis='y', linestyle=':', alpha=0.6)
-
     plt.ylabel("Density", fontsize=12)
     
-    # Customize the legend aesthetics for a clean and professional layout
-    legend = ax.legend(title='Traffic Class / Threshold', loc='upper left', bbox_to_anchor=(1.02, 1.0), ncol=1, 
-                       frameon=True, framealpha=0.9, facecolor='white', edgecolor='black', title_fontsize=11)
+    # 3. Append the threshold line handle and label to the existing legend items
+    handles.append(thr_line)
+    labels_list.append(thr_line.get_label())
+    
+    # 4. Generate the final combined legend using the explicit handles and labels
+    legend = ax.legend(
+        handles=handles, labels=labels_list,
+        title='Traffic Class / Threshold', loc='upper left', bbox_to_anchor=(1.02, 1.0), ncol=1, 
+        frameon=True, framealpha=0.9, facecolor='white', edgecolor='black', title_fontsize=11
+    )
     legend.get_title().set_fontweight('bold')
     
     # Save the figure dynamically fitting all outer elements without clipping, then free up memory
@@ -442,6 +460,9 @@ def save_all_kde_plots(config_csv_path, features_to_plot, global_limits=None, la
             fig, axes = plt.subplots(rows, cols, figsize=(6 * cols, 5 * rows))
             axes = [axes] if n_features == 1 else axes.flatten()
 
+            # Cache handles and labels for the global figure legend
+            global_handles, global_labels = [], []
+
             # Plot each valid feature
             for i, feature in enumerate(valid_features):
                 ax = axes[i]
@@ -463,8 +484,17 @@ def save_all_kde_plots(config_csv_path, features_to_plot, global_limits=None, la
                 ax.set_title(f"Distribution of '{feature}'", fontsize=12, fontweight='bold')
                 ax.set_xlabel(feature, fontsize=10)
                 ax.set_ylabel("Density", fontsize=10)
+                ax.set_yscale('symlog', linthresh=1e-5)
                 ax.grid(True, linestyle=':', alpha=0.6)
                 
+                # FIX: Safely extract and cache the legend handles and labels from the first subplot
+                # before they get removed from the individual axes.
+                if i == 0 and ax.get_legend() is not None:
+                    sb_legend = ax.get_legend()
+                    global_handles = list(getattr(sb_legend, 'legend_handles', getattr(sb_legend, 'legendHandles', [])))
+                    global_labels = [t.get_text() for t in sb_legend.get_texts()]
+                
+                # Remove subplot legend to prevent duplicate clutter on individual axes
                 if ax.get_legend() is not None:
                     ax.get_legend().remove()
 
@@ -475,9 +505,13 @@ def save_all_kde_plots(config_csv_path, features_to_plot, global_limits=None, la
             # Global figure formatting
             fig.suptitle(f"Feature Distribution Analysis ({dataset_type} - {dataset_name})", fontsize=16, fontweight='bold', y=1.02)
             
-            handles, labels_list = ax.get_legend_handles_labels()
-            fig.legend(handles, labels_list, title='Traffic Class', loc='upper left', bbox_to_anchor=(1.02, 1.0), ncol=1, 
-                       frameon=True, framealpha=0.9, facecolor='white', edgecolor='black', title_fontsize=11)
+            # FIX: Create a single global external legend using the cached handles and labels
+            if global_handles and global_labels:
+                legend = fig.legend(
+                    global_handles, global_labels, title='Traffic Class', loc='upper left', bbox_to_anchor=(1.02, 1.0), ncol=1, 
+                    frameon=True, framealpha=0.9, facecolor='white', edgecolor='black', title_fontsize=11
+                )
+                legend.get_title().set_fontweight('bold')
 
             # Save the clean plot
             plt.tight_layout()
