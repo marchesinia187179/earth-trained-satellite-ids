@@ -92,8 +92,7 @@ class ProjectPaths:
     # Specific PLOTS Subfolders
     PERFORMANCE_PLOTS_DIR = RESULTS_PLOT_DIR / "performance"
     FEAT_IMP_PLOTS_DIR = RESULTS_PLOT_DIR / "feature_importance"
-    PCA_PLOTS_INDEPENDENT_DIR = RESULTS_PLOT_DIR / "pca_independent_domain"
-    PCA_PLOTS_CROSS_DOMAIN_DIR = RESULTS_PLOT_DIR / "pca_cross_domain"
+    PCA_PLOTS_DIR = RESULTS_PLOT_DIR / "pca"
     PROB_PLOTS_DIR = RESULTS_PLOT_DIR / "probabilities"
     PR_CURVE_PLOTS_DIR = RESULTS_PLOT_DIR / "pr_curves"
     THRESHOLD_PLOTS_DIR = RESULTS_PLOT_DIR / "threshold_metrics"
@@ -266,8 +265,7 @@ class PlotFlags:
     # Light-weight plots (standard visualizations)
     ENABLE_FEATURE_IMPORTANCE = True    # Feature importance bar charts
     ENABLE_PROBABILITY_PLOTS = True     # Probability distribution histograms
-    ENABLE_PCA_INDEPENDENT_PLOTS = True     # PCA 2D scatter plots for independent domain
-    ENABLE_PCA_CROSS_DOMAIN_PLOTS = True    # PCA 2D scatter plots for cross domain
+    ENABLE_PCA_PLOTS = True     # PCA 2D scatter plots
     ENABLE_PERFORMANCE_PLOTS = True     # Performance matrix heatmaps
     ENABLE_PR_CURVE_PLOTS = True    # Precision-Recall (PR) Curve (Cross-Domain)
     ENABLE_THRESHOLD_PLOTS = True   # F1-Score vs Threshold

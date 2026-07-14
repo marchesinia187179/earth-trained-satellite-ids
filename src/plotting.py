@@ -14,6 +14,7 @@ from sklearn.preprocessing import StandardScaler
 from .utils.file_utils import create_directory
 from .utils.config import MLConstants, Naming, PlotConfig, ProjectPaths
 from sklearn.metrics import precision_recall_curve, average_precision_score
+from sklearn.inspection import permutation_importance
 
 
 # --- Internal Helper Functions ---
@@ -43,85 +44,103 @@ def _build_clean_label(classes_val, dataset_type_val, prefix=""):
 
 
 # --- Public Functions ---
-def save_feature_importances_plot(model, model_name, feature_names, dst_dir):
+def save_feature_importances_plot(model, model_name, feature_names, dst_dir, X_test=None, y_test=None):
     """
-    Plots the MDI (Mean Decrease in Impurity) feature importances for a Random Forest model.
-    Features are sorted in descending order of importance to ensure clear visual analysis.
+    Plots feature importances for Random Forest, Decision Tree, or HistGradientBoosting models.
+    Uses MDI (Mean Decrease in Impurity) for RF and DT if available, and falls back to 
+    Permutation Importance for HGB or if testing data is provided.
 
-    :param model: the trained Random Forest model object
+    :param model: the trained classifier object (RF, DT, or HGB)
     :param model_name: standardized name for the trained model
     :param feature_names: list of feature names corresponding to the importances
     :param dst_dir: destination directory to save the feature importance plot
+    :param X_test: DataFrame containing test features (required for HGB permutation importance)
+    :param y_test: Series containing test labels (required for HGB permutation importance)
     """
-    # Get feature importances
-    importances = model.feature_importances_
+    importances = None
+    std = None
 
-    # Calculate standard deviation of feature importances across all trees in the Random Forest
-    std = np.std([tree.feature_importances_ for tree in model.estimators_], axis=0)
+    # Check if the model supports impurity-based feature importances (RF, DT)
+    if hasattr(model, 'feature_importances_'):
+        importances = model.feature_importances_
+        
+        # Calculate standard deviation across trees ONLY if it is a Random Forest ensemble
+        if hasattr(model, 'estimators_'):
+            std = np.std([tree.feature_importances_ for tree in model.estimators_], axis=0)
+            
+    # Fallback to Permutation Importance if native importances are missing (HGB)
+    elif X_test is not None and y_test is not None:
+        print(f" -> [INFO] Computing permutation importance for {model_name}...")
+        result = permutation_importance(
+            model, X_test, y_test, n_repeats=10, random_state=MLConstants.RANDOM_STATE, n_jobs=-1
+        )
+        importances = result.importances_mean
+        std = result.importances_std
+    else:
+        print(f" -> [WARNING] Skipping plot: {model_name} does not support native feature importances, "
+              f"and X_test/y_test were not provided for permutation importance.")
+        return
 
-    # Plot feature importance
+    # Target path for saving the figure
     dst_path = dst_dir / f"{model_name}{Naming.PLOT_EXT}"
 
-    # Align and sort in one step
-    df = pd.DataFrame({'importance': importances, 'std': std}, index=feature_names)\
-           .sort_values(by='importance', ascending=False)
+    # Construct the data structure for sorting and plotting
+    data_dict = {'importance': importances}
+    if std is not None:
+        data_dict['std'] = std
 
-    # Create a bar plot with error bars representing the standard deviation of feature importances
+    df = pd.DataFrame(data_dict, index=feature_names).sort_values(by='importance', ascending=False)
+
+    # Plotting configuration
     plt.figure(figsize=(10, 6))
     
-    # Plot the feature importances as a bar chart with error bars
+    # Render bars with or without standard deviation error bars dynamically
+    yerr_vals = df['std'] if 'std' in df.columns else None
     df['importance'].plot.bar(
-        yerr=df['std'], capsize=4, color='skyblue', edgecolor='black'
+        yerr=yerr_vals, capsize=4, color='skyblue', edgecolor='black'
     )
     
-    # Set plot aesthetics and labels
-    plt.title("Feature Importances via Mean Decrease in Impurity (MDI)", fontsize=14, fontweight='bold', pad=15)
-    plt.ylabel("Mean Decrease in Impurity", fontsize=12)
+    # Set plot aesthetics and descriptive titles
+    title_suffix = "via Permutation Importance" if not hasattr(model, 'feature_importances_') else "via MDI"
+    plt.title(f"Feature Importances {title_suffix}", fontsize=14, fontweight='bold', pad=15)
+    plt.ylabel("Importance Score", fontsize=12)
     plt.xlabel("Features", fontsize=12)
     plt.xticks(rotation=45, ha='right')
     
-    # Save the plot to the specified destination path with high resolution and tight layout
+    # Save the plot with high resolution and close the figure
     plt.savefig(dst_path, dpi=300, bbox_inches='tight')
     plt.close()
 
     print(f"Feature importance plot successfully saved to: {dst_path}")
 
 
-def save_pca_plot(X, y, dataset_type, dataset_name, precomputed_scaler=None, precomputed_pca=None):
+def save_pca_plot(X, y, dataset_type, dataset_name):
     """
     Applies PCA (2 components) on the feature matrix X and plots a 2D scatter plot.
-    Supports both INDEPENDENT (computes fit on X) and CROSS_DOMAIN (uses precomputed scaler/pca) methods.
+    This function independently fits and transforms the data, tailored specifically 
+    to the provided dataset (Independent PCA).
 
     :param X: feature matrix (DataFrame or numpy array)
     :param y: class labels (Series or array-like)
-    :param dataset_type: type of the dataset being used
+    :param dataset_type: type of the dataset being used (e.g., nb15, sat20)
     :param dataset_name: name of the dataset being used
-    :param precomputed_scaler: Fitted StandardScaler instance (optional, for CROSS_DOMAIN)
-    :param precomputed_pca: Fitted PCA instance (optional, for CROSS_DOMAIN)
     """
-    # Create the name of the file to be saved
+    # Create the standardized file name for the plot
     file_name = f"{dataset_type.lower()}_{dataset_name}{Naming.PLOT_EXT}"
-
-    # --- CHOOSE PARADIGM: CROSS_DOMAIN vs INDEPENDENT ---
-    if precomputed_scaler is not None and precomputed_pca is not None:
-        # CROSS_DOMAIN Method: Project data onto the pre-existing baseline space (Only transform)
-        X_scaled = precomputed_scaler.transform(X)
-        X_pca = precomputed_pca.transform(X_scaled)
-        current_pca = precomputed_pca  # Use the reference PCA for variance ratios
-
-        dst_path = ProjectPaths.PCA_PLOTS_CROSS_DOMAIN_DIR / file_name
-    else:
-        # INDEPENDENT Method: Compute a brand new space tailored to this specific dataset (Fit + Transform)
-        current_scaler = StandardScaler()
-        current_pca = PCA(n_components=MLConstants.PCA_COMPONENTS, random_state=MLConstants.RANDOM_STATE)
-        X_scaled = current_scaler.fit_transform(X)
-        X_pca = current_pca.fit_transform(X_scaled)
-
-        dst_path = ProjectPaths.PCA_PLOTS_INDEPENDENT_DIR / file_name
     
-    # Map the class labels to human-readable strings for plotting
+    # Destination path for the independent PCA plot
+    dst_path = ProjectPaths.PCA_PLOTS_DIR / file_name
+
+    # Compute a brand new space tailored to this specific dataset (Fit + Transform)
+    scaler = StandardScaler()
+    pca = PCA(n_components=MLConstants.PCA_COMPONENTS, random_state=MLConstants.RANDOM_STATE)
+    
+    X_scaled = scaler.fit_transform(X)
+    X_pca = pca.fit_transform(X_scaled)
+    
+    # Map class labels to human-readable strings for plotting
     labels = y.map({0: 'Normal Traffic', 1: 'Attack/Anomaly'}).fillna(y)
-    var = current_pca.explained_variance_ratio_ * 100
+    var = pca.explained_variance_ratio_ * 100
     
     # Configure the scatter plot with appropriate aesthetics
     plt.figure(figsize=(10, 6))
@@ -141,7 +160,7 @@ def save_pca_plot(X, y, dataset_type, dataset_name, precomputed_scaler=None, pre
                        frameon=True, framealpha=0.9, facecolor='white', edgecolor='black', title_fontsize=11)
     legend.get_title().set_fontweight('bold')
     
-    # Save the PCA plot to the specified destination path
+    # Save the PCA plot to the designated output folder
     plt.savefig(dst_path, dpi=300, bbox_inches='tight')
     plt.close()
 
@@ -152,6 +171,7 @@ def save_probability_plot(y_test, y_scores, model_name, dataset_type, dataset_na
     """
     Plots the overlapping probability distributions for Normal traffic vs Attacks
     to visually demonstrate the classification threshold trap.
+    Tailored specifically for supervised models (RF, DT, HGB) outputting probabilities.
 
     :param y_test: true class labels (0 for Normal, 1 for Attack)
     :param y_scores: predicted probabilities for the positive class (Attack)
@@ -168,21 +188,21 @@ def save_probability_plot(y_test, y_scores, model_name, dataset_type, dataset_na
     # Define the full output path for the probability distribution plot
     dst_path = model_prob_dir / prob_filename
 
-    # Map binary numeric labels to descriptive strings for the plot legend.
-    # Wrapping in pd.Series ensures safety and compatibility with both NumPy arrays and Pandas Series.
+    # Map binary numeric labels to descriptive strings for the plot legend
+    # Wrapping in pd.Series ensures safety and compatibility with both NumPy arrays and Pandas Series
     labels = pd.Series(y_test).map({0: 'Normal Traffic', 1: 'Attack/Anomaly'}).fillna(y_test)
     
     # Initialize the plot figure with specific dimensions
     plt.figure(figsize=(10, 6))
     
-    # Generate overlapping density histograms directly from the arrays.
-    # Using 'step' and 'density' allows comparing distributions regardless of dataset class imbalance.
+    # Generate overlapping density histograms directly from the arrays
+    # Using 'step' and 'density' allows comparing distributions regardless of dataset class imbalance
     ax = sns.histplot(
         x=y_scores, hue=labels, element='step', stat='density', common_norm=False, 
         alpha=0.4, bins=50, palette={'Normal Traffic': '#1f77b4', 'Attack/Anomaly': '#ff7f0e'}
     )
 
-    # 1. Extract auto-generated legend elements from Seaborn before adding manual lines
+    # Extract auto-generated legend elements from Seaborn before adding the manual threshold line
     sb_legend = ax.get_legend()
     if sb_legend is not None:
         # Cross-version compatibility for Matplotlib legend handles extraction
@@ -193,27 +213,20 @@ def save_probability_plot(y_test, y_scores, model_name, dataset_type, dataset_na
     else:
         handles, labels_list = ax.get_legend_handles_labels()
 
-    # Get dynamic range (Probability vs Anomaly Score)
-    is_probability = (np.min(y_scores) >= 0.0) and (np.max(y_scores) <= 1.0)
-
-    # 2. Add decision threshold line and capture its handle explicitly
-    if is_probability:
-        thr_line = plt.axvline(x=0.5, color='red', linestyle='--', linewidth=2, label='Standard Threshold (0.5)')
-        plt.xlabel("Predicted Probability of Anomaly (Output of predict_proba)", fontsize=12)
-        plt.xlim(0, 1)
-    else:
-        thr_line = plt.axvline(x=0.0, color='red', linestyle='--', linewidth=2, label='Decision Threshold (0.0)')
-        plt.xlabel("Anomaly Score (Output of decision_function)", fontsize=12)
+    # Since RF, DT, and HGB are supervised classifiers, they natively output probabilities [0, 1]
+    thr_line = plt.axvline(x=0.5, color='red', linestyle='--', linewidth=2, label='Standard Threshold (0.5)')
+    plt.xlabel("Predicted Probability of Anomaly (Output of predict_proba)", fontsize=12)
+    plt.xlim(0, 1)
         
     plt.title("Classification Score Distribution (Threshold Analysis)", fontsize=14, fontweight='bold', pad=15)
     plt.grid(axis='y', linestyle=':', alpha=0.6)
     plt.ylabel("Density", fontsize=12)
     
-    # 3. Append the threshold line handle and label to the existing legend items
+    # Append the threshold line handle and label to the existing legend items
     handles.append(thr_line)
     labels_list.append(thr_line.get_label())
     
-    # 4. Generate the final combined legend using the explicit handles and labels
+    # Generate the final combined legend using the explicit handles and labels
     legend = ax.legend(
         handles=handles, labels=labels_list,
         title='Traffic Class / Threshold', loc='upper left', bbox_to_anchor=(1.02, 1.0), ncol=1, 
@@ -231,11 +244,11 @@ def save_probability_plot(y_test, y_scores, model_name, dataset_type, dataset_na
 
 def save_pr_curve_plot(y_test, y_scores, model_name, dataset_type, dataset_name):
     """
-    Plots the Precision-Recall (PR) Curve to evaluate model performance, 
-    especially useful for highly imbalanced datasets (e.g., Anomaly Detection).
+    Plots the Precision-Recall (PR) Curve to evaluate model performance (RF, DT, or HGB), 
+    especially useful for highly imbalanced datasets.
 
     :param y_test: true class labels (0 for Normal, 1 for Attack)
-    :param y_scores: predicted probabilities or anomaly scores for the positive class
+    :param y_scores: predicted probabilities for the positive class (Attack)
     :param model_name: name of the evaluated model
     :param dataset_type: type of the dataset being used
     :param dataset_name: name of the dataset being used
@@ -253,7 +266,7 @@ def save_pr_curve_plot(y_test, y_scores, model_name, dataset_type, dataset_name)
     pr_filename = f"{dataset_type.lower()}_{dataset_name}{Naming.PLOT_EXT}"
     dst_path = model_pr_dir / pr_filename
 
-    # Calculate Precision, Recall and the Average Precision (AP) score
+    # Calculate Precision, Recall and the Average Precision (AP) score (valid for RF, DT, HGB)
     precision, recall, _ = precision_recall_curve(y_test, y_scores)
     ap_score = average_precision_score(y_test, y_scores)
 
@@ -299,10 +312,10 @@ def save_pr_curve_plot(y_test, y_scores, model_name, dataset_type, dataset_name)
 def save_threshold_metrics_plot(y_test, y_scores, model_name, dataset_type, dataset_name):
     """
     Plots Precision, Recall, and F1-Score as a function of the decision threshold.
-    Highlights the threshold that maximizes the F1-Score to demonstrate domain shift adaptations.
+    Highlights the threshold that maximizes the F1-Score for supervised models (RF, DT, HGB).
 
     :param y_test: true class labels (0 for Normal, 1 for Attack)
-    :param y_scores: predicted probabilities or anomaly scores for the positive class
+    :param y_scores: predicted probabilities for the positive class (Attack)
     :param model_name: name of the evaluated model
     :param dataset_type: type of the dataset being used
     :param dataset_name: name of the dataset being used
@@ -346,16 +359,10 @@ def save_threshold_metrics_plot(y_test, y_scores, model_name, dataset_type, data
     plt.scatter(optimal_threshold, optimal_f1, color='red', s=80, zorder=5, 
                 label=f'Max F1 ({optimal_f1:.3f} at Thr={optimal_threshold:.2f})')
 
-    # Detect dynamic range (Probability vs Anomaly Score) to draw the correct default baseline
-    is_probability = (np.min(y_scores) >= 0.0) and (np.max(y_scores) <= 1.0)
-
-    if is_probability:
-        plt.axvline(x=0.5, color='gray', linestyle=':', linewidth=2, label='Default Threshold (0.5)')
-        plt.xlim(0, 1)
-        plt.xlabel("Classification Threshold (Probability Score)", fontsize=12)
-    else:
-        plt.axvline(x=0.0, color='gray', linestyle=':', linewidth=2, label='Default Threshold (0.0)')
-        plt.xlabel("Classification Threshold (Anomaly Score)", fontsize=12)
+    # Draw the default baseline threshold at 0.5 (standard for probability-based classifiers)
+    plt.axvline(x=0.5, color='gray', linestyle=':', linewidth=2, label='Default Threshold (0.5)')
+    plt.xlim(0, 1)
+    plt.xlabel("Classification Threshold (Probability Score)", fontsize=12)
 
     # Set plot aesthetics, labels, and limits
     plt.title(f"Sensitivity Analysis: Metrics vs Threshold ({dataset_type})", fontsize=14, fontweight='bold', pad=15)
@@ -363,27 +370,27 @@ def save_threshold_metrics_plot(y_test, y_scores, model_name, dataset_type, data
     plt.ylim(-0.05, 1.05)
     plt.grid(True, linestyle=':', alpha=0.6)
 
-    # Customize the legend to appear outside at the bottom so it doesn't cover the lines
+    # Customize the legend to appear outside on the right side
     legend = plt.legend(title='Metrics & Thresholds', loc='upper left', bbox_to_anchor=(1.02, 1.0), ncol=1, 
                         frameon=True, framealpha=0.9, facecolor='white', edgecolor='black', title_fontsize=11)
     legend.get_title().set_fontweight('bold')
 
-    # Save the plot with extra bottom margin to accommodate the external legend
+    # Save the plot with tight layout to prevent legend clipping
     plt.savefig(dst_path, dpi=300, bbox_inches='tight')
     plt.close()
 
     print(f"Threshold sensitivity plot successfully saved to: {dst_path}")
 
 
-def save_all_kde_plots(config_csv_path, features_to_plot, global_limits=None, label_column=MLConstants.Y_LABEL):
+def save_all_kde_plots(config_csv_path, features_to_plot, label_column=MLConstants.Y_LABEL):
     """
-    Automated batch runner that reads a configuration CSV, automatically loads each dataset,
-    extracts metadata using Path.stem, and generates uniform KDE plots to detect Concept Drift.
+    Automated batch runner that reads a configuration CSV, loads each dataset,
+    extracts metadata, and generates KDE plots to analyze feature distributions.
+    This analysis is model-agnostic and fully supports any workflow using RF, DT, or HGB.
 
     :param config_csv_path: Path to the configuration CSV file containing 'path' and 'dataset_type'
     :param features_to_plot: List of feature column names to analyze and plot
-    :param global_limits: Dict containing uniform axes scales (loaded from the limits CSV)
-    :param label_column: The name of the ground-truth target column in your datasets (default: 'label')
+    :param label_column: The name of the ground-truth target column in your datasets
     """
     config_path = Path(config_csv_path)
     if not config_path.exists():
@@ -421,8 +428,7 @@ def save_all_kde_plots(config_csv_path, features_to_plot, global_limits=None, la
             print(f" -> [WARNING] Dataset file not found, skipping: {file_path}")
             continue
 
-        # Automatically extract the dataset name from the file path using .stem
-        # e.g., "/data/NB15_aggregated_scaled.csv" -> "NB15_aggregated_scaled"
+        # Automatically extract the dataset name from the file path
         dataset_name = file_path.stem
 
         # Define the final plot filename and destination path
@@ -450,7 +456,7 @@ def save_all_kde_plots(config_csv_path, features_to_plot, global_limits=None, la
             y_test = df_data[label_column]
 
             # Map numeric labels to descriptive strings for the legend
-            labels = pd.Series(y_test).map({0: 'Normal Traffic', 1: 'Attack/Anomaly'})
+            labels = pd.Series(y_test).map({0: 'Normal Traffic', 1: 'Attack/Anomaly'}).fillna(y_test)
             
             # Determine dynamic grid layout
             n_features = len(valid_features)
@@ -473,13 +479,6 @@ def save_all_kde_plots(config_csv_path, features_to_plot, global_limits=None, la
                     ax=ax, warn_singular=False, cut=0
                 )
                 
-                # Inject uniform pre-calculated axes limits
-                if global_limits and feature in global_limits:
-                    if 'xlim' in global_limits[feature]:
-                        ax.set_xlim(global_limits[feature]['xlim'])
-                    if 'ylim' in global_limits[feature]:
-                        ax.set_ylim(global_limits[feature]['ylim'])
-                
                 # Subplot styling
                 ax.set_title(f"Distribution of '{feature}'", fontsize=12, fontweight='bold')
                 ax.set_xlabel(feature, fontsize=10)
@@ -487,8 +486,7 @@ def save_all_kde_plots(config_csv_path, features_to_plot, global_limits=None, la
                 ax.set_yscale('symlog', linthresh=1e-5)
                 ax.grid(True, linestyle=':', alpha=0.6)
                 
-                # FIX: Safely extract and cache the legend handles and labels from the first subplot
-                # before they get removed from the individual axes.
+                # Safely extract and cache the legend handles and labels from the first subplot
                 if i == 0 and ax.get_legend() is not None:
                     sb_legend = ax.get_legend()
                     global_handles = list(getattr(sb_legend, 'legend_handles', getattr(sb_legend, 'legendHandles', [])))
@@ -505,7 +503,7 @@ def save_all_kde_plots(config_csv_path, features_to_plot, global_limits=None, la
             # Global figure formatting
             fig.suptitle(f"Feature Distribution Analysis ({dataset_type} - {dataset_name})", fontsize=16, fontweight='bold', y=1.02)
             
-            # FIX: Create a single global external legend using the cached handles and labels
+            # Create a single global external legend using the cached handles and labels
             if global_handles and global_labels:
                 legend = fig.legend(
                     global_handles, global_labels, title='Traffic Class', loc='upper left', bbox_to_anchor=(1.02, 1.0), ncol=1, 
@@ -528,9 +526,10 @@ def save_all_kde_plots(config_csv_path, features_to_plot, global_limits=None, la
 
 def save_shap_plot(model, X_test, y_test, model_name, dataset_type, dataset_name):
     """
-    Generates a classic 1D SHAP summary (dot) plot for a given model and test matrix.
+    Generates a classic 1D SHAP summary (dot) plot for a given trained classifier 
+    (compatible with RF, DT, and HGB) and its corresponding test matrix.
 
-    :param model: Trained model object compatible with shap.TreeExplainer
+    :param model: Trained model object (RF, DT, or HGB)
     :param X_test: DataFrame containing test features
     :param y_test: Array or Series containing true class labels (0 or 1)
     :param model_name: name of the evaluated model
@@ -550,8 +549,7 @@ def save_shap_plot(model, X_test, y_test, model_name, dataset_type, dataset_name
         # Stratified sampling: Align labels with features
         y_series = pd.Series(y_test, index=X_test.index if hasattr(X_test, 'index') else None)
         
-        # --- MODIFICA SPLIT (es. 10:1 su 500 records) ---
-        # Calcola le quote: 500 // 10 = 50 Anomaly, il resto (450) è Normal
+        # Calculate class quotas: e.g., 10:1 ratio on maximum samples
         n_anomaly = MLConstants.SHAP_MAX_SAMPLES // MLConstants.NORMAL_ANOMALY_RATIO
         n_normal = MLConstants.SHAP_MAX_SAMPLES - n_anomaly
 
@@ -570,45 +568,72 @@ def save_shap_plot(model, X_test, y_test, model_name, dataset_type, dataset_name
                 random_state=MLConstants.RANDOM_STATE
             ).index
 
-        # Unione degli indici
+        # Union of stratified indices
         sampled_idx = idx_normal.append(idx_anomaly)
-        # --- FINE MODIFICA ---
 
         # Filter the original test set using the stratified indices (or fallback to standard random sampling)
         if not sampled_idx.empty:
             X_test_sampled = X_test.loc[sampled_idx]
         else:
-            X_test_sampled = X_test.sample(n=min(MLConstants.SHAP_MAX_SAMPLES, len(X_test)), random_state=MLConstants.RANDOM_STATE)
+            X_test_sampled = X_test.sample(
+                n=min(MLConstants.SHAP_MAX_SAMPLES, len(X_test)), 
+                random_state=MLConstants.RANDOM_STATE
+            )
 
-        # Compute SHAP values using the TreeExplainer
-        explainer = shap.TreeExplainer(
-            model, 
-            feature_perturbation="tree_path_dependent", 
-            model_output="raw"
-        )
+        # Inizialize Explainer dynamically to support RF, DT, and HGB
+        try:
+            # First attempt: standard TreeExplainer optimized for RF and DT
+            explainer = shap.TreeExplainer(
+                model, 
+                feature_perturbation="tree_path_dependent", 
+                model_output="raw"
+            )
+        except Exception as explainer_err:
+            # Fallback attempt: generic Explainer or simplified TreeExplainer (crucial for HGB compatibility)
+            try:
+                explainer = shap.TreeExplainer(model)
+            except Exception:
+                explainer = shap.Explainer(model, X_test_sampled)
         
+        # Compute SHAP values with additivity check handling
         try:
             shap_values = explainer.shap_values(X_test_sampled, check_additivity=False)
         except TypeError:
             shap_values = explainer.shap_values(X_test_sampled)
 
-        # Handle SHAP version disparities to safely extract the "Attack" (positive) class values
-        # Older SHAP versions return a list of arrays: [Normal_values, Attack_values]
-        if isinstance(shap_values, list) and len(shap_values) == 2:
-            shap_values = shap_values[1]
-        # Newer SHAP versions return a 3D array: (samples, features, classes)
-        elif hasattr(shap_values, 'shape') and len(shap_values.shape) == 3:
-            shap_values = shap_values[:, :, 1]
+        # Handle output disparities (e.g. Explainer objects vs raw ndarrays)
+        # 1. If shap_values is a custom SHAP Explanation object, extract its raw values
+        if hasattr(shap_values, "values"):
+            shap_values_raw = shap_values.values
+        else:
+            shap_values_raw = shap_values
+
+        # 2. Extract positive class ('Attack/Anomaly') values based on structural dimensions
+        # Older/Standard SHAP versions return a list of arrays: [Normal_values, Attack_values]
+        if isinstance(shap_values_raw, list) and len(shap_values_raw) == 2:
+            shap_values_raw = shap_values_raw[1]
+        # Newer SHAP versions/HGB outputs might return a 3D array: (samples, features, classes)
+        elif hasattr(shap_values_raw, 'shape') and len(shap_values_raw.shape) == 3:
+            shap_values_raw = shap_values_raw[:, :, 1]
+        # Explanation objects might contain 3D values: (samples, features, classes)
+        elif hasattr(shap_values_raw, 'shape') and len(shap_values_raw.shape) == 2:
+            # Already 2D (samples, features), no extraction needed
+            pass
 
         # Generate and configure the dynamic plot
-        import matplotlib.pyplot as plt
         n_features = X_test_sampled.shape[1]
         
         # Dynamically scale the plot height to comfortably accommodate all features
         plt.figure(figsize=(8, max(6, n_features * 0.4)))
 
         # Force the "dot" view to show individual feature impacts
-        shap.summary_plot(shap_values, X_test_sampled, show=False, max_display=n_features, plot_type="dot")
+        shap.summary_plot(
+            shap_values_raw, 
+            X_test_sampled, 
+            show=False, 
+            max_display=n_features, 
+            plot_type="dot"
+        )
 
         # Set typography and save the figure cleanly without clipping the axes
         plt.title("SHAP Feature Impact Analysis", fontsize=14, fontweight='bold', pad=15)
@@ -618,12 +643,13 @@ def save_shap_plot(model, X_test, y_test, model_name, dataset_type, dataset_name
         print(f"SHAP summary successfully saved to: {dst_path}")
         
     except Exception as e:
-        print(f"Warning: Could not generate SHAP plot ({e}). Skipping.")
+        print(f"Warning: Could not generate SHAP plot for '{model_name}' ({e}). Skipping.")
 
 
 def save_heatmap_for_metrics_plot(models, data):
     """
-    Generates a heatmap for a specific evaluation metric across different trained models and test datasets.
+    Generates a performance heatmap for each evaluation metric across different trained models 
+    (RF, DT, HGB) and test datasets.
 
     :param models: DataFrame containing model metadata (model_name, dataset_type, classes)
     :param data: DataFrame containing evaluation metrics for each model-dataset pair
@@ -643,39 +669,41 @@ def save_heatmap_for_metrics_plot(models, data):
     merged_data['dataset_label'] = [
         _build_clean_label(c, d) for c, d in zip(merged_data['classes'], merged_data['dataset_type'])
     ]
+    
+    # Dynamically extract the algorithm prefix (RF, DT, HGB) from the standardized model name
     merged_data['model_label'] = [
         _build_clean_label(c, d, prefix=f"{m.split('_')[0].upper()} (") 
         for c, d, m in zip(merged_data['model_classes'], merged_data['model_dataset_type'], merged_data['model_name'])
     ]
 
-    # --- Generate heatmaps for each evaluation metric defined in MLConstants.EVALUATION_METRICS ---
+    # --- Generate heatmaps for each evaluation metric defined in MLConstants.PLOTTING_METRICS ---
     for feature in MLConstants.PLOTTING_METRICS:
         # Define the destination path for the heatmap plot
         dst_path = dst_dir / f"{feature}_matrix{Naming.PLOT_EXT}"
     
-        # This ensures that the heatmap can be generated without errors due to non-numeric values
+        # Ensure that the heatmap can be generated without errors due to non-numeric values
         merged_data[feature] = pd.to_numeric(merged_data[feature], errors='coerce')
         
-        # Create a pivot table with models as rows, datasets as columns, and the metric values as the cell values
+        # Create a pivot table with models as rows, datasets as columns, and the metric values as cells
         pivot_data = merged_data.pivot(index='model_label', columns='dataset_label', values=feature)
 
-        # If specific row or column orders are defined in the configuration, apply them to the pivot table
+        # Apply specific row order if defined in the configuration
         if PlotConfig.HEATMAP_ROW_ORDER is not None:
             valid_rows = [r for r in PlotConfig.HEATMAP_ROW_ORDER if r in pivot_data.index]
             remaining_rows = [r for r in pivot_data.index if r not in valid_rows]
             pivot_data = pivot_data.reindex(index=valid_rows + remaining_rows)
 
+        # Apply specific column order if defined in the configuration
         if PlotConfig.HEATMAP_COLUMN_ORDER is not None:
             valid_cols = [c for c in PlotConfig.HEATMAP_COLUMN_ORDER if c in pivot_data.columns]
             remaining_cols = [c for c in pivot_data.columns if c not in valid_cols]
             pivot_data = pivot_data.reindex(columns=valid_cols + remaining_cols)
 
-        # Dynamically calculate figure size based on the number of rows and columns to ensure readability
+        # Dynamically calculate figure size based on the grid structure to ensure readability
         cell_size = 1.0  
         fig_width = max(len(pivot_data.columns) * cell_size + 6.0, 14)
         fig_height = max(len(pivot_data.index) * cell_size + 2.5, 8)
 
-        # Configurazione ed esportazione del Plot con Seaborn
         # Configures and exports the heatmap using Seaborn
         plt.figure(figsize=(fig_width, fig_height))
         sns.set_theme(style="white") 
