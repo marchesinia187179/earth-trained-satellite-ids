@@ -38,7 +38,8 @@ class Naming:
 
     # Models Prefixes
     RANDOM_FOREST = "rf"
-    ISOLATION_FOREST = "if"
+    DECISION_TREE = "dt"
+    HIST_GRADIENT_BOOSTING = "hgb"
     
     # Dataset Prefixes
     NB15 = "nb15"

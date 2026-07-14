@@ -224,63 +224,6 @@ def _save_data_and_store_info(data, file_name, dst_dir, dataset_type):
     store_file_info(file_path, dataset_type)
 
 
-def _generate_smote_data(nb15_anomaly_data, stin_anomaly_data):
-    """
-    Generates hybrid malicious samples by blending Terrestrial (NB15) and Satellite (STIN) data.
-    Agnostic version that does not require protocol splitting (no dependency on 'src_win_byt').
-    
-    :param nb15_anomaly_data: DataFrame containing ONLY malicious records from NB15 Train set
-    :param stin_anomaly_data: DataFrame containing ONLY malicious records from STIN
-    :return: DataFrame containing hybrid malicious records
-    """
-    if len(nb15_anomaly_data) == 0 or len(stin_anomaly_data) == 0:
-        print("[WARNING] One of the input datasets is empty. Skipping SMOTE generation.")
-        return pd.DataFrame()
-
-    print(f"Generating SMOTE data dynamically on {len(nb15_anomaly_data)} Terrestrial and {len(stin_anomaly_data)} Satellite samples...")
-    
-    # 1. Scale features ONLY for accurate KNN distance calculation
-    scaler = StandardScaler()
-    # Note: MLConstants.FEATURE_COL must match exactly your newly selected active features (e.g., total_bytes, pkts_per_sec, etc.)
-    stin_scaled = scaler.fit_transform(stin_anomaly_data[MLConstants.FEATURE_COL])
-    nb15_scaled = scaler.transform(nb15_anomaly_data[MLConstants.FEATURE_COL])
-    
-    # 2. Fit KNN on Satellite data to find the single closest satellite profile for each terrestrial attack
-    knn = NearestNeighbors(n_neighbors=1, algorithm='auto')
-    knn.fit(stin_scaled)
-    
-    # Find the closest Satellite neighbor for each Terrestrial record
-    _, indices = knn.kneighbors(nb15_scaled)
-    
-    hybrid_records = []
-    
-    # 3. Extract original unscaled arrays to preserve real network metrics physical meaning
-    nb15_raw = nb15_anomaly_data[MLConstants.FEATURE_COL].values
-    stin_raw = stin_anomaly_data[MLConstants.FEATURE_COL].values
-    
-    for i in range(len(nb15_anomaly_data)):
-        nearest_stin_idx = indices[i][0]
-        
-        # Linear interpolation formula: X_hybrid = alpha * X_NB15 + (1 - alpha) * X_STIN
-        sampled_features = MLConstants.SMOTE_ALPHA * nb15_raw[i] + (1 - MLConstants.SMOTE_ALPHA) * stin_raw[nearest_stin_idx]
-        
-        # Reconstruct the row dictionary
-        new_row = dict(zip(MLConstants.FEATURE_COL, sampled_features))
-        
-        # Preserve metadata columns from the original terrestrial attack
-        new_row['class'] = nb15_anomaly_data['class'].iloc[i] + "_Smote"
-        new_row['label'] = 1  # Always malicious
-        new_row['split_type'] = nb15_anomaly_data['split_type'].iloc[i]
-        
-        hybrid_records.append(new_row)
-        
-    # Convert the list of dictionaries back to a structured DataFrame
-    df_hybrid = pd.DataFrame(hybrid_records)
-    
-    print(f"[OK] Successfully generated {len(df_hybrid)} hybrid SMOTE samples.")
-    return df_hybrid
-
-
 # --- Public Functions ---
 def hybrid_dataset_file_preprocessing(nb15_normal_data, nb15_anomaly_data, sat20_anomaly_data, ter20_anomaly_data):
     """
@@ -357,14 +300,7 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, nb15_anomaly_data, sat20
         n_samples=nb15_anomaly_size
     )
 
-    # Get smote data
-    smote_anomaly_data = _generate_smote_data(
-        nb15_anomaly_data=nb15_anomaly_data,
-        stin_anomaly_data=stin_anomaly_data
-    )
-
     # Create the hybrid data
-    smote_data = concat_and_shuffle([nb15_normal_data, smote_anomaly_data])
     injection_data = concat_and_shuffle([nb15_normal_data, stin_anomaly_sampled, nb15_anomaly_sampled])
     nb15_stin_data = concat_and_shuffle([nb15_normal_data, stin_anomaly_data])
     nb15_sat20_data = concat_and_shuffle([nb15_normal_data, sat20_anomaly_data])
@@ -372,7 +308,6 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, nb15_anomaly_data, sat20
 
     # Combine the hybrid data with own dataset type
     datasets = [
-        {'dataset_type': Naming.SMOTE, 'data': smote_data},
         {'dataset_type': Naming.INJECTION, 'data': injection_data},
         {'dataset_type': Naming.NB15_STIN, 'data': nb15_stin_data},
         {'dataset_type': Naming.NB15_SAT20, 'data': nb15_sat20_data},
@@ -387,7 +322,7 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, nb15_anomaly_data, sat20
         print(f"\nRunning file-level preprocessing for {dataset_type}...")
 
         # Select current directory
-        if dataset_type == Naming.SMOTE or dataset_type == Naming.INJECTION or dataset_type == Naming.NB15_STIN:
+        if dataset_type == Naming.INJECTION or dataset_type == Naming.NB15_STIN:
             data_prep_dir = hybrid_dir
         elif dataset_type == Naming.NB15_SAT20:
             data_prep_dir = nb15_sat20_dir

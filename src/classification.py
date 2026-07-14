@@ -2,7 +2,6 @@
 Classification logic for evaluating trained models on test datasets.
 """
 import joblib
-import numpy as np
 
 from datetime import datetime
 
@@ -20,8 +19,8 @@ from .plotting import (
 # --- Internal Helper Functions ---
 def _save_classification(model_name, metrics, dataset_type, classes, samples):
     """
-    Prepares the final classification results dictionary and appends it to the 
-    global summary CSV.
+    Prepares the final classification results dictionary for any evaluated classifier 
+    (RF, DT, or HGB) and appends or updates it in the global summary CSV.
 
     :param model_name: name of the evaluated model
     :param metrics: dictionary of calculated evaluation metrics
@@ -29,7 +28,7 @@ def _save_classification(model_name, metrics, dataset_type, classes, samples):
     :param classes: comma-separated string representing the unique classes in the dataset
     :param samples: total number of rows/samples in the dataset
     """
-    # Get results
+    # Initialize the base results dictionary with metadata
     results = {
         'id': None,
         'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
@@ -39,45 +38,52 @@ def _save_classification(model_name, metrics, dataset_type, classes, samples):
         'samples': samples
     }
 
-    # Add model metrics
+    # Add model-specific evaluation metrics
     results.update(metrics)
 
-    # Metrics formatting (None -> 'None')
+    # Clean metrics formatting by converting None values to 'None' strings for CSV consistency
     results = {k: (v if v is not None else 'None') for k, v in results.items()}
     
-    # Save results in the aggregated classifications master file
+    # Save or update results in the aggregated classifications master file
     classification_file = ProjectPaths.CLASSIFICATIONS_CSV_DIR / Naming.CLASSIFICATIONS
     match_keys = ['model_name', 'dataset_type', 'classes']
-    update_or_append_csv(classification_file, results, match_keys)
+    
+    update_or_append_csv(
+        file_path=classification_file, 
+        data_dict=results, 
+        match_keys=match_keys,
+        id_column='id'
+    )
 
 
 def _classification(model_path, data):
     """
-    Extracts the test split from the data, loads the pre-trained model, 
-    makes predictions, and evaluates performance metrics
+    Extracts the test split from the data, loads the pre-trained classifier (RF, DT, or HGB), 
+    generates predictions, and evaluates performance metrics.
 
     :param model_path: path to the serialized joblib model file
     :param data: full dataset containing features, labels, and split indicators
-    :return: dictionary containing the calculated evaluation metrics
+    :return: tuple containing (metrics_dict, X_test, y_test, y_scores, model)
     """
-    # Get testing data, drop columns not necessary and select labels
+    # Extract the testing set based on the split flag
     test_set = data[data['split_type'] == 'test']
+    
+    # Drop unnecessary columns and separate features from labels
     X_test = test_set.drop(columns=MLConstants.X_DROP_LABELS)
     y_test = test_set[MLConstants.Y_LABEL]
 
-    # Load model
+    # Load the serialized model from disk
     model = joblib.load(model_path)
 
-    # Get metrics - Riconoscimento dinamico del tipo di modello
-    if hasattr(model, "predict_proba"):     # Supervised learning
+    # Generate predictions and prediction probabilities (valid for RF, DT, and HGB)
+    if hasattr(model, "predict_proba"):
         y_pred = model.predict(X_test)
         y_scores = model.predict_proba(X_test)[:, 1]
-    else:   # Unsupervised learning
-        raw_pred = model.predict(X_test)
-        y_pred = np.where(raw_pred == -1, 1, 0)
-        y_scores = -model.decision_function(X_test)
+    else:
+        raise AttributeError(f"[ERROR] Loaded model '{model_path.stem}' does not support 'predict_proba'. "
+                             f"Ensure it is a valid RF, DT, or HGB classifier.")
 
-    # Get final metrics
+    # Calculate final performance metrics
     metrics = calculate_metrics(y_test, y_pred, y_scores)
 
     return metrics, X_test, y_test, y_scores, model
@@ -86,8 +92,8 @@ def _classification(model_path, data):
 # --- Public Functions ---
 def classification_processing(model_path, data, dataset_type, dataset_name):
     """
-    Performs classification using a pre-trained model on a given dataset, evaluates metrics, 
-    and generates plots based on configuration flags.
+    Performs classification using a pre-trained model (RF, DT, or HGB) on a given dataset, 
+    evaluates metrics, and generates plots based on configuration flags.
 
     :param model_path: path to the serialized joblib model file
     :param data: full dataset containing features, labels, and split indicators
@@ -102,7 +108,7 @@ def classification_processing(model_path, data, dataset_type, dataset_name):
 
     print(f"\n--- Classifying {dataset_type} dataset using model: {model_name} ---")
 
-    # Calculate classification and extract test data
+    # Calculate classification and extract test data (works generically for loaded RF, DT, and HGB)
     metrics, X_test, y_test, y_scores, model = _classification(model_path, data)
 
     # Save classification results to the aggregated CSV file
@@ -111,9 +117,11 @@ def classification_processing(model_path, data, dataset_type, dataset_name):
         metrics=metrics, 
         dataset_type=dataset_type, 
         classes=classes, 
-        samples=data.shape[0])
+        samples=data.shape[0]
+    )
 
     # --- Save Plots Based on Flags ---
+    
     # Save Probability Distribution plot if enabled
     if PlotFlags.ENABLE_PROBABILITY_PLOTS: 
         save_probability_plot(
@@ -146,16 +154,22 @@ def classification_processing(model_path, data, dataset_type, dataset_name):
     
     # Save SHAP summary plot if enabled
     if PlotFlags.ENABLE_SHAP_PLOTS: 
-        save_shap_plot(
-            model=model, 
-            X_test=X_test, 
-            y_test=y_test, 
-            model_name=model_name, 
-            dataset_type=dataset_type, 
-            dataset_name=dataset_name
-        )
+        try:
+            # Wrapped in try-except block to handle model-specific SHAP explainer incompatibilities
+            # (e.g., HistGradientBoosting might require different explainers than standard Trees)
+            save_shap_plot(
+                model=model, 
+                X_test=X_test, 
+                y_test=y_test, 
+                model_name=model_name, 
+                dataset_type=dataset_type, 
+                dataset_name=dataset_name
+            )
+        except Exception as e:
+            print(f" -> [WARNING] Failed to generate SHAP plot for model '{model_name}': {e}")
 
     print(f"--- Classification for {dataset_type} dataset using model: {model_name} completed ---")
+
 
 if __name__ == "__main__":
     pass

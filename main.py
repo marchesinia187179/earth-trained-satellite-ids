@@ -230,22 +230,11 @@ def _preprocessing():
         filename_list=RoutineConfig.DATASETS_TARGETS_FOR_CLASSIFICATIONS
     )
 
-    # Calculate kde global limits
-    # calculate_kde_limits_csv(
-    #     config_csv_path=ProjectPaths.DATASETS_FOR_CLASSIFICATIONS,
-    #     features=MLConstants.KDE_TOP_FEATURES,
-    #     output_csv_path=ProjectPaths.KDE_GLOBAL_LIMITS
-    # )
-
-    # Get KDE limits
-    # kde_limits_dict = load_kde_limits_from_csv(ProjectPaths.KDE_GLOBAL_LIMITS)
-
     # Save Feature KDE distributions plot if enabled
     if PlotFlags.ENABLE_KDE_PLOTS:
         save_all_kde_plots(
             config_csv_path=ProjectPaths.DATASETS_FOR_CLASSIFICATIONS,
             features_to_plot=MLConstants.KDE_TOP_FEATURES
-            # global_limits=kde_limits_dict
         )
 
     print("\n--- Routine Preprocessing Phase Completed ---")
