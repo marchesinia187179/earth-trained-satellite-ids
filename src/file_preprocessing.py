@@ -227,72 +227,57 @@ def _save_data_and_store_info(data, file_name, dst_dir, dataset_type):
 def _generate_smote_data(nb15_anomaly_data, stin_anomaly_data):
     """
     Generates hybrid malicious samples by blending Terrestrial (NB15) and Satellite (STIN) data.
-    Separates traffic into TCP and UDP to maintain protocol consistency.
+    Agnostic version that does not require protocol splitting (no dependency on 'src_win_byt').
     
     :param nb15_anomaly_data: DataFrame containing ONLY malicious records from NB15 Train set
     :param stin_anomaly_data: DataFrame containing ONLY malicious records from STIN
     :return: DataFrame containing hybrid malicious records
     """
+    if len(nb15_anomaly_data) == 0 or len(stin_anomaly_data) == 0:
+        print("[WARNING] One of the input datasets is empty. Skipping SMOTE generation.")
+        return pd.DataFrame()
+
+    print(f"Generating SMOTE data dynamically on {len(nb15_anomaly_data)} Terrestrial and {len(stin_anomaly_data)} Satellite samples...")
     
-    # Split both datasets into TCP and UDP based on source window size
-    nb15_tcp = nb15_anomaly_data[nb15_anomaly_data['src_win_byt'] > 0].copy()
-    nb15_udp = nb15_anomaly_data[nb15_anomaly_data['src_win_byt'] <= 0].copy()
-
-    stin_tcp = stin_anomaly_data[stin_anomaly_data['src_win_byt'] > 0].copy()
-    stin_udp = stin_anomaly_data[stin_anomaly_data['src_win_byt'] <= 0].copy()
-
-    print(f"NB15 Malicious Split -> TCP: {len(nb15_tcp)} | UDP: {len(nb15_udp)}")
-    print(f"STIN Malicious Split -> TCP: {len(stin_tcp)} | UDP: {len(stin_udp)}")
+    # 1. Scale features ONLY for accurate KNN distance calculation
+    scaler = StandardScaler()
+    # Note: MLConstants.FEATURE_COL must match exactly your newly selected active features (e.g., total_bytes, pkts_per_sec, etc.)
+    stin_scaled = scaler.fit_transform(stin_anomaly_data[MLConstants.FEATURE_COL])
+    nb15_scaled = scaler.transform(nb15_anomaly_data[MLConstants.FEATURE_COL])
+    
+    # 2. Fit KNN on Satellite data to find the single closest satellite profile for each terrestrial attack
+    knn = NearestNeighbors(n_neighbors=1, algorithm='auto')
+    knn.fit(stin_scaled)
+    
+    # Find the closest Satellite neighbor for each Terrestrial record
+    _, indices = knn.kneighbors(nb15_scaled)
     
     hybrid_records = []
     
-    # Helper function to process each protocol block
-    def process_protocol_block(nb15_block, stin_block):
-        if len(nb15_block) == 0 or len(stin_block) == 0:
-            return []
-        
-        # Scale features ONLY for accurate KNN distance calculation (prevents large scales from dominating)
-        scaler = StandardScaler()
-        stin_scaled = scaler.fit_transform(stin_block[MLConstants.FEATURE_COL])
-        nb15_scaled = scaler.transform(nb15_block[MLConstants.FEATURE_COL])
-        
-        # Fit KNN on Satellite data
-        knn = NearestNeighbors(n_neighbors=1, algorithm='auto')
-        knn.fit(stin_scaled)
-        
-        # Find the closest Satellite neighbor for each Terrestrial record
-        _, indices = knn.kneighbors(nb15_scaled)
-        
-        block_hybrids = []
-        # Interpolate using original unscaled values to preserve real network metrics
-        nb15_raw = nb15_block[MLConstants.FEATURE_COL].values
-        stin_raw = stin_block[MLConstants.FEATURE_COL].values
-        
-        for i in range(len(nb15_block)):
-            nearest_stin_idx = indices[i][0]
-            
-            # Linear interpolation formula: X_hybrid = alpha * X_NB15 + (1 - alpha) * X_STIN
-            sampled_features = MLConstants.SMOTE_ALPHA * nb15_raw[i] + (1 - MLConstants.SMOTE_ALPHA) * stin_raw[nearest_stin_idx]
-            
-            # Reconstruct the row dictionary
-            new_row = dict(zip(MLConstants.FEATURE_COL, sampled_features))
-            
-            # Preserve metadata columns from the original terrestrial attack
-            new_row['class'] = nb15_block['class'].iloc[i] + "_Smote"
-            new_row['label'] = 1  # Always malicious
-            new_row['split_type'] = nb15_block['split_type'].iloc[i]
-            
-            block_hybrids.append(new_row)
-            
-        return block_hybrids
-
-    # Run the pipeline for both protocol blocks
-    hybrid_records.extend(process_protocol_block(nb15_tcp, stin_tcp))
-    hybrid_records.extend(process_protocol_block(nb15_udp, stin_udp))
+    # 3. Extract original unscaled arrays to preserve real network metrics physical meaning
+    nb15_raw = nb15_anomaly_data[MLConstants.FEATURE_COL].values
+    stin_raw = stin_anomaly_data[MLConstants.FEATURE_COL].values
     
+    for i in range(len(nb15_anomaly_data)):
+        nearest_stin_idx = indices[i][0]
+        
+        # Linear interpolation formula: X_hybrid = alpha * X_NB15 + (1 - alpha) * X_STIN
+        sampled_features = MLConstants.SMOTE_ALPHA * nb15_raw[i] + (1 - MLConstants.SMOTE_ALPHA) * stin_raw[nearest_stin_idx]
+        
+        # Reconstruct the row dictionary
+        new_row = dict(zip(MLConstants.FEATURE_COL, sampled_features))
+        
+        # Preserve metadata columns from the original terrestrial attack
+        new_row['class'] = nb15_anomaly_data['class'].iloc[i] + "_Smote"
+        new_row['label'] = 1  # Always malicious
+        new_row['split_type'] = nb15_anomaly_data['split_type'].iloc[i]
+        
+        hybrid_records.append(new_row)
+        
     # Convert the list of dictionaries back to a structured DataFrame
     df_hybrid = pd.DataFrame(hybrid_records)
     
+    print(f"[OK] Successfully generated {len(df_hybrid)} hybrid SMOTE samples.")
     return df_hybrid
 
 

@@ -16,12 +16,15 @@ class MLConstants:
     X_DROP_LABELS = ["label", "class", "split_type"]
     Y_LABEL = "label"
     PCA_COMPONENTS = 2
+    '''
     FEATURE_COL = [
         'duration', 'src_bytes', 'dst_bytes', 'src_pkts', 'dst_pkts', 
         'src_win_byt', 'dst_win_byt', 'load_s', 'down_up_ratio', 
         'total_bytes', 'total_pkts', 'src_mean_pkt_size', 
         'dst_mean_pkt_size', 'pkts_per_sec', 'win_diff', 'byte_ratio'
     ]
+    '''
+    FEATURE_COL = ['dst_win_byt', 'total_bytes', 'pkts_per_sec']
     SMOTE_ALPHA = 0.5
     KDE_TOP_FEATURES = ['pkts_per_sec', 'total_bytes', 'dst_win_byt']
     INJECTION_RATIO = 299     # Must be 1 digit less than the denominator that we want (e.g. 1/3 than INJ_RATIO = 2)
@@ -257,7 +260,7 @@ class PlotFlags:
     """Master Switch flags for granular control of plot generation during pipeline execution"""
     
     # Heavy-weight plots (computationally expensive)
-    ENABLE_SHAP_PLOTS = False              # Very heavy - SHAP explainability plots
+    ENABLE_SHAP_PLOTS = True              # Very heavy - SHAP explainability plots
     
     # Light-weight plots (standard visualizations)
     ENABLE_FEATURE_IMPORTANCE = True    # Feature importance bar charts
