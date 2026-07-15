@@ -6,6 +6,15 @@ import pathlib
 class MLConstants:
     """ Hyperparameters and standard metrics for the ML pipeline """
 
+    SEEDS = [0, 1, 7, 42, 101, 123, 999, 1337, 2026, 12345]
+    PREPROCESSED_SEED = 127001
+    MODEL_TYPE = ['rf', 'dt', 'hgb']
+
+
+
+
+
+
     RANDOM_STATE = 42
     NORMAL_ANOMALY_RATIO = 10
     TRAIN_SPLIT = 0.8
@@ -63,6 +72,8 @@ class Naming:
     FEATURE_IMPORTANCE = f"feature_importance"  # It doesn't have an extension because it can be .csv or .png depending on the context
     FEATURE_IMPORTANCE_BY_PERMUTATION = f"feature_importance_by_permutation{EXT}"
 
+    MODELS_REGISTRY = f"models_registry{EXT}"
+    MODELS_METADATA = f"models_metadata{EXT}"
 
 class ProjectPaths:
     """ Absolute Pathlib structures for project directories and core files """
@@ -71,6 +82,11 @@ class ProjectPaths:
     ROOT = pathlib.Path(__file__).resolve().parent.parent.parent
     DATA = ROOT / "data"
     SRC = ROOT / "src"
+    RUNS = ROOT / "runs"
+
+
+
+
     MODELS = ROOT / "models"
     RESULTS = ROOT / "results"
 
@@ -78,6 +94,9 @@ class ProjectPaths:
     RAW_DATA_DIR = DATA / "raw"
     PREP_DATA_DIR = DATA / "preprocessed"
     METADATA_DIR = PREP_DATA_DIR / "metadata"
+
+    # --- METADATA Subfolders ---
+    METADATA_PLOT_DIR = METADATA_DIR / "plots"
 
     # --- RESULTS Subfolders ---
     RESULTS_PLOT_DIR = RESULTS / "plots"
@@ -90,13 +109,17 @@ class ProjectPaths:
     CLASSIFICATIONS_BY_DATASET_DIR = CLASSIFICATIONS_CSV_DIR / "by_dataset"
 
     # Specific PLOTS Subfolders
+    PCA_PLOTS_DIR = METADATA_PLOT_DIR / "pca"
+    KDE_PLOTS_DIR = METADATA_PLOT_DIR / "kde"
+
+
     PERFORMANCE_PLOTS_DIR = RESULTS_PLOT_DIR / "performance"
     FEAT_IMP_PLOTS_DIR = RESULTS_PLOT_DIR / "feature_importance"
-    PCA_PLOTS_DIR = RESULTS_PLOT_DIR / "pca"
+    
     PROB_PLOTS_DIR = RESULTS_PLOT_DIR / "probabilities"
     PR_CURVE_PLOTS_DIR = RESULTS_PLOT_DIR / "pr_curves"
     THRESHOLD_PLOTS_DIR = RESULTS_PLOT_DIR / "threshold_metrics"
-    KDE_PLOTS_DIR = RESULTS_PLOT_DIR / "kde_distributions"
+    
     SHAP_PLOTS_DIR = RESULTS_PLOT_DIR / "shap"
 
     # --- SRC Subfolders ---
@@ -118,16 +141,24 @@ class ProjectPaths:
     DIR_CLASSIFICATIONS = "classifications"
     DIR_PERFORMANCE = "performance"
 
+
     # --- Pipeline Essential Files ---
-    DATASETS_FOR_RANDOM_FOREST = METADATA_DIR / f"{Naming.RANDOM_FOREST}_model_paths{Naming.EXT}"
-    DATASETS_FOR_ISOLATION_FOREST = METADATA_DIR / f"{Naming.ISOLATION_FOREST}_model_paths{Naming.EXT}"
-    DATASETS_FOR_CLASSIFICATIONS = METADATA_DIR / f"classification_paths{Naming.EXT}"
+    DATASETS_FOR_MODEL_BUILDING = METADATA_DIR / f"data_model_building_paths{Naming.EXT}"
+    DATASETS_FOR_CLASSIFICATIONS = METADATA_DIR / f"data_classification_paths{Naming.EXT}"
     DATASETS_INFO = METADATA_DIR / f"datasets_info{Naming.EXT}"
     DATASETS_FEATURES_MEAN = METADATA_DIR / f"feature_mean{Naming.EXT}"
     DATASETS_FEATURES_VAR = METADATA_DIR / f"feature_variance{Naming.EXT}"
+
+
+
+
+
+
+
     # KDE_GLOBAL_LIMITS = METADATA_DIR / f"kde_global_limits{Naming.EXT}"
     MODELS_INFO = RESULTS_CSV_DIR / f"models_info{Naming.EXT}"
-    MODELS_REGISTRY = MODELS / f"models_registry{Naming.EXT}"
+
+    
 
     # --- Raw Datasets ---
     NB15_RAW = RAW_DATA_DIR / f"{Naming.NB15}{Naming.EXT}"
@@ -145,7 +176,7 @@ class RoutineConfig:
     ]
 
     # Defines the standard set of models to be built during a routine phase
-    DATASETS_TARGETS_FOR_RANDOM_FOREST = [
+    DATASETS_TARGETS_FOR_MODEL_BUILDING = [
         # --- NB15 dataset ---
         {'dataset_type': Naming.NB15, 'filename': f"{Naming.NB15}{Naming.AGGR_SCALED}{Naming.EXT}"},
         {'dataset_type': Naming.NB15, 'filename': f"Normal_DoS{Naming.EXT}"},
@@ -155,8 +186,7 @@ class RoutineConfig:
         {'dataset_type': Naming.NB15, 'filename': f"Normal_Reconnaissance{Naming.EXT}"},
 
         # --- Hybrid dataset ---
-        {'dataset_type': Naming.INJECTION, 'filename': f"{Naming.INJECTION}{Naming.AGGR_SCALED}{Naming.EXT}"},
-        {'dataset_type': Naming.SMOTE, 'filename': f"{Naming.SMOTE}{Naming.AGGR_SCALED}{Naming.EXT}"}
+        {'dataset_type': Naming.INJECTION, 'filename': f"{Naming.INJECTION}{Naming.AGGR_SCALED}{Naming.EXT}"}
     ]
 
     DATASETS_TARGETS_FOR_ISOLATION_FOREST = [

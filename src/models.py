@@ -41,7 +41,7 @@ def _get_standardized_model_name(dataset_type, unique_classes, model_type):
     return f"{model_suffix}_{dataset_type}_{attack_name}"
 
 
-def _save_metadata(model, model_name, metrics, dataset_type, classes, samples):
+def _save_metadata(model, model_name, metrics, dataset_type, classes, samples, dst_dir):
     """
     Saves the metadata of the trained model (RF, DT, HGB, Isolation Forest, etc.), 
     including its parameters and evaluation metrics, to a CSV file.
@@ -52,6 +52,7 @@ def _save_metadata(model, model_name, metrics, dataset_type, classes, samples):
     :param dataset_type: string describing the dataset type (nb15, sat20, ...)
     :param classes: string listing the unique classes in the dataset
     :param samples: integer representing the number of samples in the dataset
+    :param dst_dir: path of the destination directory
     :return: None
     """
     # Get model and data params
@@ -80,12 +81,7 @@ def _save_metadata(model, model_name, metrics, dataset_type, classes, samples):
         
         # Specific parameters: HistGradientBoosting
         'learning_rate': params.get('learning_rate', 'None'),
-        'max_iter': params.get('max_iter', 'None'),
-        
-        # Specific parameters: Isolation Forest
-        'contamination': params.get('contamination', 'None'),
-        'max_samples': params.get('max_samples', 'None'),
-        'bootstrap': params.get('bootstrap', 'None')
+        'max_iter': params.get('max_iter', 'None')
     }
 
     # Add model metrics
@@ -95,36 +91,40 @@ def _save_metadata(model, model_name, metrics, dataset_type, classes, samples):
     results = {k: (v if v is not None else 'None') for k, v in results.items()}
     
     # Save metadata
+    models_metadata_file = dst_dir / Naming.MODELS_METADATA
     update_or_append_csv(
-        file_path=ProjectPaths.MODELS_INFO,
+        file_path=models_metadata_file,
         data_dict=results,
         match_keys=['model_name', 'dataset_type'],
         id_column='id'
     )
 
 
-def _save_model(model, model_name):
+def _save_model(model, model_name, dst_dir):
     """
     Saves the trained model to disk and updates the models registry.
 
     :param model: the trained model object (RF, DT, HGB, etc.)
     :param model_name: standardized name for the trained model
+    :param dst_dir: path of the destination directory
     :return: None
     """
     # Save model
-    model_path = ProjectPaths.MODELS / f'{model_name}.joblib'
+    model_path = dst_dir / f'{model_name}.joblib'
     joblib.dump(model, model_path)
 
     # Save model path in registry
+    model_registry_file = dst_dir / Naming.MODELS_REGISTRY
+
     update_or_append_csv(
-        file_path=ProjectPaths.MODELS_REGISTRY, 
+        file_path=model_registry_file, 
         data_dict={'path': str(model_path)}, 
         match_keys=['path'], 
         id_column='id'
     )
 
 
-def _train_classifier(data, model_type):
+def _train_classifier(data, model_type, seed):
     """
     Trains a selected classifier (Random Forest, Decision Tree, or HistGradientBoosting) 
     on the provided dataset and returns the trained model, evaluation metrics, and feature names.
@@ -132,6 +132,7 @@ def _train_classifier(data, model_type):
     :param data: DataFrame containing the dataset and the 'split_type' attribute
     :param model_type: str, type of model to train. Options: 'rf' (Random Forest), 
                        'dt' (Decision Tree), 'hgb' (HistGradientBoosting)
+    :param seed: random_state seed of the current model
     :return: tuple containing the trained model, evaluation metrics, and feature names
     """
     # Get training and testing data split
@@ -149,27 +150,16 @@ def _train_classifier(data, model_type):
     # Initialize the requested classifier dynamically
     model_type_lower = model_type.lower()
     
-    if model_type_lower == Naming.RANDOM_FOREST:
-        model = RandomForestClassifier(
-            random_state=MLConstants.RANDOM_STATE, 
-            verbose=MLConstants.MODEL_VERBOSE,
-            n_jobs=-1
-        )
-    elif model_type_lower == Naming.DECISION_TREE:
-        model = DecisionTreeClassifier(
-            random_state=MLConstants.RANDOM_STATE
-        )
-    elif model_type_lower == Naming.HIST_GRADIENT_BOOSTING:
-        model = HistGradientBoostingClassifier(
-            random_state=MLConstants.RANDOM_STATE,
-            verbose=MLConstants.MODEL_VERBOSE
-        )
+    if model_type_lower == Naming.RANDOM_FOREST:    # Get Random Forest
+        model = RandomForestClassifier(random_state=seed, verbose=MLConstants.MODEL_VERBOSE, n_jobs=-1)
+    elif model_type_lower == Naming.DECISION_TREE:      # Get Decision Tree
+        model = DecisionTreeClassifier(random_state=seed)
+    elif model_type_lower == Naming.HIST_GRADIENT_BOOSTING:     # Get HGB
+        model = HistGradientBoostingClassifier(random_state=seed, verbose=MLConstants.MODEL_VERBOSE)
     else:
-        error_msg = f"[ERROR] Unsupported model type: '{model_type}'. \
-            Choose from '{Naming.RANDOM_FOREST}', '{Naming.DECISION_TREE}', \
-                or '{Naming.HIST_GRADIENT_BOOSTING}'."
-
-        raise ValueError(error_msg)
+        raise ValueError(
+            f"[ERROR] Unsupported model type: '{model_type}'. Choose from {MLConstants.MODEL_TYPE}."
+        )
 
     # Fit the chosen model
     model.fit(X_train, y_train)
@@ -186,7 +176,7 @@ def _train_classifier(data, model_type):
 
 
 # --- Public Functions ---
-def model_processing(data, dataset_type, model_type):
+def model_processing(data, dataset_type, model_type, seed):
     """
     Orchestrates the classification pipeline by creating the destination directory,
     training the selected model (RF, DT, or HGB), and saving the resulting model 
@@ -195,16 +185,29 @@ def model_processing(data, dataset_type, model_type):
     :param data: DataFrame containing the dataset and the 'class' attribute
     :param dataset_type: string describing the dataset type (nb15, sat20, ...)
     :param model_type: string indicating the algorithm type ('rf', 'dt', 'hgb')
+    :param seed: random_state seed of the current model
     :return: None
     """
-    print(f"\n--- Starting {model_type} Model Building for {dataset_type} ---")
+    print(f"\n--- Starting {model_type} Model Building (random_state={seed}) for {dataset_type} ---")
 
-    # Create feature importance directory
-    feature_importance_plots_dir = create_directory(ProjectPaths.DIR_FEATURE_IMPORTANCE, ProjectPaths.RESULTS_PLOT_DIR)
+    # --- Create Directories ---
+    # Create the main model category directory
+    models_category_dir = create_directory(dir_name=model_type, parent_path=ProjectPaths.RUNS)
 
+    # Create the seed model category sub directory
+    seed_dir = create_directory(dir_name=seed, parent_path=models_category_dir)
+
+    # Create the models sub directory
+    models_dir = create_directory(dir_name=ProjectPaths.DIR_MODELS, parent_path=seed_dir)
+
+    # Create the feature importance sub directory
+    feature_importance_plots_dir = create_directory(dir_name=ProjectPaths.DIR_FEATURE_IMPORTANCE, parent_path=models_dir)
+
+    # --- Build Current Model ---
     # Train the dynamic classifier (handles RF, DT, and HGB internally)
-    model, metrics, feature_names = _train_classifier(data, model_type)
+    model, metrics, feature_names = _train_classifier(data, model_type, seed)
 
+    # --- Save model and metadata ---
     # Get unique classes and standardized model name
     unique_classes = data['class'].unique()
     classes = ", ".join(str(c) for c in unique_classes)
@@ -213,7 +216,8 @@ def model_processing(data, dataset_type, model_type):
     # Save model
     _save_model(
         model=model, 
-        model_name=model_name
+        model_name=model_name,
+        dst_dir=models_dir
     )
 
     # Save metadata
@@ -223,9 +227,11 @@ def model_processing(data, dataset_type, model_type):
         metrics=metrics, 
         dataset_type=dataset_type, 
         classes=classes, 
-        samples=data.shape[0]
+        samples=data.shape[0],
+        dst_dir=models_dir
     )
 
+    # --- Save Plot ---
     # Save feature importance plot if enabled
     if PlotFlags.ENABLE_FEATURE_IMPORTANCE:
         # Note: HistGradientBoosting does not support default impurity-based feature_importances_ natively.
@@ -241,7 +247,7 @@ def model_processing(data, dataset_type, model_type):
             print(f" -> [INFO] Feature importance plot skipped: \
                   {model_type} does not natively support impurity-based feature importances.")
 
-    print(f"--- {model_type} Model Building for {dataset_type} Completed ---\n")
+    print(f"--- {model_type} Model Building (random_state={seed}) for {dataset_type} Completed ---\n")
 
 
 if __name__ == "__main__":

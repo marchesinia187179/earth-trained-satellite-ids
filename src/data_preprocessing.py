@@ -162,7 +162,7 @@ def _stratified_split(data):
     split_groups = []
     for _, group in data.groupby('class'):
         # Shuffle the group and split into train and test sets based on the defined TRAIN_SPLIT ratio
-        group = group.sample(frac=1, random_state=MLConstants.RANDOM_STATE).reset_index(drop=True)
+        group = group.sample(frac=1, random_state=MLConstants.PREPROCESSED_SEED).reset_index(drop=True)
 
         # Calculate the number of training samples for the current class
         n_group_train = int(len(group) * MLConstants.TRAIN_SPLIT)
@@ -210,7 +210,7 @@ def data_preprocessing(data, dataset_type):
     data = _stratified_split(data)
 
     # Shuffle the data to ensure randomness and reset the index
-    data = data.sample(frac=1, random_state=MLConstants.RANDOM_STATE).reset_index(drop=True)
+    data = data.sample(frac=1, random_state=MLConstants.PREPROCESSED_SEED).reset_index(drop=True)
 
     print(f"Data-level preprocessing for {dataset_type} done.")
     return data

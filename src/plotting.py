@@ -114,57 +114,124 @@ def save_feature_importances_plot(model, model_name, feature_names, dst_dir, X_t
     print(f"Feature importance plot successfully saved to: {dst_path}")
 
 
-def save_pca_plot(X, y, dataset_type, dataset_name):
+def save_all_pca_plots(config_csv_path, label_column=MLConstants.Y_LABEL, drop_labels=MLConstants.X_DROP_LABELS):
     """
-    Applies PCA (2 components) on the feature matrix X and plots a 2D scatter plot.
-    This function independently fits and transforms the data, tailored specifically 
-    to the provided dataset (Independent PCA).
+    Automated batch runner that reads a configuration CSV, loads each dataset,
+    extracts the test split, applies PCA (2 components), and generates 2D scatter plots.
+    This function independently fits and transforms the data tailored to each dataset.
 
-    :param X: feature matrix (DataFrame or numpy array)
-    :param y: class labels (Series or array-like)
-    :param dataset_type: type of the dataset being used (e.g., nb15, sat20)
-    :param dataset_name: name of the dataset being used
+    :param config_csv_path: Path to the configuration CSV file containing 'path' and 'dataset_type'
+    :param label_column: The name of the ground-truth target column
+    :param drop_labels: List of columns (or features) to drop from the feature matrix before PCA
     """
-    # Create the standardized file name for the plot
-    file_name = f"{dataset_type.lower()}_{dataset_name}{Naming.PLOT_EXT}"
-    
-    # Destination path for the independent PCA plot
-    dst_path = ProjectPaths.PCA_PLOTS_DIR / file_name
+    config_path = Path(config_csv_path)
+    if not config_path.exists():
+        print(f"[ERROR] Configuration CSV file not found at: {config_csv_path}")
+        return
 
-    # Compute a brand new space tailored to this specific dataset (Fit + Transform)
-    scaler = StandardScaler()
-    pca = PCA(n_components=MLConstants.PCA_COMPONENTS, random_state=MLConstants.RANDOM_STATE)
-    
-    X_scaled = scaler.fit_transform(X)
-    X_pca = pca.fit_transform(X_scaled)
-    
-    # Map class labels to human-readable strings for plotting
-    labels = y.map({0: 'Normal Traffic', 1: 'Attack/Anomaly'}).fillna(y)
-    var = pca.explained_variance_ratio_ * 100
-    
-    # Configure the scatter plot with appropriate aesthetics
-    plt.figure(figsize=(10, 6))
-    ax = sns.scatterplot(
-        x=X_pca[:, 0], y=X_pca[:, 1], hue=labels, alpha=0.5,
-        palette={'Normal Traffic': '#1f77b4', 'Attack/Anomaly': '#ff7f0e'}
-    )
-    
-    # Set plot titles, labels, and grid for better readability
-    plt.title(f"PCA 2D Projection (Total Variance Explained: {var.sum():.2f}%)", fontsize=14, fontweight='bold', pad=15)
-    plt.xlabel(f"PC1 ({var[0]:.2f}% Variance)", fontsize=12)
-    plt.ylabel(f"PC2 ({var[1]:.2f}% Variance)", fontsize=12)
-    plt.grid(True, linestyle=':', alpha=0.6)
+    # Load the master configuration file
+    try:
+        df_config = pd.read_csv(config_path)
+    except Exception as e:
+        print(f"[ERROR] Failed to read configuration CSV: {e}")
+        return
 
-    # Add a legend with a title and customize its appearance
-    legend = ax.legend(title='Target Traffic Class', loc='upper left', bbox_to_anchor=(1.02, 1.0), ncol=1, 
-                       frameon=True, framealpha=0.9, facecolor='white', edgecolor='black', title_fontsize=11)
-    legend.get_title().set_fontweight('bold')
-    
-    # Save the PCA plot to the designated output folder
-    plt.savefig(dst_path, dpi=300, bbox_inches='tight')
-    plt.close()
+    # Validate required columns in the configuration file
+    if 'path' not in df_config.columns or 'dataset_type' not in df_config.columns:
+        print("[ERROR] The configuration CSV must contain both 'path' and 'dataset_type' columns.")
+        return
 
-    print(f"PCA plot successfully saved to: {dst_path}")
+    # Ensure the main output directory for PCA plots exists
+    base_pca_dir = Path(ProjectPaths.PCA_PLOTS_DIR)
+    base_pca_dir.mkdir(parents=True, exist_ok=True)
+
+    print("Starting automated batch PCA plotting...")
+    
+    # Iterate through each dataset defined in the config file
+    for _, row in df_config.iterrows():
+        dataset_path_str = row['path']
+        dataset_type = row['dataset_type']
+        
+        if pd.isna(dataset_path_str) or pd.isna(dataset_type):
+            continue
+            
+        file_path = Path(dataset_path_str)
+        if not file_path.exists():
+            print(f" -> [WARNING] Dataset file not found, skipping: {file_path}")
+            continue
+
+        # Automatically extract the dataset name from the file path
+        dataset_name = file_path.stem
+
+        # Define the final plot filename and destination path
+        pca_filename = f"{dataset_type.lower()}_{dataset_name}{Naming.PLOT_EXT}"
+        dst_path = base_pca_dir / pca_filename
+
+        try:
+            # Read the dataset
+            df_data = pd.read_csv(file_path)
+            
+            # Ensure 'split_type' exists to extract the test set
+            if 'split_type' not in df_data.columns:
+                print(f" -> [SKIP] 'split_type' column not found in {dataset_name}. Cannot extract test set.")
+                continue
+                
+            # Isolate the test data
+            test_data = df_data[df_data['split_type'] == 'test']
+            if test_data.empty:
+                print(f" -> [SKIP] No 'test' data found in {dataset_name}.")
+                continue
+
+            # Safely drop non-feature columns
+            cols_to_drop = [col for col in drop_labels if col in test_data.columns]
+            X_test = test_data.drop(columns=cols_to_drop)
+
+            # Ensure the label column exists
+            if label_column not in test_data.columns:
+                print(f" -> [SKIP] Label column '{label_column}' not found in {dataset_name}")
+                continue
+                
+            y_test = test_data[label_column]
+
+            # Compute a brand new space tailored to this specific dataset (Fit + Transform)
+            scaler = StandardScaler()
+            pca = PCA(n_components=MLConstants.PCA_COMPONENTS, random_state=MLConstants.RANDOM_STATE)
+            
+            X_scaled = scaler.fit_transform(X_test)
+            X_pca = pca.fit_transform(X_scaled)
+            
+            # Map class labels to human-readable strings for plotting
+            labels = y_test.map({0: 'Normal Traffic', 1: 'Attack/Anomaly'}).fillna(y_test)
+            var = pca.explained_variance_ratio_ * 100
+            
+            # Configure the scatter plot with appropriate aesthetics
+            plt.figure(figsize=(10, 6))
+            ax = sns.scatterplot(
+                x=X_pca[:, 0], y=X_pca[:, 1], hue=labels, alpha=0.5,
+                palette={'Normal Traffic': '#1f77b4', 'Attack/Anomaly': '#ff7f0e'}
+            )
+            
+            # Set plot titles, labels, and grid for better readability
+            plt.title(f"PCA 2D Projection ({dataset_type} - {dataset_name})\nTotal Variance Explained: {var.sum():.2f}%", fontsize=14, fontweight='bold', pad=15)
+            plt.xlabel(f"PC1 ({var[0]:.2f}% Variance)", fontsize=12)
+            plt.ylabel(f"PC2 ({var[1]:.2f}% Variance)", fontsize=12)
+            plt.grid(True, linestyle=':', alpha=0.6)
+
+            # Add a legend with a title and customize its appearance
+            legend = ax.legend(title='Target Traffic Class', loc='upper left', bbox_to_anchor=(1.02, 1.0), ncol=1, 
+                               frameon=True, framealpha=0.9, facecolor='white', edgecolor='black', title_fontsize=11)
+            legend.get_title().set_fontweight('bold')
+            
+            # Save the PCA plot to the designated output folder
+            plt.savefig(dst_path, dpi=300, bbox_inches='tight')
+            plt.close()
+
+            print(f" -> [OK] Saved: {pca_filename}")
+
+        except Exception as e:
+            print(f" -> [ERROR] Failed to process {dataset_name}: {e}")
+            
+    print("\n[COMPLETED] All PCA plots have been generated and saved directly to the target directory.")
 
 
 def save_probability_plot(y_test, y_scores, model_name, dataset_type, dataset_name):

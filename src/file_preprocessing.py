@@ -45,7 +45,7 @@ def _safe_stratified_sample(data, n_samples):
     """
     # Security Fallback if the split type columns doesn't exist
     if 'split_type' not in data.columns:
-        return data.sample(n=n_samples, random_state=MLConstants.RANDOM_STATE)
+        return data.sample(n=n_samples, random_state=MLConstants.PREPROCESSED_SEED)
     
     # Get the train and test data
     data_train = data[data['split_type'] == 'train']
@@ -77,9 +77,9 @@ def _safe_stratified_sample(data, n_samples):
     sampled_parts = []
     
     if n_train > 0 and not data_train.empty:
-        sampled_parts.append(data_train.sample(n=n_train, random_state=MLConstants.RANDOM_STATE))
+        sampled_parts.append(data_train.sample(n=n_train, random_state=MLConstants.PREPROCESSED_SEED))
     if n_test > 0 and not data_test.empty:
-        sampled_parts.append(data_test.sample(n=n_test, random_state=MLConstants.RANDOM_STATE))
+        sampled_parts.append(data_test.sample(n=n_test, random_state=MLConstants.PREPROCESSED_SEED))
         
     if not sampled_parts:
         return pd.DataFrame(columns=data.columns)
