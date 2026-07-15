@@ -195,7 +195,7 @@ def model_processing(data, dataset_type, model_type, seed):
     models_category_dir = create_directory(dir_name=model_type, parent_path=ProjectPaths.RUNS)
 
     # Create the seed model category sub directory
-    seed_dir = create_directory(dir_name=seed, parent_path=models_category_dir)
+    seed_dir = create_directory(dir_name=f"{seed}", parent_path=models_category_dir)
 
     # Create the models sub directory
     models_dir = create_directory(dir_name=ProjectPaths.DIR_MODELS, parent_path=seed_dir)

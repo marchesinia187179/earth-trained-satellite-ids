@@ -340,18 +340,9 @@ def init_project_environment():
         ProjectPaths.RAW_DATA_DIR,
         ProjectPaths.PREP_DATA_DIR,
         ProjectPaths.METADATA_DIR,
-        ProjectPaths.MODELS,
-        ProjectPaths.RESULTS_PLOT_DIR,
-        ProjectPaths.SHAP_PLOTS_DIR,
-        ProjectPaths.RESULTS_CSV_DIR,
-        ProjectPaths.CLASSIFICATIONS_CSV_DIR,
-        ProjectPaths.CLASSIFICATIONS_BY_MODEL_DIR,
-        ProjectPaths.CLASSIFICATIONS_BY_DATASET_DIR,
-        ProjectPaths.PERFORMANCE_PLOTS_DIR,
-        ProjectPaths.FEAT_IMP_PLOTS_DIR,
-        ProjectPaths.PCA_PLOTS_INDEPENDENT_DIR,
-        ProjectPaths.PCA_PLOTS_CROSS_DOMAIN_DIR,
-        ProjectPaths.PROB_PLOTS_DIR
+        ProjectPaths.PCA_PLOTS_DIR,
+        ProjectPaths.KDE_PLOTS_DIR,
+        ProjectPaths.RUNS
     ]
     
     for directory in required_directories:

@@ -3,12 +3,13 @@ Main entry point for the Satellite IDS project.
 """
 
 from pathlib import Path
+from itertools import product
 
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 from src.classification import classification_processing
 from src.models import model_processing
-from src.plotting import save_all_kde_plots, save_heatmap_for_metrics_plot, save_pca_plot
+from src.plotting import save_all_kde_plots, save_all_pca_plots, save_heatmap_for_metrics_plot
 from src.utils.file_utils import (
     create_directory, get_data_from_csv, group_by_classes_and_save, 
     group_by_model_and_save, group_datasets_paths_for_filename_list,
@@ -51,35 +52,6 @@ def _classifications():
     # --- Perform classifications for each dataset and model ---
     # Get datasets for classification and iterate through them
     datasets = get_data_from_csv(ProjectPaths.DATASETS_FOR_CLASSIFICATIONS)
-
-    # --- Setup PCA Cross Domain ---
-    # Save PCA CROSS DOMAIN plot if enabled
-    if PlotFlags.ENABLE_PCA_CROSS_DOMAIN_PLOTS:
-        baseline_record = datasets[datasets['path'].apply(lambda p: Path(p).stem) == f"{Naming.NB15}{Naming.AGGR_SCALED}"].to_dict('records')[0]
-        dataset_path = Path(baseline_record['path'])
-        dataset_type = baseline_record['dataset_type']
-        
-        data = get_data_from_csv(dataset_path)
-        train_data = data[data['split_type'] == 'train']
-
-        X_train_base = train_data.drop(columns=MLConstants.X_DROP_LABELS)
-        y_train_base = train_data[MLConstants.Y_LABEL]
-        
-        scaler = StandardScaler()
-        pca = PCA(n_components=MLConstants.PCA_COMPONENTS, random_state=MLConstants.RANDOM_STATE)
-
-        scaler.fit(X_train_base)
-        X_train_scaled_for_fit = scaler.transform(X_train_base)
-        pca.fit(X_train_scaled_for_fit)
-        
-        save_pca_plot(
-            X=X_train_base,
-            y=y_train_base,
-            dataset_type=dataset_type,
-            dataset_name=f"{dataset_path.stem}_train_baseline",
-            precomputed_scaler=scaler, 
-            precomputed_pca=pca
-        )
         
     # Iterate through each dataset and classify using the saved models
     for d in datasets.to_dict('records'):
@@ -115,17 +87,6 @@ def _classifications():
                 dataset_name=dataset_path.stem
             )
 
-        # Save PCA CROSS DOMAIN plot if enabled
-        if PlotFlags.ENABLE_PCA_CROSS_DOMAIN_PLOTS:
-            save_pca_plot(
-                X=X_test,
-                y=y_test,
-                dataset_type=dataset_type,
-                dataset_name=f"{dataset_path.stem}_test",
-                precomputed_scaler=scaler, 
-                precomputed_pca=pca
-            )
-
     # --- Group and Save Classification Results ---
     # Group classifications by model and save them in the corresponding directory
     group_by_model_and_save(classifications_file, group_by_model_dir)
@@ -146,33 +107,29 @@ def _classifications():
     print("\n--- Routine Classification Completed ---")
 
 
-def _model_building():
+
+
+
+
+
+def _model_building(model_type, seed):
     """ Executes a predefined model building routine """
-    print("\n--- Starting Model Building Phase ---")
+    print(f"\n--- Starting {model_type} Model Building (random_state={seed}) Phase ---")
 
     # Get dataset for random forest models
-    datasets = get_data_from_csv(ProjectPaths.DATASETS_FOR_RANDOM_FOREST)
+    datasets = get_data_from_csv(ProjectPaths.DATASETS_FOR_MODEL_BUILDING)
 
-    # Iterate through each dataset and build random forest models
+    # Iterate through each dataset and build models
     for d in datasets.to_dict('records'):
-        dataset_type = d['dataset_type']
-        dataset_path = d['path']
+        model_processing(
+            data=get_data_from_csv(Path(d['path'])), 
+            dataset_type=d['dataset_type'], 
+            model_type=model_type,
+            seed=seed
+        )
 
-        data = get_data_from_csv(Path(dataset_path))
-        model_processing(data, dataset_type, Naming.RANDOM_FOREST)
+    print(f"\n--- Routine {model_type} Model Building (random_state={seed}) Completed ---")
 
-    # Get dataset for isolation forest models
-    datasets = get_data_from_csv(ProjectPaths.DATASETS_FOR_ISOLATION_FOREST)
-
-    # Iterate through each dataset and build isolation forest models
-    for d in datasets.to_dict('records'):
-        dataset_type = d['dataset_type']
-        dataset_path = d['path']
-
-        data = get_data_from_csv(Path(dataset_path))
-        model_processing(data, dataset_type, Naming.ISOLATION_FOREST)
-
-    print("\n--- Routine Model Building Completed ---")
 
 
 def _preprocessing():
@@ -211,10 +168,7 @@ def _preprocessing():
     hybrid_dataset_file_preprocessing(nb15_normal_data, nb15_anomaly_data, sat20_anomaly_data, ter20_anomaly_data)
 
     # Group datasets paths for model building; save them in a csv file
-    jobs = [
-        (ProjectPaths.DATASETS_FOR_RANDOM_FOREST, RoutineConfig.DATASETS_TARGETS_FOR_RANDOM_FOREST), 
-        (ProjectPaths.DATASETS_FOR_ISOLATION_FOREST, RoutineConfig.DATASETS_TARGETS_FOR_ISOLATION_FOREST)
-    ]
+    jobs = [(ProjectPaths.DATASETS_FOR_MODEL_BUILDING, RoutineConfig.DATASETS_TARGETS_FOR_MODEL_BUILDING)]
     
     for dst_path, filename_list in jobs:
         group_datasets_paths_for_filename_list(
@@ -229,6 +183,13 @@ def _preprocessing():
         dst_path=ProjectPaths.DATASETS_FOR_CLASSIFICATIONS, 
         filename_list=RoutineConfig.DATASETS_TARGETS_FOR_CLASSIFICATIONS
     )
+
+    # --- Save Plots Based on Flags ---
+    # Save PCA INDEPENDENT plot if enabled
+    if PlotFlags.ENABLE_PCA_PLOTS:
+        save_all_pca_plots(
+            config_csv_path=ProjectPaths.DATASETS_FOR_CLASSIFICATIONS
+        )
 
     # Save Feature KDE distributions plot if enabled
     if PlotFlags.ENABLE_KDE_PLOTS:
@@ -264,7 +225,8 @@ def main():
         if main_choice == '1':  # Preprocessing case
             _preprocessing()
         elif main_choice == '2':    # Model building case
-            _model_building()
+            for model_type, seed in product(MLConstants.MODEL_TYPE, MLConstants.SEEDS):
+                _model_building(model_type, seed)
         elif main_choice == '3':    # Classifications case (now includes performance plots)
             _classifications()
         elif main_choice == '4':    # All case
