@@ -7,6 +7,7 @@ import sys
 
 from datetime import datetime
 from .config import MLConstants, Naming, ProjectPaths
+from pathlib import Path
 
 
 # --- Public Functions ---
@@ -372,6 +373,36 @@ def load_kde_limits_from_csv(limits_csv_path):
             global_limits[row['feature']]['ylim'] = (0.0, float(row['ymax']))
             
     return global_limits
+
+
+def validate_path(path: Path, is_directory: bool = False) -> Path:
+    """
+    Validates if a given Path exists and matches the expected type (file or directory).
+    Raises specific Python exceptions with clear, actionable messages if validation fails.
+
+    :param path: The pathlib.Path object to validate.
+    :param is_directory: If True, validates as directory. If False, validates as file.
+    :return: The validated pathlib.Path object.
+    
+    :raises FileNotFoundError: If the path does not exist.
+    :raises NotADirectoryError: If is_directory is True but the path is a file.
+    :raises ValueError: If is_directory is False but the path is a directory.
+    """
+    path_obj = Path(path)
+
+    # 1. Check if the path exists at all
+    if not path_obj.exists():
+        raise FileNotFoundError(f"[ERROR] Path does not exist: {path_obj.resolve()}")
+
+    # 2. Check if it matches the expected type
+    if is_directory:
+        if not path_obj.is_dir():
+            raise NotADirectoryError(f"[ERROR] Expected a directory, but found a file: {path_obj.resolve()}")
+    else:
+        if not path_obj.is_file():
+            raise ValueError(f"[ERROR] Expected a file, but found a directory: {path_obj.resolve()}")
+
+    return path_obj
 
 
 if __name__ == "__main__":

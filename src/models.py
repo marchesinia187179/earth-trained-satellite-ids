@@ -14,31 +14,27 @@ from .utils.config import MLConstants, Naming, ProjectPaths, PlotFlags
 
 
 # --- Internal Helper Functions ---
-def _get_standardized_model_name(dataset_type, unique_classes, model_type):
+def _get_standardized_model_name(dataset_type, unique_classes):
     """
     Generates a standardized model name based on the unique classes present in the dataset.
     Supports RF, DT, and HGB models dynamically.
 
     :param dataset_type: string describing the dataset type
     :param unique_classes: list or array of unique class labels
-    :param model_type: string indicating the algorithm type ('rf', 'dt', 'hgb')
     :return: standardized model name as a string
     """
-    # Normalize model type to lowercase for naming consistency
-    model_suffix = str(model_type).strip().lower()
-
     # Strip whitespace and convert to lowercase for consistency
     classes = [str(c).strip() for c in unique_classes if str(c).strip()]
 
     # If there are more than two classes, return a generic name
     if len(classes) > 2:
-        return f"{model_suffix}_{dataset_type}_aggregate"
+        return f"{dataset_type}_aggregate"
     
     # Identify the attack class (assuming 'normal' is the benign class)
     attack_classes = [c for c in classes if c.lower() != 'normal']
     attack_name = attack_classes[0].lower() if attack_classes else "normal"
     
-    return f"{model_suffix}_{dataset_type}_{attack_name}"
+    return f"{dataset_type}_{attack_name}"
 
 
 def _save_metadata(model, model_name, metrics, dataset_type, classes, samples, dst_dir):
@@ -211,7 +207,7 @@ def model_processing(data, dataset_type, model_type, seed):
     # Get unique classes and standardized model name
     unique_classes = data['class'].unique()
     classes = ", ".join(str(c) for c in unique_classes)
-    model_name = _get_standardized_model_name(dataset_type, unique_classes, model_type)
+    model_name = _get_standardized_model_name(dataset_type, unique_classes)
 
     # Save model
     _save_model(

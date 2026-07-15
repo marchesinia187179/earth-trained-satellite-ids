@@ -62,8 +62,8 @@ def _safe_stratified_sample(data, n_samples):
     n_train = round(n_samples * train_ratio)
     n_test = n_samples - n_train
     
-    # --- MECCANISMO DI SICUREZZA ---
-    # Ribilancia i campioni se l'arrotondamento supera la popolazione reale di uno split
+    # Security check if the round is grater that the all set,
+    # than recalculate the sample
     if n_test > len(data_test):
         diff = n_test - len(data_test)
         n_test = len(data_test)
@@ -251,34 +251,19 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, nb15_anomaly_data, sat20
     
     # --- Create the directories ---
     # Create hybrid directory
-    hybrid_dir = create_directory(
-        dir_name=Naming.HYBRID, 
-        parent_path=ProjectPaths.PREP_DATA_DIR
-    )
+    hybrid_dir = create_directory(dir_name=Naming.HYBRID, parent_path=ProjectPaths.PREP_DATA_DIR)
 
     # Create nb15_sat20 directory
-    nb15_sat20_dir = create_directory(
-        dir_name=Naming.NB15_SAT20,
-        parent_path=hybrid_dir
-    )
+    nb15_sat20_dir = create_directory(dir_name=Naming.NB15_SAT20, parent_path=hybrid_dir)
 
     # Create nb15_ter20 directory
-    nb15_ter20_dir = create_directory(
-        dir_name=Naming.NB15_TER20,
-        parent_path=hybrid_dir
-    )
+    nb15_ter20_dir = create_directory(dir_name=Naming.NB15_TER20, parent_path=hybrid_dir)
     
     # Create normal_anomaly directory for nb15_sat20
-    nb15_sat20_normal_anomaly_dir = create_directory(
-        dir_name=ProjectPaths.DIR_NORMAL_ANOMALY, 
-        parent_path=nb15_sat20_dir
-    )
+    nb15_sat20_normal_anomaly_dir = create_directory(dir_name=ProjectPaths.DIR_NORMAL_ANOMALY, parent_path=nb15_sat20_dir)
 
     # Create normal_anomaly directory for nb15_ter20
-    nb15_ter20_normal_anomaly_dir = create_directory(
-        dir_name=ProjectPaths.DIR_NORMAL_ANOMALY, 
-        parent_path=nb15_ter20_dir
-    )
+    nb15_ter20_normal_anomaly_dir = create_directory(dir_name=ProjectPaths.DIR_NORMAL_ANOMALY, parent_path=nb15_ter20_dir)
 
     # --- Process the data ---
     # Create stin data
@@ -290,15 +275,8 @@ def hybrid_dataset_file_preprocessing(nb15_normal_data, nb15_anomaly_data, sat20
     stin_size = min(len(stin_anomaly_data), len(nb15_anomaly_data) // MLConstants.INJECTION_RATIO)
     nb15_anomaly_size = stin_size * MLConstants.INJECTION_RATIO
 
-    stin_anomaly_sampled = _safe_stratified_sample(
-        data=stin_anomaly_data,
-        n_samples=stin_size
-    )
-
-    nb15_anomaly_sampled = _safe_stratified_sample(
-        data=nb15_anomaly_data,
-        n_samples=nb15_anomaly_size
-    )
+    stin_anomaly_sampled = _safe_stratified_sample(data=stin_anomaly_data, n_samples=stin_size)
+    nb15_anomaly_sampled = _safe_stratified_sample(data=nb15_anomaly_data, n_samples=nb15_anomaly_size)
 
     # Create the hybrid data
     injection_data = concat_and_shuffle([nb15_normal_data, stin_anomaly_sampled, nb15_anomaly_sampled])
@@ -403,23 +381,14 @@ def single_dataset_file_preprocessing(data, dataset_type):
 
     # --- Create the directories ---
     # Create dataset_type directory
-    data_prep_dir = create_directory(
-        dir_name=dataset_type, 
-        parent_path=ProjectPaths.PREP_DATA_DIR
-    )
+    data_prep_dir = create_directory(dir_name=dataset_type, parent_path=ProjectPaths.PREP_DATA_DIR)
     
     # Create single_classes directory
-    single_classes_dir = create_directory(
-        dir_name=ProjectPaths.DIR_SINGLE_CLASSES, 
-        parent_path=data_prep_dir
-    )
+    single_classes_dir = create_directory(dir_name=ProjectPaths.DIR_SINGLE_CLASSES, parent_path=data_prep_dir)
 
     # If nb15 than create normal_anomaly directory
     if dataset_type == Naming.NB15:
-        normal_anomaly_dir = create_directory(
-            dir_name=ProjectPaths.DIR_NORMAL_ANOMALY, 
-            parent_path=data_prep_dir
-        )
+        normal_anomaly_dir = create_directory(dir_name=ProjectPaths.DIR_NORMAL_ANOMALY, parent_path=data_prep_dir)
 
     # --- Process the data ---
     # Get data splitted by class

@@ -13,7 +13,7 @@ from src.plotting import save_all_kde_plots, save_all_pca_plots, save_heatmap_fo
 from src.utils.file_utils import (
     create_directory, get_data_from_csv, group_by_classes_and_save, 
     group_by_model_and_save, group_datasets_paths_for_filename_list,
-    init_project_environment, load_kde_limits_from_csv
+    init_project_environment, load_kde_limits_from_csv, validate_path
 )
 from src.utils.config import MLConstants, Naming, ProjectPaths, RoutineConfig, PlotFlags
 from src.data_preprocessing import data_preprocessing
@@ -33,21 +33,40 @@ def _run_all_phases():
     print(f"\n--- Full Pipeline Completed ---")
 
 
-def _classifications():
+def _classifications(model_type, seed):
     """ Evaluates saved models on specific testing datasets """
-    print("\n--- Starting Classification Phase ---")
+    print("\n--- Starting Classification for {model_type} Model Building (random_state={seed}) Phase ---")
+
+    # --- Get helper dir and file paths ---
+    # Get main directory and validate it as a directory
+    main_curr_dir = validate_path(
+        path=ProjectPaths.RUNS / model_type / f"{seed}", 
+        is_directory=True
+    )
+    
+    # Get models registry file and validate it as a file
+    models_registry_file = validate_path(
+        path=main_curr_dir / ProjectPaths.DIR_MODELS / Naming.MODELS_REGISTRY, 
+        is_directory=False
+    )
 
     # --- Create directories for classification results ---
     # Create the main classifications directory
-    classifications_dir = create_directory(ProjectPaths.DIR_CLASSIFICATIONS, ProjectPaths.RESULTS_CSV_DIR)
+    classifications_dir = create_directory(dir_name=ProjectPaths.DIR_CLASSIFICATIONS, parent_path=main_curr_dir)
 
     # Create subdirectories for grouping classifications by model and by dataset type
-    group_by_model_dir = create_directory(ProjectPaths.DIR_BY_MODEL, classifications_dir)
-    group_by_classes_dir = create_directory(ProjectPaths.DIR_BY_DATASET, classifications_dir)
-   
+    group_by_model_dir = create_directory(dir_name=ProjectPaths.DIR_BY_MODEL, parent_path=classifications_dir)
+    group_by_classes_dir = create_directory(dir_name=ProjectPaths.DIR_BY_DATASET, parent_path=classifications_dir)
+
+    # Create the main plots directory
+    plots_dir = create_directory(dir_name=ProjectPaths.DIR_PLOTS, parent_path=main_curr_dir)
+
+
     # Define the paths for the classifications CSV file and the models info CSV file
     classifications_file = classifications_dir / Naming.CLASSIFICATIONS
-    models_info_file = ProjectPaths.RESULTS_CSV_DIR / Naming.MODEL_INFO
+
+
+
 
     # --- Perform classifications for each dataset and model ---
     # Get datasets for classification and iterate through them
@@ -62,7 +81,7 @@ def _classifications():
         data = get_data_from_csv(dataset_path)
 
         # Get the paths of the saved models from the models registry
-        models_paths = get_data_from_csv(ProjectPaths.MODELS_REGISTRY)['path']
+        models_paths = get_data_from_csv(models_registry_file)['path']
 
         # Iterate through each model and perform classification
         for model_path in models_paths:
@@ -73,19 +92,8 @@ def _classifications():
                 dataset_name=dataset_path.stem
             )
 
-        # --- Save Plots Based on Flags ---
-        # Save PCA INDEPENDENT plot if enabled
-        test_data = data[data['split_type'] == 'test']
-        X_test = test_data.drop(columns=MLConstants.X_DROP_LABELS)
-        y_test = test_data[MLConstants.Y_LABEL]
-        
-        if PlotFlags.ENABLE_PCA_INDEPENDENT_PLOTS:
-            save_pca_plot(
-                X=X_test, 
-                y=y_test, 
-                dataset_type=dataset_type, 
-                dataset_name=dataset_path.stem
-            )
+
+
 
     # --- Group and Save Classification Results ---
     # Group classifications by model and save them in the corresponding directory
@@ -104,7 +112,7 @@ def _classifications():
         # Generate performance plots using the plotting_processing function
         save_heatmap_for_metrics_plot(models, data)
 
-    print("\n--- Routine Classification Completed ---")
+    print(f"\n--- Routine Classification for {model_type} Model Building (random_state={seed}) Completed ---")
 
 
 
@@ -129,7 +137,6 @@ def _model_building(model_type, seed):
         )
 
     print(f"\n--- Routine {model_type} Model Building (random_state={seed}) Completed ---")
-
 
 
 def _preprocessing():
@@ -228,7 +235,8 @@ def main():
             for model_type, seed in product(MLConstants.MODEL_TYPE, MLConstants.SEEDS):
                 _model_building(model_type, seed)
         elif main_choice == '3':    # Classifications case (now includes performance plots)
-            _classifications()
+            for model_type, seed in product(MLConstants.MODEL_TYPE, MLConstants.SEEDS):
+                _classifications(model_type, seed)
         elif main_choice == '4':    # All case
             _run_all_phases()
         elif main_choice == '5':    # Exit case
