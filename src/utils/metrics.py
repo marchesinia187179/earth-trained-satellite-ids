@@ -117,7 +117,7 @@ def calculate_welch_ttest_from_summary(data, model_type, alpha=MLConstants.WELCH
     # Extract target statistical scores for the reference model across all seed columns
     # We drop structural identifier and description metadata to isolate pure metrics
     ref_row = data[data["model_name"] == reference_model]
-    ref_scores = ref_row.drop(columns=["id", "model_name"]).values.flatten()
+    ref_scores = ref_row.drop(columns=["id", "model_name"]).values.flatten().astype(float)
 
     print(f"\n=== Welch's t-test Results (Reference: {reference_model}) ===")
     print(f"Significance Level (Alpha): {alpha}\n")
@@ -133,7 +133,7 @@ def calculate_welch_ttest_from_summary(data, model_type, alpha=MLConstants.WELCH
             continue
 
         # Isolate numerical test values for the compared model
-        current_scores = row.drop(labels=["id", "model_name"]).values.astype(float)
+        current_scores = row.drop(["id", "model_name"]).values.astype(float)
 
         # Execute Welch's t-test (unequal variances assumed)
         t_stat, p_value = stats.ttest_ind(ref_scores, current_scores, equal_var=False)
