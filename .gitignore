@@ -13,3 +13,4 @@ venv/
 .vscode/
 .DS_Store
 .code-workspace
+requirements_fixed.txt

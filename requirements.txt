@@ -1,8 +1,8 @@
-pandas
-pathlib
-scikit-learn
-joblib
-datetime
-matplotlib
-seaborn
-numpy
+joblib==1.5.3
+matplotlib==3.11.0
+numpy==2.5.1
+pandas==3.0.3
+scikit_learn==1.9.0
+scipy==1.18.0
+seaborn==0.13.2
+shap==0.52.0
