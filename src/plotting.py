@@ -729,71 +729,89 @@ def save_shap_plot(model, X_test, y_test, model_name, dataset_type, dataset_name
         print(f"Warning: Could not generate SHAP plot for '{model_name}' ({e}). Skipping.")
 
 
-def save_heatmap_for_metrics_plot(models, data, dst_dir):
+def save_heatmap_for_metrics_plot(models, data, dst_dir, model_type):
     """
     Generates a performance heatmap for each evaluation metric across different trained models 
-    (RF, DT, HGB) and test datasets.
+    and test datasets. Includes an average column and detaches the reference injection row.
 
     :param models: DataFrame containing model metadata (model_name, dataset_type, classes)
     :param data: DataFrame containing evaluation metrics for each model-dataset pair
-    :param dst_dir: destination path directory
+    :param dst_dir: Destination path directory
+    :param model_type: String representing the classifier type (e.g., 'rf', 'dt', 'hgb') to prefix row labels
     """
-    heatmap_dir = create_directory(ProjectPaths.DIR_PERFORMANCE, dst_dir)
+    heatmap_dir = create_directory(ProjectPaths.DIR_PERFORMANCE_PLOTS, dst_dir)
 
-    # --- Merge model metadata with evaluation metrics to create a comprehensive DataFrame ---
-    # Prepare a DataFrame with model metadata for merging
+    # Prepare model metadata for merging
     models_prep = models[['model_name', 'dataset_type', 'classes']].rename(
         columns={'dataset_type': 'model_dataset_type', 'classes': 'model_classes'}
     )
     
-    # Merge the evaluation metrics data with the model metadata on 'model_name'
+    # Combine evaluation metrics with model metadata
     merged_data = pd.merge(data, models_prep, on='model_name', how='left')
 
-    # Generate clean labels for both datasets and models to be used in the heatmap axes
+    # Format axis labels for both datasets and models
     merged_data['dataset_label'] = [
         _build_clean_label(c, d) for c, d in zip(merged_data['classes'], merged_data['dataset_type'])
     ]
     
-    # Dynamically extract the algorithm prefix (RF, DT, HGB) from the standardized model name
     merged_data['model_label'] = [
-        _build_clean_label(c, d, prefix=f"{m.split('_')[0].upper()} (") 
-        for c, d, m in zip(merged_data['model_classes'], merged_data['model_dataset_type'], merged_data['model_name'])
+        _build_clean_label(c, d, prefix=f"{model_type.upper()} (") 
+        for c, d in zip(merged_data['model_classes'], merged_data['model_dataset_type'])
     ]
 
-    # --- Generate heatmaps for each evaluation metric defined in MLConstants.PLOTTING_METRICS ---
+    # Plot a heatmap for each active monitoring metric
     for feature in MLConstants.PLOTTING_METRICS:
-        # Define the destination path for the heatmap plot
         dst_path = heatmap_dir / f"{feature}_matrix{Naming.PLOT_EXT}"
     
-        # Ensure that the heatmap can be generated without errors due to non-numeric values
         merged_data[feature] = pd.to_numeric(merged_data[feature], errors='coerce')
-        
-        # Create a pivot table with models as rows, datasets as columns, and the metric values as cells
         pivot_data = merged_data.pivot(index='model_label', columns='dataset_label', values=feature)
 
-        # Apply specific row order if defined in the configuration
+        # Reorder rows based on PlotConfig templates
         if PlotConfig.HEATMAP_ROW_ORDER is not None:
-            valid_rows = [r for r in PlotConfig.HEATMAP_ROW_ORDER if r in pivot_data.index]
+            dynamic_row_order = [f"{model_type.upper()} {r}" for r in PlotConfig.HEATMAP_ROW_ORDER]
+            valid_rows = [r for r in dynamic_row_order if r in pivot_data.index]
             remaining_rows = [r for r in pivot_data.index if r not in valid_rows]
             pivot_data = pivot_data.reindex(index=valid_rows + remaining_rows)
 
-        # Apply specific column order if defined in the configuration
+        # Reorder columns based on PlotConfig templates
         if PlotConfig.HEATMAP_COLUMN_ORDER is not None:
             valid_cols = [c for c in PlotConfig.HEATMAP_COLUMN_ORDER if c in pivot_data.columns]
             remaining_cols = [c for c in pivot_data.columns if c not in valid_cols]
             pivot_data = pivot_data.reindex(columns=valid_cols + remaining_cols)
 
-        # Dynamically calculate figure size based on the grid structure to ensure readability
+        # Calculate row averages
+        pivot_data['Average'] = pivot_data.mean(axis=1)
+        
+        # Insert an empty spacer column before the Average column
+        cols = list(pivot_data.columns)
+        cols.remove('Average')
+        cols.append(' ')  # Single space serves as the column spacer label
+        cols.append('Average')
+        pivot_data[' '] = np.nan
+        pivot_data = pivot_data[cols]
+
+        # Locate the injection baseline row and insert an empty spacer row above it
+        rows = list(pivot_data.index)
+        ref_row_name = f"{model_type.upper()} (Aggregate injection)"
+        
+        if ref_row_name in rows:
+            idx = rows.index(ref_row_name)
+            rows.insert(idx, '  ')  # Double space serves as the row spacer label to avoid collisions
+            pivot_data.loc['  '] = np.nan
+            pivot_data = pivot_data.reindex(rows)
+            
+        # Dynamically scale canvas dimensions to maintain legible, square cells
         cell_size = 1.0  
         fig_width = max(len(pivot_data.columns) * cell_size + 6.0, 14)
         fig_height = max(len(pivot_data.index) * cell_size + 2.5, 8)
 
-        # Configures and exports the heatmap using Seaborn
         plt.figure(figsize=(fig_width, fig_height))
         sns.set_theme(style="white") 
         
+        # Mask NaN entries to create a visual gap for the spacers
         sns.heatmap(
-            pivot_data, annot=True, fmt=".3f", cmap="Blues", vmin=0.0, vmax=1.0, square=True,
+            pivot_data, mask=pivot_data.isnull(), annot=True, fmt=".3f", 
+            cmap="Blues", vmin=0.0, vmax=1.0, square=True,
             annot_kws={"size": 11, "weight": "bold"}, 
             cbar_kws={'label': f'{feature} Value', 'shrink': 0.6, 'pad': 0.03}
         )
