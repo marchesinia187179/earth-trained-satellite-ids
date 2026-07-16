@@ -1,27 +1,23 @@
 """
 Main entry point for the Satellite IDS project.
 """
+import pandas as pd
 
 from pathlib import Path
 from itertools import product
-
 from src.classification import classification_processing
 from src.models import model_processing
 from src.plotting import save_all_kde_plots, save_all_pca_plots, save_heatmap_for_metrics_plot
 from src.utils.file_utils import (
-    aggregate_welch_ttest_feature_scores_by_seed, create_directory, get_data_from_csv, group_by_classes_and_save, 
-    group_by_model_and_save, group_datasets_paths_for_filename_list,
+    aggregate_welch_ttest_feature_scores_by_seed, create_directory, get_data_from_csv, 
+    group_by_classes_and_save, group_by_model_and_save, group_datasets_paths_for_filename_list,
     init_project_environment, validate_path, create_csv_from_data
 )
 from src.utils.config import MLConstants, Naming, ProjectPaths, RoutineConfig, PlotFlags
+from src.utils.metrics import calculate_welch_ttest_from_summary
 from src.data_preprocessing import data_preprocessing
 from src.file_preprocessing import hybrid_dataset_file_preprocessing, single_dataset_file_preprocessing
 
-import re
-import pandas as pd
-from pathlib import Path
-
-from utils.metrics import calculate_welch_ttest_from_summary
 
 # --- Internal Helper Functions ---
 def _run_all_phases():
@@ -92,7 +88,7 @@ def _welch_ttest(model_type):
 
 def _classifications(model_type, seed):
     """ Evaluates saved models on specific testing datasets """
-    print("\n--- Starting Classification for {model_type} Model Building (random_state={seed}) Phase ---")
+    print(f"\n--- Starting Classification for {model_type} Model Building (random_state={seed}) Phase ---")
 
     # --- Get helper dir and file paths ---
     # Get main directory and validate it as a directory
@@ -115,17 +111,17 @@ def _classifications(model_type, seed):
 
     # --- Create directories for classification results ---
     # Create the main results directory
-    rusults = create_directory(dir_name=ProjectPaths.DIR_RESULTS, parent_path=model_seed_dir)
+    results = create_directory(dir_name=ProjectPaths.DIR_RESULTS, parent_path=model_seed_dir)
 
     # Create subdirectories for grouping classifications by model and by dataset type
-    group_by_model_dir = create_directory(dir_name=ProjectPaths.DIR_BY_MODEL, parent_path=rusults)
-    group_by_classes_dir = create_directory(dir_name=ProjectPaths.DIR_BY_DATASET, parent_path=rusults)
+    group_by_model_dir = create_directory(dir_name=ProjectPaths.DIR_BY_MODEL, parent_path=results)
+    group_by_classes_dir = create_directory(dir_name=ProjectPaths.DIR_BY_DATASET, parent_path=results)
 
     # Create the main plots directory
-    plots_dir = create_directory(dir_name=ProjectPaths.DIR_PLOTS, parent_path=rusults)
+    plots_dir = create_directory(dir_name=ProjectPaths.DIR_PLOTS, parent_path=results)
 
     # Define the paths for the classifications CSV file and the models info CSV file
-    classifications_file = rusults / Naming.CLASSIFICATIONS
+    classifications_file = results / Naming.CLASSIFICATIONS
 
     # --- Perform classifications for each dataset and model ---
     # Get datasets for classification and iterate through them
@@ -287,10 +283,10 @@ def main():
         elif main_choice == '2':    # Model building case
             for model_type, seed in product(MLConstants.MODEL_TYPE, MLConstants.SEEDS):
                 _model_building(model_type, seed)
-        elif main_choice == '3':    # Classifications case (now includes performance plots)
+        elif main_choice == '3':    # Classifications case
             for model_type, seed in product(MLConstants.MODEL_TYPE, MLConstants.SEEDS):
                 _classifications(model_type, seed)
-        elif main_choice == '4':
+        elif main_choice == '4':    # Welch t-test case
             for model_type in MLConstants.MODEL_TYPE:
                 _welch_ttest(model_type)
         elif main_choice == '5':    # All case
