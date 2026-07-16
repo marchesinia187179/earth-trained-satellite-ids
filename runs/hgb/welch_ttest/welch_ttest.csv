@@ -1,0 +1,7 @@
+Reference_Model,Compared_Model,t_statistic,p_value,alpha,is_significant
+injection_aggregate,nb15_aggregate,21.769813403212265,2.7488991764037877e-13,0.05,YES
+injection_aggregate,nb15_dos,22.21388807558201,1.222816208358629e-13,0.05,YES
+injection_aggregate,nb15_exploits,34.400990993807724,8.504685586442514e-18,0.05,YES
+injection_aggregate,nb15_fuzzers,34.911168595357665,4.072357536841816e-17,0.05,YES
+injection_aggregate,nb15_generic,40.90313857378277,1.2819195086543545e-14,0.05,YES
+injection_aggregate,nb15_reconnaissance,46.418422232690745,4.959463667198275e-12,0.05,YES

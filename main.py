@@ -74,7 +74,7 @@ def _welch_ttest(model_type):
     )
     
     # Compute Welch's t-test against the reference model
-    results_list = calculate_welch_ttest_from_summary(data=data, model_type=model_type)
+    results_list = calculate_welch_ttest_from_summary(data=data)
 
     # Save the final statistical results
     create_csv_from_data(
