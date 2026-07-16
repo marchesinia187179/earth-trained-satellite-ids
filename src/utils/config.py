@@ -18,8 +18,8 @@ class MLConstants:
     # --- Dataset & Splitting Parameters ---
     NORMAL_ANOMALY_RATIO = 10                                   # Ratio of normal traffic to anomaly instances
     TRAIN_SPLIT = 0.8                                           # Percentage of data used for training (80%)
-    X_DROP_LABELS = ["label", "class", "split_type"]            # Non-feature columns to drop before training/evaluation
-    Y_LABEL = "label"                                           # Ground-truth target column name
+    X_DROP_LABELS = ['label', 'class', 'split_type']            # Non-feature columns to drop before training/evaluation
+    Y_LABEL = 'label'                                           # Ground-truth target column name
 
     # --- Model Training & Formatting ---
     MODEL_VERBOSE = 0                                           # Verbosity level of classifier fitting (0 = silent)
@@ -33,6 +33,10 @@ class MLConstants:
 
     # --- Injection Parameters ---
     INJECTION_RATIO = 299       # Must be 1 digit less than the denominator that we want (e.g. 1/3 than INJ_RATIO = 2)
+
+    # --- Welch t-test Parameters ---
+    WELCH_TTEST_FEATURE = 'F1-Score'
+    WELCH_TTEST_ALFA_VALUE = 0.05
 
 
 class Naming:
@@ -68,6 +72,8 @@ class Naming:
     CLASSIFICATIONS = f"classifications{EXT}"   # Target file for model prediction logs and outputs
     MODELS_REGISTRY = f"models_registry{EXT}"   # Target file cataloging trained models and configurations
     MODELS_METADATA = f"models_metadata{EXT}"   # Target file containing training times, hyperparameters, and environment specs
+    WELCH_TTEST_FEATURE_MEANS = f"{MLConstants.WELCH_TTEST_FEATURE}_means{EXT}"
+    WELCH_TTEST = f"welch_ttest{EXT}"
 
 
 class ProjectPaths:
@@ -101,6 +107,7 @@ class ProjectPaths:
     DIR_MODELS = "models"                                   # Subfolder containing serialized model files (e.g., joblib/pickle)
     DIR_PLOTS = "plots"                                     # General subfolder name for plots within run directories
     DIR_RESULTS = "results"                                 # General subfolder name for tabular evaluation results
+    DIR_WELCH_TTEST = "welch_ttest"                         # General subfolder name for welch t-test
 
     # --- Run-Specific Visualization Subfolders ---
     DIR_PERFORMANCE_PLOTS = "performance"                   # Subfolder storing performance charts

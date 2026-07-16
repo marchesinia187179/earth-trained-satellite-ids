@@ -9,14 +9,19 @@ from src.classification import classification_processing
 from src.models import model_processing
 from src.plotting import save_all_kde_plots, save_all_pca_plots, save_heatmap_for_metrics_plot
 from src.utils.file_utils import (
-    create_directory, get_data_from_csv, group_by_classes_and_save, 
+    aggregate_welch_ttest_feature_scores_by_seed, create_directory, get_data_from_csv, group_by_classes_and_save, 
     group_by_model_and_save, group_datasets_paths_for_filename_list,
-    init_project_environment, validate_path
+    init_project_environment, validate_path, create_csv_from_data
 )
 from src.utils.config import MLConstants, Naming, ProjectPaths, RoutineConfig, PlotFlags
 from src.data_preprocessing import data_preprocessing
 from src.file_preprocessing import hybrid_dataset_file_preprocessing, single_dataset_file_preprocessing
 
+import re
+import pandas as pd
+from pathlib import Path
+
+from utils.metrics import calculate_welch_ttest_from_summary
 
 # --- Internal Helper Functions ---
 def _run_all_phases():
@@ -34,8 +39,55 @@ def _run_all_phases():
     for model_type, seed in product(MLConstants.MODEL_TYPE, MLConstants.SEEDS):
         _classifications(model_type, seed)
 
+    # --- Welch t-test Phase ---
+    for model_type in MLConstants.MODEL_TYPE:
+        _welch_ttest(model_type)
         
     print(f"\n--- Full Pipeline Completed ---")
+
+
+def _welch_ttest(model_type):
+    """ Executes the Welch's t-test statistical analysis across all seeds for a specific model type """
+    print(f"\n--- Starting Welch's T-Test for {model_type} Models Phase ---")
+
+    # --- Create directory for Welch's t-test results ---
+    welch_ttest_dir = create_directory(
+        dir_name=ProjectPaths.DIR_WELCH_TTEST, 
+        parent_path=ProjectPaths.RUNS / model_type
+    )
+
+    # --- Collect classification CSV paths ---
+    # Retrieve the classification results for each seed
+    csv_paths = []
+    for seed in MLConstants.SEEDS:
+        classifications_file = validate_path(
+            path=ProjectPaths.RUNS / model_type / f"{seed}" / ProjectPaths.DIR_RESULTS / Naming.CLASSIFICATIONS, 
+            is_directory=False
+        )
+        csv_paths.append(classifications_file)
+
+    # --- Aggregate metrics and calculate statistical significance ---
+    # Aggregate the classification scores by seed
+    data = aggregate_welch_ttest_feature_scores_by_seed(csv_paths=csv_paths)
+
+    # Save the aggregated feature means
+    create_csv_from_data(
+        data=data, 
+        file_name=Naming.WELCH_TTEST_FEATURE_MEANS, 
+        file_path=welch_ttest_dir
+    )
+    
+    # Compute Welch's t-test against the reference model
+    results_list = calculate_welch_ttest_from_summary(data=data, model_type=model_type)
+
+    # Save the final statistical results
+    create_csv_from_data(
+        data=results_list, 
+        file_name=Naming.WELCH_TTEST, 
+        file_path=welch_ttest_dir
+    )
+
+    print(f"\n--- Routine Welch's T-Test for {model_type} Models Completed ---")
 
 
 def _classifications(model_type, seed):
@@ -221,12 +273,13 @@ def main():
         print("1. Run PREPROCESSING")
         print("2. Run MODEL BUILDING")
         print("3. Run CLASSIFICATIONS")
-        print("4. Run ALL!")
-        print("5. Exit application")
+        print("4. Run WELCH T-TEST")
+        print("5. Run ALL!")
+        print("6. Exit application")
         print("="*60)
         
         # Ask user's response
-        main_choice = input("Select execution mode (1, 2, 3, 4 or 5): ")
+        main_choice = input("Select execution mode (1, 2, 3, 4, 5 or 6): ")
         
         # Do user's choice
         if main_choice == '1':  # Preprocessing case
@@ -237,13 +290,16 @@ def main():
         elif main_choice == '3':    # Classifications case (now includes performance plots)
             for model_type, seed in product(MLConstants.MODEL_TYPE, MLConstants.SEEDS):
                 _classifications(model_type, seed)
-        elif main_choice == '4':    # All case
+        elif main_choice == '4':
+            for model_type in MLConstants.MODEL_TYPE:
+                _welch_ttest(model_type)
+        elif main_choice == '5':    # All case
             _run_all_phases()
-        elif main_choice == '5':    # Exit case
+        elif main_choice == '6':    # Exit case
             print("\nExiting application. Goodbye!")
             break
         else:
-            print("\nInvalid option! Please choose 1, 2, 3, 4 or 5.")
+            print("\nInvalid option! Please choose 1, 2, 3, 4, 5 or 6.")
 
 
 if __name__ == "__main__":

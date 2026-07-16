@@ -382,5 +382,59 @@ def validate_path(path: Path, is_directory: bool = False) -> Path:
     return path_obj
 
 
+def aggregate_welch_ttest_feature_scores_by_seed(csv_paths):
+    """
+    Reads multiple classification CSV files across different seeds, aggregates the 
+    target evaluation feature (e.g., F1-Score) for each model, and pivots the results 
+    into a summary matrix.
+
+    This matrix reduces the dataset constraints by calculating the mean performance 
+    of each model across all available datasets per seed, formatting the output 
+    for statistical hypothesis testing.
+
+    :param csv_paths: list of pathlib.Path objects pointing to the classification results per seed
+    :return: pandas.DataFrame containing the aggregated feature matrix with models as rows and seeds as columns
+    """
+    # Retrieve the specific metric feature to test from the configuration constants
+    feature = MLConstants.WELCH_TTEST_FEATURE
+
+    data_list = []
+    
+    # --- 1. Load and prepare data from all seed CSVs ---
+    for file_path in csv_paths:
+        # Extract dataset from the current file
+        data = get_data_from_csv(file_path)
+        
+        # Isolate only the relevant columns for the statistical test
+        temp_data = data[['model_name', feature]].copy()
+        
+        # Extract the seed directory name (assuming structure: ../<seed>/results/classifications.csv)
+        # Using .parents[1].name ensures we capture only the folder name, not the entire path string
+        temp_data['seed'] = f"seed_{file_path.parents[1].name}"
+        
+        data_list.append(temp_data)
+        
+    # Combine all individual seed datasets into a single unified DataFrame
+    combined_data = pd.concat(data_list, ignore_index=True)
+    
+    # --- 2. Aggregate Metrics ---
+    # Calculate the mean of the target feature across all datasets for each (model_name, seed) pair
+    grouped_data = combined_data.groupby(['model_name', 'seed'], as_index=False)[feature].mean()
+    
+    # --- 3. Pivot to Matrix Format ---
+    # Transform the 'seed' column values into individual columns for the final layout
+    pivot_data = grouped_data.pivot(index='model_name', columns='seed', values=feature).reset_index()
+    
+    # --- 4. Format Output Structure ---
+    # Generate an incremental numerical ID column and enforce its position as the first column
+    pivot_data.insert(0, 'id', range(1, len(pivot_data) + 1))
+    
+    # Ensure strict column ordering layout: [id, model_name, seed_..., seed_...]
+    seed_cols = [col for col in pivot_data.columns if col.startswith('seed_')]
+    pivot_data = pivot_data[['id', 'model_name'] + seed_cols]
+
+    return pivot_data
+
+
 if __name__ == "__main__":
     pass
