@@ -1,0 +1,8 @@
+id,dataset_type,path
+1,nb15,data/preprocessed/nb15/nb15_aggr_scaled.csv
+2,nb15,data/preprocessed/nb15/normal_anomaly/Normal_DoS.csv
+3,nb15,data/preprocessed/nb15/normal_anomaly/Normal_Exploits.csv
+4,nb15,data/preprocessed/nb15/normal_anomaly/Normal_Fuzzers.csv
+5,nb15,data/preprocessed/nb15/normal_anomaly/Normal_Generic.csv
+6,nb15,data/preprocessed/nb15/normal_anomaly/Normal_Reconnaissance.csv
+7,injection,data/preprocessed/hybrid/injection_aggr_scaled.csv

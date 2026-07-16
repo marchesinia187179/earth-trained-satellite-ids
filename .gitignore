@@ -1,5 +1,9 @@
 # Data & Datasets (Prevents uploading large files)
-data/
+raw/
+hybrid/
+nb15/
+sat20/
+ter20/
 
 # Machine Learning Artifacts (Models & Weights)
 *.joblib
