@@ -729,15 +729,15 @@ def save_shap_plot(model, X_test, y_test, model_name, dataset_type, dataset_name
         print(f"Warning: Could not generate SHAP plot for '{model_name}' ({e}). Skipping.")
 
 
-def save_heatmap_for_metrics_plot(models, data, dst_dir, model_type):
+def save_heatmap_for_metrics_plot(model_type, models, data, dst_dir):
     """
     Generates a performance heatmap for each evaluation metric across different trained models 
     and test datasets. Includes an average column and detaches the reference injection row.
 
+    :param model_type: String representing the classifier type (e.g., 'rf', 'dt', 'hgb') to prefix row labels
     :param models: DataFrame containing model metadata (model_name, dataset_type, classes)
     :param data: DataFrame containing evaluation metrics for each model-dataset pair
     :param dst_dir: Destination path directory
-    :param model_type: String representing the classifier type (e.g., 'rf', 'dt', 'hgb') to prefix row labels
     """
     heatmap_dir = create_directory(ProjectPaths.DIR_PERFORMANCE_PLOTS, dst_dir)
 

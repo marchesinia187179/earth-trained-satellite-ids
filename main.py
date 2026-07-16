@@ -160,6 +160,7 @@ def _classifications(model_type, seed):
     # If the flag is enabled, generate performance plots based on the classification results
     if PlotFlags.ENABLE_PERFORMANCE_PLOTS:
         save_heatmap_for_metrics_plot(
+            model_type=model_type,
             models=get_data_from_csv(models_metadata_file), 
             data=get_data_from_csv(classifications_file),
             dst_dir=plots_dir
