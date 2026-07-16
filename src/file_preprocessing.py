@@ -2,8 +2,6 @@
 Preprocessing functions for handling and preparing datasets.
 """
 import pandas as pd
-from sklearn.neighbors import NearestNeighbors
-from sklearn.preprocessing import StandardScaler
 
 from .utils.file_utils import store_file_info, concat_and_shuffle, create_directory, create_csv_from_data, update_or_append_csv
 from .utils.config import MLConstants, Naming, ProjectPaths
@@ -45,7 +43,7 @@ def _safe_stratified_sample(data, n_samples):
     """
     # Security Fallback if the split type columns doesn't exist
     if 'split_type' not in data.columns:
-        return data.sample(n=n_samples, random_state=MLConstants.PREPROCESSED_SEED)
+        return data.sample(n=n_samples, random_state=MLConstants.MAIN_SEED)
     
     # Get the train and test data
     data_train = data[data['split_type'] == 'train']
@@ -77,9 +75,9 @@ def _safe_stratified_sample(data, n_samples):
     sampled_parts = []
     
     if n_train > 0 and not data_train.empty:
-        sampled_parts.append(data_train.sample(n=n_train, random_state=MLConstants.PREPROCESSED_SEED))
+        sampled_parts.append(data_train.sample(n=n_train, random_state=MLConstants.MAIN_SEED))
     if n_test > 0 and not data_test.empty:
-        sampled_parts.append(data_test.sample(n=n_test, random_state=MLConstants.PREPROCESSED_SEED))
+        sampled_parts.append(data_test.sample(n=n_test, random_state=MLConstants.MAIN_SEED))
         
     if not sampled_parts:
         return pd.DataFrame(columns=data.columns)

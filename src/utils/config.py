@@ -7,15 +7,10 @@ class MLConstants:
     """ Hyperparameters and standard metrics for the ML pipeline """
 
     SEEDS = [0, 1, 7, 42, 101, 123, 999, 1337, 2026, 12345]
-    PREPROCESSED_SEED = 127001
+    MAIN_SEED = 127001
     MODEL_TYPE = ['rf', 'dt', 'hgb']
 
 
-
-
-
-
-    RANDOM_STATE = 42
     NORMAL_ANOMALY_RATIO = 10
     TRAIN_SPLIT = 0.8
     MODEL_VERBOSE = 0
@@ -88,7 +83,7 @@ class ProjectPaths:
 
 
     MODELS = ROOT / "models"
-    RESULTS = ROOT / "results"
+    
 
     # --- DATA Subfolders ---
     RAW_DATA_DIR = DATA / "raw"
@@ -113,14 +108,7 @@ class ProjectPaths:
     KDE_PLOTS_DIR = METADATA_PLOT_DIR / "kde"
 
 
-    PERFORMANCE_PLOTS_DIR = RESULTS_PLOT_DIR / "performance"
-    FEAT_IMP_PLOTS_DIR = RESULTS_PLOT_DIR / "feature_importance"
     
-    PROB_PLOTS_DIR = RESULTS_PLOT_DIR / "probabilities"
-    PR_CURVE_PLOTS_DIR = RESULTS_PLOT_DIR / "pr_curves"
-    THRESHOLD_PLOTS_DIR = RESULTS_PLOT_DIR / "threshold_metrics"
-    
-    SHAP_PLOTS_DIR = RESULTS_PLOT_DIR / "shap"
 
     # --- SRC Subfolders ---
     CLASSIFICATIONS_DIR = SRC / "classifications"
@@ -140,6 +128,17 @@ class ProjectPaths:
     DIR_DATASETS = "datasets"
     DIR_CLASSIFICATIONS = "classifications"
     DIR_PERFORMANCE = "performance"
+    DIR_RESULTS = "results"
+
+
+    DIR_PERFORMANCE_PLOTS = "performance"
+    DIR_FEAT_IMP_PLOTS = "feature_importance"
+    
+    DIR_PROB_PLOTS = "probabilities"
+    DIR_PR_CURVE_PLOTS = "pr_curves"
+    DIR_THRESHOLD_PLOTS = "threshold_metrics"
+    
+    DIR_SHAP_PLOTS = "shap"
 
 
     # --- Pipeline Essential Files ---

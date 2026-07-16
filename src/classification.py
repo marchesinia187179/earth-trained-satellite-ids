@@ -7,17 +7,12 @@ from datetime import datetime
 
 from .utils.file_utils import update_or_append_csv
 from .utils.metrics import calculate_metrics
-from .utils.config import MLConstants, Naming, ProjectPaths, PlotFlags
-from .plotting import (
-    save_probability_plot, 
-    save_shap_plot, 
-    save_pr_curve_plot, 
-    save_threshold_metrics_plot
-)
+from .utils.config import MLConstants, PlotFlags
+from .plotting import save_probability_plot, save_shap_plot, save_pr_curve_plot, save_threshold_metrics_plot
 
 
 # --- Internal Helper Functions ---
-def _save_classification(model_name, metrics, dataset_type, classes, samples):
+def _save_classification(model_name, metrics, dataset_type, classes, samples, classifications_file):
     """
     Prepares the final classification results dictionary for any evaluated classifier 
     (RF, DT, or HGB) and appends or updates it in the global summary CSV.
@@ -27,6 +22,7 @@ def _save_classification(model_name, metrics, dataset_type, classes, samples):
     :param dataset_type: type of the dataset being used
     :param classes: comma-separated string representing the unique classes in the dataset
     :param samples: total number of rows/samples in the dataset
+    :param classifications_file: file path where to save classification results
     """
     # Initialize the base results dictionary with metadata
     results = {
@@ -45,13 +41,10 @@ def _save_classification(model_name, metrics, dataset_type, classes, samples):
     results = {k: (v if v is not None else 'None') for k, v in results.items()}
     
     # Save or update results in the aggregated classifications master file
-    classification_file = ProjectPaths.CLASSIFICATIONS_CSV_DIR / Naming.CLASSIFICATIONS
-    match_keys = ['model_name', 'dataset_type', 'classes']
-    
     update_or_append_csv(
-        file_path=classification_file, 
+        file_path=classifications_file, 
         data_dict=results, 
-        match_keys=match_keys,
+        match_keys=['model_name', 'dataset_type', 'classes'],
         id_column='id'
     )
 
@@ -90,7 +83,7 @@ def _classification(model_path, data):
 
 
 # --- Public Functions ---
-def classification_processing(model_path, data, dataset_type, dataset_name):
+def classification_processing(model_path, data, dataset_type, dataset_name, classifications_file, plots_dir):
     """
     Performs classification using a pre-trained model (RF, DT, or HGB) on a given dataset, 
     evaluates metrics, and generates plots based on configuration flags.
@@ -99,6 +92,8 @@ def classification_processing(model_path, data, dataset_type, dataset_name):
     :param data: full dataset containing features, labels, and split indicators
     :param dataset_type: type of the dataset being used
     :param dataset_name: name of the dataset being used
+    :param classifications_file: file path where to save classification results
+    :param plots_dir: dir path where to save plots
     """
     # Get model name from the model path
     model_name = model_path.stem
@@ -117,11 +112,11 @@ def classification_processing(model_path, data, dataset_type, dataset_name):
         metrics=metrics, 
         dataset_type=dataset_type, 
         classes=classes, 
-        samples=data.shape[0]
+        samples=data.shape[0],
+        classifications_file=classifications_file
     )
 
     # --- Save Plots Based on Flags ---
-    
     # Save Probability Distribution plot if enabled
     if PlotFlags.ENABLE_PROBABILITY_PLOTS: 
         save_probability_plot(
@@ -129,7 +124,8 @@ def classification_processing(model_path, data, dataset_type, dataset_name):
             y_scores=y_scores, 
             model_name=model_name, 
             dataset_type=dataset_type, 
-            dataset_name=dataset_name
+            dataset_name=dataset_name,
+            dst_dir=plots_dir
         )
 
     # Save Precision-Recall (PR) Curve plot if enabled
@@ -139,7 +135,8 @@ def classification_processing(model_path, data, dataset_type, dataset_name):
             y_scores=y_scores, 
             model_name=model_name, 
             dataset_type=dataset_type, 
-            dataset_name=dataset_name
+            dataset_name=dataset_name,
+            dst_dir=plots_dir
         )
 
     # Save Threshold Sensitivity plot if enabled
@@ -149,7 +146,8 @@ def classification_processing(model_path, data, dataset_type, dataset_name):
             y_scores=y_scores, 
             model_name=model_name, 
             dataset_type=dataset_type, 
-            dataset_name=dataset_name
+            dataset_name=dataset_name,
+            dst_dir=plots_dir
         )
     
     # Save SHAP summary plot if enabled
@@ -163,7 +161,8 @@ def classification_processing(model_path, data, dataset_type, dataset_name):
                 y_test=y_test, 
                 model_name=model_name, 
                 dataset_type=dataset_type, 
-                dataset_name=dataset_name
+                dataset_name=dataset_name,
+                dst_dir=plots_dir
             )
         except Exception as e:
             print(f" -> [WARNING] Failed to generate SHAP plot for model '{model_name}': {e}")

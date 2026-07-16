@@ -72,7 +72,7 @@ def save_feature_importances_plot(model, model_name, feature_names, dst_dir, X_t
     elif X_test is not None and y_test is not None:
         print(f" -> [INFO] Computing permutation importance for {model_name}...")
         result = permutation_importance(
-            model, X_test, y_test, n_repeats=10, random_state=MLConstants.RANDOM_STATE, n_jobs=-1
+            model, X_test, y_test, n_repeats=10, random_state=MLConstants.MAIN_SEED, n_jobs=-1
         )
         importances = result.importances_mean
         std = result.importances_std
@@ -195,7 +195,7 @@ def save_all_pca_plots(config_csv_path, label_column=MLConstants.Y_LABEL, drop_l
 
             # Compute a brand new space tailored to this specific dataset (Fit + Transform)
             scaler = StandardScaler()
-            pca = PCA(n_components=MLConstants.PCA_COMPONENTS, random_state=MLConstants.RANDOM_STATE)
+            pca = PCA(n_components=MLConstants.PCA_COMPONENTS, random_state=MLConstants.MAIN_SEED)
             
             X_scaled = scaler.fit_transform(X_test)
             X_pca = pca.fit_transform(X_scaled)
@@ -234,7 +234,7 @@ def save_all_pca_plots(config_csv_path, label_column=MLConstants.Y_LABEL, drop_l
     print("\n[COMPLETED] All PCA plots have been generated and saved directly to the target directory.")
 
 
-def save_probability_plot(y_test, y_scores, model_name, dataset_type, dataset_name):
+def save_probability_plot(y_test, y_scores, model_name, dataset_type, dataset_name, dst_dir):
     """
     Plots the overlapping probability distributions for Normal traffic vs Attacks
     to visually demonstrate the classification threshold trap.
@@ -245,9 +245,13 @@ def save_probability_plot(y_test, y_scores, model_name, dataset_type, dataset_na
     :param model_name: name of the evaluated model
     :param dataset_type: type of the dataset being used
     :param dataset_name: name of the dataset being used
+    :param dst_dir: destination path directory
     """
+    # Create the main directory for probabilities
+    prob_dir = create_directory(ProjectPaths.DIR_PROB_PLOTS, dst_dir)
+
     # Create a directory for the model's probability plots
-    model_prob_dir = create_directory(model_name, ProjectPaths.PROB_PLOTS_DIR)
+    model_prob_dir = create_directory(model_name, prob_dir)
 
     # Define the filename and output path for the probability distribution plot
     prob_filename = f"{dataset_type.lower()}_{dataset_name}{Naming.PLOT_EXT}"
@@ -309,7 +313,7 @@ def save_probability_plot(y_test, y_scores, model_name, dataset_type, dataset_na
     print(f"Probability distribution plot successfully saved to: {dst_path}")
 
 
-def save_pr_curve_plot(y_test, y_scores, model_name, dataset_type, dataset_name):
+def save_pr_curve_plot(y_test, y_scores, model_name, dataset_type, dataset_name, dst_dir):
     """
     Plots the Precision-Recall (PR) Curve to evaluate model performance (RF, DT, or HGB), 
     especially useful for highly imbalanced datasets.
@@ -319,6 +323,7 @@ def save_pr_curve_plot(y_test, y_scores, model_name, dataset_type, dataset_name)
     :param model_name: name of the evaluated model
     :param dataset_type: type of the dataset being used
     :param dataset_name: name of the dataset being used
+    :param dst_dir: destination path directory
     """
     # Guard clause: Cannot compute PR curve if there are no positive samples (Attacks)
     # This prevents errors when evaluating on purely "Normal" datasets
@@ -326,8 +331,11 @@ def save_pr_curve_plot(y_test, y_scores, model_name, dataset_type, dataset_name)
         print(f"Skipping PR Curve for {dataset_name}: No attack/anomaly samples present.")
         return
 
+    # Create the main pr curve directory
+    pr_dir = create_directory(ProjectPaths.DIR_PR_CURVE_PLOTS, dst_dir)
+
     # Create a directory for the model's PR Curve plots
-    model_pr_dir = create_directory(model_name, ProjectPaths.PR_CURVE_PLOTS_DIR)
+    model_pr_dir = create_directory(model_name, pr_dir)
 
     # Define the filename and output path
     pr_filename = f"{dataset_type.lower()}_{dataset_name}{Naming.PLOT_EXT}"
@@ -376,7 +384,7 @@ def save_pr_curve_plot(y_test, y_scores, model_name, dataset_type, dataset_name)
     print(f"Precision-Recall Curve successfully saved to: {dst_path}")
 
 
-def save_threshold_metrics_plot(y_test, y_scores, model_name, dataset_type, dataset_name):
+def save_threshold_metrics_plot(y_test, y_scores, model_name, dataset_type, dataset_name, dst_dir):
     """
     Plots Precision, Recall, and F1-Score as a function of the decision threshold.
     Highlights the threshold that maximizes the F1-Score for supervised models (RF, DT, HGB).
@@ -386,14 +394,18 @@ def save_threshold_metrics_plot(y_test, y_scores, model_name, dataset_type, data
     :param model_name: name of the evaluated model
     :param dataset_type: type of the dataset being used
     :param dataset_name: name of the dataset being used
+    :param dst_dir: destination path directory
     """
     # Guard clause: Skip if no attacks exist in the ground truth
     if np.sum(y_test) == 0:
         print(f"Skipping Threshold Plot for {dataset_name}: No attack/anomaly samples present.")
         return
 
+    # Create the main threshold_metrics directory
+    thr_dir = create_directory(ProjectPaths.DIR_THRESHOLD_PLOTS, dst_dir)
+
     # Create a directory for the model's Threshold Sensitivity plots
-    model_thr_dir = create_directory(model_name, ProjectPaths.THRESHOLD_PLOTS_DIR)
+    model_thr_dir = create_directory(model_name, thr_dir)
 
     # Define the filename and output path
     thr_filename = f"{dataset_type.lower()}_{dataset_name}{Naming.PLOT_EXT}"
@@ -591,7 +603,7 @@ def save_all_kde_plots(config_csv_path, features_to_plot, label_column=MLConstan
     print("\n[COMPLETED] All KDE plots have been generated and saved directly to the target directory.")
 
 
-def save_shap_plot(model, X_test, y_test, model_name, dataset_type, dataset_name):
+def save_shap_plot(model, X_test, y_test, model_name, dataset_type, dataset_name, dst_dir):
     """
     Generates a classic 1D SHAP summary (dot) plot for a given trained classifier 
     (compatible with RF, DT, and HGB) and its corresponding test matrix.
@@ -602,9 +614,13 @@ def save_shap_plot(model, X_test, y_test, model_name, dataset_type, dataset_name
     :param model_name: name of the evaluated model
     :param dataset_type: type of the dataset being used
     :param dataset_name: name of the dataset being used
+    :param dst_dir: destination path directory
     """
+    # Create the main shap directory
+    shap_dir = create_directory(ProjectPaths.DIR_SHAP_PLOTS, dst_dir)
+
     # Create a directory for the model's SHAP plots
-    model_shap_dir = create_directory(model_name, ProjectPaths.SHAP_PLOTS_DIR)
+    model_shap_dir = create_directory(model_name, shap_dir)
 
     # Define the filename and output path for the SHAP summary plot
     shap_filename = f"{dataset_type.lower()}_{dataset_name}{Naming.PLOT_EXT}"
@@ -625,14 +641,14 @@ def save_shap_plot(model, X_test, y_test, model_name, dataset_type, dataset_name
         if sum(y_series == 0) > 0:
             idx_normal = y_series[y_series == 0].sample(
                 n=min(n_normal, sum(y_series == 0)), 
-                random_state=MLConstants.RANDOM_STATE
+                random_state=MLConstants.MAIN_SEED
             ).index
             
         idx_anomaly = pd.Index([])
         if sum(y_series == 1) > 0:
             idx_anomaly = y_series[y_series == 1].sample(
                 n=min(n_anomaly, sum(y_series == 1)), 
-                random_state=MLConstants.RANDOM_STATE
+                random_state=MLConstants.MAIN_SEED
             ).index
 
         # Union of stratified indices
@@ -644,7 +660,7 @@ def save_shap_plot(model, X_test, y_test, model_name, dataset_type, dataset_name
         else:
             X_test_sampled = X_test.sample(
                 n=min(MLConstants.SHAP_MAX_SAMPLES, len(X_test)), 
-                random_state=MLConstants.RANDOM_STATE
+                random_state=MLConstants.MAIN_SEED
             )
 
         # Inizialize Explainer dynamically to support RF, DT, and HGB
@@ -713,15 +729,16 @@ def save_shap_plot(model, X_test, y_test, model_name, dataset_type, dataset_name
         print(f"Warning: Could not generate SHAP plot for '{model_name}' ({e}). Skipping.")
 
 
-def save_heatmap_for_metrics_plot(models, data):
+def save_heatmap_for_metrics_plot(models, data, dst_dir):
     """
     Generates a performance heatmap for each evaluation metric across different trained models 
     (RF, DT, HGB) and test datasets.
 
     :param models: DataFrame containing model metadata (model_name, dataset_type, classes)
     :param data: DataFrame containing evaluation metrics for each model-dataset pair
+    :param dst_dir: destination path directory
     """
-    dst_dir = create_directory(ProjectPaths.DIR_PERFORMANCE, ProjectPaths.RESULTS_PLOT_DIR)
+    heatmap_dir = create_directory(ProjectPaths.DIR_PERFORMANCE, dst_dir)
 
     # --- Merge model metadata with evaluation metrics to create a comprehensive DataFrame ---
     # Prepare a DataFrame with model metadata for merging
@@ -746,7 +763,7 @@ def save_heatmap_for_metrics_plot(models, data):
     # --- Generate heatmaps for each evaluation metric defined in MLConstants.PLOTTING_METRICS ---
     for feature in MLConstants.PLOTTING_METRICS:
         # Define the destination path for the heatmap plot
-        dst_path = dst_dir / f"{feature}_matrix{Naming.PLOT_EXT}"
+        dst_path = heatmap_dir / f"{feature}_matrix{Naming.PLOT_EXT}"
     
         # Ensure that the heatmap can be generated without errors due to non-numeric values
         merged_data[feature] = pd.to_numeric(merged_data[feature], errors='coerce')

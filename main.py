@@ -5,20 +5,17 @@ Main entry point for the Satellite IDS project.
 from pathlib import Path
 from itertools import product
 
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import StandardScaler
 from src.classification import classification_processing
 from src.models import model_processing
 from src.plotting import save_all_kde_plots, save_all_pca_plots, save_heatmap_for_metrics_plot
 from src.utils.file_utils import (
     create_directory, get_data_from_csv, group_by_classes_and_save, 
     group_by_model_and_save, group_datasets_paths_for_filename_list,
-    init_project_environment, load_kde_limits_from_csv, validate_path
+    init_project_environment, validate_path
 )
 from src.utils.config import MLConstants, Naming, ProjectPaths, RoutineConfig, PlotFlags
 from src.data_preprocessing import data_preprocessing
 from src.file_preprocessing import hybrid_dataset_file_preprocessing, single_dataset_file_preprocessing
-from src.utils.metrics import calculate_kde_limits_csv
 
 
 # --- Internal Helper Functions ---
@@ -26,9 +23,17 @@ def _run_all_phases():
     """ Executes all phases of the pipeline in a single run """
     print(f"\n--- Running Full Pipeline ---")
 
+    # --- Preprocessing Phase ---
     _preprocessing()
-    _model_building()
-    _classifications()
+
+    # --- Model Building Phase ---
+    for model_type, seed in product(MLConstants.MODEL_TYPE, MLConstants.SEEDS):
+        _model_building(model_type, seed)
+
+    # --- Classifications Phase ---
+    for model_type, seed in product(MLConstants.MODEL_TYPE, MLConstants.SEEDS):
+        _classifications(model_type, seed)
+
         
     print(f"\n--- Full Pipeline Completed ---")
 
@@ -39,34 +44,36 @@ def _classifications(model_type, seed):
 
     # --- Get helper dir and file paths ---
     # Get main directory and validate it as a directory
-    main_curr_dir = validate_path(
+    model_seed_dir = validate_path(
         path=ProjectPaths.RUNS / model_type / f"{seed}", 
         is_directory=True
     )
     
     # Get models registry file and validate it as a file
     models_registry_file = validate_path(
-        path=main_curr_dir / ProjectPaths.DIR_MODELS / Naming.MODELS_REGISTRY, 
+        path=model_seed_dir / ProjectPaths.DIR_MODELS / Naming.MODELS_REGISTRY, 
+        is_directory=False
+    )
+
+    # Get models metadata file and validate it as a file
+    models_metadata_file = validate_path(
+        path=model_seed_dir / ProjectPaths.DIR_MODELS / Naming.MODELS_METADATA, 
         is_directory=False
     )
 
     # --- Create directories for classification results ---
-    # Create the main classifications directory
-    classifications_dir = create_directory(dir_name=ProjectPaths.DIR_CLASSIFICATIONS, parent_path=main_curr_dir)
+    # Create the main results directory
+    rusults = create_directory(dir_name=ProjectPaths.DIR_RESULTS, parent_path=model_seed_dir)
 
     # Create subdirectories for grouping classifications by model and by dataset type
-    group_by_model_dir = create_directory(dir_name=ProjectPaths.DIR_BY_MODEL, parent_path=classifications_dir)
-    group_by_classes_dir = create_directory(dir_name=ProjectPaths.DIR_BY_DATASET, parent_path=classifications_dir)
+    group_by_model_dir = create_directory(dir_name=ProjectPaths.DIR_BY_MODEL, parent_path=rusults)
+    group_by_classes_dir = create_directory(dir_name=ProjectPaths.DIR_BY_DATASET, parent_path=rusults)
 
     # Create the main plots directory
-    plots_dir = create_directory(dir_name=ProjectPaths.DIR_PLOTS, parent_path=main_curr_dir)
-
+    plots_dir = create_directory(dir_name=ProjectPaths.DIR_PLOTS, parent_path=rusults)
 
     # Define the paths for the classifications CSV file and the models info CSV file
-    classifications_file = classifications_dir / Naming.CLASSIFICATIONS
-
-
-
+    classifications_file = rusults / Naming.CLASSIFICATIONS
 
     # --- Perform classifications for each dataset and model ---
     # Get datasets for classification and iterate through them
@@ -89,35 +96,28 @@ def _classifications(model_type, seed):
                 model_path=Path(model_path), 
                 data=data, 
                 dataset_type=dataset_type, 
-                dataset_name=dataset_path.stem
+                dataset_name=dataset_path.stem,
+                classifications_file=classifications_file,
+                plots_dir=plots_dir
             )
-
-
-
 
     # --- Group and Save Classification Results ---
     # Group classifications by model and save them in the corresponding directory
-    group_by_model_and_save(classifications_file, group_by_model_dir)
+    group_by_model_and_save(data=classifications_file, dst_dir=group_by_model_dir)
 
     # Group classifications by dataset type and save them in the corresponding directory
-    group_by_classes_and_save(classifications_file, group_by_classes_dir)
+    group_by_classes_and_save(data=classifications_file, dst_dir=group_by_classes_dir)
 
     # --- Generate Performance Plots (F1-Score, Precision, Recall) ---
     # If the flag is enabled, generate performance plots based on the classification results
     if PlotFlags.ENABLE_PERFORMANCE_PLOTS:
-        # Get the data for models and classifications from the respective CSV files
-        models = get_data_from_csv(models_info_file)
-        data = get_data_from_csv(classifications_file)
-
-        # Generate performance plots using the plotting_processing function
-        save_heatmap_for_metrics_plot(models, data)
+        save_heatmap_for_metrics_plot(
+            models=get_data_from_csv(models_metadata_file), 
+            data=get_data_from_csv(classifications_file),
+            dst_dir=plots_dir
+        )
 
     print(f"\n--- Routine Classification for {model_type} Model Building (random_state={seed}) Completed ---")
-
-
-
-
-
 
 
 def _model_building(model_type, seed):
@@ -220,7 +220,7 @@ def main():
         print("="*60)
         print("1. Run PREPROCESSING")
         print("2. Run MODEL BUILDING")
-        print("3. Run CLASSIFICATIONS + PERFORMANCE PLOTS")
+        print("3. Run CLASSIFICATIONS")
         print("4. Run ALL!")
         print("5. Exit application")
         print("="*60)

@@ -288,7 +288,7 @@ def concat_and_shuffle(data_list):
     # Shuffle the entire dataset randomly 
     # frac=1 ensures that 100% of the original rows are retained in the sample
     # random_state enforces deterministic reproducibility across experimental pipeline executions
-    shuffled_dataframe = combined_dataframe.sample(frac=1, random_state=MLConstants.RANDOM_STATE)
+    shuffled_dataframe = combined_dataframe.sample(frac=1, random_state=MLConstants.MAIN_SEED)
     
     # Reset row index markers to a clean, sequential order (0, 1, 2...) 
     # drop=True prevents the old, disorganized index sequence from being added as a new data column
@@ -350,29 +350,6 @@ def init_project_environment():
         directory.mkdir(parents=True, exist_ok=True)
         
     print("Folder Structure Initialized Successfully!")
-
-
-def load_kde_limits_from_csv(limits_csv_path):
-    """
-    Loads the limits CSV file and formats it into a dictionary containing both xlim and ylim.
-    """
-    path = pathlib.Path(limits_csv_path)
-    if not path.exists():
-        print(f"Warning: {limits_csv_path} not found. Using automatic scaling.")
-        return None
-        
-    df = pd.read_csv(path)
-    global_limits = {}
-    
-    for _, row in df.iterrows():
-        global_limits[row['feature']] = {
-            'xlim': (float(row['xmin']), float(row['xmax']))
-        }
-        # Only add ylim if ymax was successfully calculated and is not NaN
-        if 'ymax' in df.columns and not pd.isna(row['ymax']):
-            global_limits[row['feature']]['ylim'] = (0.0, float(row['ymax']))
-            
-    return global_limits
 
 
 def validate_path(path: Path, is_directory: bool = False) -> Path:
