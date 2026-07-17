@@ -1,0 +1,8 @@
+id,timestamp,model_name,dataset_type,classes,samples,train_split,random_state,max_depth,n_features_in,n_classes,n_estimators,max_features,criterion,min_samples_split,learning_rate,max_iter,TP,TN,FP,FN,Accuracy,Precision,Recall,F1-Score,ROC-AUC,PR-AUC,TPR,FNR,TNR,FPR
+1,2026-07-16 15:42:52,nb15_aggregate,nb15,"Normal, Exploits, Generic, DoS, Fuzzers, Reconnaissance",102300,0.8,0,None,16,2,100,sqrt,gini,2,None,None,1536,18441,159,324,0.9764,0.9062,0.8258,0.8641,0.9712,0.9102,0.8258,0.1742,0.9915,0.0085
+2,2026-07-16 15:42:57,nb15_dos,nb15,"Normal, DoS",102300,0.8,0,None,16,2,100,sqrt,gini,2,None,None,1735,18540,60,125,0.991,0.9666,0.9328,0.9494,0.9945,0.9798,0.9328,0.0672,0.9968,0.0032
+3,2026-07-16 15:43:02,nb15_exploits,nb15,"Normal, Exploits",102300,0.8,0,None,16,2,100,sqrt,gini,2,None,None,1685,18490,110,175,0.9861,0.9387,0.9059,0.922,0.9897,0.9607,0.9059,0.0941,0.9941,0.0059
+4,2026-07-16 15:43:07,nb15_fuzzers,nb15,"Normal, Fuzzers",102300,0.8,0,None,16,2,100,sqrt,gini,2,None,None,882,18021,579,978,0.9239,0.6037,0.4742,0.5312,0.9171,0.6071,0.4742,0.5258,0.9689,0.0311
+5,2026-07-16 15:43:12,nb15_generic,nb15,"Normal, Generic",102300,0.8,0,None,16,2,100,sqrt,gini,2,None,None,1834,18594,6,26,0.9984,0.9967,0.986,0.9914,0.9972,0.995,0.986,0.014,0.9997,0.0003
+6,2026-07-16 15:43:16,nb15_reconnaissance,nb15,"Normal, Reconnaissance",102300,0.8,0,None,16,2,100,sqrt,gini,2,None,None,1751,18529,71,109,0.9912,0.961,0.9414,0.9511,0.9948,0.9777,0.9414,0.0586,0.9962,0.0038
+7,2026-07-16 15:43:23,injection_aggregate,injection,"Normal, Generic, Exploits, DoS, Fuzzers, Reconnaissance, UDP_DDoS, DDoS, Syn_DDoS, Botnet",102300,0.8,0,None,16,2,100,sqrt,gini,2,None,None,1536,18420,180,324,0.9754,0.8951,0.8258,0.8591,0.9738,0.9174,0.8258,0.1742,0.9903,0.0097

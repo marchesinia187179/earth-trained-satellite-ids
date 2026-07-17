@@ -1,7 +1,10 @@
 Reference_Model,Compared_Model,t_statistic,p_value,alpha,is_significant
-injection_aggregate,nb15_aggregate,143.44228929205485,4.0593820415535057e-20,0.05,YES
-injection_aggregate,nb15_dos,17.48021826468866,2.83990450761555e-08,0.05,YES
-injection_aggregate,nb15_exploits,73.74884901563108,4.547270429535583e-14,0.05,YES
-injection_aggregate,nb15_fuzzers,124.16704461950498,5.829192743714393e-17,0.05,YES
-injection_aggregate,nb15_generic,139.1261790420694,2.0720389653170137e-17,0.05,YES
-injection_aggregate,nb15_reconnaissance,643.0891854364725,5.649073598020918e-32,0.05,YES
+injection_aggregate,nb15_sat20_aggregate,422.23329536609305,1.1928975002330429e-20,0.05,YES
+injection_aggregate,nb15_sat20_syn_ddos,629.8796245365304,6.820615897714005e-38,0.05,YES
+injection_aggregate,nb15_sat20_udp_ddos,455.94725219463305,2.4901191714967376e-22,0.05,YES
+injection_aggregate,nb15_stin_aggregate,422.21914536993927,1.1923156460268151e-20,0.05,YES
+injection_aggregate,nb15_ter20_aggregate,422.2268121846756,1.1923090607663132e-20,0.05,YES
+injection_aggregate,nb15_ter20_botnet,201.5742413743577,3.477219594254401e-24,0.05,YES
+injection_aggregate,nb15_ter20_ddos,18.066804922605975,2.1765360825018927e-08,0.05,YES
+injection_aggregate,nb15_ter20_syn_ddos,422.2096861209167,1.1863999843250125e-20,0.05,YES
+injection_aggregate,nb15_ter20_udp_ddos,783.8889967278146,4.555685070170551e-23,0.05,YES

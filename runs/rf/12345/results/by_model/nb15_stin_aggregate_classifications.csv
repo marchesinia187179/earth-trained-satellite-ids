@@ -1,0 +1,17 @@
+id,timestamp,model_name,dataset_type,classes,samples,TP,TN,FP,FN,Accuracy,Precision,Recall,F1-Score,ROC-AUC,PR-AUC,TPR,FNR,TNR,FPR
+1,2026-07-17 08:51:01,nb15_stin_aggregate,nb15,"Normal, Exploits, Generic, DoS, Fuzzers, Reconnaissance",102300,0,18600,0,1860,0.9091,0.0,0.0,0.0,0.5013,0.0927,0.0,1.0,1.0,0.0
+11,2026-07-17 08:51:19,nb15_stin_aggregate,nb15,"Normal, DoS",102300,0,18600,0,1860,0.9091,0.0,0.0,0.0,0.5021,0.0941,0.0,1.0,1.0,0.0
+21,2026-07-17 08:51:37,nb15_stin_aggregate,nb15,"Normal, Exploits",102300,0,18600,0,1860,0.9091,0.0,0.0,0.0,0.501,0.0923,0.0,1.0,1.0,0.0
+31,2026-07-17 08:51:54,nb15_stin_aggregate,nb15,"Normal, Fuzzers",102300,0,18600,0,1860,0.9091,0.0,0.0,0.0,0.5016,0.0932,0.0,1.0,1.0,0.0
+41,2026-07-17 08:52:11,nb15_stin_aggregate,nb15,"Normal, Generic",102300,0,18600,0,1860,0.9091,0.0,0.0,0.0,0.5,0.0909,0.0,1.0,1.0,0.0
+51,2026-07-17 08:52:29,nb15_stin_aggregate,nb15,"Normal, Reconnaissance",102300,0,18600,0,1860,0.9091,0.0,0.0,0.0,0.5008,0.0921,0.0,1.0,1.0,0.0
+61,2026-07-17 08:52:46,nb15_stin_aggregate,injection,"Normal, Generic, Exploits, DoS, Fuzzers, Reconnaissance, UDP_DDoS, DDoS, Syn_DDoS, Botnet",102300,6,18600,0,1854,0.9094,1.0,0.0032,0.0064,0.5032,0.0965,0.0032,0.9968,1.0,0.0
+71,2026-07-17 08:53:03,nb15_stin_aggregate,nb15_stin,"Normal, DDoS, Syn_DDoS, UDP_DDoS, Botnet",102300,1859,18600,0,1,1.0,1.0,0.9995,0.9997,1.0,1.0,0.9995,0.0005,1.0,0.0
+81,2026-07-17 08:53:20,nb15_stin_aggregate,nb15_sat20,"Normal, Syn_DDoS, UDP_DDoS",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
+91,2026-07-17 08:53:37,nb15_stin_aggregate,nb15_ter20,"Normal, DDoS, UDP_DDoS, Botnet, Syn_DDoS",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
+101,2026-07-17 08:53:55,nb15_stin_aggregate,nb15_sat20,"Normal, Syn_DDoS",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
+111,2026-07-17 08:54:12,nb15_stin_aggregate,nb15_sat20,"Normal, UDP_DDoS",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
+121,2026-07-17 08:54:29,nb15_stin_aggregate,nb15_ter20,"Normal, Botnet",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
+131,2026-07-17 08:54:47,nb15_stin_aggregate,nb15_ter20,"Normal, DDoS",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
+141,2026-07-17 08:55:04,nb15_stin_aggregate,nb15_ter20,"Normal, Syn_DDoS",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
+151,2026-07-17 08:55:22,nb15_stin_aggregate,nb15_ter20,"Normal, UDP_DDoS",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0

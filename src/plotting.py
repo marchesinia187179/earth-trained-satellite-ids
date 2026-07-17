@@ -266,12 +266,26 @@ def save_probability_plot(y_test, y_scores, model_name, dataset_type, dataset_na
     # Initialize the plot figure with specific dimensions
     plt.figure(figsize=(10, 6))
     
-    # Generate overlapping density histograms directly from the arrays
-    # Using 'step' and 'density' allows comparing distributions regardless of dataset class imbalance
-    ax = sns.histplot(
-        x=y_scores, hue=labels, element='step', stat='density', common_norm=False, 
-        alpha=0.4, bins=50, palette={'Normal Traffic': '#1f77b4', 'Attack/Anomaly': '#ff7f0e'}
-    )
+    # Dynamically determine the number of bins to prevent NumPy ValueError.
+    # We use a tolerance of 1e-5 because if the range of probabilities is virtually zero,
+    # splitting it into 50 bins is numerically unstable and visually meaningless.
+    data_range = np.ptp(y_scores) if len(y_scores) > 0 else 0
+    num_bins = 1 if data_range < 1e-5 else 50
+
+    # Generate overlapping density histograms directly from the arrays.
+    # We wrap the plotting call in a try-except block to guarantee that even under
+    # extreme numerical edge cases, the pipeline does not crash.
+    try:
+        ax = sns.histplot(
+            x=y_scores, hue=labels, element='step', stat='density', common_norm=False, 
+            alpha=0.4, bins=num_bins, palette={'Normal Traffic': '#1f77b4', 'Attack/Anomaly': '#ff7f0e'}
+        )
+    except ValueError:
+        # Ultimate fallback: if 50 bins still fail due to float precision, force 1 bin
+        ax = sns.histplot(
+            x=y_scores, hue=labels, element='step', stat='density', common_norm=False, 
+            alpha=0.4, bins=1, palette={'Normal Traffic': '#1f77b4', 'Attack/Anomaly': '#ff7f0e'}
+        )
 
     # Extract auto-generated legend elements from Seaborn before adding the manual threshold line
     sb_legend = ax.get_legend()
