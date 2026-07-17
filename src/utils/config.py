@@ -35,8 +35,8 @@ class MLConstants:
     INJECTION_RATIO = 299       # Must be 1 digit less than the denominator that we want (e.g. 1/3 than INJ_RATIO = 2)
 
     # --- Welch t-test Parameters ---
-    WELCH_TTEST_FEATURE = 'F1-Score'
-    WELCH_TTEST_ALFA_VALUE = 0.05
+    WELCH_TTEST_FEATURE = 'F1-Score'                            # Metric to use for Welch t-test
+    WELCH_TTEST_ALFA_VALUE = 0.05                               # Alpha value for Welch t-test
 
 
 class Naming:
@@ -72,8 +72,8 @@ class Naming:
     CLASSIFICATIONS = f"classifications{EXT}"   # Target file for model prediction logs and outputs
     MODELS_REGISTRY = f"models_registry{EXT}"   # Target file cataloging trained models and configurations
     MODELS_METADATA = f"models_metadata{EXT}"   # Target file containing training times, hyperparameters, and environment specs
-    WELCH_TTEST_FEATURE_MEANS = f"{MLConstants.WELCH_TTEST_FEATURE}_means{EXT}"
-    WELCH_TTEST = f"welch_ttest{EXT}"
+    WELCH_TTEST_FEATURE_MEANS = f"{MLConstants.WELCH_TTEST_FEATURE}_means{EXT}"     # Target file for Welch t-test feature means
+    WELCH_TTEST = f"welch_ttest{EXT}"           # Target file for Welch t-test results
 
 
 class ProjectPaths:
