@@ -855,9 +855,6 @@ def save_aggregated_metrics_heatmap(model_type, models, data, dst_dir):
     :param data: Combined DataFrame containing evaluation metrics across all seeds
     :param dst_dir: Destination path directory
     """
-    # Create the main performance plots directory inside destination
-    heatmap_dir = create_directory(ProjectPaths.DIR_PERFORMANCE_PLOTS, dst_dir)
-
     # Prepare model metadata for merging
     models_prep = models[['model_name', 'dataset_type', 'classes']].rename(
         columns={'dataset_type': 'model_dataset_type', 'classes': 'model_classes'}
@@ -878,9 +875,12 @@ def save_aggregated_metrics_heatmap(model_type, models, data, dst_dir):
 
     # Plot an aggregated heatmap for each active monitoring metric
     for feature in MLConstants.PLOTTING_METRICS:
+        # Create the main feature performance plots directory inside destination
+        heatmap_dir = create_directory(feature, dst_dir)
+
         dst_path = heatmap_dir / f"{feature}_aggregated_matrix{Naming.PLOT_EXT}"
-        mean_csv_path = heatmap_dir / f"{feature}_mean_matrix.csv"
-        var_csv_path = heatmap_dir / f"{feature}_variance_matrix.csv"
+        mean_csv_path = heatmap_dir / f"{feature}_mean_matrix{Naming.EXT}"
+        var_csv_path = heatmap_dir / f"{feature}_variance_matrix{Naming.EXT}"
     
         merged_data[feature] = pd.to_numeric(merged_data[feature], errors='coerce')
         
@@ -921,13 +921,14 @@ def save_aggregated_metrics_heatmap(model_type, models, data, dst_dir):
         mean_pivot = mean_pivot[cols]
         var_pivot = var_pivot[cols]
 
-        # Locate the injection baseline row and insert an empty spacer row above it
+        # Locate the injection baseline row, force it to the bottom, and insert a spacer row above it
         rows = list(mean_pivot.index)
         ref_row_name = f"{model_type.upper()} (Aggregate injection)"
         
         if ref_row_name in rows:
-            idx = rows.index(ref_row_name)
-            rows.insert(idx, '  ')  # Double space serves as the row spacer label
+            rows.remove(ref_row_name) # Remove from its current position
+            rows.append('  ')         # Add double space as row spacer label
+            rows.append(ref_row_name) # Append the injection row at the very bottom
             
             mean_pivot.loc['  '] = np.nan
             var_pivot.loc['  '] = np.nan
@@ -970,13 +971,21 @@ def save_aggregated_metrics_heatmap(model_type, models, data, dst_dir):
                     ax.text(j + 0.5, i + 0.40, f"{val_mean:.3f}", 
                             ha='center', va='center', fontsize=11, weight='bold', color=text_color)
                     
+                    # --- SMALL OR ZERO VARIANCE HANDLING ---
+                    if val_var == 0:
+                        var_str = "var: 0"
+                    elif val_var < 0.0001:
+                        var_str = f"var: {val_var:.1e}"  # e.g., 3.4e-05 instead of 0.0000
+                    else:
+                        var_str = f"var: {val_var:.4f}"
+                        
                     # Add Variance value below the mean using a smaller and softer font
-                    ax.text(j + 0.5, i + 0.75, f"var: {val_var:.4f}", 
+                    ax.text(j + 0.5, i + 0.75, var_str, 
                             ha='center', va='center', fontsize=8, color=text_color, alpha=0.9)
         
-        # Apply structured titles and labeling styles
+        # Apply structured titles and labeling styles (Updated fontsize to 18 to match single seed plot)
         plt.title(f"{feature} Aggregated Matrix (Mean & Variance over {len(MLConstants.SEEDS)} seeds)", 
-                  pad=25, fontsize=14, fontweight='bold')
+                  pad=25, fontsize=18, fontweight='bold')
         plt.ylabel("Trained Models", fontsize=12, fontweight='bold', labelpad=15)
         plt.xlabel("Testing Datasets & Classes", fontsize=12, fontweight='bold', labelpad=15)
         

@@ -116,6 +116,7 @@ class ProjectPaths:
     DIR_PR_CURVE_PLOTS = "pr_curves"                        # Subfolder storing Precision-Recall curve plots
     DIR_THRESHOLD_PLOTS = "threshold_metrics"               # Subfolder storing metric performance charts across decision thresholds
     DIR_SHAP_PLOTS = "shap"                                 # Subfolder storing SHAP-based local and global explainability plots
+    DIR_AGGR_HEATMAP = "aggregated_heatmaps"
 
     # --- Pipeline Essential Metadata & Configuration Files ---
     DATASETS_FOR_MODEL_BUILDING = METADATA_DIR / f"data_model_building_paths{Naming.EXT}"   # Paths config file for model training datasets
