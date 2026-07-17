@@ -7,7 +7,10 @@ from pathlib import Path
 from itertools import product
 from src.classification import classification_processing
 from src.models import model_processing
-from src.plotting import save_all_kde_plots, save_all_pca_plots, save_heatmap_for_metrics_plot
+from src.plotting import (
+    save_all_kde_plots, save_all_pca_plots, 
+    save_heatmap_for_metrics_plot, save_aggregated_metrics_heatmap
+)
 from src.utils.file_utils import (
     aggregate_welch_ttest_feature_scores_by_seed, create_directory, get_data_from_csv, 
     group_by_classes_and_save, group_by_model_and_save, group_datasets_paths_for_filename_list,
@@ -84,6 +87,57 @@ def _welch_ttest(model_type):
     )
 
     print(f"\n--- Routine Welch's T-Test for {model_type} Models Completed ---")
+
+
+def _aggregated_heatmaps(model_type):
+    """ Executes the generation of aggregated mean/variance heatmaps across all seeds """
+    print(f"\n--- Starting Aggregated Heatmaps Phase for {model_type} Models ---")
+
+    # --- Create directory for the aggregated heatmaps ---
+    agg_heatmap_dir = create_directory(
+        dir_name="aggregated_heatmaps", 
+        parent_path=ProjectPaths.RUNS / model_type
+    )
+
+    # --- Collect classification and metadata CSVs across all seeds ---
+    all_data = []
+    all_models_metadata = []
+    
+    for seed in MLConstants.SEEDS:
+        # Get classifications file and validate it as a file
+        classifications_file = validate_path(
+            path=ProjectPaths.RUNS / model_type / f"{seed}" / ProjectPaths.DIR_RESULTS / Naming.CLASSIFICATIONS, 
+            is_directory=False
+        )
+        
+        # Read classifications and append the active seed to the dataframe
+        data = get_data_from_csv(classifications_file)
+        data['seed'] = seed
+        all_data.append(data)
+
+        # Get models metadata file and validate it as a file
+        models_metadata_file = validate_path(
+            path=ProjectPaths.RUNS / model_type / f"{seed}" / ProjectPaths.DIR_MODELS / Naming.MODELS_METADATA, 
+            is_directory=False
+        )
+        
+        # Read models metadata and append to the list
+        metadata = get_data_from_csv(models_metadata_file)
+        all_models_metadata.append(metadata)
+
+    # --- Combine data and remove redundant metadata entries ---
+    combined_data = pd.concat(all_data, ignore_index=True)
+    combined_metadata = pd.concat(all_models_metadata, ignore_index=True).drop_duplicates(subset=['model_name'])
+
+    # --- Generate Aggregated Performance Plots ---
+    save_aggregated_metrics_heatmap(
+        model_type=model_type,
+        models=combined_metadata,
+        data=combined_data,
+        dst_dir=agg_heatmap_dir
+    )
+
+    print(f"\n--- Aggregated Heatmaps Phase for {model_type} Models Completed ---")
 
 
 def _classifications(model_type, seed):
@@ -287,6 +341,9 @@ def main():
         elif main_choice == '3':    # Classifications case
             for model_type, seed in product(MLConstants.MODEL_TYPE, MLConstants.SEEDS):
                 _classifications(model_type, seed)
+
+            for model_type in MLConstants.MODEL_TYPE:
+                _aggregated_heatmaps(model_type)
         elif main_choice == '4':    # Welch t-test case
             for model_type in MLConstants.MODEL_TYPE:
                 _welch_ttest(model_type)

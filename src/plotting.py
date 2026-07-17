@@ -843,5 +843,152 @@ def save_heatmap_for_metrics_plot(model_type, models, data, dst_dir):
         print(f"{feature} Heatmap successfully saved to: {dst_path}")
 
 
+def save_aggregated_metrics_heatmap(model_type, models, data, dst_dir):
+    """
+    Generates an aggregated performance heatmap for each evaluation metric 
+    across different trained models and test datasets over multiple seeds.
+    Calculates both Mean and Variance, saves them to distinct CSVs, and plots 
+    a "super heatmap" showing the mean as primary text and variance below it.
+
+    :param model_type: String representing the classifier type (e.g., 'rf', 'dt', 'hgb')
+    :param models: DataFrame containing model metadata (model_name, dataset_type, classes)
+    :param data: Combined DataFrame containing evaluation metrics across all seeds
+    :param dst_dir: Destination path directory
+    """
+    # Create the main performance plots directory inside destination
+    heatmap_dir = create_directory(ProjectPaths.DIR_PERFORMANCE_PLOTS, dst_dir)
+
+    # Prepare model metadata for merging
+    models_prep = models[['model_name', 'dataset_type', 'classes']].rename(
+        columns={'dataset_type': 'model_dataset_type', 'classes': 'model_classes'}
+    )
+    
+    # Combine evaluation metrics with model metadata
+    merged_data = pd.merge(data, models_prep, on='model_name', how='left')
+
+    # Format axis labels for both datasets and models
+    merged_data['dataset_label'] = [
+        _build_clean_label(c, d) for c, d in zip(merged_data['classes'], merged_data['dataset_type'])
+    ]
+    
+    merged_data['model_label'] = [
+        _build_clean_label(c, d, prefix=f"{model_type.upper()} (") 
+        for c, d in zip(merged_data['model_classes'], merged_data['model_dataset_type'])
+    ]
+
+    # Plot an aggregated heatmap for each active monitoring metric
+    for feature in MLConstants.PLOTTING_METRICS:
+        dst_path = heatmap_dir / f"{feature}_aggregated_matrix{Naming.PLOT_EXT}"
+        mean_csv_path = heatmap_dir / f"{feature}_mean_matrix.csv"
+        var_csv_path = heatmap_dir / f"{feature}_variance_matrix.csv"
+    
+        merged_data[feature] = pd.to_numeric(merged_data[feature], errors='coerce')
+        
+        # Aggregate data: compute Mean and Variance using pivot_table
+        mean_pivot = merged_data.pivot_table(index='model_label', columns='dataset_label', values=feature, aggfunc='mean')
+        var_pivot = merged_data.pivot_table(index='model_label', columns='dataset_label', values=feature, aggfunc='var').fillna(0.0)
+
+        # Reorder rows based on PlotConfig templates
+        if PlotConfig.HEATMAP_ROW_ORDER is not None:
+            dynamic_row_order = [f"{model_type.upper()} {r}" for r in PlotConfig.HEATMAP_ROW_ORDER]
+            valid_rows = [r for r in dynamic_row_order if r in mean_pivot.index]
+            remaining_rows = [r for r in mean_pivot.index if r not in valid_rows]
+            
+            mean_pivot = mean_pivot.reindex(index=valid_rows + remaining_rows)
+            var_pivot = var_pivot.reindex(index=valid_rows + remaining_rows)
+
+        # Reorder columns based on PlotConfig templates
+        if PlotConfig.HEATMAP_COLUMN_ORDER is not None:
+            valid_cols = [c for c in PlotConfig.HEATMAP_COLUMN_ORDER if c in mean_pivot.columns]
+            remaining_cols = [c for c in mean_pivot.columns if c not in valid_cols]
+            
+            mean_pivot = mean_pivot.reindex(columns=valid_cols + remaining_cols)
+            var_pivot = var_pivot.reindex(columns=valid_cols + remaining_cols)
+
+        # Calculate row averages
+        mean_pivot['Average'] = mean_pivot.mean(axis=1)
+        var_pivot['Average'] = var_pivot.mean(axis=1)
+        
+        # Insert an empty spacer column before the Average column
+        cols = list(mean_pivot.columns)
+        cols.remove('Average')
+        cols.append(' ')  # Single space serves as the column spacer label
+        cols.append('Average')
+        
+        mean_pivot[' '] = np.nan
+        var_pivot[' '] = np.nan
+        
+        mean_pivot = mean_pivot[cols]
+        var_pivot = var_pivot[cols]
+
+        # Locate the injection baseline row and insert an empty spacer row above it
+        rows = list(mean_pivot.index)
+        ref_row_name = f"{model_type.upper()} (Aggregate injection)"
+        
+        if ref_row_name in rows:
+            idx = rows.index(ref_row_name)
+            rows.insert(idx, '  ')  # Double space serves as the row spacer label
+            
+            mean_pivot.loc['  '] = np.nan
+            var_pivot.loc['  '] = np.nan
+            
+            mean_pivot = mean_pivot.reindex(rows)
+            var_pivot = var_pivot.reindex(rows)
+            
+        # Save the Mean and Variance matrices to CSV files
+        mean_pivot.to_csv(mean_csv_path)
+        var_pivot.to_csv(var_csv_path)
+        
+        # Dynamically scale canvas dimensions
+        cell_size = 1.0  
+        fig_width = max(len(mean_pivot.columns) * cell_size + 6.0, 14)
+        fig_height = max(len(mean_pivot.index) * cell_size + 2.5, 8)
+
+        # Set up standard white background aesthetic for the plot
+        sns.set_theme(style="white") 
+        plt.figure(figsize=(fig_width, fig_height))
+        
+        # Generate the heatmap base without standard annotations
+        ax = sns.heatmap(
+            mean_pivot, mask=mean_pivot.isnull(), annot=False, 
+            cmap="Blues", vmin=0.0, vmax=1.0, square=True,
+            cbar_kws={'label': f'{feature} Mean Value', 'shrink': 0.6, 'pad': 0.03}
+        )
+        
+        # Manually inject text into each cell to support different font sizes for mean and variance
+        for i in range(mean_pivot.shape[0]):
+            for j in range(mean_pivot.shape[1]):
+                val_mean = mean_pivot.iloc[i, j]
+                val_var = var_pivot.iloc[i, j]
+                
+                # Verify that the target cell is not empty (spacers)
+                if not pd.isna(val_mean):
+                    # Maintain optimal contrast based on background lightness
+                    text_color = "white" if val_mean > 0.65 else "black"
+                    
+                    # Add Mean value as the dominant centered label
+                    ax.text(j + 0.5, i + 0.40, f"{val_mean:.3f}", 
+                            ha='center', va='center', fontsize=11, weight='bold', color=text_color)
+                    
+                    # Add Variance value below the mean using a smaller and softer font
+                    ax.text(j + 0.5, i + 0.75, f"var: {val_var:.4f}", 
+                            ha='center', va='center', fontsize=8, color=text_color, alpha=0.9)
+        
+        # Apply structured titles and labeling styles
+        plt.title(f"{feature} Aggregated Matrix (Mean & Variance over {len(MLConstants.SEEDS)} seeds)", 
+                  pad=25, fontsize=14, fontweight='bold')
+        plt.ylabel("Trained Models", fontsize=12, fontweight='bold', labelpad=15)
+        plt.xlabel("Testing Datasets & Classes", fontsize=12, fontweight='bold', labelpad=15)
+        
+        plt.xticks(rotation=45, ha='right', fontsize=10)
+        plt.yticks(rotation=0, fontsize=11)
+        
+        # Save the finalized figure using maximum quality
+        plt.savefig(dst_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        
+        print(f"Aggregated heatmap successfully saved to: {dst_path}")
+
+
 if __name__ == "__main__":
     pass
