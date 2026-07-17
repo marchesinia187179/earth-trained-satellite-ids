@@ -95,7 +95,7 @@ def _aggregated_heatmaps(model_type):
 
     # --- Create directory for the aggregated heatmaps ---
     agg_heatmap_dir = create_directory(
-        dir_name="aggregated_heatmaps", 
+        dir_name=ProjectPaths.DIR_AGGR_HEATMAP, 
         parent_path=ProjectPaths.RUNS / model_type
     )
 
@@ -339,8 +339,8 @@ def main():
             for model_type, seed in product(MLConstants.MODEL_TYPE, MLConstants.SEEDS):
                 _model_building(model_type, seed)
         elif main_choice == '3':    # Classifications case
-            for model_type, seed in product(MLConstants.MODEL_TYPE, MLConstants.SEEDS):
-                _classifications(model_type, seed)
+            # for model_type, seed in product(MLConstants.MODEL_TYPE, MLConstants.SEEDS):
+            #     _classifications(model_type, seed)
 
             for model_type in MLConstants.MODEL_TYPE:
                 _aggregated_heatmaps(model_type)
