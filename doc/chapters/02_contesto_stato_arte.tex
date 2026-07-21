@@ -11,7 +11,6 @@ In un contesto caratterizzato da minacce informatiche sempre più sofisticate e 
 Tale imperativo di sicurezza richiede tuttavia una disamina puntuale delle specificità che caratterizzano i diversi contesti trasmissivi, a partire dall'analisi dei vincoli strutturali e dei profili di rischio propri del dominio di superficie.
 
 \paragraph{Telecomunicazioni terrestri}
-\label{prgf:telecomunicazioni_ter}
 
 In questo quadro generale, la strutturazione delle infrastrutture di comunicazione terrestri evidenzia un profondo compromesso architetturale tra efficienza prestazionale e complessità delle misure di protezione richieste. 
 Da un lato, la combinazione di mezzi fisici guidati ad altissimo throughput, come le fibre ottiche, e di vettori radio a frequenze elevate consente di raggiungere latenze di propagazione ridottissime, rendendo tali reti il supporto d'elezione per processi ad alta reattività e applicazioni in tempo reale \cite{tanenbaum2011}. 
@@ -21,7 +20,6 @@ Di fronte a questo scenario, la sicurezza non può limitarsi all'applicazione pa
 Ciononostante, la sola protezione del dominio di superficie si rivela insufficiente laddove la continuità operativa richieda la copertura di regioni orograficamente complesse o la ridondanza di tratte critiche, imponendo l'estensione dell'architettura trasmissiva verso lo spazio.
 
 \paragraph{Telecomunicazioni satellitari}
-\label{prgf:telecomunicazioni_sat}
 
 In tale prospettiva di integrazione e complementarietà, l'impiego di piattaforme orbitali nelle reti di telecomunicazione rappresenta una soluzione architetturale imprescindible per il raggiungimento di una copertura geografica globale, ma introduce al contempo severe sfide dal punto di vista operativo e della sicurezza. 
 L'assenza di barriere fisiche e la capacità di superare qualsiasi vincolo orografico rendono i sistemi satellitari il vettore primario per la connettività in contesti isolati, transoceanici o di emergenza, garantendo una ridondanza fondamentale per le infrastrutture di terra \cite{pratt2002}. 
@@ -31,7 +29,6 @@ Inoltre, la potenziale iniezione non autorizzata di pacchetti o comandi diretti 
 L'esame dettagliato delle specificità del canale spaziale, unito all'analisi del contesto terrestre, evidenzia la necessità di una visione d'insieme capace di sintetizzare i punti di forza e le fragilità di ciascun dominio.
 
 \paragraph{Analisi comparativa e necessità di monitoraggio intelligente}
-\label{prgf:telecomunicazioni_comp}
 
 In questa prospettiva di sintesi, l'analisi comparativa tra le architetture di telecomunicazione terrestri e satellitari mette in luce una fondamentale complementarietà strutturale, accompagnata tuttavia da divergenze operative sostanziali in termini di prestazioni, copertura e vettori di vulnerabilità. 
 Se da un lato le infrastrutture terrestri garantiscono throughput elevati e latenze di propagazione ridottissime grazie ai mezzi fisici guidati e ai ponti radio dedicati, dall'altro esse risultano limitate dalla rigidità della topologia geografica e da un'elevata densità di nodi esposti ad attacchi sia fisici che logici \cite{tanenbaum2011}. 
@@ -58,7 +55,6 @@ Durante la fase di inferenza, il modello valuta lo scostamento statistico delle 
 Tale approccio risulta particolarmente strategico nelle architetture di telecomunicazione complesse, poiché l'apprendimento automatico permette di scalare l'analisi dei dati su grandi volumi e di adattarsi autonomamente ai mutamenti fisiologici del traffico, garantendo una protezione resiliente contro vettori d'attacco complessi e distribuiti \cite{laskov2005}.
 
 \paragraph{IDS in Machine Learning per le connessioni terrestri}
-\label{prgf:ids_terrestri}
 
 L'applicazione degli Intrusion Detection Systems basati su Machine Learning al dominio delle telecomunicazioni terrestri risponde alla specifica esigenza di proteggere un'architettura ad altissima velocità e ad elevata densità di traffico. 
 Nelle reti di terra, caratterizzate da canali in fibra ottica e ponti radio con larghezze di banda nell'ordine dei gigabit o terabit al secondo, i vettori d'attacco si manifestano spesso sotto forma di burst improvvisi di pacchetti, come nei distributed denial of service (DDoS), o di raffinate scansioni di porta distribuite volte alla mappatura delle vulnerabilità \cite{garcia2009}. 
@@ -75,7 +71,6 @@ I classificatori supervisionati traggono un netto vantaggio dalla regolarità de
 Tuttavia, la forte dipendenza dei modelli supervisionati dalla distribuzione dei dati di training pone una sfida aperta circa la loro reale capacità di generalizzazione, evidenziando come la semplice validazione su scenari terrestri omogenei non sia sufficiente a garantire l'operatività dell'IDS in presenza di variazioni strutturali del canale di trasmissione \cite{buczak2016}.
 
 \paragraph{IDS in Machine Learning per le connessioni satellitari}
-\label{prgf:ids_satellitari}
 
 L'impiego degli Intrusion Detection Systems basati su Machine Learning nelle comunicazioni satellitari deve affrontare vincoli operativi e dinamiche di canale sensibilmente differenti rispetto ai sistemi terrestri, dovuti alle caratteristiche fisiche e topologiche delle tratte orbitali. 
 Le reti satellitari sono penalizzate da elevati tempi di latenza di propagazione, larghezze di banda asimmetriche e da un'intrinseca suscettibilità al rumore atmosferico e ai fenomeni di fading del segnale \cite{pratt2002}. 
@@ -89,3 +84,38 @@ Infine, lo studio di Al-Makhadmeh et al. \cite{almakhadmeh2022} propone un'archi
 
 In conclusione, la progettazione di un IDS supervisionato per comunicazioni satellitari non può prescindere da una valutazione rigorosa che superi il singolo dominio di addestramento. 
 L'esplorazione combinata delle prestazioni in ambiti sia biclasse sia multiclasse, unita all'analisi sistematica del degrado prestazionale causato dal domain-shift e all'adozione di strategie per sopperire alla scarsità di dati benevoli satellitari, rappresenta un passaggio cruciale per garantire la reale usabilità degli Intrusion Detection Systems nelle infrastrutture di telecomunicazione spaziali di nuova generazione \cite{buczak2016, siracusano2021}.
+
+\section{Adattamento di Dominio e Scarsità dei Dati}
+\label{sec:domain_shift_data}
+
+A completamento dell'analisi delle criticità connesse all'integrazione di sistemi di sicurezza basati sull'apprendimento automatico nei moderni ecosistemi di telecomunicazione, risulta indispensabile esaminare le problematiche metodologiche legate alla variazione dei contesti operativi e alla disponibilità delle informazioni. 
+La transizione da architetture trasmissive omogenee a scenari eterogenei impone infatti di superare i limiti strutturali associati non solo alla natura dei canali, ma anche alla portabilità dei modelli analitici e alla frammentazione dei dataset di riferimento.
+
+\paragraph{Il fenomeno del domain-shift nei sistemi NIDS}
+\label{prgf:domain_shift}
+
+L'applicazione di modelli di Machine Learning per la rilevazione delle intrusioni in contesti di rete eterogenei presenta una sfida strutturale fondamentale legata al fenomeno del disallineamento distributivo, noto in letteratura come domain-shift. 
+Quando un classificatore supervisionato viene addestrato su un determinato dominio trasmissivo di origine e successivamente impiegato in un dominio di destinazione caratterizzato da condizioni fisiche o topologiche differenti, le proprietà statistiche e temporali delle feature estratte dai flussi di rete subiscono una variazione sostanziale \cite{pan2009}. 
+Nelle infrastrutture di telecomunicazione, la transizione dal canale terrestre a quello satellitare comporta l'introduzione di ritardi di propagazione elevati, fluttuazioni della larghezza di banda e fenomeni stocastici di attenuazione atmosferica che alterano significativamente la distribuzione dei tempi di interarrivo e la struttura dei pacchetti \cite{siracusano2021}. 
+Tale scostamento rispetto alla distribuzione nominale di addestramento sposta le osservazioni rispetto agli iperpiani di separazione stabiliti in fase di training, provocando un grave degrado della capacità discriminativa del sistema e un incremento incontrollato dei tassi di falso allarme \cite{sommer2010}. 
+Sebbene i modelli di apprendimento supervisionato rimangano preferibili rispetto agli approcci non supervisionati grazie alla loro capacità di definire confini di decisione netti per la classificazione sia biclasse sia multiclasse, la loro intrinseca sensibilità alla variazione del dominio impone l'analisi di metodologie capaci di garantire la trasferibilità delle prestazioni tra vettori trasmissivi eterogenei \cite{laskov2005}.
+In questa direzione, il lavoro pionieristico condotto da Wilson et al. \cite{wilson2020} evidenzia l'efficacia di approcci basati su transfer learning per l'allineamento delle distribuzioni in ambienti di rete distribuiti; il punto di forza di tale contributo risiede nell'abilità di compensare le variazioni statistiche globali tra domini differenti, differenziandosi tuttavia dal nostro approccio in quanto l'analisi rimane confinata a contesti puramente terrestri e non affronta la specifica asimmetria strutturale e la carenza di dati nominali tipica del canale orbitale.
+
+\paragraph{Strategie di iniezione di dati per la mitigazione dello sbilanciamento}
+\label{prgf:data_injection}
+
+A questa complessa dinamica trasmissiva si aggiunge la marcata asimmetria nella disponibilità dei dati tra le diverse piattaforme di rete, rappresentata da una profonda scarsità di tracce etichettate relative al traffico nominale del segmento spaziale \cite{siracusano2021}. 
+La difficoltà di raccogliere ed etichettare volumi adeguati di traffico lecito in orbita, unitamente ai vincoli di riservatezza e alla natura critica delle comunicazioni satellitari, limita fortemente la possibilità di costruire modelli di rilevamento nativi per il canale spaziale o di applicare tecniche di apprendimento puramente non supervisionate senza incorrere in elevate frequenze di errori di classificazione \cite{nist2022, garcia2009}. 
+Per superare questo limite operativo senza rinunciare all'elevata accuratezza dei classificatori supervisionati, la ricerca orienta l'architettura metodologica verso tecniche di adattamento di dominio basate sull'iniezione controllata di dati provenienti dal canale di destinazione \cite{pan2009}. 
+L'integrazione di una frazione ridotta di campioni del dominio satellitare all'interno del dataset d'addestramento primario, composto prevalentemente da dati terrestri, consente al modello di riallineare gradualmente le proprie soglie di decisione per inglobare il rumore e le caratteristiche stocastiche del nuovo canale \cite{buczak2016}. 
+Tale strategia di iniezione mitiga lo sbilanciamento causato dalla mancanza di un riferimento di traffico benevolo spaziale, consentendo al sistema di mantenere un'elevata capacità di generalizzazione e identificazione delle minacce sia nelle configurazioni di rilevamento binario sia nella caratterizzazione dettagliata degli attacchi multiclasse \cite{sommer2010}.
+
+
+
+
+
+
+
+
+\section{Sintesi e Posizionamento del Lavoro}
+\label{sec:sintesi_posizionamento}
