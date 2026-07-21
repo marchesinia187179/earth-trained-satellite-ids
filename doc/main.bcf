@@ -2407,18 +2407,17 @@
     <bcf:citekey order="33" intorder="1">buczak2016</bcf:citekey>
     <bcf:citekey order="34" intorder="1">pratt2002</bcf:citekey>
     <bcf:citekey order="35" intorder="1">nist2022</bcf:citekey>
-    <bcf:citekey order="36" intorder="1">garcia2009</bcf:citekey>
-    <bcf:citekey order="37" intorder="1">buczak2016</bcf:citekey>
-    <bcf:citekey order="38" intorder="1">siracusano2021</bcf:citekey>
-    <bcf:citekey order="39" intorder="1">zhao2020</bcf:citekey>
-    <bcf:citekey order="40" intorder="1">liu2021</bcf:citekey>
-    <bcf:citekey order="41" intorder="1">almakhadmeh2022</bcf:citekey>
-    <bcf:citekey order="42" intorder="1">siracusano2021</bcf:citekey>
-    <bcf:citekey order="43" intorder="1">buczak2016</bcf:citekey>
-    <bcf:citekey order="44" intorder="1">vaswani2017attention</bcf:citekey>
-    <bcf:citekey order="45" intorder="1">vaswani2017attention</bcf:citekey>
-    <bcf:citekey order="46" intorder="1">vaswani2017attention</bcf:citekey>
-    <bcf:citekey order="47" intorder="1" nocite="1">*</bcf:citekey>
+    <bcf:citekey order="35" intorder="2">garcia2009</bcf:citekey>
+    <bcf:citekey order="36" intorder="1">siracusano2021</bcf:citekey>
+    <bcf:citekey order="37" intorder="1">zhao2020</bcf:citekey>
+    <bcf:citekey order="38" intorder="1">liu2021</bcf:citekey>
+    <bcf:citekey order="39" intorder="1">almakhadmeh2022</bcf:citekey>
+    <bcf:citekey order="40" intorder="1">buczak2016</bcf:citekey>
+    <bcf:citekey order="40" intorder="2">siracusano2021</bcf:citekey>
+    <bcf:citekey order="41" intorder="1">vaswani2017attention</bcf:citekey>
+    <bcf:citekey order="42" intorder="1">vaswani2017attention</bcf:citekey>
+    <bcf:citekey order="43" intorder="1">vaswani2017attention</bcf:citekey>
+    <bcf:citekey order="44" intorder="1" nocite="1">*</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="nty">
