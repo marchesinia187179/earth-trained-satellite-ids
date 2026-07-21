@@ -2415,20 +2415,22 @@
     <bcf:citekey order="40" intorder="1">buczak2016</bcf:citekey>
     <bcf:citekey order="40" intorder="2">siracusano2021</bcf:citekey>
     <bcf:citekey order="41" intorder="1">pan2009</bcf:citekey>
-    <bcf:citekey order="42" intorder="1">siracusano2021</bcf:citekey>
-    <bcf:citekey order="43" intorder="1">sommer2010</bcf:citekey>
-    <bcf:citekey order="44" intorder="1">laskov2005</bcf:citekey>
+    <bcf:citekey order="42" intorder="1">pan2009</bcf:citekey>
+    <bcf:citekey order="43" intorder="1">siracusano2021</bcf:citekey>
+    <bcf:citekey order="44" intorder="1">sommer2010</bcf:citekey>
     <bcf:citekey order="45" intorder="1">wilson2020</bcf:citekey>
-    <bcf:citekey order="46" intorder="1">siracusano2021</bcf:citekey>
-    <bcf:citekey order="47" intorder="1">nist2022</bcf:citekey>
-    <bcf:citekey order="47" intorder="2">garcia2009</bcf:citekey>
-    <bcf:citekey order="48" intorder="1">pan2009</bcf:citekey>
-    <bcf:citekey order="49" intorder="1">buczak2016</bcf:citekey>
-    <bcf:citekey order="50" intorder="1">sommer2010</bcf:citekey>
-    <bcf:citekey order="51" intorder="1">vaswani2017attention</bcf:citekey>
+    <bcf:citekey order="46" intorder="1">wilson2020</bcf:citekey>
+    <bcf:citekey order="47" intorder="1">pan2009</bcf:citekey>
+    <bcf:citekey order="48" intorder="1">siracusano2021</bcf:citekey>
+    <bcf:citekey order="49" intorder="1">nist2022</bcf:citekey>
+    <bcf:citekey order="49" intorder="2">garcia2009</bcf:citekey>
+    <bcf:citekey order="50" intorder="1">pan2009</bcf:citekey>
+    <bcf:citekey order="51" intorder="1">buczak2016</bcf:citekey>
+    <bcf:citekey order="51" intorder="2">sommer2010</bcf:citekey>
     <bcf:citekey order="52" intorder="1">vaswani2017attention</bcf:citekey>
     <bcf:citekey order="53" intorder="1">vaswani2017attention</bcf:citekey>
-    <bcf:citekey order="54" intorder="1" nocite="1">*</bcf:citekey>
+    <bcf:citekey order="54" intorder="1">vaswani2017attention</bcf:citekey>
+    <bcf:citekey order="55" intorder="1" nocite="1">*</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="nty">
