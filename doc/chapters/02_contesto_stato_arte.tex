@@ -33,13 +33,20 @@ Diventa pertanto indispensabile un approccio di difesa in profondità che combin
 In questa prospettiva di sintesi, l'analisi comparativa tra le architetture di telecomunicazione terrestri e satellitari mette in luce una fondamentale complementarietà strutturale, accompagnata da divergenze operative sostanziali in termini di prestazioni, copertura e vettori di vulnerabilità. 
 Se da un lato le infrastrutture terrestri garantiscono elevati throughput e latenze ridotte grazie ai mezzi guidati e alle tratte dedicate, esse risultano vincolate dalla rigidità topologica e da un'alta densità di nodi esposti a minacce sia fisiche sia logiche \cite{tanenbaum2021}. 
 Al contrario, i segmenti spaziali offrono un'infrastruttura pervasiva e affrancata da barriere orografiche, ma introducono criticità legate ai ritardi di propagazione, all'attenuazione di canale e all'esposizione intrinseca dei segnali radio a intercettazione e \textit{jamming} \cite{kodheli2020}. 
-La coesistenza di tali ambienti eterogenei all'interno dei moderni ecosistemi di comunicazione crea un perimetro difensivo complesso, in cui i meccanismi di sicurezza tradizionali, quali la sola cifratura o i firewall statici, si rivelano insufficienti a contrastare vettori d'attacco dinamici e tecniche di evasione avanzate \cite{stallings2020}, imponendo l'estensione delle difese verso paradigmi di monitoraggio attivo.
+La coesistenza di tali ambienti eterogenei all'interno dei moderni ecosistemi di comunicazione crea un perimetro difensivo complesso (schematizzato in Figura~\ref{fig:architettura_ibrida}), in cui i meccanismi di sicurezza tradizionali, quali la sola cifratura o i firewall statici, si rivelano insufficienti a contrastare vettori d'attacco dinamici e tecniche di evasione avanzate \cite{stallings2020}, imponendo l'estensione delle difese verso paradigmi di monitoraggio attivo.
 
 Per rispondere a tale complessità, si rende necessaria l'integrazione di architetture di \textit{Network Intrusion Detection Systems} (NIDS) capaci di operare un monitoraggio continuo e non invasivo del traffico sia sulle tratte di terra sia sui collegamenti orbitali. 
 Tuttavia, l'elevato volume dei flussi e la variabilità delle condizioni di canale rendono i classici NIDS basati su firme (\textit{signature-based}) strutturalmente inadeguati nei confronti di attacchi inediti o variazioni comportamentali del traffico \cite{khraisat2019}. 
 In questo contesto, l'adozione di modelli di Machine Learning si dimostra indispensabile per apprendere i pattern di traffico nominali e identificare in tempo reale deviazioni stocastiche o anomalie marginali riconducibili ad attività malevole \cite{sahu2021}. 
 L'impiego dell'apprendimento automatico consente di automatizzare l'analisi predittiva e la correlazione multi-dominio degli eventi di sicurezza su canali sia terrestri sia satellitari, garantendo una protezione adattiva e resiliente. 
 Per comprendere appieno il contributo di tali strumenti nell'infrastruttura di rete, si rende tuttavia necessaria una formalizzazione teorica e metodologica del funzionamento dei NIDS e dei modelli di apprendimento che ne costituiscono il motore analitico.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/rete/architettura_ibrida.drawio.pdf}
+    \caption{Architettura di rete integrata Terrestre-Spaziale: rappresentazione della superficie d'attacco e posizionamento dei punti di monitoraggio \textit{Network Intrusion Detection System} (NIDS).}
+    \label{fig:architettura_ibrida}
+\end{figure}
 
 \section{Network Intrusion Detection Systems in Machine Learning}
 \label{sec:ids_ml}
