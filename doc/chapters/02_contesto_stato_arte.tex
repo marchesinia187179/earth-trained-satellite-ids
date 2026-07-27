@@ -1,7 +1,16 @@
 \chapter{Contesto di Riferimento e Stato dell'Arte}
 \label{ch:bck_rltd_wrks}
 
-\section{Telecomunicazioni terrestri e satellitari}
+Il presente capitolo delinea il quadro concettuale, metodologico e bibliografico all'interno del quale si posiziona il lavoro di ricerca, ponendo le basi per l'analisi dei sistemi di rilevamento delle intrusioni in ambienti di rete complessi ed eterogenei. 
+L'obiettivo primario è chiarire come la natura del canale trasmissivo e le relative dinamiche fisiche influenzino la rappresentazione vettoriale dei dati, condizionando la stabilità e la capacità di generalizzazione dei modelli di sicurezza basati su Machine Learning. 
+
+La trattazione si articola come segue. 
+La Sezione~\ref{sec:telecomunicazioni} analizza le caratteristiche strutturali, le vulnerabilità e i profili di rischio che differenziano le infrastrutture terrestri dai segmenti spaziali, evidenziando la necessità di paradigmi di monitoraggio attivo. 
+La Sezione~\ref{sec:ids_ml} esamina i principi operativi dei \textit{Network Intrusion Detection Systems} (NIDS) guidati dall'apprendimento automatico, fornendo una disamina critica della letteratura principale e identificando i limiti dei modelli attuali nel gestire transizioni tra domini differenti. 
+Successivamente, la Sezione~\ref{sec:domain_shift_data} formalizza rigorosamente i fenomeni di disallineamento distributivo (\textit{domain shift}) e di scarsità dei dati etichettati, definendo le strategie di adattamento di dominio supervisionato. 
+Infine, la Sezione~\ref{sec:sintesi_posizionamento} sintetizza i gap metodologici emersi dallo stato dell'arte e colloca puntualmente i contributi innovativi e l'approccio proposto da questo lavoro di tesi nel panorama scientifico di riferimento.
+
+\section{Telecomunicazioni}
 \label{sec:telecomunicazioni}
 
 L'evoluzione delle infrastrutture di rete ha elevato i sistemi di telecomunicazione a componenti abilitanti fondamentali per la società moderna, la cui resilienza rappresenta un prerequisito imprescindibile per la protezione delle infrastrutture critiche e la continuità dei servizi essenziali \cite{tanenbaum2020}. 
@@ -13,8 +22,8 @@ In un panorama di minacce caratterizzato dall'azione di attori malevoli ad alta 
 Tale paradigma mira a garantire i requisiti fondamentali di riservatezza, integrità, disponibilità e autenticità dei flussi informativi. 
 L'impostazione di un'efficace strategia difensiva richiede pertanto una disamina puntuale dei vincoli strutturali e dei profili di rischio che caratterizzano i diversi contesti trasmissivi, tracciando una distinzione rigorosa tra le peculiarità delle reti di superficie e le criticità emergenti dei canali orbitali.
 
-\paragraph{Telecomunicazioni terrestri}
-\label{prgf:telecomunicazioni_terrestri}
+\subsection{Telecomunicazioni terrestri}
+\label{subsec:telecomunicazioni_terrestri}
 
 In questo quadro, la conformazione delle infrastrutture di comunicazione terrestri evidenzia un profondo compromesso tra prestazioni trasmissive e complessità delle contromisure di sicurezza. 
 Da un lato, la combinazione di mezzi guidati ad elevata ampiezza di banda — quali le fibre ottiche — e di vettori radio ad alta frequenza garantisce latenze di propagazione estremamente ridotte, rendendo tali reti il supporto d'elezione per le applicazioni in tempo reale \cite{tanenbaum2020}. 
@@ -27,8 +36,8 @@ Si rende quindi indispensabile l'integrazione di sistemi di monitoraggio attivo,
 Ciononostante, la sola protezione del segmento di superficie si rivela insufficiente laddove si richieda la copertura di regioni orograficamente complesse, l'interconnessione di nodi isolati o una ridondanza critica per la continuità operativa. 
 Tali vincoli impongono l'estensione dell'architettura trasmissiva verso il segmento spaziale, introducendo nuove dinamiche di canale e ulteriori sfide di sicurezza.
 
-\paragraph{Telecomunicazioni satellitari}
-\label{prgf:telecomunicazioni_satellitari}
+\subsection{Telecomunicazioni satellitari}
+\label{subsec:telecomunicazioni_satellitari}
 
 In tale contesto di integrazione, l'impiego di piattaforme orbitali rappresenta una soluzione architetturalmente imprescindibile per garantire una copertura geografica globale, introducendo tuttavia severe sfide operative e di sicurezza. 
 La capacità di superare i vincoli orografici rende i collegamenti spaziali il vettore primario per la connettività in contesti isolati o d'emergenza, garantendo un'essenziale ridondanza per le infrastrutture terrestri \cite{kodheli2021}. 
@@ -40,8 +49,8 @@ Se da un lato i collegamenti in orbita geostazionaria (GEO) sono penalizzati da 
 Inoltre, la potenziale iniezione non autorizzata di pacchetti o comandi di controllo verso il segmento spaziale evidenzia la chiara inadeguatezza della sola cifratura passiva. 
 In conformità con le linee guida di difesa in profondità e monitoraggio continuo per i segmenti di terra e di bordo \cite{nist2022}, risulta indispensabile combinare contromisure a livello fisico — quali tecniche di modulazione a spettro espanso a protezione della trasmissione (\textit{TRANSEC})\footnote{Le contromisure TRANSEC (\textit{Transmission Security}) agiscono a livello fisico mediante modulazioni a spettro espanso, quali DSSS (\textit{Direct Sequence Spread Spectrum}) o FHSS (\textit{Frequency Hopping Spread Spectrum}), per rendere il segnale indistinguibile dal rumore di fondo o garantirne la resilienza contro interferenze intenzionali.} — con sistemi di rilevamento delle intrusioni (NIDS) a livello logico, capaci di identificare tempestivamente deviazioni comportamentali del traffico prima che compromettano la disponibilità dell'intero collegamento.
 
-\paragraph{Analisi comparativa e necessità di monitoraggio intelligente}
-\label{prgf:analisi_comparativa_monitoraggio}
+\subsection{Analisi comparativa e necessità di monitoraggio intelligente}
+\label{subsec:analisi_comparativa_monitoraggio}
 
 In questa prospettiva di sintesi, l'analisi comparativa tra le architetture di telecomunicazione terrestri e satellitari evidenzia una fondamentale complementarietà strutturale, affiancata da sostanziali divergenze operative nei profili di prestazione, copertura e superficie di vulnerabilità. 
 Se le infrastrutture terrestri garantiscono elevati valori di \textit{throughput} e latenze di propagazione ridotte grazie ai mezzi guidati, esse risultano vincolate da una rigida topologia e da un'alta densità di nodi esposti ad aggressioni sia fisiche sia logiche \cite{tanenbaum2020}. 
@@ -81,8 +90,8 @@ Attraverso la formalizzazione di \textit{feature} statistiche e sintattiche rile
 In questo contesto, la scelta metodologica di privilegiare classificatori di tipo supervisionato rispetto a soluzioni non supervisionate offre un vantaggio determinante in termini di affidabilità operativa\footnote{L'apprendimento supervisionato consente di contenere drasticamente il tasso di falsi allarmi (\textit{False Positive Rate}, FPR), che costituisce una delle principali criticità applicative dei NIDS in ambienti ad alta variabilità stocastica.}.
 Laddove l'apprendimento non supervisionato risente di un'elevata sensibilità alle fluttuazioni fisiologiche della rete, i modelli supervisionati permettono di tracciare confini di decisione precisi e stabili, ottimizzando la separazione tra flussi leciti e malevoli sia in formulazioni di classificazione binaria sia in configurazioni multiclasse per la caratterizzazione delle specifiche famiglie di minaccia \cite{kilincer2021}.
 
-\paragraph{NIDS in Machine Learning per le telecomunicazioni terrestri}
-\label{prgf:ids_terrestri}
+\subsection{NIDS in Machine Learning per le telecomunicazioni terrestri}
+\label{subsec:ids_terrestri}
 
 L'applicazione dei \textit{Network Intrusion Detection Systems} (NIDS) basati su Machine Learning alle infrastrutture di telecomunicazione terrestri risponde alla necessità imperativa di proteggere canali ad elevata ampiezza di banda e ad altissima densità di traffico.
 Nelle reti di terra ad alta velocità, i vettori d'attacco si manifestano prevalentemente attraverso aggressioni volumetriche di tipo \textit{Distributed Denial of Service} (DDoS) o mediante attività di scansione coordinata (\textit{port scanning}) finalizzate alla mappatura delle vulnerabilità del sistema \cite{hindy2020, khraisat2019}.
@@ -102,8 +111,8 @@ Successivamente, Sharafaldin et al. \cite{sharafaldin2018} hanno esteso la carat
 Sebbene questo studio costituisca uno standard di riferimento per la modellazione del traffico moderno, la nostra proposta segna un chiaro elemento di discontinuità: l'analisi di Sharafaldin et al. valuta le prestazioni focalizzandosi su una risposta prevalentemente multiclasse all'interno di un singolo contesto trasmissivo locale. 
 Il nostro lavoro mette invece a confronto diretto la granularità binaria e multiclasse sotto scostamenti distributivi eterogenei, valutando come la struttura della risposta incida sulla stabilità dei confini discriminativi durante il trasferimento cross-dominio.
 
-\paragraph{NIDS in Machine Learning per le telecomunicazioni satellitari}
-\label{prgf:ids_satellitari}
+\subsection{NIDS in Machine Learning per le telecomunicazioni satellitari}
+\label{subsec:ids_satellitari}
 
 L'impiego dei \textit{Network Intrusion Detection Systems} (NIDS) basati su Machine Learning nelle comunicazioni satellitari deve misurarsi con vincoli operativi e dinamiche di canale radicalmente divergenti rispetto al contesto terrestre. 
 Le tratte orbitali sono penalizzate da elevati tempi di latenza di propagazione, capacità di canale fortemente asimmetriche e da una marcata suscettibilità al rumore atmosferico e ai fenomeni di \textit{fading} stocastico del segnale \cite{kodheli2021}. 
@@ -161,8 +170,8 @@ Tali sfide metodologiche costituiscono l'oggetto della trattazione dettagliata s
 A completamento dell'analisi delle criticità connesse all'integrazione di sistemi di sicurezza basati sull'apprendimento automatico nei moderni ecosistemi di telecomunicazione, risulta indispensabile esaminare le problematiche metodologiche e teoriche legate alla variazione dei contesti operativi e alla disponibilità delle informazioni. 
 La transizione da architetture trasmissive omogenee a scenari eterogenei impone infatti di superare i limiti strutturali associati non solo alla natura fisica dei canali, ma anche alla portabilità dei modelli analitici e alla disomogeneità statistica dei dataset di riferimento.
 
-\paragraph{Il fenomeno del domain shift nei sistemi NIDS}
-\label{prgf:domain_shift_nids}
+\subsection{Il fenomeno del domain shift nei sistemi NIDS}
+\label{subsec:domain_shift_nids}
 
 L'efficacia dei modelli di Machine Learning applicati ai Network Intrusion Detection Systems (NIDS) poggia fondamentalmente sull'assunto teorico che i dati di addestramento e quelli operativi siano indipendenti e identicamente distribuiti (\textit{i.i.d.}). 
 Tuttavia, nelle infrastrutture di rete reali la natura dinamica e fortemente variabile del traffico invalida frequentemente tale ipotesi, introducendo un marcato scostamento distributivo \cite{pan2010}. 
@@ -183,8 +192,8 @@ In questo ambito, il contributo di Wilson e Cook \cite{wilson2020} fornisce un'e
 Tuttavia, sebbene efficaci nell'abbattere il \textit{bias} in scenari standard, questi metodi sono calibrati su ambienti di rete intrinsecamente omogenei. 
 Di conseguenza, il nostro approccio si differenzia posizionandosi in un'area ancora poco esplorata: la gestione della profonda asimmetria strutturale e della drastica corruzione dei profili di traffico indotte dal trasferimento diretto della sorveglianza dal canale terrestre a quello orbitale.
 
-\paragraph{Adattamento di dominio supervisionato per la mitigazione dello sbilanciamento}
-\label{prgf:supervised_da_nids}
+\subsection{Adattamento di dominio supervisionato per la mitigazione dello sbilanciamento}
+\label{subsec:supervised_da_nids}
 
 Sul piano metodologico, la risoluzione del \textit{domain shift} deve misurarsi con il severo sbilanciamento informativo tra gli ambienti di origine e destinazione. 
 Nelle applicazioni reali di Network Intrusion Detection (NIDS), infatti, la cronica scarsità di campioni etichettati appartenenti al dominio \textit{target} costituisce l'ostacolo primario all'addestramento di modelli di classificazione nativi. 
@@ -220,17 +229,17 @@ Se da un lato l'integrazione di sistemi di monitoraggio attivo basati su Machine
     \item \textbf{I NIDS per ambienti satellitari e SAGIN}, orientati ad affrontare la natura intrinsecamente dinamica del canale radio spaziale, ricorrono prevalentemente ad architetture complesse basate su \textit{Federated Learning} \cite{wan2025} o all'orchestrazione con \textit{Deep Reinforcement Learning} e Graph Neural Networks \cite{alam2024}. Pur offrendo soluzioni di protezione cooperativa e gestione delle risorse, tali approcci impongono continui cicli di aggregazione, riaddestramento e sincronizzazione dei parametri, generando un \textit{overhead} comunicativo e computazionale\footnote{Sui collegamenti satellitari, caratterizzati da elevati tempi di \textit{Round Trip Time} (RTT) e da ampiezze di banda asimmetriche, lo scambio continuo di gradienti o pesi sinaptici tipico dei protocolli federati può saturare la capacità della tratta, incrementando i tempi di vulnerabilità del sistema.} difficilmente sostenibile su nodi orbitali con severe limitazioni di risorsa.
 \end{enumerate}
 
-Tale scenario rivela un chiaro \textit{Research Gap}: la letteratura scientifica manca di un'indagine sistematica e quantitativa sulla \textbf{trasferibilità diretta (\textit{zero-shot cross-domain})} dei modelli di Machine Learning addestrati su flussi di rete terrestri nei confronti di tracce di traffico esposte alle distorsioni tipiche del canale satellitare \cite{kodheli2021, azar2023}. 
-L'assenza di dataset pubblici etichettati contenenti intrusioni reali registrate su tratte orbitali ha storicamente ostacolato questo filone di ricerca, favorendo l'impiego di tecniche di \textit{unsupervised domain adaptation} \cite{wilson2020} che tuttavia presuppongono un disallineamento distributivo contenuto e non sono parametrizzate sulle asimmetrie estreme del canale radio spaziale.
+Tale scenario rivela un chiaro \textit{Research Gap}: la letteratura scientifica manca di un'indagine sistematica e quantitativa sia sulla \textbf{trasferibilità diretta (\textit{zero-shot cross-domain})} dei modelli di Machine Learning addestrati su flussi terrestri verso il canale satellitare, sia sulle strategie trasversali di \textbf{\textit{Supervised Domain Adaptation}} concepite per operare in contesti di estrema scarsità di campioni etichettati \cite{kodheli2021, azar2023}. 
+L'assenza di dataset pubblici etichettati contenenti intrusioni reali registrate su tratte orbitali ha storicamente ostacolato questo filone di ricerca, favorendo l'impiego di tecniche di \textit{unsupervised domain adaptation} \cite{wilson2020} che tuttavia presuppongono un disallineamento distributivo contenuto e risentono dell'elevato rumore stocastico del canale radio spaziale.
 
-In questo contesto, il presente lavoro di tesi si posiziona come un contributo innovativo volto a colmare tale lacuna metodologica, proponendo un'infrastruttura analitica per la valutazione della robustezza discriminativa e della portabilità dei NIDS nel passaggio dal dominio terrestre a quello satellitare. 
-Nello specifico, i contributi originali dell'opera si articulano nei seguenti punti chiave:
+In questo contesto, il presente lavoro di tesi si propone di colmare le lacune metodologiche riscontrate in letteratura, fornendo un quadro di analisi per la valutazione della robustezza discriminativa e della portabilità dei sistemi NIDS nel passaggio da ambienti di rete terrestri a segmenti satellitari. 
 
+Nello specifico, l'opera intende offrire i seguenti contributi principali:
 \begin{itemize}
-    \item \textbf{Caratterizzazione e Quantificazione del Domain Shift Cross-Domain:} Viene formalizzato l'impatto traslativo che le deformazioni trasmissive del canale satellitare (in termini di latenza di propagazione, fluttuazioni di banda e alterazione dei tempi di interarrivo) esercitano sullo spazio delle \textit{feature} statistiche \cite{pan2010}, misurando analiticamente il degrado prestazionale subito dai classificatori supervisionati terrestri quando trasferiti senza riaddestramento (\textit{zero-shot}).
-    \item \textbf{Valutazione Comparata della Granularità di Classificazione:} Rispetto alla letteratura dominante che analizza in modo isolato la risposta binaria o quella multiclasse \cite{sharafaldin2018}, questo lavoro sviluppa un'analisi comparativa sistematica tra le due formulazioni, dimostrando come la granularità della risposta incida sulla tolleranza al \textit{domain shift}, sul contenimento del tasso di falsi allarmi (\textit{False Positive Rate}, FPR) e sulla conservazione dell'area sotto la curva ROC (\textit{AUC-ROC}).
-    \item \textbf{Architettura di Monitoraggio Alleggerita e Resiliente:} Si propone un paradigma difensivo che rinuncia all'onere comunicativo del \textit{Federated Learning} e alla complessità di riaddestramento in tempo reale dei modelli DRL \cite{alam2024, wan2025}, dimostrando come classificatori leggeri opportunamente calibrati possano mantenere confini di decisione stabili anche di fronte a rilevanti scostamenti distributivi.
+    \item \textbf{Analisi del Domain Shift Cross-Domain:} Caratterizzazione teorica e quantitativa delle deformazioni indotte dal canale trasmissivo spaziale sullo spazio delle \textit{feature} statistiche e sulla capacità di generalizzazione dei modelli terrestri.
+    \item \textbf{Strategie di Adattamento di Dominio:} Valutazione di tecniche di \textit{domain adaptation} per la mitigazione dello scostamento distributivo in contesti caratterizzati da forte scarsità di dati etichettati.
+    \item \textbf{Studio sulla Granularità di Classificazione:} Indagine comparativa sull'impatto che differenti livelli di dettaglio nella risposta del classificatore (binaria e multiclasse) esercitano sulla stabilità delle prestazioni e sulla gestione dei falsi allarmi.
+    \item \textbf{Valutazione di Architetture Difensive Efficienti:} Analisi di soluzioni di monitoraggio adeguate ai vincoli operativi delle infrastrutture satellitari, in grado di garantire stabilità discriminativa senza introdurre elevati costi computazionali o comunicativi.
 \end{itemize}
 
-Tracciati i confini dello stato dell'arte e le criticità aperte nella letteratura, il Capitolo 3 definisce la cornice metodologica generale del lavoro. 
-In particolare, verrà formalizzato il modello teorico adottato per descrivere il fenomeno dello scostamento distributivo, delineando l'approccio astratto utilizzato per analizzare l'impatto dei cambi di canale e valutare la capacità discriminativa delle architetture di rilevamento in scenari non stazionari.
+Definito il quadro della letteratura e identificati i principali gap metodologici, il capitolo successivo introdurrà la formalizzazione teorica e la cornice metodologica generale adottata in questo lavoro. 

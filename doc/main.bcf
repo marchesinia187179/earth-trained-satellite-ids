@@ -2432,11 +2432,7 @@
     <bcf:citekey order="59" intorder="1">kodheli2021</bcf:citekey>
     <bcf:citekey order="59" intorder="2">azar2023</bcf:citekey>
     <bcf:citekey order="60" intorder="1">wilson2020</bcf:citekey>
-    <bcf:citekey order="61" intorder="1">pan2010</bcf:citekey>
-    <bcf:citekey order="62" intorder="1">sharafaldin2018</bcf:citekey>
-    <bcf:citekey order="63" intorder="1">alam2024</bcf:citekey>
-    <bcf:citekey order="63" intorder="2">wan2025</bcf:citekey>
-    <bcf:citekey order="64" intorder="1" nocite="1">*</bcf:citekey>
+    <bcf:citekey order="61" intorder="1" nocite="1">*</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="nty">
