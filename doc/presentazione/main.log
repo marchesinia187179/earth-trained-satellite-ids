@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025/Debian) (preloaded format=pdflatex 2026.7.20)  30 SEP 2026 00:11
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025/Debian) (preloaded format=pdflatex 2026.7.20)  28 JUL 2026 00:06
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1009,7 +1009,7 @@ Package epstopdf Info: Source file: <images/Logo_A_Negativo.eps>
 (epstopdf)             Command: <repstopdf --outfile=images/Logo_A_Negativo-eps-converted-to.pdf images/Logo_A_Negativo.eps>
 (epstopdf)             \includegraphics on input line 55.
 Package epstopdf Info: Output file is already uptodate.
-<images/Logo_A_Negativo-eps-converted-to.pdf, id=69, 399.4925pt x 144.54pt>
+<images/Logo_A_Negativo-eps-converted-to.pdf, id=73, 399.4925pt x 144.54pt>
 File: images/Logo_A_Negativo-eps-converted-to.pdf Graphic file (type pdf)
 <use images/Logo_A_Negativo-eps-converted-to.pdf>
 Package pdftex.def Info: images/Logo_A_Negativo-eps-converted-to.pdf  used on input line 55.
@@ -1019,12 +1019,12 @@ Package pdftex.def Info: images/Logo_A_Negativo-eps-converted-to.pdf  used on in
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc} <./images/Logo_A_Negativo-eps-converted-to.pdf>] [2
 
 ]
-<images/stin-first-page.jpg, id=90, 686.565pt x 929.4725pt>
+<images/stin-first-page.jpg, id=94, 686.565pt x 929.4725pt>
 File: images/stin-first-page.jpg Graphic file (type jpg)
 <use images/stin-first-page.jpg>
 Package pdftex.def Info: images/stin-first-page.jpg  used on input line 181.
 (pdftex.def)             Requested size: 106.01521pt x 143.51363pt.
-<images/stin-network.jpg, id=91, 885.3075pt x 576.1525pt>
+<images/stin-network.jpg, id=95, 885.3075pt x 576.1525pt>
 File: images/stin-network.jpg Graphic file (type jpg)
 <use images/stin-network.jpg>
 Package pdftex.def Info: images/stin-network.jpg  used on input line 181.
@@ -1065,42 +1065,61 @@ Overfull \hbox (15.9379pt too wide) detected at line 181
  <./images/stin-first-page.jpg> <./images/stin-network.jpg>] [4
 
 ]
-Overfull \hbox (7.672pt too wide) in paragraph at lines 294--294
-[][]  
+LaTeX Font Info:    Font shape `T1/phv/m/it' in size <14.4> not available
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 311.
+LaTeX Font Info:    Font shape `T1/phv/m/it' in size <10> not available
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 311.
+LaTeX Font Info:    Font shape `T1/phv/m/it' in size <7> not available
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 311.
+LaTeX Font Info:    Font shape `T1/phv/bx/it' in size <14.4> not available
+(Font)              Font shape `T1/phv/b/it' tried instead on input line 311.
+LaTeX Font Info:    Font shape `T1/phv/b/it' in size <14.4> not available
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 311.
+LaTeX Font Info:    Font shape `T1/phv/bx/it' in size <10> not available
+(Font)              Font shape `T1/phv/b/it' tried instead on input line 311.
+LaTeX Font Info:    Font shape `T1/phv/b/it' in size <10> not available
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 311.
+LaTeX Font Info:    Font shape `T1/phv/bx/it' in size <7> not available
+(Font)              Font shape `T1/phv/b/it' tried instead on input line 311.
+LaTeX Font Info:    Font shape `T1/phv/b/it' in size <7> not available
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 311.
+LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <14.4> not available
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 311.
+LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <10> not available
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 311.
+LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <7> not available
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 311.
+LaTeX Font Info:    Font shape `T1/phv/b/it' in size <14.4> not available
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 311.
+LaTeX Font Info:    Font shape `T1/phv/b/it' in size <10> not available
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 311.
+LaTeX Font Info:    Font shape `T1/phv/b/it' in size <7> not available
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 311.
+LaTeX Font Info:    Font shape `T1/phv/m/it' in size <5> not available
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 311.
+LaTeX Font Info:    Font shape `T1/phv/bx/it' in size <5> not available
+(Font)              Font shape `T1/phv/b/it' tried instead on input line 311.
+LaTeX Font Info:    Font shape `T1/phv/b/it' in size <5> not available
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 311.
+
+Overfull \hbox (1.95438pt too wide) in paragraph at lines 311--311
+ [][] 
  []
 
 [5
 
-]
-LaTeX Font Info:    Font shape `T1/phv/m/it' in size <10> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 339.
-LaTeX Font Info:    Font shape `T1/phv/m/it' in size <7> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 339.
-LaTeX Font Info:    Font shape `T1/phv/m/it' in size <5> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 339.
-LaTeX Font Info:    Font shape `T1/phv/bx/it' in size <10> not available
-(Font)              Font shape `T1/phv/b/it' tried instead on input line 339.
-LaTeX Font Info:    Font shape `T1/phv/b/it' in size <10> not available
-(Font)              Font shape `T1/phv/b/sl' tried instead on input line 339.
-LaTeX Font Info:    Font shape `T1/phv/bx/it' in size <7> not available
-(Font)              Font shape `T1/phv/b/it' tried instead on input line 339.
-LaTeX Font Info:    Font shape `T1/phv/b/it' in size <7> not available
-(Font)              Font shape `T1/phv/b/sl' tried instead on input line 339.
-LaTeX Font Info:    Font shape `T1/phv/bx/it' in size <5> not available
-(Font)              Font shape `T1/phv/b/it' tried instead on input line 339.
-LaTeX Font Info:    Font shape `T1/phv/b/it' in size <5> not available
-(Font)              Font shape `T1/phv/b/sl' tried instead on input line 339.
- [6
+] [6
 
 ]
 LaTeX Font Info:    Font shape `T1/phv/bx/it' in size <9> not available
-(Font)              Font shape `T1/phv/b/it' tried instead on input line 421.
+(Font)              Font shape `T1/phv/b/it' tried instead on input line 481.
 LaTeX Font Info:    Font shape `T1/phv/b/it' in size <9> not available
-(Font)              Font shape `T1/phv/b/sl' tried instead on input line 421.
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 481.
  [7
 
 ]
-Overfull \vbox (2.6737pt too high) detected at line 555
+Overfull \hbox (7.672pt too wide) in paragraph at lines 547--547
+[][]  
  []
 
 [8
@@ -1112,6 +1131,8 @@ Overfull \vbox (2.6737pt too high) detected at line 555
 ] [11
 
 ] [12
+
+] [13
 
 ]
 \tf@nav=\write6
@@ -1129,21 +1150,21 @@ LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: EC5623FDCEB99D4326A71E2C5EECC387;835.
+(rerunfilecheck)             Checksum: D78420EBF31B3CC54E324FED41ABFB80;933.
  ) 
 Here is how much of TeX's memory you used:
- 31372 strings out of 467533
- 614461 string characters out of 5422138
- 1053713 words of memory out of 5000000
- 59570 multiletter control sequences out of 15000+600000
- 725185 words of font info for 152 fonts, out of 8000000 for 9000
+ 31357 strings out of 467533
+ 614300 string characters out of 5422138
+ 1029744 words of memory out of 5000000
+ 59547 multiletter control sequences out of 15000+600000
+ 734772 words of font info for 168 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 128i,14n,123p,502b,1270s stack positions out of 10000i,1000n,20000p,200000b,200000s
-</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvro8a.pfb>
-Output written on main.pdf (12 pages, 672313 bytes).
+ 128i,14n,123p,502b,1265s stack positions out of 10000i,1000n,20000p,200000b,200000s
+</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvbo8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvro8a.pfb>
+Output written on main.pdf (13 pages, 687964 bytes).
 PDF statistics:
- 238 PDF objects out of 1000 (max. 8388607)
- 159 compressed objects within 2 object streams
- 33 named destinations out of 1000 (max. 500000)
- 218 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 260 PDF objects out of 1000 (max. 8388607)
+ 175 compressed objects within 2 object streams
+ 36 named destinations out of 1000 (max. 500000)
+ 226 words of extra memory for PDF output out of 10000 (max. 10000000)
 
