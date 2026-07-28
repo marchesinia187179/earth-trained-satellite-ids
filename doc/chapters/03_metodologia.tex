@@ -44,7 +44,7 @@ $N(\cdot)$ & Operatore di cardinalità (numero di campioni estratti) \\
     Associato a ciascun dominio, la semantica del traffico è modellata tramite una doppia etichettatura. Lo spazio discreto primario $\mathcal{Y} = \{0, 1\}$ stabilisce la natura del flusso, dove $Y = 0$ indica il traffico nominale (\textit{Normal}) e $Y = 1$ identifica genericamente un vettore malevolo. In aggiunta, si definisce un'ulteriore variabile descrittiva $A \in \mathcal{A}$ che specifica il nome della classe, garantendo una caratterizzazione puntuale sia per le componenti benevole ($Y = 0$) sia per le diverse famiglie di attacco ($Y = 1$).
 
     \paragraph{Caratterizzazione Astratta dei Domini e Tassonomia delle Classi}
-    Il framework analitico modella il fenomeno di transizione cross-dominio a partire da due macro-distribuzioni di partenza distinte\footnote{I dettagli operativi relativi ai dataset concreti impiegati per istanziare tali domini, unitamente alle metriche volumetriche esatte, sono ampiamente trattati nel capitolo successivo.}:
+    Il framework analitico modella il fenomeno di transizione cross-dominio a partire da due macro-distribuzioni di partenza distinte:
     \begin{enumerate}
         \item \textbf{Dominio di Riferimento ($\mathcal{D}_S$):} Rappresenta l'ambiente stazionario di origine, contenente sia istanze di traffico nominale ($Y = 0, A \in \mathcal{A}_S$) sia flussi malevoli ($Y = 1, A \in \mathcal{A}_S$). 
         Per eliminare le componenti ad elevata sparsità ed esigua rappresentatività statistica, si applica una procedura di rimozione delle classi minoritarie (\textit{minority removal}) sull'insieme $\mathcal{A}_S$, garantendo una caratterizzazione stabile del baseline di superficie.
@@ -53,8 +53,9 @@ $N(\cdot)$ & Operatore di cardinalità (numero di campioni estratti) \\
         Tali domini vengono strutturati applicando, laddove necessario, un raggruppamento delle classi minoritarie (\textit{minority merge}) per accorpare famiglie d'attacco semanticamente affini e preservare la significatività campionaria.
     \end{enumerate}
 
+
     \paragraph{Isolamento Preventivo delle Partizioni e Politiche Anti-Data Leakage}
-    Per garantire il rigore metodologico ed evitare fenomeni di contaminazione informativa tra la fase di addestramento e quella di valutazione (\textit{data leakage})\footnote{L'esecuzione dello split a monte di qualsiasi fusione previene che campioni identici della classe nominale, riutilizzati per la composizione di benchmark diversi, possano figurare contemporaneamente negli insiemi di addestramento e di test di esperimenti incrociati.}, la partizione di ciascun dominio primario $\mathcal{D}_k$ nei sotto-insiemi di addestramento ($\mathcal{D}_k^{(train)}$) e di verifica ($\mathcal{D}_k^{(test)}$) viene effettuata a monte di qualsiasi operazione di aggregazione o composizione di benchmark derivati. 
+    Per garantire il rigore metodologico ed evitare fenomeni di contaminazione informativa tra la fase di addestramento e quella di valutazione (\textit{data leakage})\footnote{L'esecuzione dello split a monte di qualsiasi fusione previene che campioni identici della classe nominale, riutilizzati per la composizione di benchmark diversi, possano figurare contemporaneamente negli insiemi di addestramento e di test di esperimenti incrociati.}, la partizione di ciascun dominio primario $\mathcal{D}_k$ nei sotto-insiemi di addestramento ($\mathcal{D}_k^{(train)}$) e di verifica ($\mathcal{D}_k^{(test)}$) viene definita a livello logico a monte di qualsiasi operazione di aggregazione o composizione dei benchmark derivati\footnote{Dal punto di vista implementativo, tale partizionamento e la successiva ricomposizione dei vettori vengono gestiti dinamicamente in memoria a runtime mediante pipeline riproducibili (fissando opportuni \textit{seed} stocastici), senza la necessità di persistenza fisica di dataset intermedi.}. 
     In modo uniforme per tutte le configurazioni sperimentali, viene adottata una suddivisione stocastica stratificata con proporzione fissa:
     \begin{equation}
         \mathcal{D}_k = \mathcal{D}_k^{(train)} \cup \mathcal{D}_k^{(test)}, \quad \text{con } \mathcal{D}_k^{(train)} \cap \mathcal{D}_k^{(test)} = \emptyset
@@ -62,20 +63,20 @@ $N(\cdot)$ & Operatore di cardinalità (numero di campioni estratti) \\
     garantendo la totale indipendenza strutturale dei vettori impiegati per l'inferenza.
 
     \paragraph{Sintesi dei Benchmark e Vincoli di Proporzionamento Riconfigurato}
-    Sia per le configurazioni generate internamente al dominio sorgente sia per i benchmark ibridi ricomposti cross-dominio (necessari per l'assenza di traffico nominale etichettato nei contesti di destinazione), il framework applica una politica di proporzionamento rigida e uniforme.
+    Sia per le configurazioni generate internamente al dominio sorgente sia per i benchmark ibridi ricomposti cross-dominio (necessari per l'assenza di traffico nominale etichettato nei contesti di destinazione), il framework applica una politica di proporzionamento controllato.
 
-    Per rispecchiare le condizioni operative di rete e prevenire uno sbilanciamento artificiale dei classificatori\footnote{Nei sistemi NIDS reali, il traffico lecito costituisce la stragrande maggioranza del volume di rete. Il rapporto $10:1$ emula tale asimmetria operativa mantenendo al contempo una densità di attacchi sufficiente a garantire la stabilità statistica delle metriche di rilevamento.}, tutti i dataset generati impongono un vincolo di proporzionamento $10:1$ tra la componente benevola e la componente malevola complessiva:
+    Per rispecchiare le condizioni operative di rete e prevenire uno sbilanciamento artificiale dei classificatori\footnote{Nei sistemi NIDS reali, il traffico lecito costituisce la stragrande maggioranza del volume di rete. La parametrizzazione del rapporto emula tale asimmetria operativa mantenendo una densità di attacchi sufficiente a garantire la stabilità statistica delle metriche.}, il framework impone un vincolo di proporzionamento parametrico $\rho$ tra la componente benevola e la componente malevola complessiva:
     \begin{equation}
-        \frac{N(Y = 0)}{\sum_{a \in \mathcal{A}_m} N(Y = 1, A = a)} = 10
+        \frac{N(Y = 0)}{\sum_{a \in \mathcal{A}_m} N(Y = 1, A = a)} = \rho
     \end{equation}
-    dove $N(\cdot)$ indica la cardinalità dei campioni estratti e $\mathcal{A}_m$ l'insieme delle specifiche famiglie di attacco incluse nella specifica configurazione.
+    dove $N(\cdot)$ indica la cardinalità dei campioni estratti, $\mathcal{A}_m$ rappresenta l'insieme delle specifiche famiglie di attacco incluse nella configurazione e $\rho \in \mathbb{R}^+$ costituisce il fattore di asimmetria volumetrica prescritto dal protocollo metodologico.
 
     Nei benchmark di tipo aggregato (sia sorgenti che ibridi), la composizione interna del sottoinsieme malevolo non adotta l'equi-probabilità artificiale tra le classi d'attacco. Al contrario, si preserva la distribuzione naturale a priori $P(A = a \mid Y = 1)$ caratteristica dei domini di origine, evitando alterazioni sintetiche e mantenendo la fedeltà alle frequenze di occorrenza reali delle minacce. 
     L'intero processo di isolamento procedurale e ricomposizione dei benchmark è schematizzato nella Figura~\ref{fig:pipeline_astratta}.
 
     \begin{figure}[H]
         \centering
-        \resizebox{0.85\textwidth}{!}{%
+        \resizebox{0.9\textwidth}{!}{%
         \begin{tikzpicture}[
             >={Stealth[length=2mm, width=1.4mm]},
             domnode/.style={
@@ -86,76 +87,102 @@ $N(\cdot)$ & Operatore di cardinalità (numero di campioni estratti) \\
                 rectangle, draw=black!85, fill=white, thick, dashed, 
                 align=center, inner sep=5pt
             },
-            part/.style={
+            parttr/.style={
                 rectangle, draw=black!75, fill=gray!18, semithick, 
-                align=center, font=\footnotesize, inner sep=5pt
+                align=center, font=\footnotesize, inner sep=4pt
+            },
+            partte/.style={
+                rectangle, draw=black!75, fill=gray!28, semithick, 
+                align=center, font=\footnotesize, inner sep=4pt
             },
             synth/.style={
-                rectangle, draw=black!90, fill=gray!25, thick, 
-                align=center, rounded corners=2pt, inner sep=5pt
+                rectangle, draw=black!90, fill=gray!12, thick, 
+                align=center, rounded corners=2pt, inner sep=6pt
             },
             line/.style={draw=black!85, thick, ->},
             subline/.style={draw=black!75, semithick, rounded corners=2pt},
             sublinearr/.style={draw=black!75, thick, ->, rounded corners=2pt}
         ]
 
-            % RIGA 1: Domini
-            \node [domnode] (source) at (-3.5, 6.2) {
+            % RIGA 1: Domini Primari
+            \node [domnode] (source) at (-4, 11) {
                 \textbf{Dominio Sorgente $\mathcal{D}_S$}\\
                 $P_S(\mathbf{x}\mid Y{=}0, A\in\mathcal{A}_S) \cup P_S(\mathbf{x}\mid Y{=}1, A\in\mathcal{A}_S)$
             };
-            \node [domnode] (target) at (3.5, 6.2) {
+            \node [domnode] (target) at (4, 11) {
                 \textbf{Domini Target $\mathcal{D}_T$}\\
                 $P_T(\mathbf{x}\mid Y{=}1, A\in\mathcal{A}_T)$
             };
 
-            % RIGA 2: Split
-            \node [process] (split_s) at (-3.5, 4.2) {
-                \textbf{Isolamento Preventivo}\\
+            % RIGA 2: Isolamento e Split Logico
+            \node [process] (split_s) at (-4, 9) {
+                \textbf{Isolamento Logico (Runtime)}\\
                 Split Stratificato Train/Test
             };
-            \node [process] (split_t) at (3.5, 4.2) {
-                \textbf{Isolamento Preventivo}\\
+            \node [process] (split_t) at (4, 9) {
+                \textbf{Isolamento Logico (Runtime)}\\
                 Split Stratificato Train/Test
             };
 
-            % RIGA 3: Partizioni
-            \node [part] (ds_tr) at (-5, 2.3) {$\mathcal{D}_S^{(train)}$};
-            \node [part] (ds_te) at (-2, 2.3) {$\mathcal{D}_S^{(test)}$};
-            \node [part] (dt_tr) at ( 2, 2.3) {$\mathcal{D}_T^{(train)}$};
-            \node [part] (dt_te) at ( 5, 2.3) {$\mathcal{D}_T^{(test)}$};
+            % RIGA 3: Partizioni Disgiunte
+            \node [parttr] (ds_tr) at (-5, 7) {$\mathcal{D}_S^{(train)}$};
+            \node [partte] (ds_te) at (-3, 7) {$\mathcal{D}_S^{(test)}$};
+            \node [parttr] (dt_tr) at ( 3, 7) {$\mathcal{D}_T^{(train)}$};
+            \node [partte] (dt_te) at ( 5, 7) {$\mathcal{D}_T^{(test)}$};
 
-            % RIGA 4: Benchmark Generati
-            \node [synth] (hybrid) at (0, -0.2) {
-                \textbf{Sintesi dei Benchmark Sperimentali (Ratio $10\!:\!1$ Benevolo/Malevolo)}\\[2pt]
-                \footnotesize
-                \textbf{Dataset Generati:} Nativi Sorgente (Aggregati / Biclasse) $\;\vert\;$ Ibridi (Aggregati / Biclasse) $\;\vert;$ Iniezione\\[2pt]
-                \textit{Distribuzione malevole aggregata non equi-probabile (preserva prior naturali)}\\[2pt]
-                Composizione disgiunta: $\mathcal{D}_S^{(train)} \cup \mathcal{D}_{S,T}^{(train)}$ \ e \ $\mathcal{D}_S^{(test)} \cup \mathcal{D}_{S,T}^{(test)}$
+            % RIGA 4: Sintesi Parallela dei Benchmark (In-Memory)
+            \node [synth] (synth_tr) at (-4, 4) {
+                \textbf{Sintesi Logica (Train)}\\
+                Composizione da: $\mathcal{D}_S^{(train)}$ e $\mathcal{D}_T^{(train)}$\\
+                \textit{Asimmetria volumetrica: Ratio $\rho$}\\
+                \textit{Prior naturali in aggregato}
+            };
+
+            \node [synth] (synth_te) at (4, 4) {
+                \textbf{Sintesi Logica (Test)}\\
+                Composizione da: $\mathcal{D}_S^{(test)}$ e $\mathcal{D}_T^{(test)}$\\
+                \textit{Asimmetria volumetrica: Ratio $\rho$}\\
+                \textit{Prior naturali in aggregato}
+            };
+
+            % RIGA 5: Categorie Risultanti
+            \node [rectangle, draw=black!90, fill=gray!25, thick, rounded corners=2pt, align=center, inner sep=5pt] (categories) at (0, 0) {
+                \textbf{5 Tipologie di Benchmark Istanziati a Runtime (Train / Test disgiunti):}\\
+                1. Nativi Sorgente Aggregati \quad$\vert$\quad 2. Nativi Sorgente Biclasse\\
+                3. Ibridi Aggregati \quad$\vert$\quad 4. Ibridi Biclasse\\
+                5. Iniezione
             };
 
             % CONNESSIONI
             \draw [line] (source) -- (split_s);
             \draw [line] (target) -- (split_t);
 
+            % Split Sorgente
             \coordinate (junc_s) at ($(split_s.south)+(0,-0.35)$);
             \draw [subline] (split_s.south) -- (junc_s);
             \draw [sublinearr] (junc_s) -| (ds_tr.north);
             \draw [sublinearr] (junc_s) -| (ds_te.north);
 
+            % Split Target
             \coordinate (junc_t) at ($(split_t.south)+(0,-0.35)$);
             \draw [subline] (split_t.south) -- (junc_t);
             \draw [sublinearr] (junc_t) -| (dt_tr.north);
             \draw [sublinearr] (junc_t) -| (dt_te.north);
 
-            \draw [sublinearr] (ds_tr.south) -- ++(0,-0.35) -| ($(hybrid.north)+(-4,0)$);
-            \draw [sublinearr] (ds_te.south) -- ++(0,-0.35) -| ($(hybrid.north)+(-3,0)$);
-            \draw [sublinearr] (dt_tr.south) -- ++(0,-0.35) -| ($(hybrid.north)+( 3,0)$);
-            \draw [sublinearr] (dt_te.south) -- ++(0,-0.35) -| ($(hybrid.north)+( 4,0)$);
+            % Connessioni ai Blocchi di Sintesi
+            \draw [sublinearr] (ds_tr.south) -- ++(0,-0.3) -| ($(synth_tr.north)+(-0.8,0)$);
+            \draw [sublinearr] (dt_tr.south) -- ++(0,-0.3) -| ($(synth_tr.north)+( 0.8,0)$);
+
+            \draw [sublinearr] (ds_te.south) -- ++(0,-0.3) -| ($(synth_te.north)+(-0.8,0)$);
+            \draw [line] (dt_te.south) -- ($(synth_te.north)+(1,0)$);
+            
+            % Collegamento alle categorie finali
+            \draw [sublinearr] (synth_tr.south) |- (categories.west);
+            \draw [sublinearr] (synth_te.south) |- (categories.east);
 
         \end{tikzpicture}
         }
-        \caption{Pipeline metodologica astratta: isolamento preventivo delle partizioni per la prevenzione del \textit{data leakage}, vincoli di proporzionamento $10:1$ e sintesi delle cinque tipologie di benchmark.}
+        \caption{Pipeline logica astratta: isolamento preventivo delle partizioni per la prevenzione del \textit{data leakage}, vincoli di proporzionamento parametrico $\rho$ e sintesi in-memory delle cinque tipologie di benchmark.}
         \label{fig:pipeline_astratta}
     \end{figure}
 
