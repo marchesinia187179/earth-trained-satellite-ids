@@ -7,26 +7,32 @@
 La presente sezione formalizza l'impalcatura teorica e matematica del framework analitico, definendo in modo rigoroso gli spazi vettoriali di rappresentazione e le distribuzioni di probabilità necessarie per modellare i fenomeni di transizione cross-dominio nei sistemi NIDS. 
 L'obiettivo è stabilire un modello astratto, indipendente dalle specifiche implementative dei singoli dataset, in grado di garantire il rigore metodologico, la comparabilità delle metriche e l'assenza di contaminazione informativa.
 
-A tal fine, la trattazione introduce preliminarmente la formalizzazione dei domini di origine e destinazione, delineando le regole di partizionamento preventivo e le strategie di sintesi dei benchmark ibridi. 
+A tal fine, la trattazione introduce preliminarmente la formalizzazione dei domini di origine e destinazione, delineando la semantica a doppia etichettatura, le regole di partizionamento preventivo e le strategie di sintesi dei benchmark ibridi. 
 Successivamente, viene definito l'operatore di proiezione nello spazio delle \textit{feature} condiviso, esplicitando i criteri concettuali di filtraggio degli attributi e le proprietà di invarianza algebrica che governano la pipeline di \textit{preprocessing}.
+Per facilitare la lettura della trattazione successiva, i principali simboli e costrutti matematici adottati sono sintetizzati nella Tabella~\ref{tab:notazione_matematica}.
 
 \begin{table}[H]
 \centering
 \caption{Sintesi della notazione matematica e dei simboli del framework.}
 \label{tab:notazione_matematica}
 \small
-\begin{tabular}{ll}
-\hline
-\textbf{Simbolo} & \textbf{Descrizione e Significato Concettuale} \\ \hline
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\textwidth}{@{} >{\raggedright\arraybackslash}p{3cm} >{\raggedright\arraybackslash}X @{}}
+\toprule
+\textbf{Simbolo} & \textbf{Descrizione e Significato Concettuale} \\ 
+\midrule
 $\mathcal{D} = (\mathcal{X}, P(\mathbf{x}))$ & Dominio di traffico (Spazio delle feature e distribuzione marginale) \\
 $\mathcal{X} \subseteq \mathbb{R}^d$ & Spazio delle caratteristiche $d$-dimensionale omogeneizzato \\
 $\mathbf{x} = (x_1, \dots, x_d)^\top$ & Vettore delle feature del singolo flusso di rete \\
-$\mathcal{Y} = \{0, 1, \dots, C\}$ & Spazio discreto delle etichette ($0$: Normal, $>0$: Minacce) \\
-$\mathcal{D}_S, \mathcal{D}_T$ & Dominio Terrestre Sorgente e Domini di Destinazione (Target) \\
-$\mathcal{D}_k^{(train)}, \mathcal{D}_k^{(test)}$ & Partizioni disgiunte di addestramento e test per il dominio $k$ \\
-$\boldsymbol{\psi}(\cdot)$ & Operatore di proiezione e combinazione dalle feature grezze a $\mathcal{X}$ \\
-$N(\cdot)$ & Operatore di cardinalità (numero di campioni estratti) \\ \hline
-\end{tabular}
+$\mathcal{Y} = \{0, 1\}$ & Spazio discreto delle etichette primarie ($0$: Normal, $1$: Malevolo) \\
+$A \in \mathcal{A}$ & Variabile descrittiva per la specifica famiglia di attacco (definita per $Y=1$) \\
+$\mathcal{A}_S, \mathcal{A}_T$ & Insiemi delle tipologie di minaccia presenti nei domini sorgente e target \\
+$\mathcal{D}_S, \mathcal{D}_T$ & Dominio Terrestre Sorgente e Domini Target di Destinazione \\
+$\mathcal{D}_k^{(train)}, \mathcal{D}_k^{(test)}$ & Partizioni disgiunte di addestramento e test per il generico dominio $k$ \\
+$\boldsymbol{\psi}(\cdot)$ & Operatore di proiezione e combinazione dalle feature grezze allo spazio $\mathcal{X}$ \\
+$N(\cdot)$ & Operatore di cardinalità (numero di campioni estratti) \\ 
+\bottomrule
+\end{tabularx}
 \end{table}
 
     \subsection{Formalizzazione dei Domini e Composizione Asimmetrica del Traffico}
@@ -34,86 +40,168 @@ $N(\cdot)$ & Operatore di cardinalità (numero di campioni estratti) \\ \hline
 
     La formalizzazione del framework analitico richiede la definizione rigorosa degli spazi di rappresentazione vettoriale e delle distribuzioni di probabilità associate ai diversi contesti di rete considerati. 
     Si definisce un \textit{dominio} $\mathcal{D}$ come la coppia $(\mathcal{X}, P(\mathbf{x}))$, dove $\mathcal{X} \subseteq \mathbb{R}^d$ rappresenta lo spazio delle \textit{feature} $d$-dimensionale condiviso e $P(\mathbf{x})$ la distribuzione di probabilità marginale definita sul vettore delle caratteristiche $\mathbf{x} = (x_1, x_2, \dots, x_d)^\top \in \mathcal{X}$. 
-    Associato a ciascun dominio, lo spazio discreto delle etichette $\mathcal{Y}$ definisce la semantica del traffico, dove $Y = 0$ indica la classe di traffico nominale (\textit{Normal}) e $Y \in \{1, \dots, C\}$ le classi relative alle differenti famiglie di minaccia.
+    
+    Associato a ciascun dominio, la semantica del traffico è modellata tramite una doppia etichettatura. Lo spazio discreto primario $\mathcal{Y} = \{0, 1\}$ stabilisce la natura del flusso, dove $Y = 0$ indica il traffico nominale (\textit{Normal}) e $Y = 1$ identifica genericamente un vettore malevolo. In aggiunta, si definisce un'ulteriore variabile descrittiva $A \in \mathcal{A}$ che specifica il nome della classe, garantendo una caratterizzazione puntuale sia per le componenti benevole ($Y = 0$) sia per le diverse famiglie di attacco ($Y = 1$).
 
     \paragraph{Caratterizzazione Astratta dei Domini e Tassonomia delle Classi}
     Il framework analitico modella il fenomeno di transizione cross-dominio a partire da due macro-distribuzioni di partenza distinte\footnote{I dettagli operativi relativi ai dataset concreti impiegati per istanziare tali domini, unitamente alle metriche volumetriche esatte, sono ampiamente trattati nel capitolo successivo.}:
     \begin{enumerate}
-        \item \textbf{Dominio Terrestre di Riferimento ($\mathcal{D}_S$):} Rappresenta l'ambiente stazionario di origine, contenente sia istanze di traffico nominale ($Y = 0$) sia flussi malevoli ($Y \in \mathcal{Y}_S$). 
-        Per eliminare le componenti ad elevata sparsità ed esigua rappresentatività statistica, si applica una procedura di rimozione delle classi minoritarie (\textit{minority removal}), garantendo una caratterizzazione stabile del baseline di superficie.
+        \item \textbf{Dominio di Riferimento ($\mathcal{D}_S$):} Rappresenta l'ambiente stazionario di origine, contenente sia istanze di traffico nominale ($Y = 0, A \in \mathcal{A}_S$) sia flussi malevoli ($Y = 1, A \in \mathcal{A}_S$). 
+        Per eliminare le componenti ad elevata sparsità ed esigua rappresentatività statistica, si applica una procedura di rimozione delle classi minoritarie (\textit{minority removal}) sull'insieme $\mathcal{A}_S$, garantendo una caratterizzazione stabile del baseline di superficie.
         
-        \item \textbf{Domini di Destinazione ($\mathcal{D}_T$):} Rappresentano i contesti soggetti a variazioni trasmissive o canali eterogenei, composti esclusivamente da vettori di traffico malevolo ($Y \in \mathcal{Y}_T$). 
+        \item \textbf{Domini di Destinazione ($\mathcal{D}_T$):} Rappresentano i contesti soggetti a variazioni trasmissive o canali eterogenei, composti esclusivamente da vettori di traffico malevolo ($Y = 1, A \in \mathcal{A}_T$). 
         Tali domini vengono strutturati applicando, laddove necessario, un raggruppamento delle classi minoritarie (\textit{minority merge}) per accorpare famiglie d'attacco semanticamente affini e preservare la significatività campionaria.
     \end{enumerate}
 
     \paragraph{Isolamento Preventivo delle Partizioni e Politiche Anti-Data Leakage}
     Per garantire il rigore metodologico ed evitare fenomeni di contaminazione informativa tra la fase di addestramento e quella di valutazione (\textit{data leakage})\footnote{L'esecuzione dello split a monte di qualsiasi fusione previene che campioni identici della classe nominale, riutilizzati per la composizione di benchmark diversi, possano figurare contemporaneamente negli insiemi di addestramento e di test di esperimenti incrociati.}, la partizione di ciascun dominio primario $\mathcal{D}_k$ nei sotto-insiemi di addestramento ($\mathcal{D}_k^{(train)}$) e di verifica ($\mathcal{D}_k^{(test)}$) viene effettuata a monte di qualsiasi operazione di aggregazione o composizione di benchmark derivati. 
-    Viene adottata una suddivisione stocastica stratificata con proporzione fissa $80/20$:
+    In modo uniforme per tutte le configurazioni sperimentali, viene adottata una suddivisione stocastica stratificata con proporzione fissa:
     \begin{equation}
         \mathcal{D}_k = \mathcal{D}_k^{(train)} \cup \mathcal{D}_k^{(test)}, \quad \text{con } \mathcal{D}_k^{(train)} \cap \mathcal{D}_k^{(test)} = \emptyset
     \end{equation}
     garantendo la totale indipendenza strutturale dei vettori impiegati per l'inferenza.
 
-    \paragraph{Sintesi del Benchmark Ibrido e Proporzionamento Riconfigurato}
-    A causa dell'indisponibilità di campioni di traffico nominale etichettati nei contesti di destinazione, l'impianto metodologico adotta un paradigma di \textit{costruzione ibrida del benchmark}. 
-    Il traffico lecito di base viene fornito in modo coerente dalla componente nominale $P_S(\mathbf{x} \mid Y = 0)$, a cui vengono sovrapposti i flussi malevoli provenienti dalle diverse distribuzioni $P_T(\mathbf{x} \mid Y \in \mathcal{Y}_T)$.
+    \paragraph{Sintesi dei Benchmark e Vincoli di Proporzionamento Riconfigurato}
+    Sia per le configurazioni generate internamente al dominio sorgente sia per i benchmark ibridi ricomposti cross-dominio (necessari per l'assenza di traffico nominale etichettato nei contesti di destinazione), il framework applica una politica di proporzionamento rigida e uniforme.
 
-    Per rispecchiare le condizioni operative e prevenire uno sbilanciamento artificiale dei classificatori\footnote{Nei sistemi NIDS reali, il traffico lecito costituisce la stragrande maggioranza del volume di rete. Il rapporto $10:1$ emula tale asimmetria operativa mantenendo al contempo una densità di attacchi sufficiente a garantire la stabilità statistica delle metriche di rilevamento.}, ciascun benchmark derivato impone un vincolo di proporzionamento rigido $10:1$ tra la componente benevola e la componente malevola complessiva:
+    Per rispecchiare le condizioni operative di rete e prevenire uno sbilanciamento artificiale dei classificatori\footnote{Nei sistemi NIDS reali, il traffico lecito costituisce la stragrande maggioranza del volume di rete. Il rapporto $10:1$ emula tale asimmetria operativa mantenendo al contempo una densità di attacchi sufficiente a garantire la stabilità statistica delle metriche di rilevamento.}, tutti i dataset generati impongono un vincolo di proporzionamento $10:1$ tra la componente benevola e la componente malevola complessiva:
     \begin{equation}
-        \frac{N(Y = 0)}{\sum_{y \in \mathcal{Y}_m} N(Y = y)} = 10
+        \frac{N(Y = 0)}{\sum_{a \in \mathcal{A}_m} N(Y = 1, A = a)} = 10
     \end{equation}
-    dove $N(\cdot)$ indica la cardinalità dei campioni estratti e $\mathcal{Y}_m$ l'insieme delle etichette malevole incluse nel dataset specifico.
+    dove $N(\cdot)$ indica la cardinalità dei campioni estratti e $\mathcal{A}_m$ l'insieme delle specifiche famiglie di attacco incluse nella specifica configurazione.
 
-    Nel caso dei benchmark aggregati (contenenti più famiglie di attacco contemporaneamente), la composizione interna del sottoinsieme malevolo rispetta la distribuzione naturale a priori delle classi nei domini di destinazione, evitando livellamenti artificiali e preservando la fedeltà alle distribuzioni di partenza.
+    Nei benchmark di tipo aggregato (sia sorgenti che ibridi), la composizione interna del sottoinsieme malevolo non adotta l'equi-probabilità artificiale tra le classi d'attacco. Al contrario, si preserva la distribuzione naturale a priori $P(A = a \mid Y = 1)$ caratteristica dei domini di origine, evitando alterazioni sintetiche e mantenendo la fedeltà alle frequenze di occorrenza reali delle minacce. 
+    L'intero processo di isolamento procedurale e ricomposizione dei benchmark è schematizzato nella Figura~\ref{fig:pipeline_astratta}.
 
+    \begin{figure}[H]
+        \centering
+        \resizebox{0.85\textwidth}{!}{%
+        \begin{tikzpicture}[
+            >={Stealth[length=2mm, width=1.4mm]},
+            domnode/.style={
+                rectangle, draw=black!85, fill=gray!8, thick, 
+                align=center, rounded corners=2pt, inner sep=5pt
+            },
+            process/.style={
+                rectangle, draw=black!85, fill=white, thick, dashed, 
+                align=center, inner sep=5pt
+            },
+            part/.style={
+                rectangle, draw=black!75, fill=gray!18, semithick, 
+                align=center, font=\footnotesize, inner sep=5pt
+            },
+            synth/.style={
+                rectangle, draw=black!90, fill=gray!25, thick, 
+                align=center, rounded corners=2pt, inner sep=5pt
+            },
+            line/.style={draw=black!85, thick, ->},
+            subline/.style={draw=black!75, semithick, rounded corners=2pt},
+            sublinearr/.style={draw=black!75, thick, ->, rounded corners=2pt}
+        ]
 
-    %
-    %
-    %
-    %
-    % --- INSERIRE GRAFICO DRAW.IO
-    %
-    %
-    %
-    %
+            % RIGA 1: Domini
+            \node [domnode] (source) at (-3.5, 6.2) {
+                \textbf{Dominio Sorgente $\mathcal{D}_S$}\\
+                $P_S(\mathbf{x}\mid Y{=}0, A\in\mathcal{A}_S) \cup P_S(\mathbf{x}\mid Y{=}1, A\in\mathcal{A}_S)$
+            };
+            \node [domnode] (target) at (3.5, 6.2) {
+                \textbf{Domini Target $\mathcal{D}_T$}\\
+                $P_T(\mathbf{x}\mid Y{=}1, A\in\mathcal{A}_T)$
+            };
 
+            % RIGA 2: Split
+            \node [process] (split_s) at (-3.5, 4.2) {
+                \textbf{Isolamento Preventivo}\\
+                Split Stratificato Train/Test
+            };
+            \node [process] (split_t) at (3.5, 4.2) {
+                \textbf{Isolamento Preventivo}\\
+                Split Stratificato Train/Test
+            };
+
+            % RIGA 3: Partizioni
+            \node [part] (ds_tr) at (-5, 2.3) {$\mathcal{D}_S^{(train)}$};
+            \node [part] (ds_te) at (-2, 2.3) {$\mathcal{D}_S^{(test)}$};
+            \node [part] (dt_tr) at ( 2, 2.3) {$\mathcal{D}_T^{(train)}$};
+            \node [part] (dt_te) at ( 5, 2.3) {$\mathcal{D}_T^{(test)}$};
+
+            % RIGA 4: Benchmark Generati
+            \node [synth] (hybrid) at (0, -0.2) {
+                \textbf{Sintesi dei Benchmark Sperimentali (Ratio $10\!:\!1$ Benevolo/Malevolo)}\\[2pt]
+                \footnotesize
+                \textbf{Dataset Generati:} Nativi Sorgente (Aggregati / Biclasse) $\;\vert\;$ Ibridi (Aggregati / Biclasse) $\;\vert;$ Iniezione\\[2pt]
+                \textit{Distribuzione malevole aggregata non equi-probabile (preserva prior naturali)}\\[2pt]
+                Composizione disgiunta: $\mathcal{D}_S^{(train)} \cup \mathcal{D}_{S,T}^{(train)}$ \ e \ $\mathcal{D}_S^{(test)} \cup \mathcal{D}_{S,T}^{(test)}$
+            };
+
+            % CONNESSIONI
+            \draw [line] (source) -- (split_s);
+            \draw [line] (target) -- (split_t);
+
+            \coordinate (junc_s) at ($(split_s.south)+(0,-0.35)$);
+            \draw [subline] (split_s.south) -- (junc_s);
+            \draw [sublinearr] (junc_s) -| (ds_tr.north);
+            \draw [sublinearr] (junc_s) -| (ds_te.north);
+
+            \coordinate (junc_t) at ($(split_t.south)+(0,-0.35)$);
+            \draw [subline] (split_t.south) -- (junc_t);
+            \draw [sublinearr] (junc_t) -| (dt_tr.north);
+            \draw [sublinearr] (junc_t) -| (dt_te.north);
+
+            \draw [sublinearr] (ds_tr.south) -- ++(0,-0.35) -| ($(hybrid.north)+(-4,0)$);
+            \draw [sublinearr] (ds_te.south) -- ++(0,-0.35) -| ($(hybrid.north)+(-3,0)$);
+            \draw [sublinearr] (dt_tr.south) -- ++(0,-0.35) -| ($(hybrid.north)+( 3,0)$);
+            \draw [sublinearr] (dt_te.south) -- ++(0,-0.35) -| ($(hybrid.north)+( 4,0)$);
+
+        \end{tikzpicture}
+        }
+        \caption{Pipeline metodologica astratta: isolamento preventivo delle partizioni per la prevenzione del \textit{data leakage}, vincoli di proporzionamento $10:1$ e sintesi delle cinque tipologie di benchmark.}
+        \label{fig:pipeline_astratta}
+    \end{figure}
 
     \paragraph{Tassonomia Astratta delle Configurazioni Sperimentali}
-    L'applicazione di tali principi formalizza la creazione di quattro categorie funzionali di benchmark:
-    \begin{itemize}
-        \item \textbf{Set Nativo Sorgente:} Comprendente configurazioni aggregate e configurazioni biclasse formate dall'unione della classe nominale $Y=0$ con ciascuna delle singole classi malevole del dominio sorgente.
-        \item \textbf{Set Ibridi Aggregati:} Composti dalla classe nominale $Y=0$ del dominio sorgente unita alla totalità delle classi malevole dei domini di destinazione, sia considerate congiuntamente che separatamente per segmento trasmissivo.
-        \item \textbf{Set Ibridi Biclasse:} Formati dalla combinazione della classe nominale $Y=0$ con le singole famiglie d'attacco isolate all'interno dei domini target.
-        \item \textbf{Set di Iniezione di Riferimento:} Progettato in conformità agli standard di letteratura, integra l'intera distribuzione nativa del dominio sorgente (traffico nominale e malevolo) con un'iniezione altamente sparsa e controllata di dati malevoli provenienti dai domini di destinazione.
-    \end{itemize}
+    L'applicazione sistematica di tali regole porta alla generazione di cinque categorie funzionali di dataset, tutte condividenti lo split train/test e il rapporto benevolo/malevolo:
+    \begin{enumerate}
+        \item \textbf{Set Nativi Sorgente Aggregati:} Composti dalla baseline nominale $Y=0$ di $\mathcal{D}_S$ unita alla totalità delle famiglie di attacco sorgenti $A \in \mathcal{A}_S$, rispettando la loro distribuzione a priori naturale (non equi-probabile).
+        \item \textbf{Set Nativi Sorgente Biclasse:} Formati dall'unione della classe nominale $Y=0$ con una singola famiglia di attacco $A = a \in \mathcal{A}_S$ isolata all'interno del dominio sorgente.
+        \item \textbf{Set Ibridi Aggregati:} Composti dalla classe nominale $Y=0$ del dominio sorgente unita alla totalità delle minacce dei domini di destinazione $A \in \mathcal{A}_T$, preservando le frequenze a priori del dominio target.
+        \item \textbf{Set Ibridi Biclasse:} Formati dalla combinazione della classe nominale $Y=0$ sorgente con le singole famiglie d'attacco $A = a \in \mathcal{A}_T$ isolate all'interno dei domini target.
+        \item \textbf{Set di Iniezione di Riferimento:} Progettato in conformità agli standard di letteratura, integra la distribuzione nativa sorgente ($\mathcal{D}_S$ sia nominale che malevole) con un'iniezione sparsa e controllata di vettori d'attacco provenienti dai domini target $\mathcal{D}_T$.
+    \end{enumerate}
+
+    I dettagli di composizione per ciascuna delle cinque categorie sono riassunti nella Tabella~\ref{tab:tassonomia_benchmark}.
 
     \begin{table}[H]
-    \centering
-    \caption{Tassonomia astratta delle quattro categorie di benchmark sperimentali.}
-    \label{tab:tassonomia_benchmark}
-    \small
-    \renewcommand{\arraystretch}{1.35} % Migliora la spaziatura verticale tra le righe
-    \begin{tabularx}{\textwidth}{@{} >{\raggedright\arraybackslash}p{3.3cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X @{}}
-    \toprule
-    \textbf{Categoria Benchmark} & \textbf{Classe Benevola ($Y=0$)} & \textbf{Componente Malevola ($Y > 0$)} \\ 
-    \midrule
-    \textbf{Set Nativo Sorgente} & 
-    Baseline nativa $P_S(\mathbf{x} \mid Y=0)$ & 
-    Minacce sorgente $P_S(\mathbf{x} \mid Y \in \mathcal{Y}_S)$, modellate singolarmente o in forma aggregata. \\ 
+        \centering
+        \caption{Tassonomia astratta delle cinque categorie di benchmark sperimentali.}
+        \label{tab:tassonomia_benchmark}
+        \small
+        \renewcommand{\arraystretch}{1.25}
+        \begin{tabularx}{\textwidth}{@{} >{\raggedright\arraybackslash}p{3.5cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X @{}}
+        \toprule
+        \textbf{Categoria Benchmark} & \textbf{Componente Benevola ($Y=0$)} & \textbf{Componente Malevola ($Y = 1$)} \\ 
+        \midrule
+        \textbf{Set Nativo Sorgente Aggregato} & 
+        Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ & 
+        Tutte le minacce sorgente $P_S(\mathbf{x} \mid Y=1, A \in \mathcal{A}_S)$ con distribuzioni a priori naturali. \\ 
 
-    \textbf{Set Ibridi Aggregati} & 
-    Baseline nativa $P_S(\mathbf{x} \mid Y=0)$ & 
-    Totalità delle minacce target $P_T(\mathbf{x} \mid Y \in \mathcal{Y}_T)$ ricombinate con vincolo di ratio $10:1$. \\ 
+        \textbf{Set Nativo Sorgente Biclasse} & 
+        Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ & 
+        Singola minaccia sorgente $P_S(\mathbf{x} \mid Y=1, A = a)$ isolata ($a \in \mathcal{A}_S$). \\ 
 
-    \textbf{Set Ibridi Biclasse} & 
-    Baseline nativa $P_S(\mathbf{x} \mid Y=0)$ & 
-    Singole famiglie di attacco target $P_T(\mathbf{x} \mid Y = y_t)$ isolate con vincolo di ratio $10:1$. \\ 
+        \textbf{Set Ibrido Aggregato} & 
+        Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ & 
+        Tutte le minacce target $P_T(\mathbf{x} \mid Y=1, A \in \mathcal{A}_T)$ con distribuzioni a priori naturali. \\ 
 
-    \textbf{Set di Iniezione} & 
-    Distribuzione nativa completa $\mathcal{D}_S$ ($Y=0$ e $Y \in \mathcal{Y}_S$) & 
-    Iniezione altamente sparsa e controllata di vettori malevoli provenienti da $\mathcal{D}_T$. \\ 
-    \bottomrule
-    \end{tabularx}
+        \textbf{Set Ibrido Biclasse} & 
+        Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ & 
+        Singola minaccia target $P_T(\mathbf{x} \mid Y=1, A = a)$ isolata ($a \in \mathcal{A}_T$). \\ 
+
+        \textbf{Set di Iniezione di Riferimento} & 
+        Distribuzione sorgente $\mathcal{D}_S$ ($Y=0$ e $Y=1, A \in \mathcal{A}_S$) & 
+        Iniezione altamente sparsa e controllata di vettori malevoli provenienti da $\mathcal{D}_T$ ($Y=1, A \in \mathcal{A}_T$). \\ 
+        \bottomrule
+        \end{tabularx}
     \end{table}
 
     \subsection{Allineamento dello Spazio delle Feature e Preprocessing Astratto}
