@@ -310,9 +310,70 @@ $N(\cdot)$ & Operatore di cardinalità (numero di campioni estratti) \\
 \section{Tassonomia delle Architetture di Classificazione e Valutazione Multi-Modello}
 \label{sec:tassonomia_modelli}
 
-    \subsection{Modelli di Riferimento (Baseline) e Modelli Aggregati}
+    \subsection{Modello di Riferimento (Baseline) e Modelli Aggregati}
     \label{subsec:modelli_aggregati}
-    % Definizione formale del modello baseline (ancora del sistema) e dei classificatori addestrati su distribuzioni aggregate multi-classe.
+
+    In questa sezione viene formalizzato lo spazio dei classificatori supervisionati operanti all'interno del framework analitico. Indipendentemente dalle specifiche architetture algoritmiche impiegate per la stima dei parametri, il problema di rilevamento delle intrusioni viene modellato in chiave rigorosamente binaria. Sebbene i sottoinsiemi malevoli racchiudano al loro interno un insieme eterogeneo di famiglie d'attacco $A \in \mathcal{A}$, la funzione di decisione appresa mappa lo spazio delle \textit{feature} $\mathcal{X} \subseteq \mathbb{R}^d$ direttamente sulla natura del flusso $\mathcal{Y} = \{0, 1\}$, isolando le componenti lecite ($Y = 0$) da qualsiasi manifestazione anomala o minaccia ($Y = 1$).
+
+    \paragraph{Formulazione Matematica Astratta dell'Apprendimento Supervisionato}
+    Sia $\mathcal{D}^{(\text{train})}$ una generica partizione di addestramento generata dalle procedure di sintesi descritte nella Sezione~\ref{subsec:composizione_domini}, definita come:
+    \begin{equation}
+        \mathcal{D}^{(\text{train})} = \{(\mathbf{x}_i, y_i)\}_{i=1}^N, \quad \mathbf{x}_i \in \mathcal{X}, \; y_i \in \{0, 1\}
+    \end{equation}
+    Un classificatore parametrico o non parametrico viene rappresentato astrattamente da una funzione $f_\theta: \mathcal{X} \rightarrow [0, 1]$, dove $f_\theta(\mathbf{x})$ stima la probabilità a posteriori $P(Y = 1 \mid \mathbf{x})$ dato il vettore delle caratteristiche $\mathbf{x}$.
+
+    L'addestramento del modello si configura come la minimizzazione del Rischio Empirico (ERM) misurato sulla funzione di perdita canonica di \textit{Binary Cross-Entropy} (BCE), definita analiticamente per il singolo campione come:
+    \begin{equation}
+        \mathcal{L}\left(f_\theta(\mathbf{x}_i), y_i\right) = - \left[ y_i \log f_\theta(\mathbf{x}_i) + (1 - y_i) \log \left(1 - f_\theta(\mathbf{x}_i)\right) \right]
+    \end{equation}
+
+    Il problema di ottimizzazione per l'ottenimento del vettore dei parametri ottimali $\theta^*$ assume quindi la forma:
+    \begin{equation}
+        \theta^* = \arg\min_\theta \mathcal{R}_{\text{emp}}\left(\theta; \mathcal{D}^{(\text{train})}\right) = \arg\min_\theta \frac{1}{|\mathcal{D}^{(\text{train})}|} \sum_{(\mathbf{x}_i, y_i) \in \mathcal{D}^{(\text{train})}} \mathcal{L}\left(f_\theta(\mathbf{x}_i), y_i\right)
+    \end{equation}
+
+    La decisione binaria finale $\hat{Y} \in \{0, 1\}$ per un generico vettore di test viene determinata applicando la funzione indicatrice $\mathbb{I}(\cdot)$ rispetto a una soglia canonica di decisione $\tau$\footnote{Sebbene $\tau = 0.5$ rappresenti il punto di lavoro neutrale sul piano della minimizzazione del rischio teorico sotto costi simmetrici, nei contesti NIDS reali tale valore costituisce una variabile operativa tarabile lungo la curva ROC per bilanciare la sensibilità rispetto ai Falsi Positivi.}:
+    \begin{equation}
+        \hat{Y} = \mathbb{I}\left(f_{\theta^*}(\mathbf{x}) \ge \tau\right)
+    \end{equation}
+
+    \paragraph{Il Modello Baseline Proposto ($\mathcal{M}_{\text{base}}$)}
+    A differenza degli approcci convenzionali di letteratura che adottano come baseline modelli addestrati su sole distribuzioni stazionarie native, il framework metodologico propone come unico modello baseline di riferimento ($\mathcal{M}_{\text{base}}$) un classificatore addestrato sulla partizione di train del \textit{Set di Iniezione di Riferimento} ($\mathcal{D}_{\text{inj}}^{(\text{train})}$).
+
+    La formulazione di questo modello risponde all'esigenza concettuale di definire un'ancora di prestazione per contesti operativi soggetti a transizione trasmissiva (es. il passaggio da reti terrestri a canali satellitari). $\mathcal{M}_{\text{base}}$ simula un sistema NIDS ad elevata capacità adattiva, in grado di generalizzare non solo su minacce non viste della medesima distribuzione, ma anche su distribuzioni eterogenee grazie a una conoscenza preventiva sparsa. Il vettore dei parametri ottimali $\theta_{\text{base}}^*$ viene ottenuto mediante:
+    \begin{equation}
+        \theta_{\text{base}}^* = \arg\min_\theta \mathcal{R}_{\text{emp}}\left(\theta; \mathcal{D}_{\text{inj}}^{(\text{train})}\right)
+    \end{equation}
+    dove la composizione del dataset di addestramento incorpora la baseline terrestre unita all'iniezione target:
+    \begin{equation}
+        \mathcal{D}_{\text{inj}}^{(\text{train})} = \mathcal{D}_{S}^{(\text{train})} \cup \Delta \mathcal{D}_{T}^{(\text{train})}
+    \end{equation}
+    con $\Delta \mathcal{D}_{T}^{(\text{train})}$ rappresentante il campionamento ridotto ed altamente sparso delle classi d'attacco satellitari ($Y=1, A \in \mathcal{A}_T$)\footnote{Matematicamente, la condizione di sparsità è definita dal vincolo cardinale $|\Delta \mathcal{D}_{T}^{(\text{train})}| \ll |\mathcal{D}_{S}^{(\text{train})}|$, emulando uno scenario di \textit{few-shot learning} in cui la visibilità sul canale di destinazione è limitata a pochissimi campioni rappresentativi.}. 
+
+    In conformità al rigoroso protocollo di isolamento delle partizioni, il modello $\mathcal{M}_{\text{base}}$ viene inizialmente addestrato su $\mathcal{D}_{\text{inj}}^{(\text{train})}$ e validato sulla rispettiva partizione di test isolata $\mathcal{D}_{\text{inj}}^{(\text{test})}$, garantendo la riproducibilità e l'assenza di \textit{data leakage}.
+
+    \paragraph{Classificatori Aggregati e Mappatura delle Distribuzioni}
+    Per isolare in modo analitico l'impatto del \textit{domain shift} e valutare le capacità di trasferimento della conoscenza, il framework affianca alla baseline proposta due categorie di modelli aggregati multi-classe (ma a decisione binaria):
+    \begin{enumerate}
+        \item \textbf{Modello Aggregato Nativo Sorgente ($\mathcal{M}_{S}$):}
+        Addestrato esclusivamente sulla partizione di addestramento del dominio sorgente nativo ($\mathcal{D}_{S}^{(\text{train})}$). Rappresenta il sistema NIDS tradizionale addestrato su sole distribuzioni terrestri stazionarie:
+        \begin{equation}
+            \theta_{S}^* = \arg\min_\theta \mathcal{R}_{\text{emp}}\left(\theta; \mathcal{D}_{S}^{(\text{train})}\right)
+        \end{equation}
+        La valutazione di $\mathcal{M}_{S}$ sui benchmark target consente di misurare la pura degradazione prestazionale causata dalle distorsioni di canale senza alcuna forma di adattamento.
+
+        \item \textbf{Modelli Aggregati Ibridi ($\mathcal{M}_{H}$):}
+        Istanziati sulle partizioni di addestramento dei benchmark ibridi ricomposti ($\mathcal{D}_{H}^{(\text{train})}$), nei quali la classe nominale $Y=0$ di origine terrestre è unita alla totalità dei vettori d'attacco $Y=1$ del contesto satellitare di destinazione ($\mathcal{D}_{T}^{(\text{train})}$):
+        \begin{equation}
+            \theta_{H}^* = \arg\min_\theta \mathcal{R}_{\text{emp}}\left(\theta; \mathcal{D}_{H}^{(\text{train})}\right)
+        \end{equation}
+        Tali modelli formalizzano il limite teorico di rilevamento (\textit{upper bound}) raggiungibile quando il classificatore acquisisce piena visibilità della componente malevola nel dominio target\footnote{Nella letteratura del trasferimento di dominio, $\mathcal{M}_{H}$ risponde al paradigma dell'\textit{Oracle} supervised: fornisce la massima accuratezza raggiungibile se si disponesse del dataset target integralmente etichettato.}.
+    \end{enumerate}
+
+    \paragraph{Persistenza dei Modelli e Protocollo di Valutazione Incrociata}
+    Al completamento della fase di ottimizzazione parametrica e dopo la verifica della convergenza sui rispettivi set di test locali, tutti i modelli generati ($\mathcal{M}_{\text{base}}$, $\mathcal{M}_{S}$ e le istanze di $\mathcal{M}_{H}$) vengono immagazzinati in memoria e congelati nella propria struttura. 
+
+    Nella successiva fase di valutazione sperimentale, ciascun modello immutabile viene sottoposto a un protocollo di inferenza incrociata rispetto alla totalità delle partizioni di test $\mathcal{D}^{(\text{test})}$ generate dal framework, permettendo di quantificare in modo sistematico il degrado di accuratezza, la tolleranza al cambio di canale e la capacità di generalizzazione rispetto a minacce mai osservate in fase di addestramento.
 
     \subsection{Decomposizione Specialistica: Classificatori Singoli e Biclasse}
     \label{subsec:modelli_biclasse}
