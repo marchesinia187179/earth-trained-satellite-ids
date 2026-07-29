@@ -319,22 +319,27 @@ $N(\cdot)$ & Operatore di cardinalità (numero di campioni estratti) \\
     Sia $\mathcal{D}^{(\text{train})}$ una generica partizione di addestramento generata dalle procedure di sintesi descritte nella Sezione~\ref{subsec:composizione_domini}, definita come:
     \begin{equation}
         \mathcal{D}^{(\text{train})} = \{(\mathbf{x}_i, y_i)\}_{i=1}^N, \quad \mathbf{x}_i \in \mathcal{X}, \; y_i \in \{0, 1\}
+        \label{eq:train_partition_def}
     \end{equation}
     Un classificatore parametrico o non parametrico viene rappresentato astrattamente da una funzione $f_\theta: \mathcal{X} \rightarrow [0, 1]$, dove $f_\theta(\mathbf{x})$ stima la probabilità a posteriori $P(Y = 1 \mid \mathbf{x})$ dato il vettore delle caratteristiche $\mathbf{x}$.
 
-    L'addestramento del modello si configura come la minimizzazione del Rischio Empirico (ERM) misurato sulla funzione di perdita canonica di \textit{Binary Cross-Entropy} (BCE), definita analiticamente per il singolo campione come:
+    Seguendo il principio di Minimizzazione del Rischio Empirico (ERM) proposto da Vapnik~\cite{vapnik1998}, l'addestramento si configura come la ricerca della configurazione parametrica $\theta^*$ che minimizza la perdita media valutata sul dataset di addestramento. Adottando la funzione di perdita canonica di \textit{Binary Cross-Entropy} (BCE), definita per il singolo campione come:
     \begin{equation}
         \mathcal{L}\left(f_\theta(\mathbf{x}_i), y_i\right) = - \left[ y_i \log f_\theta(\mathbf{x}_i) + (1 - y_i) \log \left(1 - f_\theta(\mathbf{x}_i)\right) \right]
+        \label{eq:bce_loss}
     \end{equation}
-
-    Il problema di ottimizzazione per l'ottenimento del vettore dei parametri ottimali $\theta^*$ assume quindi la forma:
+    il problema di ottimizzazione assume la seguente formulazione analitica:
     \begin{equation}
         \theta^* = \arg\min_\theta \mathcal{R}_{\text{emp}}\left(\theta; \mathcal{D}^{(\text{train})}\right) = \arg\min_\theta \frac{1}{|\mathcal{D}^{(\text{train})}|} \sum_{(\mathbf{x}_i, y_i) \in \mathcal{D}^{(\text{train})}} \mathcal{L}\left(f_\theta(\mathbf{x}_i), y_i\right)
+        \label{eq:erm_minimization}
     \end{equation}
+
+    Per la classe di modelli basati su alberi di decisione adottata nel framework, tale formalizzazione esprime la minimizzazione diretta dell'errore nel caso di ensemble additivi basati su boosting (es. \textit{Gradient Boosted Decision Trees}), in cui l'ottimizzazione avviene tramite discesa funzionale del gradiente sulla loss BCE. Nel caso di foreste casuali (\textit{Random Forest}), l'addestramento locale minimizza i criteri di impurità nei nodi e $f_\theta(\mathbf{x})$ rappresenta la frequenza relativa dei campioni malevoli nelle foglie, rendendo la BCE il criterio di misura globale dell'errore di calibrazione probabilistica.
 
     La decisione binaria finale $\hat{Y} \in \{0, 1\}$ per un generico vettore di test viene determinata applicando la funzione indicatrice $\mathbb{I}(\cdot)$ rispetto a una soglia canonica di decisione $\tau$\footnote{Sebbene $\tau = 0.5$ rappresenti il punto di lavoro neutrale sul piano della minimizzazione del rischio teorico sotto costi simmetrici, nei contesti NIDS reali tale valore costituisce una variabile operativa tarabile lungo la curva ROC per bilanciare la sensibilità rispetto ai Falsi Positivi.}:
     \begin{equation}
         \hat{Y} = \mathbb{I}\left(f_{\theta^*}(\mathbf{x}) \ge \tau\right)
+        \label{eq:binary_decision}
     \end{equation}
 
     \paragraph{Il Modello Baseline Proposto ($\mathcal{M}_{\text{base}}$)}
@@ -343,10 +348,12 @@ $N(\cdot)$ & Operatore di cardinalità (numero di campioni estratti) \\
     La formulazione di questo modello risponde all'esigenza concettuale di definire un'ancora di prestazione per contesti operativi soggetti a transizione trasmissiva (es. il passaggio da reti terrestri a canali satellitari). $\mathcal{M}_{\text{base}}$ simula un sistema NIDS ad elevata capacità adattiva, in grado di generalizzare non solo su minacce non viste della medesima distribuzione, ma anche su distribuzioni eterogenee grazie a una conoscenza preventiva sparsa. Il vettore dei parametri ottimali $\theta_{\text{base}}^*$ viene ottenuto mediante:
     \begin{equation}
         \theta_{\text{base}}^* = \arg\min_\theta \mathcal{R}_{\text{emp}}\left(\theta; \mathcal{D}_{\text{inj}}^{(\text{train})}\right)
+        \label{eq:mbase_optimization}
     \end{equation}
     dove la composizione del dataset di addestramento incorpora la baseline terrestre unita all'iniezione target:
     \begin{equation}
         \mathcal{D}_{\text{inj}}^{(\text{train})} = \mathcal{D}_{S}^{(\text{train})} \cup \Delta \mathcal{D}_{T}^{(\text{train})}
+        \label{eq:dinj_composition}
     \end{equation}
     con $\Delta \mathcal{D}_{T}^{(\text{train})}$ rappresentante il campionamento ridotto ed altamente sparso delle classi d'attacco satellitari ($Y=1, A \in \mathcal{A}_T$)\footnote{Matematicamente, la condizione di sparsità è definita dal vincolo cardinale $|\Delta \mathcal{D}_{T}^{(\text{train})}| \ll |\mathcal{D}_{S}^{(\text{train})}|$, emulando uno scenario di \textit{few-shot learning} in cui la visibilità sul canale di destinazione è limitata a pochissimi campioni rappresentativi.}. 
 
@@ -359,19 +366,28 @@ $N(\cdot)$ & Operatore di cardinalità (numero di campioni estratti) \\
         Addestrato esclusivamente sulla partizione di addestramento del dominio sorgente nativo ($\mathcal{D}_{S}^{(\text{train})}$). Rappresenta il sistema NIDS tradizionale addestrato su sole distribuzioni terrestri stazionarie:
         \begin{equation}
             \theta_{S}^* = \arg\min_\theta \mathcal{R}_{\text{emp}}\left(\theta; \mathcal{D}_{S}^{(\text{train})}\right)
+            \label{eq:ms_optimization}
         \end{equation}
         La valutazione di $\mathcal{M}_{S}$ sui benchmark target consente di misurare la pura degradazione prestazionale causata dalle distorsioni di canale senza alcuna forma di adattamento.
 
-        \item \textbf{Modelli Aggregati Ibridi ($\mathcal{M}_{H}$):}
-        Istanziati sulle partizioni di addestramento dei benchmark ibridi ricomposti ($\mathcal{D}_{H}^{(\text{train})}$), nei quali la classe nominale $Y=0$ di origine terrestre è unita alla totalità dei vettori d'attacco $Y=1$ del contesto satellitare di destinazione ($\mathcal{D}_{T}^{(\text{train})}$):
+        \item \textbf{Modelli Aggregati Ibridi ($\mathcal{M}_{H}^{(T)}$):}
+        Per ciascun contesto di destinazione $T$, viene istanziata un'opportuna variante di modello ibrido $\mathcal{M}_{H}^{(T)}$ addestrata sulla relativa partizione di addestramento ricomposta ($\mathcal{D}_{H, T}^{(\text{train})}$):
         \begin{equation}
-            \theta_{H}^* = \arg\min_\theta \mathcal{R}_{\text{emp}}\left(\theta; \mathcal{D}_{H}^{(\text{train})}\right)
+            \mathcal{D}_{H, T}^{(\text{train})} = \mathcal{D}_{S}^{(\text{train})}\Big|_{Y=0} \cup \mathcal{D}_{T}^{(\text{train})}
+            \label{eq:dh_composition}
         \end{equation}
-        Tali modelli formalizzano il limite teorico di rilevamento (\textit{upper bound}) raggiungibile quando il classificatore acquisisce piena visibilità della componente malevola nel dominio target\footnote{Nella letteratura del trasferimento di dominio, $\mathcal{M}_{H}$ risponde al paradigma dell'\textit{Oracle} supervised: fornisce la massima accuratezza raggiungibile se si disponesse del dataset target integralmente etichettato.}.
+        in cui la classe nominale $Y=0$ di origine terrestre è unita alla totalità dei vettori d'attacco $Y=1$ del contesto satellitare di destinazione ($\mathcal{D}_{T}^{(\text{train})}$). Il rispettivo vettore di parametri ottimali risponde alla formulazione:
+        \begin{equation}
+            \theta_{H, T}^* = \arg\min_\theta \mathcal{R}_{\text{emp}}\left(\theta; \mathcal{D}_{H, T}^{(\text{train})}\right)
+            \label{eq:mh_optimization}
+        \end{equation}
+        Tali modelli formalizzano il limite teorico di rilevamento (\textit{upper bound}) raggiungibile quando il classificatore acquisisce piena visibilità della componente malevola nel dominio target\footnote{Nella letteratura del trasferimento di dominio, $\mathcal{M}_{H}^{(T)}$ risponde al paradigma dell'\textit{Oracle} supervised: fornisce la massima accuratezza raggiungibile se si disponesse del dataset target integralmente etichettato.}.
     \end{enumerate}
 
     \paragraph{Persistenza dei Modelli e Protocollo di Valutazione Incrociata}
-    Al completamento della fase di ottimizzazione parametrica e dopo la verifica della convergenza sui rispettivi set di test locali, tutti i modelli generati ($\mathcal{M}_{\text{base}}$, $\mathcal{M}_{S}$ e le istanze di $\mathcal{M}_{H}$) vengono immagazzinati in memoria e congelati nella propria struttura. 
+    Al completamento della fase di ottimizzazione parametrica e dopo la verifica della convergenza sui rispettivi set di test locali, tutti i modelli generati ($\mathcal{M}_{\text{base}}$, $\mathcal{M}_{S}$ e le istanze $\mathcal{M}_{H}^{(T)}$) vengono immagazzinati in memoria e congelati nella propria struttura. 
+
+    Si precisa che i benchmark biclasse (categorie 2 e 4 della tassonomia, cfr. Sezione~\ref{subsec:composizione_domini}) non rientrano nella famiglia di classificatori aggregati qui trattata; la loro formalizzazione, in qualità di addestramento specialistico e/o partizioni di valutazione per famiglia d'attacco, è oggetto della Sezione~\ref{subsec:modelli_biclasse}.
 
     Nella successiva fase di valutazione sperimentale, ciascun modello immutabile viene sottoposto a un protocollo di inferenza incrociata rispetto alla totalità delle partizioni di test $\mathcal{D}^{(\text{test})}$ generate dal framework, permettendo di quantificare in modo sistematico il degrado di accuratezza, la tolleranza al cambio di canale e la capacità di generalizzazione rispetto a minacce mai osservate in fase di addestramento.
 
