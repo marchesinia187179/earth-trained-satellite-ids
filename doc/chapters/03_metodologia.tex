@@ -452,24 +452,25 @@
 
         \begin{figure}[H]
             \centering
+            \resizebox{0.95\textwidth}{!}{%
             \begin{tikzpicture}[
                 >={Stealth[length=2mm, width=1.4mm]},
-                node distance=1.2cm and 1.2cm,
+                node distance=1cm and 0.7cm, % Ridotta la distanza orizzontale tra i nodi
                 dataset/.style={
                     ellipse, draw=black, fill=gray!10, thick,
-                    align=center, inner sep=4pt, font=\small
+                    align=center, inner sep=3pt, font=\small
                 },
                 block/.style={
                     rectangle, draw=black, fill=white, thick,
-                    align=center, rounded corners=2pt, inner sep=5pt, font=\small
+                    align=center, rounded corners=2pt, inner sep=4pt, font=\small
                 },
                 decision/.style={
                     diamond, draw=black, fill=white, thick,
-                    aspect=1.8, align=center, inner sep=3pt, font=\small
+                    aspect=1.8, align=center, inner sep=2pt, font=\small
                 },
                 result/.style={
                     rectangle, draw=black, fill=gray!30, thick,
-                    align=center, rounded corners=2pt, inner sep=5pt, font=\small
+                    align=center, rounded corners=2pt, inner sep=4pt, font=\small
                 },
                 arrow/.style={draw=black, thick, ->}
             ]
@@ -488,7 +489,7 @@
                 };
 
                 % --- Fase di Test e Disaggregazione ---
-                \node [dataset, below=1.2cm of train_set] (test_set) {
+                \node [dataset, below=1cm of train_set] (test_set) {
                     \textbf{Benchmark Test}\\
                     $\mathcal{D}^{(\text{test})}$ \quad e \quad $\mathcal{D}_a^{(\text{test})}$ ($a \in \mathcal{A}$)
                 };
@@ -505,10 +506,11 @@
                 \draw [arrow] (train_set) -- (train_proc);
                 \draw [arrow] (train_proc) -- (model);
                 \draw [arrow] (test_set) -- (infer);
-                \draw [arrow] (model.south) |- ++(0,-0.7) -| (infer.north) node[near start, above, font=\small] {Proiezione};
+                \draw [arrow] (model.south) |- ++(0,-0.6) -| (infer.north) node[near start, above, font=\small] {Proiezione};
                 \draw [arrow] (infer) -- (out);
 
-            \end{tikzpicture}
+            \end{tikzpicture}%
+            }
             \caption{Flusso concettuale del protocollo di addestramento, inferenza e disaggregazione delle prestazioni per i modelli aggregati ($\mathcal{M}_{\text{base}}$, $\mathcal{M}_S$, $\mathcal{M}_H^{(T)}$). I modelli, congelati post-ottimizzazione, vengono valutati sia sull'intero benchmark multi-classe per misurare la generalizzazione di dominio, sia sulle singole partizioni per famiglia d'attacco $\mathcal{D}_a^{(\text{test})}$ per l'analisi di disaggregazione puntuale.}
             \label{fig:multiclass_evaluation}
         \end{figure}
@@ -524,7 +526,7 @@
         \begin{enumerate}
             \item una frazione di traffico lecito ($Y = 0$), costantemente estratta dalla distribuzione sorgente nativa $\mathcal{D}_S$;
             \item una frazione di traffico anomalo ($Y = 1$), ristretta esclusivamente ai vettori associati alla specifica classe di minaccia $a$.
-        \end{enumerate
+        \end{enumerate}
 
         \subsubsection{Tassonomia dei Modelli Biclasse}
         \label{subsubsec:tassonomia_biclasse}
@@ -589,28 +591,29 @@
         \begin{enumerate}
             \item \textbf{Valutazione Nominale Specialistica (\textit{In-Domain}):} Ciascun modello $\mathcal{M}_{S, a}$ (o $\mathcal{M}_{H, T, a}$) viene inizialmente testato sulla partizione dedicata alla singola minaccia $\mathcal{D}_a^{(\text{test})}$, stabilendo la prestazione ideale del classificatore nel proprio dominio di addestramento primario;
             \item \textbf{Valutazione Incrociata di Classe (\textit{Cross-Evaluation}):} Il modello specialistico viene successivamente proiettato sull'intera gamma di benchmark multi-classe eterogenei $\mathcal{D}^{(\text{test})}$. Tale analisi permette di verificare se la firma appresa per la minaccia $a$ generi falsi allarmi su attacchi $b \neq a$, quantificando la selettività di classe e l'eventuale polarizzazione dello spazio decisionale.
-        \end{enumerate
+        \end{enumerate}
 
         \begin{figure}[H]
             \centering
+            \resizebox{0.95\textwidth}{!}{%
             \begin{tikzpicture}[
                 >={Stealth[length=2mm, width=1.4mm]},
-                node distance=1.2cm and 1.2cm,
+                node distance=1cm and 0.7cm, % Distanza orizzontale ridotta
                 dataset/.style={
                     ellipse, draw=black, fill=gray!10, thick,
-                    align=center, inner sep=4pt, font=\small
+                    align=center, inner sep=3pt, font=\small
                 },
                 block/.style={
                     rectangle, draw=black, fill=white, thick,
-                    align=center, rounded corners=2pt, inner sep=5pt, font=\small
+                    align=center, rounded corners=2pt, inner sep=4pt, font=\small
                 },
                 decision/.style={
                     diamond, draw=black, fill=white, thick,
-                    aspect=1.8, align=center, inner sep=3pt, font=\small
+                    aspect=1.8, align=center, inner sep=2pt, font=\small
                 },
                 result/.style={
                     rectangle, draw=black, fill=gray!30, thick,
-                    align=center, rounded corners=2pt, inner sep=5pt, font=\small
+                    align=center, rounded corners=2pt, inner sep=4pt, font=\small
                 },
                 arrow/.style={draw=black, thick, ->}
             ]
@@ -629,7 +632,7 @@
                 };
 
                 % --- Fase di Cross-Evaluation ---
-                \node [dataset, below=1.2cm of train_set] (test_set) {
+                \node [dataset, below=1cm of train_set] (test_set) {
                     \textbf{Benchmark Test}\\
                     $\mathcal{D}^{(\text{test})}$ (Eterogeneo)
                 };
@@ -646,10 +649,11 @@
                 \draw [arrow] (train_set) -- (train_proc);
                 \draw [arrow] (train_proc) -- (model);
                 \draw [arrow] (test_set) -- (infer);
-                \draw [arrow] (model.south) |- ++(0,-0.7) -| (infer.north) node[near start, above, font=\small] {Proiezione};
+                \draw [arrow] (model.south) |- ++(0,-0.6) -| (infer.north) node[near start, above, font=\small] {Proiezione};
                 \draw [arrow] (infer) -- (out);
 
-            \end{tikzpicture}
+            \end{tikzpicture}%
+            }
             \caption{Flusso concettuale del protocollo di valutazione incrociata (\textit{cross-evaluation}). Il modello specialistico $\mathcal{M}_{S,a}$, addestrato esclusivamente sulla singola minaccia $a$, viene congelato e proiettato in fase di inferenza sull'intero benchmark eterogeneo $\mathcal{D}^{(\text{test})}$.}
             \label{fig:cross_evaluation}
         \end{figure}
