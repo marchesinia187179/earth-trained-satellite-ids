@@ -91,43 +91,46 @@ Infine, la Sezione~\ref{sec:sintesi_posizionamento} sintetizza i gap metodologic
             ]
 
                 % --- SEGMENTO TERRESTRE ---
-                \draw[segmentbox] (-5.6, -2.7) rectangle (5.6, 2.3);
-                \node[above right, font=\small\bfseries] at (-5.4, 1.9) {Segmento Terrestre};
-                
-                % Nodi Terrestri - Riga Inferiore
+                % Nodi
                 \node [nodebox] (core) at (0, 0) {\textbf{Rete Core Terrestre}};
-                \node [nidsbox, left=1.5cm of core] (nids_ground) {\textbf{NIDS}\\\textbf{(Segmento Terrestre)}};
-                \node [threatbox, right=1.5cm of core] (logic_attack) {\textbf{Attacchi Logici}\\\textbf{(Minaccia)}};
                 
-                % Nodi Terrestri - Riga Superiore
                 \node [nidsbox, above=1.5cm of core] (nids_space) {\textbf{NIDS}\\\textbf{(Segmento Spaziale)}};
+
                 \node [nodebox, left=1.5cm of nids_space] (gateway) {\textbf{Satellite Gateway /}\\\textbf{Ground Station}};
                 \node [nodebox, right=1.5cm of nids_space] (terminal) {\textbf{Terminale Utente}};
-
+                
+                \node [nidsbox, below=1.1cm of gateway] (nids_ground) {\textbf{NIDS}\\\textbf{(Segmento Terrestre)}};
+                \node [threatbox, below=1.5cm of terminal] (logic_attack) {\textbf{Attacchi Logici}\\\textbf{(Minaccia)}};
+                
+                % Segmento
+                \draw[segmentbox] (-8,-1.3) rectangle (8,4.25);
+                \node[font=\small\bfseries] at (-6, 3.75) {Segmento Terrestre};
+                
                 % --- SEGMENTO SPAZIALE ---
-                \draw[segmentbox] (-5, 4) rectangle (5, 7);
-                \node[above right, font=\small\bfseries] at (-5.5, 6.2) {Segmento Spaziale};
-
-                % Nodi Spaziali
-                \node [threatbox, above=3cm of nids_space] (rf_attack) {\textbf{Attacchi RF}};
-                \node [nodebox, below left=1cm and 1.5cm of rf_attack] (leo) {\textbf{Costellazione LEO}};
-                \node [nodebox, below right=1cm and 1.5cm of rf_attack] (geo) {\textbf{Costellazione GEO}};
+                % Nodi
+                \node [threatbox, above=4cm of nids_space] (rf_attack) {\textbf{Attacchi RF}};
+                \node [nodebox, above=2.5cm of gateway] (leo) {\textbf{Costellazione LEO}};
+                \node [nodebox, above=2.88cm of terminal] (geo) {\textbf{Costellazione GEO}};
+                
+                % Segmento
+                \draw[segmentbox] (-8,5.2) rectangle (8,8.6);
+                \node[font=\small\bfseries] at (-6, 8.1) {Segmento Spaziale};
 
                 % --- CONNESSIONI SPAZIALI ---
-                \draw [dline, ->] (rf_attack) -- (leo);
-                \draw [dline, ->] (rf_attack) -- (geo);
+                \draw [dline, ->] (rf_attack.west) -| (leo);
+                \draw [dline, ->] (rf_attack.east) -| (geo);
                 \draw [dline, <->] (leo) -- node[above, font=\footnotesize] {ISL} (geo);
 
                 % --- CANALI RF (Spazio-Terra) ---
-                \draw [dline, ->] (leo.south) -- node[right, font=\footnotesize] {Canale RF} (gateway.north);
-                \draw [dline, ->] (geo.south) -- node[right, font=\footnotesize] {Canale RF} (terminal.north);
+                \draw [dline, <->] (leo.south) -- node[right, yshift=0.15cm, font=\footnotesize] {Canale RF} (gateway.north);
+                \draw [dline, <->] (geo.south) -- node[right,  yshift=0.35cm, font=\footnotesize] {Canale RF} (terminal.north);
 
                 % --- CONNESSIONI TERRESTRI ---
                 \draw [dline, <->] (gateway) -- (nids_space);
                 \draw [dline, <->] (terminal) -- (nids_space);
 
-                \draw [line] (gateway.south) -- ++(0,-0.4) -| (core.north);
-                \draw [line] (terminal.south) -- ++(0,-0.4) -| (core.north);
+                \draw [line, <->] (gateway.south) -- ++(0,-0.6) -| (core.north);
+                \draw [line, <->] (terminal.south) -- ++(0,-0.98) -| (core.north);
 
                 \draw [line, <->] (nids_ground) -- (core);
                 \draw [dline, ->] (logic_attack) -- (core);
