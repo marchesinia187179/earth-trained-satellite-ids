@@ -69,7 +69,70 @@ Infine, la Sezione~\ref{sec:sintesi_posizionamento} sintetizza i gap metodologic
 
         \begin{figure}[H]
             \centering
-            \includegraphics[width=\textwidth]{images/capitolo_2/sezione_1/architettura_ibrida.pdf}
+            \begin{tikzpicture}[
+                >={Stealth[length=2mm, width=1.4mm]},
+                nodebox/.style={
+                    rectangle, draw=black, fill=white, thick,
+                    align=center, rounded corners=2pt, inner sep=5pt
+                },
+                nidsbox/.style={
+                    rectangle, draw=black, fill=gray!30, thick,
+                    align=center, rounded corners=2pt, inner sep=5pt
+                },
+                threatbox/.style={
+                    rectangle, draw=black, fill=gray!10, thick, dashed,
+                    align=center, rounded corners=2pt, inner sep=5pt
+                },
+                segmentbox/.style={
+                    draw=gray!60, dashed, thick, rounded corners=5pt
+                },
+                line/.style={draw=black, thick, ->},
+                dline/.style={draw=black, thick, dashed},
+            ]
+
+                % --- SEGMENTO TERRESTRE ---
+                \draw[segmentbox] (-5.6, -2.7) rectangle (5.6, 2.3);
+                \node[above right, font=\small\bfseries] at (-5.4, 1.9) {Segmento Terrestre};
+                
+                % Nodi Terrestri - Riga Inferiore
+                \node [nodebox] (core) at (0, 0) {\textbf{Rete Core Terrestre}};
+                \node [nidsbox, left=1.5cm of core] (nids_ground) {\textbf{NIDS}\\\textbf{(Segmento Terrestre)}};
+                \node [threatbox, right=1.5cm of core] (logic_attack) {\textbf{Attacchi Logici}\\\textbf{(Minaccia)}};
+                
+                % Nodi Terrestri - Riga Superiore
+                \node [nidsbox, above=1.5cm of core] (nids_space) {\textbf{NIDS}\\\textbf{(Segmento Spaziale)}};
+                \node [nodebox, left=1.5cm of nids_space] (gateway) {\textbf{Satellite Gateway /}\\\textbf{Ground Station}};
+                \node [nodebox, right=1.5cm of nids_space] (terminal) {\textbf{Terminale Utente}};
+
+                % --- SEGMENTO SPAZIALE ---
+                \draw[segmentbox] (-5, 4) rectangle (5, 7);
+                \node[above right, font=\small\bfseries] at (-5.5, 6.2) {Segmento Spaziale};
+
+                % Nodi Spaziali
+                \node [threatbox, above=3cm of nids_space] (rf_attack) {\textbf{Attacchi RF}};
+                \node [nodebox, below left=1cm and 1.5cm of rf_attack] (leo) {\textbf{Costellazione LEO}};
+                \node [nodebox, below right=1cm and 1.5cm of rf_attack] (geo) {\textbf{Costellazione GEO}};
+
+                % --- CONNESSIONI SPAZIALI ---
+                \draw [dline, ->] (rf_attack) -- (leo);
+                \draw [dline, ->] (rf_attack) -- (geo);
+                \draw [dline, <->] (leo) -- node[above, font=\footnotesize] {ISL} (geo);
+
+                % --- CANALI RF (Spazio-Terra) ---
+                \draw [dline, ->] (leo.south) -- node[right, font=\footnotesize] {Canale RF} (gateway.north);
+                \draw [dline, ->] (geo.south) -- node[right, font=\footnotesize] {Canale RF} (terminal.north);
+
+                % --- CONNESSIONI TERRESTRI ---
+                \draw [dline, <->] (gateway) -- (nids_space);
+                \draw [dline, <->] (terminal) -- (nids_space);
+
+                \draw [line] (gateway.south) -- ++(0,-0.4) -| (core.north);
+                \draw [line] (terminal.south) -- ++(0,-0.4) -| (core.north);
+
+                \draw [line, <->] (nids_ground) -- (core);
+                \draw [dline, ->] (logic_attack) -- (core);
+
+            \end{tikzpicture}
             \caption{Architettura di rete integrata Terrestre-Spaziale: rappresentazione della superficie d'attacco e posizionamento dei punti di monitoraggio \textit{Network Intrusion Detection System} (NIDS).}
             \label{fig:architettura_ibrida}
         \end{figure}
