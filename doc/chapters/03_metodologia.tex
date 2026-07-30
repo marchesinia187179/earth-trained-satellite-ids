@@ -12,27 +12,46 @@ Successivamente, viene definito l'operatore di proiezione $\boldsymbol{\psi}_k$,
 Per facilitare la lettura della trattazione successiva, i principali simboli e costrutti matematici adottati sono sintetizzati nella Tabella~\ref{tab:notazione_matematica}.
 
 \begin{table}[H]
-\centering
-\caption{Sintesi della notazione matematica e dei simboli del framework.}
-\label{tab:notazione_matematica}
-\small
-\renewcommand{\arraystretch}{1.08}
-\begin{tabularx}{\textwidth}{@{} >{\raggedright\arraybackslash}p{3cm} >{\raggedright\arraybackslash}X @{}}
-\toprule
-\textbf{Simbolo} & \textbf{Descrizione e Significato Concettuale} \\ 
-\midrule
-$\mathcal{D} = (\mathcal{X}, P(\mathbf{x}))$ & Dominio di traffico (Spazio delle feature e distribuzione marginale) \\
-$\mathcal{X} \subseteq \mathbb{R}^d$ & Spazio delle caratteristiche $d$-dimensionale omogeneizzato \\
-$\mathbf{x} = (x_1, \dots, x_d)^\top$ & Vettore delle feature del singolo flusso di rete \\
-$\mathcal{Y} = \{0, 1\}$ & Spazio discreto delle etichette primarie ($0$: Normal, $1$: Malevolo) \\
-$A \in \mathcal{A}$ & Variabile descrittiva per la specifica famiglia di attacco (definita per $Y=1$) \\
-$\mathcal{A}_S, \mathcal{A}_T$ & Insiemi delle tipologie di minaccia presenti nei domini sorgente e target \\
-$\mathcal{D}_S, \mathcal{D}_T$ & Dominio Terrestre Sorgente e Domini Target di Destinazione \\
-$\mathcal{D}_k^{(train)}, \mathcal{D}_k^{(test)}$ & Partizioni disgiunte di addestramento e test per il generico dominio $k$ \\
-$\boldsymbol{\psi}_k(\cdot)$ & Operatore di proiezione e combinazione dalle feature grezze allo spazio $\mathcal{X}$, specifico per il dominio $k \in \{S,T\}$ \\
-$N(\cdot)$ & Operatore di cardinalità (numero di campioni estratti) \\ 
-\bottomrule
-\end{tabularx}
+    \centering
+    \caption{Sintesi della notazione matematica e dei simboli del framework.}
+    \label{tab:notazione_matematica}
+    \small
+    \renewcommand{\arraystretch}{1.3}
+    \begin{tabularx}{\textwidth}{@{} >{\raggedright\arraybackslash}p{3cm} >{\raggedright\arraybackslash}X @{}}
+    \toprule
+    \textbf{Simbolo} & \textbf{Descrizione e Significato Concettuale} \\
+    \midrule
+    $\mathcal{D} = (\mathcal{X}, P(\mathbf{x}))$ &
+    Dominio di traffico (Spazio delle feature e distribuzione marginale) \\
+
+    $\mathcal{X} \subseteq \mathbb{R}^d$ &
+    Spazio delle caratteristiche $d$-dimensionale omogeneizzato \\
+
+    $\mathbf{x} = (x_1, \dots, x_d)^\top$ &
+    Vettore delle feature del singolo flusso di rete \\
+
+    $\mathcal{Y} = \{0, 1\}$ &
+    Spazio discreto delle etichette primarie ($0$: Normal, $1$: Malevolo) \\
+
+    $A \in \mathcal{A}$ &
+    Variabile descrittiva per la specifica famiglia di attacco (definita per $Y=1$) \\
+
+    $\mathcal{A}_S, \mathcal{A}_T$ &
+    Insiemi delle tipologie di minaccia presenti nei domini sorgente e target \\
+
+    $\mathcal{D}_S, \mathcal{D}_T$ &
+    Dominio Terrestre Sorgente e Domini Target di Destinazione \\
+
+    $\mathcal{D}_k^{(train)}, \mathcal{D}_k^{(test)}$ &
+    Partizioni disgiunte di addestramento e test per il generico dominio $k$ \\
+
+    $\boldsymbol{\psi}_k(\cdot)$ &
+    Operatore di proiezione e combinazione dalle feature grezze allo spazio $\mathcal{X}$, specifico per il dominio $k \in \{S,T\}$ \\
+
+    $N(\cdot)$ &
+    Operatore di cardinalità (numero di campioni estratti) \\
+    \bottomrule
+    \end{tabularx}
 \end{table}
 
     \subsection{Formalizzazione dei Domini e Composizione Asimmetrica del Traffico}
@@ -163,7 +182,7 @@ $N(\cdot)$ & Operatore di cardinalità (numero di campioni estratti) \\
         \caption{Tassonomia astratta delle cinque categorie di benchmark sperimentali istanziate dinamicamente a runtime.}
         \label{tab:tassonomia_benchmark}
         \small
-        \renewcommand{\arraystretch}{1.25}
+        \renewcommand{\arraystretch}{1.3}
         \begin{tabularx}{\textwidth}{@{} >{\raggedright\arraybackslash}p{3.5cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X @{}}
         \toprule
         \textbf{Categoria Benchmark} & \textbf{Componente Benevola ($Y=0$)} & \textbf{Componente Malevola ($Y = 1$)} \\
@@ -350,12 +369,12 @@ $N(\cdot)$ & Operatore di cardinalità (numero di campioni estratti) \\
         \theta_{\text{base}}^* = \arg\min_\theta \mathcal{R}_{\text{emp}}\left(\theta; \mathcal{D}_{\text{inj}}^{(\text{train})}\right)
         \label{eq:mbase_optimization}
     \end{equation}
-    dove la composizione del dataset di addestramento incorpora la baseline terrestre unita all'iniezione target:
+    dove la composizione del dataset di addestramento incorpora la baseline unita all'iniezione target:
     \begin{equation}
         \mathcal{D}_{\text{inj}}^{(\text{train})} = \mathcal{D}_{S}^{(\text{train})} \cup \Delta \mathcal{D}_{T}^{(\text{train})}
         \label{eq:dinj_composition}
     \end{equation}
-    con $\Delta \mathcal{D}_{T}^{(\text{train})}$ rappresentante il campionamento ridotto ed altamente sparso delle classi d'attacco satellitari ($Y=1, A \in \mathcal{A}_T$)\footnote{Matematicamente, la condizione di sparsità è definita dal vincolo cardinale $|\Delta \mathcal{D}_{T}^{(\text{train})}| \ll |\mathcal{D}_{S}^{(\text{train})}|$, emulando uno scenario di \textit{few-shot learning} in cui la visibilità sul canale di destinazione è limitata a pochissimi campioni rappresentativi.}. 
+    con $\Delta \mathcal{D}_{T}^{(\text{train})}$ rappresentante il campionamento ridotto ed altamente sparso delle classi d'attacco ($Y=1, A \in \mathcal{A}_T$)\footnote{Matematicamente, la condizione di sparsità è definita dal vincolo cardinale $|\Delta \mathcal{D}_{T}^{(\text{train})}| \ll |\mathcal{D}_{S}^{(\text{train})}|$, emulando uno scenario di \textit{few-shot learning} in cui la visibilità sul canale di destinazione è limitata a pochissimi campioni rappresentativi.}. 
 
     In conformità al rigoroso protocollo di isolamento delle partizioni, il modello $\mathcal{M}_{\text{base}}$ viene inizialmente addestrato su $\mathcal{D}_{\text{inj}}^{(\text{train})}$ e validato sulla rispettiva partizione di test isolata $\mathcal{D}_{\text{inj}}^{(\text{test})}$, garantendo la riproducibilità e l'assenza di \textit{data leakage}.
 
@@ -363,7 +382,7 @@ $N(\cdot)$ & Operatore di cardinalità (numero di campioni estratti) \\
     Per isolare in modo analitico l'impatto del \textit{domain shift} e valutare le capacità di trasferimento della conoscenza, il framework affianca alla baseline proposta due categorie di modelli aggregati multi-classe (ma a decisione binaria):
     \begin{enumerate}
         \item \textbf{Modello Aggregato Nativo Sorgente ($\mathcal{M}_{S}$):}
-        Addestrato esclusivamente sulla partizione di addestramento del dominio sorgente nativo ($\mathcal{D}_{S}^{(\text{train})}$). Rappresenta il sistema NIDS tradizionale addestrato su sole distribuzioni terrestri stazionarie:
+        Addestrato esclusivamente sulla partizione di addestramento del dominio sorgente nativo ($\mathcal{D}_{S}^{(\text{train})}$). Rappresenta il sistema NIDS tradizionale addestrato su sole distribuzioni stazionarie:
         \begin{equation}
             \theta_{S}^* = \arg\min_\theta \mathcal{R}_{\text{emp}}\left(\theta; \mathcal{D}_{S}^{(\text{train})}\right)
             \label{eq:ms_optimization}
@@ -376,7 +395,7 @@ $N(\cdot)$ & Operatore di cardinalità (numero di campioni estratti) \\
             \mathcal{D}_{H, T}^{(\text{train})} = \mathcal{D}_{S}^{(\text{train})}\Big|_{Y=0} \cup \mathcal{D}_{T}^{(\text{train})}
             \label{eq:dh_composition}
         \end{equation}
-        in cui la classe nominale $Y=0$ di origine terrestre è unita alla totalità dei vettori d'attacco $Y=1$ del contesto satellitare di destinazione ($\mathcal{D}_{T}^{(\text{train})}$). Il rispettivo vettore di parametri ottimali risponde alla formulazione:
+        in cui la classe nominale $Y=0$ di origine è unita alla totalità dei vettori d'attacco $Y=1$ del contesto di destinazione ($\mathcal{D}_{T}^{(\text{train})}$). Il rispettivo vettore di parametri ottimali risponde alla formulazione:
         \begin{equation}
             \theta_{H, T}^* = \arg\min_\theta \mathcal{R}_{\text{emp}}\left(\theta; \mathcal{D}_{H, T}^{(\text{train})}\right)
             \label{eq:mh_optimization}
@@ -384,16 +403,246 @@ $N(\cdot)$ & Operatore di cardinalità (numero di campioni estratti) \\
         Tali modelli formalizzano il limite teorico di rilevamento (\textit{upper bound}) raggiungibile quando il classificatore acquisisce piena visibilità della componente malevola nel dominio target\footnote{Nella letteratura del trasferimento di dominio, $\mathcal{M}_{H}^{(T)}$ risponde al paradigma dell'\textit{Oracle} supervised: fornisce la massima accuratezza raggiungibile se si disponesse del dataset target integralmente etichettato.}.
     \end{enumerate}
 
-    \paragraph{Persistenza dei Modelli e Protocollo di Valutazione Incrociata}
+    \begin{table}[H]
+        \centering
+        \caption{Sintesi comparativa dei modelli di riferimento e aggregati: composizione del training set e finalità concettuale.}
+        \label{tab:modelli_aggregati}
+        \small
+        \renewcommand{\arraystretch}{1.3}
+        \begin{tabularx}{\textwidth}{@{} >{\raggedright\arraybackslash}p{1.8cm} >{\raggedright\arraybackslash}p{5.6cm} >{\raggedright\arraybackslash}X @{}}
+        \toprule
+        \textbf{Modello} & \textbf{Composizione del \textit{Training Set}} & \textbf{Finalità Concettuale} \\
+        \midrule
+        $\mathcal{M}_{\text{base}}$ &
+        $\mathcal{D}_{\text{inj}}^{(\text{train})} = \mathcal{D}_{S}^{(\text{train})} \cup \Delta \mathcal{D}_{T}^{(\text{train})}$ &
+        Baseline proposta: ancora di prestazione con conoscenza preventiva sparsa (\textit{few-shot}) sul canale target. \\
+
+        $\mathcal{M}_{S}$ &
+        $\mathcal{D}_{S}^{(\text{train})}$ &
+        NIDS tradizionale addestrato su sole distribuzioni stazionarie; misura la degradazione da \textit{domain shift} senza adattamento. \\
+
+        $\mathcal{M}_{H}^{(T)}$ &
+        $\mathcal{D}_{H,T}^{(\text{train})} = \mathcal{D}_{S}^{(\text{train})}\big|_{Y=0} \cup \mathcal{D}_{T}^{(\text{train})}$ &
+        Limite teorico (\textit{upper bound}, paradigma \textit{Oracle} supervised) con piena visibilità della componente malevola target. \\
+        \bottomrule
+        \end{tabularx}
+    \end{table}
+
+    \paragraph{Persistenza dei Modelli, Inferenza e Disaggregazione delle Prestazioni}
     Al completamento della fase di ottimizzazione parametrica e dopo la verifica della convergenza sui rispettivi set di test locali, tutti i modelli generati ($\mathcal{M}_{\text{base}}$, $\mathcal{M}_{S}$ e le istanze $\mathcal{M}_{H}^{(T)}$) vengono immagazzinati in memoria e congelati nella propria struttura. 
 
-    Si precisa che i benchmark biclasse (categorie 2 e 4 della tassonomia, cfr. Sezione~\ref{subsec:composizione_domini}) non rientrano nella famiglia di classificatori aggregati qui trattata; la loro formalizzazione, in qualità di addestramento specialistico e/o partizioni di valutazione per famiglia d'attacco, è oggetto della Sezione~\ref{subsec:modelli_biclasse}.
+    Il protocollo di valutazione per tali classificatori, schematizzato nella Figura~\ref{fig:multiclass_evaluation}, segue un doppio binario analitico:
+    \begin{enumerate}
+        \item \textbf{Valutazione di Generalizzazione Globale:} Ciascun modello immutabile viene proiettato sulle partizioni di test eterogenee $\mathcal{D}^{(\text{test})}$, consentendo di quantificare la tolleranza al cambio di canale e la capacità di generalizzazione rispetto a minacce target mai osservate in addestramento;
+        \item \textbf{Disaggregazione delle Prestazioni per-Classe:} I modelli aggregati vengono contestualmente valutati sulle singole sottopartizioni per famiglia d'attacco $\mathcal{D}_a^{(\text{test})}$. Tale analisi disaggregata evita l'effetto di mascheramento delle prestazioni (*class shadowing*), verificando se un'elevata accuratezza globale celi un decadimento selettivo su specifiche classi di minaccia.
+    \end{enumerate}
 
-    Nella successiva fase di valutazione sperimentale, ciascun modello immutabile viene sottoposto a un protocollo di inferenza incrociata rispetto alla totalità delle partizioni di test $\mathcal{D}^{(\text{test})}$ generate dal framework, permettendo di quantificare in modo sistematico il degrado di accuratezza, la tolleranza al cambio di canale e la capacità di generalizzazione rispetto a minacce mai osservate in fase di addestramento.
+    Si precisa che la formalizzazione dei modelli biclasse specialistici e il relativo protocollo di \textit{cross-evaluation} speculare sono trattati separatamente nella Sezione~\ref{subsec:modelli_biclasse}.
 
-    \subsection{Decomposizione Specialistica: Classificatori Singoli e Biclasse}
+    \begin{figure}[H]
+        \centering
+        \resizebox{1\textwidth}{!}{%
+        \begin{tikzpicture}[
+            >={Stealth[length=2mm, width=1.4mm]},
+            node distance=1.2cm and 1.5cm,
+            dataset/.style={
+                ellipse, draw=black, fill=gray!10, thick,
+                align=center, inner sep=5pt
+            },
+            block/.style={
+                rectangle, draw=black, fill=white, thick,
+                align=center, rounded corners=2pt, inner sep=5pt
+            },
+            decision/.style={
+                diamond, draw=black, fill=white, thick,
+                aspect=1.8, align=center, inner sep=5pt
+            },
+            result/.style={
+                rectangle, draw=black, fill=gray!30, thick,
+                align=center, rounded corners=2pt, inner sep=5pt
+            },
+            arrow/.style={draw=black, thick, ->}
+        ]
+            % --- Fase di Training ---
+            \node [dataset] (train_set) {
+                \textbf{Dataset Training Aggregati}\\
+                $\mathcal{D}_{\text{agg}}^{(\text{train})} \in \{\mathcal{D}_S, \mathcal{D}_{\text{inj}}, \mathcal{D}_{H,T}\}$
+            };
+            \node [block, right=of train_set] (train_proc) {
+                \textbf{Addestramento}\\
+                $\arg\min_\theta \mathcal{R}_{\text{emp}}$
+            };
+            \node [result, right=of train_proc] (model) {
+                \textbf{Modelli Congelati}\\
+                $\mathcal{M}_S, \mathcal{M}_{\text{base}}, \mathcal{M}_H^{(T)}$
+            };
+
+            % --- Fase di Test e Disaggregazione ---
+            \node [dataset, below=1.2cm of train_set] (test_set) {
+                \textbf{Benchmark Test}\\
+                $\mathcal{D}^{(\text{test})}$ \quad e \quad $\mathcal{D}_a^{(\text{test})}$ ($a \in \mathcal{A}$)
+            };
+            \node [decision, right=of test_set] (infer) {
+                \textbf{Inferenza}\\
+                $f_{\theta^*}(\mathbf{x}) \gtrless \tau$
+            };
+            \node [result, right=of infer] (out) {
+                \textbf{Valutazione}\\
+                Globale \& Disaggregata
+            };
+
+            % --- Connessioni ---
+            \draw [arrow] (train_set) -- (train_proc);
+            \draw [arrow] (train_proc) -- (model);
+            \draw [arrow] (test_set) -- (infer);
+            \draw [arrow] (model.south) |- ++(0,-0.7) -| (infer.north) node[near start, above, font=\small] {Proiezione};
+            \draw [arrow] (infer) -- (out);
+
+        \end{tikzpicture}
+        }
+        \caption{Flusso concettuale del protocollo di addestramento, inferenza e disaggregazione delle prestazioni per i modelli aggregati ($\mathcal{M}_{\text{base}}$, $\mathcal{M}_S$, $\mathcal{M}_H^{(T)}$). I modelli, congelati post-ottimizzazione, vengono valutati sia sull'intero benchmark multi-classe per misurare la generalizzazione di dominio, sia sulle singole partizioni per famiglia d'attacco $\mathcal{D}_a^{(\text{test})}$ per l'analisi di disaggregazione puntuale.}
+        \label{fig:multiclass_evaluation}
+    \end{figure}
+
+    \subsection{Decomposizione Specialistica Biclasse}
     \label{subsec:modelli_biclasse}
-    % Formalizzazione della strategia di decomposizione del problema in classificatori specializzati per singole famiglie di attacco rispetto al profilo di traffico nominale.
+
+    In integrazione ai modelli aggregati definiti nella Sezione~\ref{subsec:modelli_aggregati}, il framework metodologico prevede una formalizzazione specialistica basata sulla decomposizione del problema di rilevamento in classificatori biclasse focalizzati su singole famiglie d'attacco $a \in \mathcal{A}$. L'obiettivo primario di tale decomposizione non consiste nella riconfigurazione dell'architettura di inferenza, bensì nell'isolamento analitico delle singole tipologie di minaccia per valutarne la rilevabilità puntuale rispetto al profilo di traffico nominale e confrontarne direttamente le prestazioni con le rispettive varianti multi-classe\footnote{La decomposizione introduce un costo computazionale di addestramento proporzionale alla cardinalità del set delle minacce $\mathcal{O}(|\mathcal{A}|)$. Tale overhead rappresenta un compromesso metodologico consapevole, poiché l'obiettivo primario di questa formulazione risiede nell'isolamento analitico della rilevabilità e non nell'ottimizzazione dell'efficienza per il deployment in produzione.}.
+
+    \paragraph{Sintesi e Bilanciamento delle Partizioni Biclasse}
+    Ciascun dataset biclasse viene generato rispettando rigorosamente il medesimo protocollo di partizionamento, il rapporto di suddivisione \textit{train/test} e il bilanciamento tra componente lecita e malevola formalizzati nella Sezione~\ref{subsec:composizione_domini}. Per ogni specifica famiglia d'attacco $a$, sia la partizione di addestramento che quella di test comprendono:
+    \begin{enumerate}
+        \item una frazione di traffico lecito ($Y = 0$), costantemente estratta dalla distribuzione sorgente nativa $\mathcal{D}_S$;
+        \item una frazione di traffico anomalo ($Y = 1$), ristretta esclusivamente ai vettori associati alla specifica classe di minaccia $a$.
+    \end{enumerate}
+
+    \paragraph{Tassonomia dei Modelli Biclasse}
+    A differenza della caratterizzazione adottata per i classificatori aggregati, la famiglia dei modelli biclasse esclude la formulazione di architetture basate su iniezione sparsa (ovvero non è definita alcuna variante biclasse analoga a $\mathcal{M}_{\text{base}}$)\footnote{L'assenza di modelli biclasse con iniezione deriva dalla volontà di valutare la risposta specialistica o nella condizione di assoluta assenza di adattamento (sorgente pura) o nella condizione di visibilità integrale della minaccia nel dominio target (ibrido/oracle).}. Lo spazio dei modelli biclasse si articola pertanto nelle seguenti due categorie:
+
+    \begin{enumerate}
+        \item \textbf{Modelli Biclasse Sorgente ($\mathcal{M}_{S, a}$):}
+        Specializzati sulle singole famiglie d'attacco $a \in \mathcal{A}_S$ appartenenti al dominio sorgente nativo. La relativa partizione di addestramento $\mathcal{D}_{S, a}^{(\text{train})}$ è definita come:
+        \begin{equation}
+            \mathcal{D}_{S, a}^{(\text{train})} = \mathcal{D}_{S}^{(\text{train})}\Big|_{Y=0} \cup \mathcal{D}_{S}^{(\text{train})}\Big|_{Y=1, A=a}
+            \label{eq:ds_a_composition}
+        \end{equation}
+        Il vettore ottimale dei parametri $\theta_{S, a}^*$ viene determinato mediante la minimizzazione del rischio empirico ristretto al dominio dell'attacco $a$:
+        \begin{equation}
+            \theta_{S, a}^* = \arg\min_\theta \mathcal{R}_{\text{emp}}\left(\theta; \mathcal{D}_{S, a}^{(\text{train})}\right)
+            \label{eq:ms_a_optimization}
+        \end{equation}
+
+        \item \textbf{Modelli Biclasse Ibridi/Target ($\mathcal{M}_{H, T, a}$):}
+        Istanziati per ciascuna sotto-distribuzione target $T$ e per ciascuna specifica famiglia d'attacco $a \in \mathcal{A}_T$ presente nel dominio di destinazione. La composizione del dataset ricomposto $\mathcal{D}_{H, T, a}^{(\text{train})}$ adotta la componente lecita sorgente unita alla sola classe malevola $a$ del contesto target:
+        \begin{equation}
+            \mathcal{D}_{H, T, a}^{(\text{train})} = \mathcal{D}_{S}^{(\text{train})}\Big|_{Y=0} \cup \mathcal{D}_{T}^{(\text{train})}\Big|_{Y=1, A=a}
+            \label{eq:dh_a_composition}
+        \end{equation}
+        con la corrispondente stima parametrica fornita da:
+        \begin{equation}
+            \theta_{H, T, a}^* = \arg\min_\theta \mathcal{R}_{\text{emp}}\left(\theta; \mathcal{D}_{H, T, a}^{(\text{train})}\right)
+            \label{eq:mh_a_optimization}
+        \end{equation}
+    \end{enumerate}
+
+    Le caratteristiche essenziali e le finalità concettuali delle due categorie di modelli biclasse sono sintetizzate nella Tabella~\ref{tab:modelli_biclasse}.
+
+    \begin{table}[H]
+        \centering
+        \caption{Sintesi dei modelli biclasse specializzati: composizione del \textit{training set} e finalità concettuale.}
+        \label{tab:modelli_biclasse}
+        \small
+        \renewcommand{\arraystretch}{1.3}
+        \begin{tabularx}{\textwidth}{@{} >{\raggedright\arraybackslash}p{1.8cm} >{\raggedright\arraybackslash}p{5.6cm} >{\raggedright\arraybackslash}X @{}}
+        \toprule
+        \textbf{Modello} & \textbf{Composizione del \textit{Training Set}} & \textbf{Finalità Concettuale} \\
+        \midrule
+        $\mathcal{M}_{S, a}$ &
+        $\mathcal{D}_{S, a}^{(\text{train})} = \mathcal{D}_{S}^{(\text{train})}\big|_{Y=0} \cup \mathcal{D}_{S}^{(\text{train})}\big|_{Y=1, A=a}$ &
+        Rilevatore specialistico addestrato su una singola minaccia sorgente $a \in \mathcal{A}_S$; valuta la selettività senza distorsioni di canale. \\
+
+        $\mathcal{M}_{H, T, a}$ &
+        $\mathcal{D}_{H, T, a}^{(\text{train})} = \mathcal{D}_{S}^{(\text{train})}\big|_{Y=0} \cup \mathcal{D}_{T}^{(\text{train})}\big|_{Y=1, A=a}$ &
+        Limite teorico (\textit{Oracle} specialistico) per la singola minaccia $a \in \mathcal{A}_T$ nel dominio target $T$. \\
+        \bottomrule
+        \end{tabularx}
+    \end{table}
+
+    \paragraph{Invarianza dell'Inferenza, Valutazione Incrociata e Persistenza}
+    Il meccanismo decisionale dei classificatori biclasse rimane del tutto identico a quello formalizzato nell'Equazione~\eqref{eq:binary_decision}: la funzione appresa $f_{\theta^*, a}(\mathbf{x})$ stima la probabilità a posteriori $P(Y = 1 \mid \mathbf{x})$, e la decisione finale $\hat{Y} \in \{0, 1\}$ viene determinata dal confronto con la soglia canonica $\tau$.
+
+    Poiché l'output di classificazione è limitato al dominio binario $\mathcal{Y} = \{0, 1\}$ (presenza o assenza di intrusione), ciascun modello biclasse è strutturalmente autocontenuto e indipendente. Non viene applicata alcuna regola di aggregazione d'insieme (es. sistemi di voto o regole di massimo); i modelli vengono immagazzinati in memoria e congelati nello stato post-addestramento, rispecchiando esattamente il protocollo di persistenza definito per i modelli aggregati.
+
+    In fase di valutazione sperimentale, il protocollo per i classificatori biclasse, schematizzato nella Figura~\ref{fig:cross_evaluation}, segue due direttive analitiche complementari:
+    \begin{enumerate}
+        \item \textbf{Valutazione Nominale Specialistica (\textit{In-Domain}):} Ciascun modello $\mathcal{M}_{S, a}$ (o $\mathcal{M}_{H, T, a}$) viene inizialmente testato sulla partizione dedicata alla singola minaccia $\mathcal{D}_a^{(\text{test})}$, stabilendo la prestazione ideale del classificatore nel proprio dominio di addestramento primario;
+        \item \textbf{Valutazione Incrociata di Classe (\textit{Cross-Evaluation}):} Il modello specialistico viene successivamente proiettato sull'intera gamma di benchmark multi-classe eterogenei $\mathcal{D}^{(\text{test})}$. Tale analisi permette di verificare se la firma appresa per la minaccia $a$ generi falsi allarmi su attacchi $b \neq a$, quantificando la selettività di classe e l'eventuale polarizzazione dello spazio decisionale.
+    \end{enumerate}
+
+    \begin{figure}[H]
+        \centering
+        \resizebox{1\textwidth}{!}{%
+        \begin{tikzpicture}[
+            >={Stealth[length=2mm, width=1.4mm]},
+            node distance=1.2cm and 1.5cm,
+            dataset/.style={
+                ellipse, draw=black, fill=gray!10, thick,
+                align=center, inner sep=5pt
+            },
+            block/.style={
+                rectangle, draw=black, fill=white, thick,
+                align=center, rounded corners=2pt, inner sep=5pt
+            },
+            decision/.style={
+                diamond, draw=black, fill=white, thick,
+                aspect=1.8, align=center, inner sep=5pt
+            },
+            result/.style={
+                rectangle, draw=black, fill=gray!30, thick,
+                align=center, rounded corners=2pt, inner sep=5pt
+            },
+            arrow/.style={draw=black, thick, ->}
+        ]
+            % --- Fase di Training ---
+            \node [dataset] (train_set) {
+                \textbf{Dataset Training}\\
+                $\mathcal{D}_{S,a}^{(\text{train})}$ \quad ($Y=0 \cup \{Y=1, A=a\}$)
+            };
+            \node [block, right=of train_set] (train_proc) {
+                \textbf{Addestramento}\\
+                $\arg\min_\theta \mathcal{R}_{\text{emp}}$
+            };
+            \node [result, right=of train_proc] (model) {
+                \textbf{Modello Congelato}\\
+                $\mathcal{M}_{S,a}$ ($\theta_{S,a}^*$)
+            };
+
+            % --- Fase di Cross-Evaluation ---
+            \node [dataset, below=1.2cm of train_set] (test_set) {
+                \textbf{Benchmark Test}\\
+                $\mathcal{D}^{(\text{test})}$ (Eterogeneo)
+            };
+            \node [decision, right=of test_set] (infer) {
+                \textbf{Inferenza}\\
+                $f_{\theta^*,a}(\mathbf{x}) \gtrless \tau$
+            };
+            \node [result, right=of infer] (out) {
+                \textbf{Valutazione}\\
+                $\hat{Y} \in \{0,1\}$
+            };
+
+            % --- Connessioni ---
+            \draw [arrow] (train_set) -- (train_proc);
+            \draw [arrow] (train_proc) -- (model);
+            \draw [arrow] (test_set) -- (infer);
+            \draw [arrow] (model.south) |- ++(0,-0.7) -| (infer.north) node[near start, above, font=\small] {Proiezione};
+            \draw [arrow] (infer) -- (out);
+
+        \end{tikzpicture}
+        }
+        \caption{Flusso concettuale del protocollo di valutazione incrociata (\textit{cross-evaluation}). Il modello specialistico $\mathcal{M}_{S,a}$, addestrato esclusivamente sulla singola minaccia $a$, viene congelato e proiettato in fase di inferenza sull'intero benchmark eterogeneo $\mathcal{D}^{(\text{test})}$.}
+        \label{fig:cross_evaluation}
+    \end{figure}
 
     \subsection{Spazio delle Famiglie di Decisione Alberiformi ed Ensembling}
     \label{subsec:famiglie_classificatori}

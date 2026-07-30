@@ -131,23 +131,46 @@ Infine, la Sezione~\ref{sec:sintesi_posizionamento} sintetizza i gap metodologic
         La nostra proposta si concentra invece sulla caratterizzazione della sicurezza e sul rilevamento delle intrusioni tramite un'architettura di classificazione alleggerita, valutandone la robustezza discriminativa di fronte alle distorsioni di canale senza ricorrere a complessi processi di riapprendimento in tempo reale.
 
     \begin{table}[H]
-    \centering
-    \scriptsize
-    \renewcommand{\arraystretch}{1.1}
-    \setlength{\tabcolsep}{3pt}
-    \caption{Sintesi e confronto della letteratura principale sui NIDS nei domini terrestre e satellitare.}
-    \label{tab:stato_arte_nids}
-    \begin{tabularx}{\textwidth}{l l l >{\RaggedRight\arraybackslash}X >{\RaggedRight\arraybackslash}X}
-    \toprule
-    \textbf{Rif.} & \textbf{Dominio} & \textbf{Approccio} & \textbf{Punto di Forza} & \textbf{Limiti e Gap Metodologico} \\
-    \midrule
-    Sommer e Paxson \cite{sommer2010} & Terrestre & ML Unsupervised & Rilevamento di minacce \textit{zero-day} senza dataset etichettati. & Elevato tasso di falsi allarmi (FPR) dovuto alle fluttuazioni stocastiche di rete. \\ [2pt]
-    Tavallaee et al. \cite{tavallaee2009} & Terrestre & ML Supervised & Benchmarking rigido e bonifica dei bias di ridondanza (NSL-KDD). & Analisi circoscritta a dati sintetici e stazionari; assenza di valutazione su \textit{domain shift}. \\ [2pt]
-    Sharafaldin et al. \cite{sharafaldin2018} & Terrestre & ML Supervised & Caratterizzazione di flussi ad alta dimensionalità (CIC-IDS2017). & Ristretto alla sola risposta multiclasse; omette la valutazione binaria e cross-dominio. \\ [2pt]
-    Wan et al. \cite{wan2025} & Spazio-Terra & Federated Learning & Addestramento distribuito e cooperativo con tutela della privacy. & Elevato \textit{overhead} per sincronizzazione continua dei parametri su tratte orbitali. \\ [2pt]
-    Alam e Song \cite{alam2024} & SAGIN & GNN + DRL & Adattamento dinamico alle topologie spaziali ad alta variabilità. & Elevato carico computazionale; orientato alle risorse anziché alla rilevazione. \\
-    \bottomrule
-    \end{tabularx}
+        \centering
+        \caption{Sintesi e confronto della letteratura principale sui NIDS nei domini terrestre e satellitare.}
+        \label{tab:stato_arte_nids}
+        \small
+        \renewcommand{\arraystretch}{1.3}
+        \begin{tabularx}{\textwidth}{@{} >{\raggedright\arraybackslash}p{2.4cm} >{\raggedright\arraybackslash}p{1.7cm} >{\raggedright\arraybackslash}p{2.1cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X @{}}
+        \toprule
+        \textbf{Rif.} & \textbf{Dominio} & \textbf{Approccio} & \textbf{Punto di Forza} & \textbf{Limiti e Gap Metodologico} \\
+        \midrule
+        Sommer e Paxson \cite{sommer2010} &
+        Terrestre &
+        ML Unsupervised &
+        Rilevamento di minacce \textit{zero-day} senza dataset etichettati. &
+        Elevato tasso di falsi allarmi (FPR) dovuto alle fluttuazioni stocastiche di rete. \\
+
+        Tavallaee et al. \cite{tavallaee2009} &
+        Terrestre &
+        ML Supervised &
+        Benchmarking rigido e bonifica dei bias di ridondanza (NSL-KDD). &
+        Analisi circoscritta a dati sintetici e stazionari; assenza di valutazione su \textit{domain shift}. \\
+
+        Sharafaldin et al. \cite{sharafaldin2018} &
+        Terrestre &
+        ML Supervised &
+        Caratterizzazione di flussi ad alta dimensionalità (CIC-IDS2017). &
+        Ristretto alla sola risposta multiclasse; omette la valutazione binaria e cross-dominio. \\
+
+        Wan et al. \cite{wan2025} &
+        Spazio-Terra &
+        Federated Learning &
+        Addestramento distribuito e cooperativo con tutela della privacy. &
+        Elevato \textit{overhead} per sincronizzazione continua dei parametri su tratte orbitali. \\
+
+        Alam e Song \cite{alam2024} &
+        SAGIN &
+        GNN + DRL &
+        Adattamento dinamico alle topologie spaziali ad alta variabilità. &
+        Elevato carico computazionale; orientato alle risorse anziché alla rilevazione. \\
+        \bottomrule
+        \end{tabularx}
     \end{table}
 
     \vspace{0.5em}
