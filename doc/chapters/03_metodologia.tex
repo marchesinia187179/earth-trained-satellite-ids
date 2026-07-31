@@ -458,19 +458,19 @@
                 node distance=1cm and 0.7cm, % Ridotta la distanza orizzontale tra i nodi
                 dataset/.style={
                     ellipse, draw=black, fill=gray!10, thick,
-                    align=center, inner sep=3pt, font=\small
+                    align=center, inner sep=5pt, font=\small
                 },
                 block/.style={
                     rectangle, draw=black, fill=white, thick,
-                    align=center, rounded corners=2pt, inner sep=4pt, font=\small
+                    align=center, rounded corners=2pt, inner sep=5pt, font=\small
                 },
                 decision/.style={
                     diamond, draw=black, fill=white, thick,
-                    aspect=1.8, align=center, inner sep=2pt, font=\small
+                    aspect=1.8, align=center, inner sep=5pt, font=\small
                 },
                 result/.style={
                     rectangle, draw=black, fill=gray!30, thick,
-                    align=center, rounded corners=2pt, inner sep=4pt, font=\small
+                    align=center, rounded corners=2pt, inner sep=5pt, font=\small
                 },
                 arrow/.style={draw=black, thick, ->}
             ]
@@ -601,19 +601,19 @@
                 node distance=1cm and 0.7cm, % Distanza orizzontale ridotta
                 dataset/.style={
                     ellipse, draw=black, fill=gray!10, thick,
-                    align=center, inner sep=3pt, font=\small
+                    align=center, inner sep=5pt, font=\small
                 },
                 block/.style={
                     rectangle, draw=black, fill=white, thick,
-                    align=center, rounded corners=2pt, inner sep=4pt, font=\small
+                    align=center, rounded corners=2pt, inner sep=5pt, font=\small
                 },
                 decision/.style={
                     diamond, draw=black, fill=white, thick,
-                    aspect=1.8, align=center, inner sep=2pt, font=\small
+                    aspect=1.8, align=center, inner sep=5pt, font=\small
                 },
                 result/.style={
                     rectangle, draw=black, fill=gray!30, thick,
-                    align=center, rounded corners=2pt, inner sep=4pt, font=\small
+                    align=center, rounded corners=2pt, inner sep=5pt, font=\small
                 },
                 arrow/.style={draw=black, thick, ->}
             ]
@@ -769,21 +769,21 @@
                 node distance=1cm and 0.8cm,
                 dataset/.style={
                     ellipse, draw=black, fill=gray!10, thick,
-                    align=center, inner sep=3pt, font=\small
+                    align=center, inner sep=5pt, font=\small
                 },
                 block/.style={
                     rectangle, draw=black, fill=white, thick,
-                    align=center, rounded corners=2pt, inner sep=4pt, font=\small
+                    align=center, rounded corners=2pt, inner sep=5pt, font=\small
                 },
                 result/.style={
                     rectangle, draw=black, fill=gray!30, thick,
-                    align=center, rounded corners=2pt, inner sep=4pt, font=\small
+                    align=center, rounded corners=2pt, inner sep=5pt, font=\small
                 },
                 arrow/.style={draw=black, thick, ->}
             ]
 
                 % --- BAGGING (Left side) ---
-                \node (bagging_title) at (-4,6) {\textbf{Bagging (Parallelo)}};
+                \node (bagging_title) at (-4,8.5) {\textbf{Bagging (Parallelo)}};
 
                 % Dataset Bootstrap
                 \node [dataset, below=0.5cm of bagging_title, xshift=-0.3cm] (d_boot2) {$\mathcal{D}_2^*$};
@@ -809,7 +809,7 @@
 
 
                 % --- BOOSTING (Right side) ---
-                \node (boosting_title) at (4,6) {\textbf{Gradient Boosting (Sequenziale)}};
+                \node (boosting_title) at (4,8.5) {\textbf{Gradient Boosting (Sequenziale)}};
 
                 % Modello Iniziale
                 \node [dataset, below=0.5cm of boosting_title] (f0) {$F_0(\mathbf{x})$};
@@ -817,7 +817,7 @@
                 % Stimatori base in cascata
                 \node [block, below=0.7cm of f0] (tree_b1) {$f_1(\mathbf{x})$ addestrato su $r_{i,1}$};
                 \node [block, below=0.7cm of tree_b1] (tree_b2) {$f_2(\mathbf{x})$ addestrato su $r_{i,2}$};
-                \node [below=0.4cm of tree_b2] (dots_boost) {\vdots};
+                \node [below=0.4cm of tree_b2] (dots_boost) {\vdots\rule[-0.227cm]{0cm}{0cm}};
                 \node [block, below=0.4cm of dots_boost] (tree_bB) {$f_B(\mathbf{x})$ addestrato su $r_{i,B}$};
 
                 % Aggregazione finale
@@ -826,12 +826,12 @@
                 % Collegamenti Boosting
                 \draw [arrow] (f0) -- (tree_b1) node[midway, right, font=\footnotesize] {+};
                 \draw [arrow] (tree_b1) -- (tree_b2) node[midway, right, font=\footnotesize] {+ $\nu \cdot f_1$};
-                \draw [arrow] (tree_b2) -- (dots_boost) node[midway, right, font=\footnotesize] {+ $\nu \cdot f_2$};
+                \draw [arrow] (tree_b2) -- (dots_boost) node[right, font=\footnotesize] {+ $\nu \cdot f_2$};
                 \draw [arrow] (dots_boost) -- (tree_bB);
                 \draw [arrow] (tree_bB) -- (agg_boosting) node[midway, right, font=\footnotesize] {+ $\nu \cdot f_B$};
 
                 % Separatore visivo verticale
-                \draw [dashed, gray] (0, 0) -- (0, 7);
+                \draw [dashed, gray] (0,0.5) -- (0,8);
 
             \end{tikzpicture}%
             }
