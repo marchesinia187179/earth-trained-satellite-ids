@@ -383,7 +383,7 @@
             \mathcal{D}_{\text{inj}}^{(\text{train})} = \mathcal{D}_{S}^{(\text{train})} \cup \Delta \mathcal{D}_{T}^{(\text{train})}
             \label{eq:dinj_composition}
         \end{equation}
-        con $\Delta \mathcal{D}_{T}^{(\text{train})}$ rappresentante il campionamento ridotto ed altamente sparso delle classi d'attacco ($Y=1, A \in \mathcal{A}_T$)\footnote{Matematicamente, la condizione di sparsità è definita dal vincolo cardinale $|\Delta \mathcal{D}_{T}^{(\text{train})}| \ll |\mathcal{D}_{S}^{(\text{train})}|$, emulando uno scenario di \textit{few-shot learning} in cui la visibilità sul canale di destinazione è limitata a pochissimi campioni rappresentativi.}. 
+        con $\Delta \mathcal{D}_{T}^{(\text{train})}$ rappresentante il campionamento ridotto ed altamente sparso delle classi d'attacco ($Y=1, A \in \mathcal{A}_T$)\footnote{Matematicamente, la condizione di sparsità è definita dal vincolo cardinale $|\Delta \mathcal{D}_{T}^{(\text{train})}| \ll |\mathcal{D}_{S}^{(\text{train})}|$, emulando uno scenario di \textit{few-shot learning} in cui la visibilità sul canale di destinazione è limitata a pochissimi campioni rappresentativi.}.
 
         In conformità al rigoroso protocollo di isolamento delle partizioni, il modello $\mathcal{M}_{\text{base}}$ viene inizialmente addestrato su $\mathcal{D}_{\text{inj}}^{(\text{train})}$ e validato sulla rispettiva partizione di test isolata $\mathcal{D}_{\text{inj}}^{(\text{test})}$, garantendo la riproducibilità e l'assenza di \textit{data leakage}.
 
@@ -419,7 +419,7 @@
             \label{tab:modelli_aggregati}
             \small
             \renewcommand{\arraystretch}{1.3}
-            \begin{tabularx}{\textwidth}{@{} >{\raggedright\arraybackslash}p{1.8cm} >{\raggedright\arraybackslash}p{5.6cm} >{\raggedright\arraybackslash}X @{}}
+            \begin{tabularx}{\textwidth}{@{} l l >{\raggedright\arraybackslash}X @{}}
             \toprule
             \textbf{Modello} & \textbf{Composizione del \textit{Training Set}} & \textbf{Finalità Concettuale} \\
             \midrule
@@ -440,12 +440,12 @@
 
         \subsubsection{Persistenza dei Modelli, Inferenza e Disaggregazione delle Prestazioni}
         \label{subsubsec:persistenza_aggregati}
-        Al completamento della fase di ottimizzazione parametrica e dopo la verifica della convergenza sui rispettivi set di test locali, tutti i modelli generati ($\mathcal{M}_{\text{base}}$, $\mathcal{M}_{S}$ e le istanze $\mathcal{M}_{H}^{(T)}$) vengono immagazzinati in memoria e congelati nella propria struttura. 
+        Al completamento della fase di ottimizzazione parametrica e dopo la verifica della convergenza sui rispettivi set di test locali, tutti i modelli generati ($\mathcal{M}_{\text{base}}$, $\mathcal{M}_{S}$ e le istanze $\mathcal{M}_{H}^{(T)}$) vengono immagazzinati in memoria e congelati nella propria struttura.
 
-        Il protocollo di valutazione per tali classificatori, schematizzato nella Figura~\ref{fig:multiclass_evaluation}, segue un doppio binario analitico:
+        Il protocollo di valutazione per tali classificatori, schematizzato in Figura~\ref{fig:multiclass_evaluation} secondo la notazione standard a diagramma di flusso (\textit{flowchart})\footnote{A differenza degli schemi architetturali e compositivi delle Figure~\ref{fig:pipeline_astratta} e~\ref{fig:allineamento_feature}, che rappresentano relazioni statiche tra insiemi di dati, la Figura~\ref{fig:multiclass_evaluation} e la successiva Figura~\ref{fig:cross_evaluation} descrivono un protocollo procedurale con un autentico punto di biforcazione (il confronto $f_{\theta^*}(\mathbf{x}) \gtrless \tau$). Per tale ragione si adotta qui la notazione a diagramma di flusso convenzionale (nodi ellittici per gli insiemi di dati, rombi per i punti di decisione, rettangoli per i processi), coerentemente con la prassi diffusa in letteratura per la rappresentazione di protocolli algoritmici a bivi condizionali.}, segue un doppio binario analitico:
         \begin{enumerate}
             \item \textbf{Valutazione di Generalizzazione Globale:} Ciascun modello immutabile viene proiettato sulle partizioni di test eterogenee $\mathcal{D}^{(\text{test})}$, consentendo di quantificare la tolleranza al cambio di canale e la capacità di generalizzazione rispetto a minacce target mai osservate in addestramento;
-            \item \textbf{Disaggregazione delle Prestazioni per-Classe:} I modelli aggregati vengono contestualmente valutati sulle singole sottopartizioni per famiglia d'attacco $\mathcal{D}_a^{(\text{test})}$. Tale analisi disaggregata evita l'effetto di mascheramento delle prestazioni (\textit{class shadowing}), verificando se un'elevata accuratezza globale celi un decadimento selettivo su specifiche classi di minaccia.
+            \item \textbf{Disaggregazione delle Prestazioni per-Classe:} I modelli aggregati vengono contestualmente valutati sulle singole sottopartizioni per famiglia d'attacco $\mathcal{D}_a^{(\text{test})} \subseteq \mathcal{D}^{(\text{test})}$, ristrette ai soli vettori con $A=a$ per una data classe di minaccia $a \in \mathcal{A}$. Tale analisi disaggregata evita l'effetto di mascheramento delle prestazioni (\textit{class shadowing}), verificando se un'elevata accuratezza globale celi un decadimento selettivo su specifiche classi di minaccia.
         \end{enumerate}
 
         Si precisa che la formalizzazione dei modelli biclasse specialistici e il relativo protocollo di \textit{cross-evaluation} speculare sono trattati separatamente nella Sezione~\ref{subsec:modelli_biclasse}.
@@ -477,7 +477,7 @@
                 % --- Fase di Training ---
                 \node [dataset] (train_set) {
                     \textbf{Dataset Training Aggregati}\\
-                    $\mathcal{D}_{\text{agg}}^{(\text{train})} \in \{\mathcal{D}_S, \mathcal{D}_{\text{inj}}, \mathcal{D}_{H,T}\}$
+                    $\mathcal{D}_{\text{agg}}^{(\text{train})} \in \{\mathcal{D}_S^{(\text{train})}, \mathcal{D}_{\text{inj}}^{(\text{train})}, \mathcal{D}_{H,T}^{(\text{train})}\}$
                 };
                 \node [block, right=of train_set] (train_proc) {
                     \textbf{Addestramento}\\
@@ -534,7 +534,7 @@
 
         \begin{enumerate}
             \item \textbf{Modelli Biclasse Sorgente ($\mathcal{M}_{S, a}$):}
-            Specializzati sulle singole famiglie d'attacco $a \in \mathcal{A}_S$ appartenenti al dominio sorgente nativo. La relative partizione di addestramento $\mathcal{D}_{S, a}^{(\text{train})}$ è definita come:
+            Specializzati sulle singole famiglie d'attacco $a \in \mathcal{A}_S$ appartenenti al dominio sorgente nativo. La relativa partizione di addestramento $\mathcal{D}_{S, a}^{(\text{train})}$ è definita come:
             \begin{equation}
                 \mathcal{D}_{S, a}^{(\text{train})} = \mathcal{D}_{S}^{(\text{train})}\Big|_{Y=0} \cup \mathcal{D}_{S}^{(\text{train})}\Big|_{Y=1, A=a}
                 \label{eq:ds_a_composition}
@@ -566,7 +566,7 @@
             \label{tab:modelli_biclasse}
             \small
             \renewcommand{\arraystretch}{1.3}
-            \begin{tabularx}{\textwidth}{@{} >{\raggedright\arraybackslash}p{1.8cm} >{\raggedright\arraybackslash}p{5.6cm} >{\raggedright\arraybackslash}X @{}}
+            \begin{tabularx}{\textwidth}{@{} l l >{\raggedright\arraybackslash}X @{}}
             \toprule
             \textbf{Modello} & \textbf{Composizione del \textit{Training Set}} & \textbf{Finalità Concettuale} \\
             \midrule
@@ -587,7 +587,7 @@
 
         Poiché l'output di classificazione è limitato al dominio binario $\mathcal{Y} = \{0, 1\}$ (presenza o assenza di intrusione), ciascun modello biclasse è strutturalmente autocontenuto e indipendente. Non viene applicata alcuna regola di aggregazione d'insieme (es. sistemi di voto o regole di massimo); i modelli vengono immagazzinati in memoria e congelati nello stato post-addestramento, rispecchiando esattamente il protocollo di persistenza definito per i modelli aggregati.
 
-        In fase di valutazione sperimentale, il protocollo per i classificatori biclasse, schematizzato nella Figura~\ref{fig:cross_evaluation}, segue due direttive analitiche complementari:
+        In fase di valutazione sperimentale, il protocollo per i classificatori biclasse, schematizzato in Figura~\ref{fig:cross_evaluation} secondo la medesima notazione a diagramma di flusso introdotta in Figura~\ref{fig:multiclass_evaluation}, segue due direttive analitiche complementari:
         \begin{enumerate}
             \item \textbf{Valutazione Nominale Specialistica (\textit{In-Domain}):} Ciascun modello $\mathcal{M}_{S, a}$ (o $\mathcal{M}_{H, T, a}$) viene inizialmente testato sulla partizione dedicata alla singola minaccia $\mathcal{D}_a^{(\text{test})}$, stabilendo la prestazione ideale del classificatore nel proprio dominio di addestramento primario;
             \item \textbf{Valutazione Incrociata di Classe (\textit{Cross-Evaluation}):} Il modello specialistico viene successivamente proiettato sull'intera gamma di benchmark multi-classe eterogenei $\mathcal{D}^{(\text{test})}$. Tale analisi permette di verificare se la firma appresa per la minaccia $a$ generi falsi allarmi su attacchi $b \neq a$, quantificando la selettività di classe e l'eventuale polarizzazione dello spazio decisionale.
@@ -657,86 +657,187 @@
             \caption{Flusso concettuale del protocollo di valutazione incrociata (\textit{cross-evaluation}). Il modello specialistico $\mathcal{M}_{S,a}$, addestrato esclusivamente sulla singola minaccia $a$, viene congelato e proiettato in fase di inferenza sull'intero benchmark eterogeneo $\mathcal{D}^{(\text{test})}$.}
             \label{fig:cross_evaluation}
         \end{figure}
-
+        
         \subsection{Spazio delle Famiglie di Decisione Alberiformi ed Ensembling}
         \label{subsec:famiglie_classificatori}
 
         La modellazione della superficie di decisione nei sistemi di \textit{Network Intrusion Detection} (NIDS) operanti su canali ibridi terrestri-spaziali richiede architetture di apprendimento capaci di gestire elevata non-linearità, eterogeneità delle metriche e degradazioni del segnale trasmissivo. In questa sezione viene formalizzato lo spazio delle famiglie di decisione basate sul partizionamento dello spazio delle caratteristiche, analizzandone le proprietà di invarianza e l'estensione a schemi di stima aggregata (\textit{ensembling}).
 
         \subsubsection{Partizionamento Ricorsivo dello Spazio delle Caratteristiche}
-        Sia $\mathcal{X} \subseteq \mathbb{R}^d$ lo spazio delle caratteristiche $d$-dimensionale rappresentativo delle metriche di traffico di rete e telemetria, e sia $\mathcal{Y} \in \{0, 1\}$ lo spazio delle etichette corrispondente a traffico lecito o malevolo. Un albero di decisione definisce una mappa $f: \mathcal{X} \to \mathcal{Y}$ mediante un partizionamento ricorsivo dello spazio $\mathcal{X}$ in $M$ regioni disgiunte e iper-rettangolari $\{R_m\}_{m=1}^M$, tali per cui:
+        Sia $\mathcal{X} \subseteq \mathbb{R}^d$ lo spazio delle caratteristiche $d$-dimensionale rappresentativo delle metriche di traffico di rete e telemetria, e sia $\mathcal{Y} = \{0, 1\}$ lo spazio delle etichette corrispondente a traffico lecito o malevolo. Un albero di decisione~\cite{breiman1984} definisce una mappa $f: \mathcal{X} \to [0,1]$ mediante un partizionamento ricorsivo dello spazio $\mathcal{X}$ in $M$ regioni disgiunte e iper-rettangolari $\{R_m\}_{m=1}^M$, tali per cui:
         \begin{equation}
             \bigcup_{m=1}^M R_m = \mathcal{X} \quad \text{e} \quad R_m \cap R_k = \emptyset, \quad \forall m \neq k
         \end{equation}
 
         La funzione di decisione associata all'albero assume la forma analitica espressa da:
         \begin{equation}
-            f(x) = \sum_{m=1}^M c_m \mathbb{I}(x \in R_m)
+            f(\mathbf{x}) = \sum_{m=1}^M c_m \mathbb{I}(\mathbf{x} \in R_m)
         \end{equation}
-        dove $\mathbb{I}(\cdot)$ denota la funzione indicatrice e $c_m$ rappresenta la stima della classe maggioritaria all'interno della regione $R_m$, definita sulla base del dataset di addestramento $\mathcal{D} = \{(x_i, y_i)\}_{i=1}^N$ come:
+        dove $\mathbb{I}(\cdot)$ denota la funzione indicatrice e $c_m \in [0,1]$ rappresenta la stima della probabilità a posteriori della classe malevola all'interno della regione $R_m$, coerentemente con la formulazione $f_\theta: \mathcal{X} \to [0,1]$ introdotta nella Sezione~\ref{subsec:modelli_aggregati}. Sulla base del dataset di addestramento $\mathcal{D} = \{(\mathbf{x}_i, y_i)\}_{i=1}^N$, tale stima è definita come la frequenza relativa empirica della classe positiva nella foglia:
         \begin{equation}
-            c_m = \arg\max_{k \in \mathcal{Y}} \frac{1}{|R_m|} \sum_{x_i \in R_m} \mathbb{I}(y_i = k)
+            c_m = \frac{1}{|R_m|} \sum_{\mathbf{x}_i \in R_m} \mathbb{I}(y_i = 1)
         \end{equation}
+        La decisione binaria finale $\hat{Y}$ viene poi ottenuta applicando la soglia canonica $\tau$ già formalizzata nell'Equazione~\eqref{eq:binary_decision}, in coerenza con l'intero framework di ottimizzazione ERM/BCE.
 
-        La selezione delle soglie ottimali di split $\theta_j$ per la $j$-esima caratteristica $x_j$ avviene ricorsivamente minimizzando un criterio di impurità $I(R)$, come l'indice di Gini o l'entropia cross-entropica.
+        La selezione delle soglie ottimali di split $\theta_j$ per la $j$-esima caratteristica $x_j$ avviene ricorsivamente minimizzando un criterio di impurità $I(R_m)$, come l'indice di Gini o l'entropia cross-entropica~\cite{breiman1984}. Formalmente, in un task di classificazione binaria, tali criteri sono espressi in funzione della probabilità stimata $c_m$ come:
+        \begin{equation}
+            I_{\text{Gini}}(R_m) = 2c_m(1-c_m), \qquad I_{\text{entropy}}(R_m) = -c_m\log_2(c_m) - (1-c_m)\log_2(1-c_m)
+        \end{equation}
 
         \subsubsection{Proprietà di Invarianza e Tolleranza alle Distorsioni di Canale}
         Gli alberi di decisione esibiscono proprietà algebriche e geometriche fondamentali che li rendono intrinsecamente robusti alle perturbazioni introdotte dai canali trasmissivi radiofrequenza (RF) e dalle perdite di pacchetto.
 
         \paragraph{Invarianza alle Trasformazioni Monotone}
-        Come introdotto nelle sezioni precedenti, le metriche estratte dai canali spaziali possono subire variazioni di scala, attenuazioni o calibrazioni non-lineari. Sia $h_j: \mathbb{R} \to \mathbb{R}$ una trasformazione strettamente monotonica crescente applicata alla caratteristica $x_j$. Poiché la decisione di uno split ad un generico nodo dell'albero è governata dalla funzione di soglia $\mathbb{I}(x_j > \theta_j)$, si osserva che:
+        Come introdotto nella Sezione~\ref{subsec:allineamento_feature} a giustificazione dell'omissione della fase di scalatura esplicita, le metriche estratte dai canali spaziali possono subire variazioni di scala, attenuazioni o calibrazioni non-lineari. La proprietà viene qui derivata in forma rigorosa e generalizzata a trasformazioni specifiche per singola caratteristica. Sia $h_j: \mathbb{R} \to \mathbb{R}$ una trasformazione strettamente monotonica crescente applicata alla caratteristica $x_j$. Poiché la decisione di uno split ad un generico nodo dell'albero è governata dalla funzione di soglia $\mathbb{I}(x_j > \theta_j)$, si osserva che:
         \begin{equation}
             x_j > \theta_j \iff h_j(x_j) > h_j(\theta_j)
         \end{equation}
-        Definendo la nuova soglia $\theta'_j = h_j(\theta_j)$, l'ordinamento topologico dei punti all'interno dello spazio $\mathcal{X}$ rimane inalterato, garantendo l'invarianza della partizione $R_m$ e della decisione $f(x)$:
+        Definendo la nuova soglia $\theta'_j = h_j(\theta_j)$, l'ordinamento topologico dei punti all'interno dello spazio $\mathcal{X}$ rimane inalterato, garantendo l'invarianza della partizione $R_m$ e della decisione $f(\mathbf{x})$:
         \begin{equation}
-            f(x) = f(h_1(x_1), h_2(x_2), \dots, h_d(x_d))
+            f(\mathbf{x}) = f(h_1(x_1), h_2(x_2), \dots, h_d(x_d))
         \end{equation}
         Tale proprietà elimina la necessità di normalizzazioni rigide (es. z-score o Min-Max) che risulterebbero instabili sotto condizioni di variabilità dinamica del canale.
 
         \paragraph{Robustezza a Rumore Additivo e Distorsione}
-        Si consideri una misura corrotta da distorsione o rumore di canale $\tilde{x} = x + \eta$, dove $\eta$ rappresenta una componente stocastica con $\mathbb{E}[\eta] = 0$. Poiché le regioni $R_m$ sono delimitate da iperpiani di decisione paralleli agli assi coordinati, la classificazione del vettore perturbato $\tilde{x}$ risulta invariante rispetto al vettore nominale $x$ per qualsiasi perturbazione limitata che non attraversi il confine dell'iperpiano:
+        Si consideri una misura corrotta da distorsione o rumore di canale $\tilde{\mathbf{x}} = \mathbf{x} + \boldsymbol{\eta}$, dove $\boldsymbol{\eta}$ rappresenta una componente stocastica con $\mathbb{E}[\boldsymbol{\eta}] = \mathbf{0}$. Poiché le regioni $R_m$ sono delimitate da iperpiani di decisione paralleli agli assi coordinati, la classificazione del vettore perturbato $\tilde{\mathbf{x}}$ risulta invariante rispetto al vettore nominale $\mathbf{x}$ per qualsiasi perturbazione limitata che non attraversi il confine dell'iperpiano:
         \begin{equation}
-            f(\tilde{x}) = f(x), \quad \forall \eta \text{ t.c. } \text{sgn}(x_j + \eta_j - \theta_j) = \text{sgn}(x_j - \theta_j)
+            f(\tilde{\mathbf{x}}) = f(\mathbf{x}), \quad \forall \boldsymbol{\eta} \text{ t.c. } \text{sgn}(x_j + \eta_j - \theta_j) = \text{sgn}(x_j - \theta_j)
         \end{equation}
         Questa natura a scalino (\textit{step function}) riduce la sensibilità al rumore gaussiano e alle fluttuazioni di piccola entità rispetto ai modelli a separazione lineare o a base di distanza euclidea.
 
         \paragraph{Gestione Nativa dei Dati Mancanti (\textit{Packet Loss})}
-        In presenza di perdite di pacchetti o corruzione dei dati di header, alcune caratteristiche $x_j$ possono risultare non disponibili ($x_j = \text{NaN}$). Le strutture alberiformi gestiscono tale incompletezza mediante instradamento predefinito (\textit{default path routing}) o split surrogati, senza richiedere l'imputazione esplicita del dato. Per ogni nodo con decisione su $x_j$, viene definita una direzione di default $\delta^* \in \{\text{sinistra}, \text{destra}\}$ che minimizza la perdita empirica sui dati mancanti durante la fase di addestramento:
+        In presenza di perdite di pacchetti o corruzione dei dati di header, alcune caratteristiche $x_j$ possono risultare non disponibili ($x_j = \text{NaN}$). Le strutture alberiformi gestiscono tale incompletezza mediante due meccanismi distinti proposti in letteratura, entrambi privi della necessità di imputazione esplicita del dato: gli \textit{split surrogati}, introdotti nella formulazione originaria di CART~\cite{breiman1984}, che individuano uno split alternativo su una caratteristica correlata a $x_j$ qualora quest'ultima risulti mancante; e l'instradamento a \textit{direzione predefinita} (\textit{default direction}), proposto nel contesto degli algoritmi di boosting scalabili~\cite{chen2016}, in cui la direzione ottimale $\delta^*_j \in \{\text{sinistra}, \text{destra}\}$ per ciascun nodo di split su $x_j$ viene appresa direttamente durante l'addestramento, minimizzando la perdita empirica sui pattern di sparsità osservati:
         \begin{equation}
-            \text{Posizione}(x) = 
-            \begin{cases} 
+            \text{Posizione}(\mathbf{x}) =
+            \begin{cases}
                 \text{Sinistra} & \text{se } x_j \le \theta_j \\
                 \text{Destra} & \text{se } x_j > \theta_j \\
-                \delta^* & \text{se } x_j = \text{NaN}
+                \delta^*_j & \text{se } x_j = \text{NaN}
             \end{cases}
         \end{equation}
 
         \subsubsection{Formulazione Generale degli Ensemble per la Riduzione dell'Errore}
-        Sebbene il singolo albero di decisione presenti un basso errore di bias, esso soffre di elevata varianza. Per mitigare tale limite, si ricorre a tecniche di \textit{ensembling} che combinano $B$ stimatori base $\{f_b(x)\}_{b=1}^B$ per formare un predittore aggregato $F(x)$:
+        Sebbene il singolo albero di decisione presenti un basso errore di bias, esso soffre di elevata varianza. Per mitigare tale limite, si ricorre a tecniche di \textit{ensembling} che combinano $B$ stimatori base $\{f_b(\mathbf{x})\}_{b=1}^B$ per formare un predittore aggregato $F(\mathbf{x})$:
         \begin{equation}
-            F(x) = \sum_{b=1}^B \beta_b f_b(x)
+            F(\mathbf{x}) = \sum_{b=1}^B \beta_b f_b(\mathbf{x})
         \end{equation}
+        Questa astrazione unifica i due principali approcci\footnote{Come formalizzato nei paragrafi seguenti, nel caso del Bagging si assegna un peso uniforme $\beta_b = 1/B$, mentre la ricorsione additiva del Boosting, se srotolata su $B$ passi, si riconduce a questa formulazione ponendo $\beta_b = \nu$ (a meno di un predittore costante iniziale $F_0$).}: l'addestramento parallelo per la riduzione della varianza e l'addestramento sequenziale per la riduzione del bias, le cui differenze chiave sono schematizzate in Tabella~\ref{tab:bagging_vs_boosting} e in Figura~\ref{fig:bagging_vs_boosting}.
 
         \paragraph{Riduzione della Varianza via Bagging (\textit{Bootstrap Aggregating})}
-        Nello schema Bagging, di cui le architetture \textit{Random Forest} costituiscono l'estensione fondamentale, ciascun stimatore $f_b(x)$ viene addestrato in modo indipendente su un campionamento bootstrap del dataset $\mathcal{D}_b^*$, introducendo un'ulteriore de-correlazione mediante la selezione casuale di un sottoinsieme di $k < d$ caratteristiche a ciascun nodo. 
+        Nello schema Bagging, di cui le architetture \textit{Random Forest}~\cite{breiman2001} costituiscono l'estensione fondamentale, ciascun stimatore $f_b(\mathbf{x})$ viene addestrato in modo indipendente su un campionamento bootstrap del dataset $\mathcal{D}_b^*$, introducendo un'ulteriore de-correlazione mediante la selezione casuale di un sottoinsieme di $k < d$ caratteristiche a ciascun nodo.
 
-        Sia $\sigma^2$ la varianza del singolo albero e $\rho$ il coefficiente di correlazione campionaria medio tra le predizioni di due alberi distinti. La varianza della stimatore mediato $\bar{f}(x) = \frac{1}{B} \sum_{b=1}^B f_b(x)$ si esprime analiticamente come:
+        Sia $\sigma^2$ la varianza del singolo albero e $\rho$ il coefficiente di correlazione campionaria medio tra le predizioni di due alberi distinti. La varianza dello stimatore mediato $\bar{f}(\mathbf{x}) = \frac{1}{B} \sum_{b=1}^B f_b(\mathbf{x})$ si esprime analiticamente come~\cite{hastie2009}:
         \begin{equation}
-            \operatorname{Var}(\bar{f}(x)) = \rho \sigma^2 + \frac{1 - \rho}{B} \sigma^2
+            \operatorname{Var}(\bar{f}(\mathbf{x})) = \rho \sigma^2 + \frac{1 - \rho}{B} \sigma^2
         \end{equation}
         Al crescere del numero di alberi $B \to \infty$, il secondo termine tende a zero, riducendo la varianza complessiva del modello al limite teorico $\rho \sigma^2$. La de-correlazione forzata delle caratteristiche riduce il fattore $\rho$, garantendo un'elevata capacità di generalizzazione anche su traffico malevolo mai osservato.
 
         \paragraph{Riduzione del Bias via Gradient Boosting}
-        A differenza dell'approccio parallelo del Bagging, gli algoritmi di \textit{Gradient Boosting} (incluso il paradigma con discretizzazione a istogrammi \textit{Histogram-based Gradient Boosting}) costruiscono l'ensemble in modo sequenziale ed additivo. Dato un modello al passo $b-1$ pari a $F_{b-1}(x)$, lo stimatore successivo $f_b(x)$ viene addestrato per approssimare i pseudo-residui $r_{i,b}$, definiti come il gradiente negativo della funzione di perdita differenziabile $L(y_i, F(x_i))$ valutato sulla predizione corrente:
+        A differenza dell'approccio parallelo del Bagging, gli algoritmi di \textit{Gradient Boosting}~\cite{friedman2001} (incluso il paradigma con discretizzazione a istogrammi \textit{Histogram-based Gradient Boosting}~\cite{ke2017}) costruiscono l'ensemble in modo sequenziale ed additivo. Dato un modello al passo $b-1$ pari a $F_{b-1}(\mathbf{x})$, lo stimatore successivo $f_b(\mathbf{x})$ viene addestrato per approssimare i pseudo-residui $r_{i,b}$, definiti come il gradiente negativo della funzione di perdita differenziabile $L(y_i, F(\mathbf{x}_i))$ valutato sulla predizione corrente:
         \begin{equation}
-            r_{i,b} = -\left[ \frac{\partial L(y_i, F(x_i))}{\partial F(x_i)} \right]_{F(x_i) = F_{b-1}(x_i)}
+            r_{i,b} = -\left[ \frac{\partial L(y_i, F(\mathbf{x}_i))}{\partial F(\mathbf{x}_i)} \right]_{F(\mathbf{x}_i) = F_{b-1}(\mathbf{x}_i)}
         \end{equation}
         L'aggiornamento del modello aggregato avviene secondo la regola:
         \begin{equation}
-            F_b(x) = F_{b-1}(x) + \nu \cdot f_b(x)
+            F_b(\mathbf{x}) = F_{b-1}(\mathbf{x}) + \nu \cdot f_b(\mathbf{x})
         \end{equation}
         dove $\nu \in (0, 1]$ rappresenta il tasso di apprendimento (\textit{learning rate}). Tale approccio garantisce una minimizzazione progressiva del bias dell'errore di classificazione, consentendo di catturare sottili pattern di attacco ad alta dimensionalità tipici delle minacce cibernetiche complesse.
+
+        % --- TABELLA RIASSUNTIVA BAGGING VS BOOSTING ---
+        \begin{table}[H]
+            \centering
+            \caption{Confronto delle proprietà architetturali e degli obiettivi di ottimizzazione tra i paradigmi di \textit{ensembling} Bagging e Gradient Boosting.}
+            \label{tab:bagging_vs_boosting}
+            \begin{tabularx}{\textwidth}{@{} >{\raggedright\arraybackslash}p{4cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X @{}}
+                \toprule
+                \textbf{Caratteristica} & \textbf{Bagging (es. Random Forest)} & \textbf{Gradient Boosting} \\
+                \midrule
+                \textbf{Costruzione} & Parallela, stimatori indipendenti & Sequenziale, additiva \\
+                \textbf{Obiettivo primario} & Riduzione della varianza & Riduzione del bias \\
+                \textbf{Combinazione} & Media: $\bar{f} = \frac{1}{B}\sum f_b$ & Somma pesata: $F_b = F_{b-1} + \nu f_b$ \\
+                \textbf{Target addestramento per $f_b$} & Etichette originali su campionamenti bootstrap $\mathcal{D}_b^*$ & Pseudo-residui $r_{i,b}$ valutati al passo $b-1$ \\
+                \bottomrule
+            \end{tabularx}
+        \end{table}
+
+        % --- FIGURA TIKZ BAGGING VS BOOSTING ---
+        \begin{figure}[H]
+            \centering
+            \resizebox{\textwidth}{!}{%
+            \begin{tikzpicture}[
+                >={Stealth[length=2mm, width=1.4mm]},
+                node distance=1cm and 0.8cm,
+                dataset/.style={
+                    ellipse, draw=black, fill=gray!10, thick,
+                    align=center, inner sep=3pt, font=\small
+                },
+                block/.style={
+                    rectangle, draw=black, fill=white, thick,
+                    align=center, rounded corners=2pt, inner sep=4pt, font=\small
+                },
+                result/.style={
+                    rectangle, draw=black, fill=gray!30, thick,
+                    align=center, rounded corners=2pt, inner sep=4pt, font=\small
+                },
+                arrow/.style={draw=black, thick, ->}
+            ]
+
+                % --- BAGGING (Left side) ---
+                \node (bagging_title) at (-4,6) {\textbf{Bagging (Parallelo)}};
+
+                % Dataset Bootstrap
+                \node [dataset, below=0.5cm of bagging_title, xshift=-0.3cm] (d_boot2) {$\mathcal{D}_2^*$};
+                \node [dataset, left=0.6cm of d_boot2] (d_boot1) {$\mathcal{D}_1^*$};
+                \node [dataset, right=1.2cm of d_boot2] (d_bootB) {$\mathcal{D}_B^*$};
+                \node [right=0.2cm of d_boot2] (dots_data) {\dots};
+
+                % Stimatori base (Trees)
+                \node [block, below=0.7cm of d_boot1] (tree1) {$f_1(\mathbf{x})$};
+                \node [block, below=0.7cm of d_boot2] (tree2) {$f_2(\mathbf{x})$};
+                \node [block, below=0.7cm of d_bootB] (treeB) {$f_B(\mathbf{x})$};
+
+                % Aggregazione finale
+                \node [result, below=0.7cm of tree2, xshift=0.3cm] (agg_bagging) {Media: $\bar{f} = \frac{1}{B}\sum f_b(\mathbf{x})$};
+
+                % Collegamenti Bagging
+                \draw [arrow] (d_boot1) -- (tree1);
+                \draw [arrow] (d_boot2) -- (tree2);
+                \draw [arrow] (d_bootB) -- (treeB);
+                \draw [arrow] (tree1.south) -- ($(agg_bagging.north) + (-0.5,0)$);
+                \draw [arrow] (tree2.south) -- (agg_bagging.north);
+                \draw [arrow] (treeB.south) -- ($(agg_bagging.north) + (0.5,0)$);
+
+
+                % --- BOOSTING (Right side) ---
+                \node (boosting_title) at (4,6) {\textbf{Gradient Boosting (Sequenziale)}};
+
+                % Modello Iniziale
+                \node [dataset, below=0.5cm of boosting_title] (f0) {$F_0(\mathbf{x})$};
+
+                % Stimatori base in cascata
+                \node [block, below=0.7cm of f0] (tree_b1) {$f_1(\mathbf{x})$ addestrato su $r_{i,1}$};
+                \node [block, below=0.7cm of tree_b1] (tree_b2) {$f_2(\mathbf{x})$ addestrato su $r_{i,2}$};
+                \node [below=0.4cm of tree_b2] (dots_boost) {\vdots};
+                \node [block, below=0.4cm of dots_boost] (tree_bB) {$f_B(\mathbf{x})$ addestrato su $r_{i,B}$};
+
+                % Aggregazione finale
+                \node [result, below=0.7cm of tree_bB] (agg_boosting) {Somma: $F_B = F_0 + \nu \sum f_b(\mathbf{x})$};
+
+                % Collegamenti Boosting
+                \draw [arrow] (f0) -- (tree_b1) node[midway, right, font=\footnotesize] {+};
+                \draw [arrow] (tree_b1) -- (tree_b2) node[midway, right, font=\footnotesize] {+ $\nu \cdot f_1$};
+                \draw [arrow] (tree_b2) -- (dots_boost) node[midway, right, font=\footnotesize] {+ $\nu \cdot f_2$};
+                \draw [arrow] (dots_boost) -- (tree_bB);
+                \draw [arrow] (tree_bB) -- (agg_boosting) node[midway, right, font=\footnotesize] {+ $\nu \cdot f_B$};
+
+                % Separatore visivo verticale
+                \draw [dashed, gray] (0, 0) -- (0, 7);
+
+            \end{tikzpicture}%
+            }
+            \caption{Confronto logico-procedurale tra gli schemi di aggregazione. A sinistra, il paradigma \textit{Bagging} esegue un addestramento parallelo su campionamenti bootstrap indipendenti. A destra, il paradigma \textit{Gradient Boosting} adotta un approccio sequenziale in cui ciascun albero mira a correggere i residui iterativi generati dall'insieme precedente.}
+            \label{fig:bagging_vs_boosting}
+        \end{figure}
 
     \section{Framework di Adattamento, Granularità e Stabilità Statistica}
     \label{sec:framework_adattamento}

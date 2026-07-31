@@ -2436,7 +2436,15 @@
     <bcf:citekey order="62" intorder="1">breiman1984</bcf:citekey>
     <bcf:citekey order="62" intorder="2">hastie2009</bcf:citekey>
     <bcf:citekey order="63" intorder="1">vapnik1998</bcf:citekey>
-    <bcf:citekey order="64" intorder="1" nocite="1">*</bcf:citekey>
+    <bcf:citekey order="64" intorder="1">breiman1984</bcf:citekey>
+    <bcf:citekey order="65" intorder="1">breiman1984</bcf:citekey>
+    <bcf:citekey order="66" intorder="1">breiman1984</bcf:citekey>
+    <bcf:citekey order="67" intorder="1">chen2016</bcf:citekey>
+    <bcf:citekey order="68" intorder="1">breiman2001</bcf:citekey>
+    <bcf:citekey order="69" intorder="1">hastie2009</bcf:citekey>
+    <bcf:citekey order="70" intorder="1">friedman2001</bcf:citekey>
+    <bcf:citekey order="71" intorder="1">ke2017</bcf:citekey>
+    <bcf:citekey order="72" intorder="1" nocite="1">*</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="nty">
