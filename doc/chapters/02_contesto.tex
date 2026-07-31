@@ -84,7 +84,7 @@ Infine, la Sezione~\ref{sec:sintesi_posizionamento} sintetizza i gap metodologic
                     align=center, rounded corners=2pt, inner sep=5pt
                 },
                 segmentbox/.style={
-                    draw=gray!60, dashed, thick, rounded corners=5pt
+                    draw=gray!70, dashed, thick, rounded corners=5pt
                 },
                 line/.style={draw=black, thick, ->},
                 dline/.style={draw=black, thick, dashed},
@@ -248,8 +248,59 @@ Infine, la Sezione~\ref{sec:sintesi_posizionamento} sintetizza i gap metodologic
 
     \begin{figure}[H]
         \centering
-        \includegraphics[width=\textwidth]{images/capitolo_2/sezione_2/domain_shift_concept.pdf}
-        \caption{Confronto concettuale tra la valutazione tradizionale dei NIDS all'interno del medesimo dominio (\textit{intra-domain}) e l'effetto del \textit{domain shift} sulle prestazioni di classificazione nel passaggio al dominio satellitare (\textit{cross-domain}).}
+        \begin{tikzpicture}[
+            >={Stealth[length=2mm, width=1.4mm]},
+            nodebox/.style={
+                rectangle, draw=black, fill=white, thick,
+                align=center, rounded corners=2pt, inner sep=5pt
+            },
+            successbox/.style={
+                rectangle, draw=black, fill=gray!30, thick,
+                align=center, rounded corners=2pt, inner sep=5pt
+            },
+            degradedbox/.style={
+                rectangle, draw=black, fill=gray!30, thick, dashed,
+                align=center, rounded corners=2pt, inner sep=5pt
+            },
+            segmentbox/.style={
+                draw=gray!70, dashed, thick, rounded corners=5pt
+            },
+            line/.style={draw=black, thick, ->},
+            dline/.style={draw=black, thick, dashed, ->}
+        ]
+
+            % ================= SCENARIO A =================
+            \node [nodebox] (a_data) at (0, 0) {\textbf{Dataset}\\\textbf{Terrestre}};
+            \node [nodebox, right=0.7cm of a_data] (a_train) {\textbf{Addestramento}\\\textbf{Classificatore ML}};
+            \node [nodebox, right=0.7cm of a_train] (a_test) {\textbf{Test Terrestre}\\\small(Stessa Distribuzione)};
+            \node [successbox, right=0.7cm of a_test] (a_res) {\textbf{Elevata Accuratezza}\\\small($\sim$98--99\%)};
+
+            % Connessioni Scenario A
+            \draw [line] (a_data) -- (a_train);
+            \draw [line] (a_train) -- (a_test);
+            \draw [line] (a_test) -- (a_res);
+
+            % Bounding Box Scenario A
+            \draw[segmentbox] (-1.5, -1.0) rectangle (15, 1.5);
+            \node[font=\small\bfseries] at (3.15, 1.1) {Scenario A: Valutazione Tradizionale (Intra-Domain)};
+
+            % ================= SCENARIO B =================
+            \node [nodebox, below=1.5cm of a_data] (b_data) {\textbf{Dataset}\\\textbf{Terrestre}};
+            \node [nodebox, right=0.7cm of b_data] (b_train) {\textbf{Addestramento}\\\textbf{Classificatore ML}};
+            \node [nodebox, right=1.55cm of b_train] (b_test) {\textbf{Test Satellitare}\\\small(Canale Perturbato)};
+            \node [degradedbox, right=0.7cm of b_test] (b_res) {\textbf{Marcato Degrado}\\\textbf{Prestazionale}};
+
+            % Connessioni Scenario B
+            \draw [line] (b_data) -- (b_train);
+            \draw [dline] (b_train) -- node[below, font=\footnotesize, align=center, yshift=-2pt] {Domain\\[-9pt]Shift} (b_test);
+            \draw [dline] (b_test) -- (b_res);
+
+            % Bounding Box Scenario B
+            \draw[segmentbox] (-1.5, -4) rectangle (15, -1.5);
+            \node[font=\small\bfseries] at (4.5, -1.9) {Scenario B: Impatto del Domain Shift (Cross-Domain Transferability)};
+
+        \end{tikzpicture}
+        \caption{Confronto schematico tra la valutazione intra-dominio (Scenario A) e l'impatto del domain shift sul trasferimento delle prestazioni tra il contesto terrestre e quello satellitare (Scenario B).}
         \label{fig:domain_shift_concept}
     \end{figure}
 

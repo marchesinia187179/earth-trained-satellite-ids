@@ -336,6 +336,49 @@
     \section{Tassonomia delle Architetture di Classificazione e Valutazione Multi-Modello}
     \label{sec:tassonomia_modelli}
 
+    L'intera tassonomia condivide una comune formulazione basata sulla stima della probabilità a posteriori, subordinando l'assegnazione della classe a una soglia decisionale parametrica $\tau$, garantendo così una base di confronto omogenea e indipendente dallo specifico algoritmo di apprendimento sottostante. 
+    Per agevolare la consultazione, i formalismi architetturali e i parametri funzionali introdotti in questa sezione sono riepilogati nella Tabella~\ref{tab:notazione_modelli}.
+
+    \begin{table}[H]
+        \centering
+        \caption{Sintesi della notazione relativa alle architetture e ai parametri di classificazione.}
+        \label{tab:notazione_modelli}
+        \small
+        \renewcommand{\arraystretch}{1.3}
+        \begin{tabularx}{\textwidth}{@{} >{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}X @{}}
+        \toprule
+        \textbf{Simbolo} & \textbf{Descrizione e Significato Concettuale} \\
+        \midrule
+        $f_\theta(\mathbf{x}) \approx P(Y=1 \mid \mathbf{x})$ & 
+        Funzione decisionale parametrica: stima della probabilità a posteriori che il campione appartenga alla classe malevola \\
+        
+        $\hat{Y} \in \{0, 1\}$ & 
+        Decisione binaria finale predetta dal classificatore \\
+        
+        $\tau \in (0, 1)$ & 
+        Soglia decisionale parametrica, tarabile operativamente lungo la curva ROC per il bilanciamento dei Falsi Positivi \\
+        
+        $\mathcal{M}_{\text{base}}$ & 
+        Modello Baseline, addestrato sul \textit{Set di Iniezione} $\mathcal{D}_{\text{inj}}^{(\text{train})}$ includendo conoscenza target sparsa \\
+        
+        $\mathcal{M}_{S}$ & 
+        Modello Aggregato Nativo Sorgente, addestrato esclusivamente sulle distribuzioni stazionarie originarie $\mathcal{D}_{S}^{(\text{train})}$ \\
+        
+        $\mathcal{M}_{H}^{(T)}$ & 
+        Modello Aggregato Ibrido (\textit{Oracle}), addestrato unendo la componente lecita sorgente con la totalità degli attacchi target \\
+        
+        $\mathcal{M}_{S, a}$, $\mathcal{M}_{H, T, a}$ & 
+        Modelli Biclasse (Sorgente e Ibridi), focalizzati analiticamente sulla rilevabilità della singola famiglia d'attacco $a \in \mathcal{A}$ \\
+        
+        $\mathcal{L}$ & 
+        Funzione di perdita \textit{Binary Cross-Entropy} (BCE) per l'ottimizzazione della stima parametrica \\
+        
+        $I(R_m)$ & 
+        Criterio di impurità (es. Indice di Gini o Entropia) per la scissione ottima dei nodi nello spazio delle caratteristiche \\
+        \bottomrule
+        \end{tabularx}
+    \end{table}
+
         \subsection{Modello di Riferimento (Baseline) e Modelli Aggregati}
         \label{subsec:modelli_aggregati}
 
@@ -830,7 +873,7 @@
                 \draw [arrow] (tree_bB) -- (agg_boosting) node[midway, right, font=\footnotesize] {+ $\nu \cdot f_B$};
 
                 % Separatore visivo verticale
-                \draw [dashed, gray] (0,0.5) -- (0,8);
+                \draw [dashed, gray!70] (0,0.5) -- (0,8);
 
             \end{tikzpicture}%
             }
@@ -843,7 +886,24 @@
 
         \subsection{Incertezza Stocastica e Valutazione Multi-Seed}
         \label{subsec:stabilita_stocastica}
-        % Formalizzazione della stima dell'aspettativa e della varianza prestazionale mediante iterazioni stocastiche indipendenti (invarianza rispetto ai seed di inizializzazione).
+
+        Al fine di garantire la robustezza statistica dei risultati ed escludere che le performance osservate siano attribuibili ad artefatti stocastici o a condizioni iniziali favorevoli dei classificatori probabilistici, l'architettura metodologica adotta un protocollo di valutazione basato su iterazioni indipendenti multi-seed. 
+
+        Sia $\mathcal{S}_M = \{s_1, s_2, \dots, s_K\}$ l'insieme dei $K$ seed di inizializzazione stocastica impiegati per l'addestramento e la classificazione dei modelli. Per disaccoppiare la variabilità algoritmica da quella strutturale dei dati, la generazione dei dataset e i relativi calcoli preliminari vengono eseguiti mediante un seed univoco di base, denotato con $s_{\text{data}}$, completamente disgiunto e indipendente da $\mathcal{S}_M$. Tale disaccoppiamento garantisce che tutti i modelli $\mathcal{M}$ operino esattamente sul medesimo spazio campionario e sulle stesse partizioni, prevenendo qualsiasi forma di distorsione (\textit{bias}) legata al partizionamento dei dati.
+
+        La valutazione prestazionale si concentra su due metriche primarie per la classificazione binaria: il tasso di veri positivi (\textit{True Positive Rate}, $\text{TPR}$) e il tasso di veri negativi (\textit{True Negative Rate}, $\text{TNR}$). Per ciascun seed $s_k \in \mathcal{S}_M$, viene generata una mappa di calore (\textit{heatmap}) strutturata a matrice, in cui le righe rappresentano i differenti modelli e le colonne corrispondono ai dataset di valutazione. Ciascuna matrice include inoltre una colonna dedicata alla media per riga, sintetizzando il comportamento medio del modello sui diversi contesti di test.
+
+        Sintetizzando l'asse temporale delle repliche, viene ricavata una matrice aggregata delle medie multi-seed per tipologia di implementazione:
+        \begin{equation}
+            \bar{\mathbf{M}}_{\text{type}} = \frac{1}{K} \sum_{k=1}^K \mathbf{M}^{(s_k)}
+        \end{equation}
+        dove $\mathbf{M}^{(s_k)}$ rappresenta la matrice delle performance associata al seed $s_k$. Contestualmente, per quantificare la dispersione e la stabilità dei risultati, viene calcolata la corrispondente matrice delle varianze campionarie al di sotto delle medie:
+        \begin{equation}
+            \mathbf{V}_{\text{type}} = \frac{1}{K-1} \sum_{k=1}^K \left(\mathbf{M}^{(s_k)} - \bar{\mathbf{M}}_{\text{type}}\right)^{\circ 2}
+        \end{equation}
+        dove l'operatore $\circ 2$ indica la potenza al quadrato element-wise.
+
+        Infine, per validare rigorosamente la significatività statistica degli scostamenti prestazionali ed eliminare qualsiasi perplessità legata alla casualità dei risultati, è stato implementato il test $t$ di Welch per campioni non omoschedastici. Per ogni modello appartenente a una specifica tipologia, sono state raccolte le medie campionarie della metrica di interesse calcolate su ciascun seed $s_k$. Il test confronta tali distribuzioni con quelle del modello baseline $\mathcal{M}_{\text{base}}$, restituendo i rispettivi valori di probabilità ($p\text{-values}$) e confermando la significatività empirica dei miglioramenti conseguiti.
 
         \subsection{Granularità della Risposta: Formulazione Binaria vs. Multiclasse}
         \label{subsec:granularita_risposta}
