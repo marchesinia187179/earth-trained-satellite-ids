@@ -884,30 +884,290 @@
     \section{Framework di Adattamento, Granularità e Stabilità Statistica}
     \label{sec:framework_adattamento}
 
+    La valutazione dell'efficacia delle architetture e delle strategie di \textit{transfer learning} precedentemente formalizzate richiede un apparato metodologico capace di isolare i reali guadagni prestazionali dal rumore stocastico intrinseco ai processi di apprendimento. Questa sezione definisce il framework di valutazione e di analisi teorica adottato per garantire la solidità e la riproducibilità dei risultati. 
+
+    Nella prima parte della trattazione viene affrontato il problema dell'incertezza algoritmica legata ai modelli ad albero, introducendo un rigoroso protocollo di valutazione \textit{multi-seed}. Vengono definite le metriche prestazionali di aggregazione e viene formalizzato l'impiego del test $t$ di Welch per stabilire oggettivamente la significatività statistica degli scostamenti osservati rispetto al modello di riferimento (\textit{baseline}). Successivamente, l'analisi si sposta sulle proprietà strutturali e geometriche dello spazio decisionale. Viene introdotto l'indice di granularità per valutare l'impatto della formulazione del problema — differenziando tra partizioni a grana grossa e a grana fine — sulla morfologia dei confini decisionali, discutendo il compromesso teorico tra rigidità specialistica e tolleranza al \textit{domain shift}.
+
+    Per agevolare la consultazione delle metriche e dei parametri statistici discussi, la notazione principale introdotta in questa sezione è riepilogata nella Tabella~\ref{tab:notazione_valutazione}.
+
+    \begin{table}[H]
+        \centering
+        \caption{Sintesi della notazione relativa al framework di valutazione e alla stabilità statistica.}
+        \label{tab:notazione_valutazione}
+        \small
+        \renewcommand{\arraystretch}{1.3}
+        \begin{tabularx}{\textwidth}{@{} >{\raggedright\arraybackslash}p{3.8cm} >{\raggedright\arraybackslash}X @{}}
+        \toprule
+        \textbf{Simbolo} & \textbf{Descrizione e Significato Concettuale} \\
+        \midrule
+        $s_0$ & 
+        Seed deterministico utilizzato per il partizionamento dei dati e la generazione invariante dei benchmark \\
+        
+        $\mathcal{S} = \{s_1, \dots, s_K\}$ & 
+        Insieme di $K$ seed pseudo-casuali per l'inizializzazione stocastica e l'addestramento dei classificatori \\
+        
+        $H_k(M, D)$ & 
+        Matrice delle prestazioni (es. TPR, TNR) ottenute dal modello $M$ sul benchmark $D$ con il seed $s_k$ \\
+        
+        $\hat{\mu}(M, D), \hat{\sigma}^2(M, D)$ & 
+        Stima puntuale del valore atteso e della varianza campionaria delle metriche prestazionali marginalizzate sui $K$ seed \\
+        
+        $t, \nu_{\text{eff}}$ & 
+        Statistica del test e gradi di libertà effettivi nel test $t$ di Welch per la significatività rispetto al baseline \\
+        
+        $\Gamma(M) = |\mathcal{A}_m(M)|$ & 
+        Indice di granularità: cardinalità delle famiglie d'attacco osservate in addestramento dal modello $M$ \\
+        
+        $R_1(M)$ & 
+        Regione decisionale positiva nello spazio $\mathcal{X}$, corrispondente alla previsione dell'etichetta malevola ($Y=1$) \\
+        
+        $\operatorname{supp} P(\mathbf{x} \mid Y=1, A=a)$ & 
+        Supporto spaziale effettivo della distribuzione condizionata associata a una singola famiglia di attacco $a$ \\
+        \bottomrule
+        \end{tabularx}
+    \end{table}
+
         \subsection{Incertezza Stocastica e Valutazione Multi-Seed}
         \label{subsec:stabilita_stocastica}
 
-        Al fine di garantire la robustezza statistica dei risultati ed escludere che le performance osservate siano attribuibili ad artefatti stocastici o a condizioni iniziali favorevoli dei classificatori probabilistici, l'architettura metodologica adotta un protocollo di valutazione basato su iterazioni indipendenti multi-seed. 
+        Le famiglie di classificatori adottate nel framework (Sezione~\ref{subsec:famiglie_classificatori}) presentano componenti algoritmiche intrinsecamente stocastiche: il campionamento bootstrap e la selezione casuale del sottoinsieme di caratteristiche per nodo negli ensemble Bagging, così come le procedure di inizializzazione e di sotto-campionamento stocastico tipiche degli algoritmi di Gradient Boosting. Di conseguenza, la prestazione puntuale di un singolo modello addestrato con un'unica inizializzazione non costituisce, di per sé, una stima affidabile della sua reale capacità discriminativa: un risultato favorevole isolato potrebbe essere l'esito di una particolare configurazione stocastica favorevole, piuttosto che un'evidenza sistematica della superiorità del modello. Il framework metodologico introduce pertanto un protocollo di valutazione \textit{multi-seed}, volto a stimare non solo il valore atteso della prestazione, ma anche la sua dispersione, e a verificarne la significatività statistica rispetto al modello di riferimento.
 
-        Sia $\mathcal{S}_M = \{s_1, s_2, \dots, s_K\}$ l'insieme dei $K$ seed di inizializzazione stocastica impiegati per l'addestramento e la classificazione dei modelli. Per disaccoppiare la variabilità algoritmica da quella strutturale dei dati, la generazione dei dataset e i relativi calcoli preliminari vengono eseguiti mediante un seed univoco di base, denotato con $s_{\text{data}}$, completamente disgiunto e indipendente da $\mathcal{S}_M$. Tale disaccoppiamento garantisce che tutti i modelli $\mathcal{M}$ operino esattamente sul medesimo spazio campionario e sulle stesse partizioni, prevenendo qualsiasi forma di distorsione (\textit{bias}) legata al partizionamento dei dati.
+        \subsubsection{Separazione tra Seed di Composizione del Dataset e Seed di Addestramento}
+        \label{subsubsec:seed_separation}
+        Per isolare la stocasticità algoritmica dei classificatori da qualsivoglia variabilità indotta dalla composizione dei dati, il framework distingue rigorosamente due categorie di seed pseudo-casuali, aventi ruolo e ambito di applicazione disgiunti:
+        \begin{itemize}
+            \item un seed deterministico $s_0$, fissato una tantum e impiegato esclusivamente nelle procedure di split stratificato e di sintesi dei benchmark descritte nella Sezione~\ref{subsec:composizione_domini}. Tale seed determina univocamente le partizioni $\mathcal{D}_k^{(\text{train})}, \mathcal{D}_k^{(\text{test})}$ e la composizione di ciascun benchmark derivato, mantenendole identiche e invarianti per l'intero protocollo sperimentale;
+            \item un insieme di $K$ seed indipendenti $\mathcal{S} = \{s_1, s_2, \dots, s_K\}$, impiegati esclusivamente nelle fasi di addestramento dei classificatori (inizializzazione degli stimatori, campionamento bootstrap, selezione casuale delle caratteristiche), con $K$ inteso come parametro simbolico del framework teorico.
+        \end{itemize}
 
-        La valutazione prestazionale si concentra su due metriche primarie per la classificazione binaria: il tasso di veri positivi (\textit{True Positive Rate}, $\text{TPR}$) e il tasso di veri negativi (\textit{True Negative Rate}, $\text{TNR}$). Per ciascun seed $s_k \in \mathcal{S}_M$, viene generata una mappa di calore (\textit{heatmap}) strutturata a matrice, in cui le righe rappresentano i differenti modelli e le colonne corrispondono ai dataset di valutazione. Ciascuna matrice include inoltre una colonna dedicata alla media per riga, sintetizzando il comportamento medio del modello sui diversi contesti di test.
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}[
+                font=\small,
+                >=stealth,
+                % Stili blocchi IEEE (grigi)
+                data_block/.style={rectangle, draw=black!90, fill=white, text width=4cm, text centered, minimum height=1cm, dashed, rounded corners=2pt},
+                proc_block/.style={rectangle, draw=black, fill=black!15, text width=3.5cm, text centered, minimum height=1.2cm, rounded corners=5pt},
+                seed_node/.style={rectangle, fill=black!70, text=white, rounded corners=3pt, inner sep=4pt, font=\footnotesize\bfseries},
+                arrow/.style={->, thick, black!70}
+            ]
 
-        Sintetizzando l'asse temporale delle repliche, viene ricavata una matrice aggregata delle medie multi-seed per tipologia di implementazione:
+            % Livello 1: Dati Iniziali
+            \node[data_block] (raw_data) at (0, 0) {Traffico Raw (Sorgente \& Target)};
+            
+            % Nodo Seed deterministico
+            \node[seed_node] (seed0) at (0, -1.2) {Seed Fissetto: $s_0$};
+            
+            % Livello 2: Split e Benchmark Fissi
+            \node[proc_block, text width=5cm] (benchmarks) at (0, -2.5) {Partizionamento invariante e Generazione dei Benchmark $\mathcal{B}$};
+            
+            \draw[arrow] (raw_data) -- (seed0);
+            \draw[arrow] (seed0) -- (benchmarks);
+
+            % Livello 3: Nodi Multi-seed e Addestramenti Paralleli
+            \node[seed_node] (seed1) at (-4, -4.5) {Seed Stocastico: $s_1$};
+            \node[seed_node] (seed2) at (0, -4.5) {Seed Stocastico: $s_2$};
+            \node at (2, -4.5) {\dots};
+            \node[seed_node] (seedK) at (4, -4.5) {Seed Stocastico: $s_K$};
+
+            \node[proc_block, fill=black!5, text width=2.5cm] (train1) at (-4, -6) {Addestramento Modello $M$};
+            \node[proc_block, fill=black!5, text width=2.5cm] (train2) at (0, -6) {Addestramento Modello $M$};
+            \node[proc_block, fill=black!5, text width=2.5cm] (trainK) at (4, -6) {Addestramento Modello $M$};
+
+            % Frecce dal blocco Benchmark ai percorsi paralleli
+            \draw[arrow, rounded corners] (benchmarks.south) |- (-4, -3.5) -- (seed1);
+            \draw[arrow, rounded corners] (benchmarks.south) |- (0, -3.5) -- (seed2);
+            \draw[arrow, rounded corners] (benchmarks.south) |- (4, -3.5) -- (seedK);
+
+            \draw[arrow] (seed1) -- (train1);
+            \draw[arrow] (seed2) -- (train2);
+            \draw[arrow] (seedK) -- (trainK);
+
+            % Livello 4: Valutazione
+            \node[data_block, text width=2.5cm] (eval1) at (-4, -7.5) {Matrice $H_1$};
+            \node[data_block, text width=2.5cm] (eval2) at (0, -7.5) {Matrice $H_2$};
+            \node[data_block, text width=2.5cm] (evalK) at (4, -7.5) {Matrice $H_K$};
+
+            \draw[arrow] (train1) -- (eval1);
+            \draw[arrow] (train2) -- (eval2);
+            \draw[arrow] (trainK) -- (evalK);
+
+            % Livello 5: Aggregazione Statistica
+            \node[proc_block, fill=black!25, text width=5cm] (agg) at (0, -9.5) {Calcolo Stime Campionarie\\ $\hat{\mu}(M, D)$ e $\hat{\sigma}^2(M, D)$};
+            
+            \draw[arrow, rounded corners] (eval1.south) |- (0, -8.7) -- (agg.north);
+            \draw[arrow] (eval2) -- (agg);
+            \draw[arrow, rounded corners] (evalK.south) |- (0, -8.7) -- (agg.north);
+
+            % Livello 6: Test
+            \node[data_block, draw=black!90, fill=black!10, text width=4cm, minimum height=1cm, dashed=false] (welch) at (0, -11) {Test $t$ di Welch ($p$-value)};
+            
+            \draw[arrow] (agg) -- (welch);
+
+            \end{tikzpicture}
+            \caption{Diagramma di flusso del protocollo di isolamento e valutazione stocastica. La stabilità della partizione dei dati è forzata top-down dall'unico seed deterministico $s_0$, delegando la totalità della varianza osservata tra le matrici $H_k$ all'inizializzazione stocastica dettata dall'insieme dei seed $\mathcal{S}$ interni agli stimatori.}
+            \label{fig:multiseed_protocol}
+        \end{figure}
+
+        La netta separazione tra $s_0$ e $\mathcal{S}$ garantisce che tutti i modelli, per ciascuna replica $k$, operino esattamente sullo stesso insieme di dati di addestramento e di test: nessun seed di modello risulta favorito da una composizione del dataset a lui più congeniale, e l'intera variabilità osservata tra le $K$ repliche è pertanto attribuibile univocamente alla stocasticità algoritmica del classificatore, e non a un artefatto della partizione dei dati.
+
+        \subsubsection{Metriche di Valutazione e Aggregazione Multi-Seed}
+        \label{subsubsec:metriche_aggregazione}
+        Per un generico modello $M$ (istanza di una qualsiasi delle famiglie $\mathcal{M}_{\text{base}}$, $\mathcal{M}_S$, $\mathcal{M}_H^{(T)}$, $\mathcal{M}_{S,a}$, $\mathcal{M}_{H,T,a}$) addestrato con il seed $s_k \in \mathcal{S}$ e valutato su un benchmark di test $D$, siano $TP_k, TN_k, FP_k, FN_k$ le cardinalità della matrice di confusione ottenute dal confronto tra $\hat{Y}$ e l'etichetta reale $Y$\footnote{Rispettivamente: veri positivi, veri negativi, falsi positivi e falsi negativi, secondo la convenzione per cui $Y=1$ denota traffico malevolo.}. Si definiscono la \textit{True Positive Rate} (TPR, sensibilità) e la \textit{True Negative Rate} (TNR, specificità) come:
         \begin{equation}
-            \bar{\mathbf{M}}_{\text{type}} = \frac{1}{K} \sum_{k=1}^K \mathbf{M}^{(s_k)}
+            \text{TPR}_k(M, D) = \frac{TP_k}{TP_k + FN_k}, \qquad \text{TNR}_k(M, D) = \frac{TN_k}{TN_k + FP_k}
+            \label{eq:tpr_tnr_def}
         \end{equation}
-        dove $\mathbf{M}^{(s_k)}$ rappresenta la matrice delle performance associata al seed $s_k$. Contestualmente, per quantificare la dispersione e la stabilità dei risultati, viene calcolata la corrispondente matrice delle varianze campionarie al di sotto delle medie:
-        \begin{equation}
-            \mathbf{V}_{\text{type}} = \frac{1}{K-1} \sum_{k=1}^K \left(\mathbf{M}^{(s_k)} - \bar{\mathbf{M}}_{\text{type}}\right)^{\circ 2}
-        \end{equation}
-        dove l'operatore $\circ 2$ indica la potenza al quadrato element-wise.
 
-        Infine, per validare rigorosamente la significatività statistica degli scostamenti prestazionali ed eliminare qualsiasi perplessità legata alla casualità dei risultati, è stato implementato il test $t$ di Welch per campioni non omoschedastici. Per ogni modello appartenente a una specifica tipologia, sono state raccolte le medie campionarie della metrica di interesse calcolate su ciascun seed $s_k$. Il test confronta tali distribuzioni con quelle del modello baseline $\mathcal{M}_{\text{base}}$, restituendo i rispettivi valori di probabilità ($p\text{-values}$) e confermando la significatività empirica dei miglioramenti conseguiti.
+        Per ciascun seed $s_k$, i valori $\text{TPR}_k(M,D)$ e $\text{TNR}_k(M,D)$ vengono organizzati in una matrice $H_k \in \mathbb{R}^{|\mathcal{M}| \times |\mathcal{B}|}$, con righe indicizzate dai modelli $M \in \mathcal{M}$ e colonne dai benchmark di test $D \in \mathcal{B}$ coinvolti nel protocollo di valutazione incrociata (Sezioni~\ref{subsubsec:persistenza_aggregati} e~\ref{subsubsec:invarianza_biclasse}), corredata da una colonna aggiuntiva di media di riga:
+        \begin{equation}
+            \overline{H}_k(M) = \frac{1}{|\mathcal{B}|} \sum_{D \in \mathcal{B}} H_k(M, D)
+            \label{eq:row_mean}
+        \end{equation}
+
+        La stima puntuale del valore atteso e della dispersione prestazionale per la coppia $(M,D)$, marginalizzata sulle $K$ repliche stocastiche, è data dalla media e dalla varianza campionarie:
+        \begin{equation}
+            \hat{\mu}(M, D) = \frac{1}{K} \sum_{k=1}^{K} H_k(M, D), \qquad \hat{\sigma}^2(M, D) = \frac{1}{K-1} \sum_{k=1}^{K} \left( H_k(M, D) - \hat{\mu}(M, D) \right)^2
+            \label{eq:mean_var_multiseed}
+        \end{equation}
+        La matrice aggregata $\hat{H} = [\hat{\mu}(M,D)]$, corredata dai corrispondenti valori di $\hat{\sigma}^2(M,D)$, costituisce la sintesi prestazionale multi-seed per ciascuna tipologia di modello, riducendo l'influenza di configurazioni stocastiche anomale sulla valutazione complessiva del framework.
+
+        A partire dalle medesime cardinalità $TP_k, TN_k, FP_k, FN_k$, si definiscono inoltre le metriche di \textit{Precision} e di \textit{F1-Score}, quest'ultima impiegata specificamente nel protocollo di verifica della significatività statistica formalizzato nella Sezione~\ref{subsubsec:welch_test}:
+        \begin{equation}
+            \text{Precision}_k(M, D) = \frac{TP_k}{TP_k + FP_k}, \qquad \text{F1}_k(M, D) = \frac{2 \cdot \text{Precision}_k(M,D) \cdot \text{TPR}_k(M,D)}{\text{Precision}_k(M,D) + \text{TPR}_k(M,D)}
+            \label{eq:precision_f1_def}
+        \end{equation}
+        dove l'F1-Score, in quanto media armonica di Precision e Recall ($\equiv$ TPR), costituisce una metrica sintetica particolarmente indicata a penalizzare squilibri tra falsi positivi e falsi negativi, coerentemente con l'asimmetria di classe intrinseca ai benchmark del framework (Sezione~\ref{subsec:composizione_domini}).
+
+        \subsubsection{Verifica di Significatività Statistica mediante Test di Welch}
+        \label{subsubsec:welch_test}
+        La sola stima di $\hat{\mu}$ e $\hat{\sigma}^2$ non è sufficiente a stabilire se lo scostamento prestazionale tra un modello $M$ e il modello baseline $\mathcal{M}_{\text{base}}$ sia statisticamente rilevante o riconducibile alla naturale variabilità campionaria. Il framework adotta a tal fine il test $t$ di Welch~\cite{welch1947}, nella sua formulazione per campioni indipendenti a varianza non necessariamente omogenea.
+
+        Si osserva che la letteratura sul confronto statistico di classificatori~\cite{demsar2006} sconsiglia, in generale, l'impiego di test parametrici quando il confronto avviene su un numero ridotto di dataset eterogenei, per i quali ciascun dataset fornisce un singolo valore appaiato e l'assunzione di normalità risulta difficilmente verificabile; in tali condizioni sono raccomandate alternative non parametriche (test dei ranghi con segno di Wilcoxon, test di Friedman). Lo scenario qui considerato è tuttavia strutturalmente distinto: ciascuna osservazione $\overline{\text{F1}}_k(M)$ non è un valore puntuale su un singolo dataset, bensì la media di riga dell'F1-Score, calcolata su $|\mathcal{B}|$ benchmark di test per un dato seed $s_k$. In virtù del Teorema del Limite Centrale, tale quantità aggregata tende a una distribuzione approssimativamente normale al crescere di $|\mathcal{B}|$, indipendentemente dalla distribuzione delle singole osservazioni F1 per dataset, fornendo una base più solida per l'impiego di un test parametrico rispetto al caso di confronto diretto su valori singoli non aggregati. La formulazione di Welch, in particolare, è preferita alla variante omoschedastica dello Student's $t$-test poiché non assume l'uguaglianza delle varianze tra le distribuzioni per-seed del modello $M$ e del baseline, condizione non garantita a priori tra famiglie di modelli strutturalmente eterogenee.
+
+        Per ciascun modello $M$ (con esclusione del baseline stesso), sia $\overline{\text{F1}}_k(M) = \frac{1}{|\mathcal{B}|}\sum_{D\in\mathcal{B}} \text{F1}_k(M,D)$ la media di riga dell'F1-Score per il seed $s_k$, definita in analogia all'Equazione~\eqref{eq:row_mean} a partire dalla metrica dell'Equazione~\eqref{eq:precision_f1_def}. Siano $\{\overline{\text{F1}}_k(M)\}_{k=1}^{K}$ e $\{\overline{\text{F1}}_k(\mathcal{M}_{\text{base}})\}_{k=1}^{K}$ le rispettive sequenze di medie per seed per il modello $M$ e per il baseline. Definita l'ipotesi nulla $H_0: \mu_M = \mu_{\text{base}}$, la statistica del test è espressa come:
+        \begin{equation}
+            t = \frac{\bar{x}_M - \bar{x}_{\text{base}}}{\sqrt{\dfrac{s_M^2}{K} + \dfrac{s_{\text{base}}^2}{K}}}
+            \label{eq:welch_statistic}
+        \end{equation}
+        dove $\bar{x}_M, \bar{x}_{\text{base}}$ e $s_M^2, s_{\text{base}}^2$ denotano rispettivamente la media e la varianza campionaria dell'F1-Score calcolate sulle $K$ osservazioni per-seed di $M$ e di $\mathcal{M}_{\text{base}}$. I gradi di libertà effettivi $\nu_{\text{eff}}$ sono stimati mediante l'approssimazione di Welch–Satterthwaite:
+        \begin{equation}
+            \nu_{\text{eff}} = \frac{\left( \dfrac{s_M^2}{K} + \dfrac{s_{\text{base}}^2}{K} \right)^2}{\dfrac{(s_M^2/K)^2}{K-1} + \dfrac{(s_{\text{base}}^2/K)^2}{K-1}}
+            \label{eq:welch_dof}
+        \end{equation}
+
+        Il valore $p$ risultante viene confrontato con una soglia di significatività $\alpha$: qualora $p < \alpha$, l'ipotesi nulla viene rigettata, e lo scostamento prestazionale tra il modello $M$ e il baseline $\mathcal{M}_{\text{base}}$ è considerato statisticamente significativo e non attribuibile alla sola variabilità stocastica intrinseca degli stimatori. Il confronto viene condotto in modo puntuale per ciascun modello rispetto al baseline, coerentemente con il ruolo di $\mathcal{M}_{\text{base}}$ quale ancora di prestazione di riferimento stabilita nella Sezione~\ref{subsubsec:modello_baseline}.
 
         \subsection{Granularità della Risposta: Formulazione Binaria vs. Multiclasse}
         \label{subsec:granularita_risposta}
-        % Impatto della granularità delle etichette sulla rigidità degli iperpiani discriminativi under domain shift.
+
+        Sebbene lo spazio di uscita del framework rimanga rigorosamente binario ($\mathcal{Y} = \{0,1\}$, cfr. Sezione~\ref{subsec:composizione_domini})\footnote{Nell'ambito della presente trattazione, l'uso dei termini ``multiclasse'' e ``biclasse'' non si riferisce alla cardinalità dello spazio di codifica delle uscite $\mathcal{Y}$, che rimane sempre scalare e binario, bensì alla granularità semantica delle componenti d'attacco aggregate all'interno della medesima etichetta positiva $Y=1$.}, le due famiglie di classificatori sin qui formalizzate differiscono strutturalmente per il numero di famiglie d'attacco rappresentate simultaneamente all'interno della medesima frontiera di decisione. Si definisce pertanto un indice di \textit{granularità di rappresentazione} $\Gamma(M)$, pari alla cardinalità dell'insieme delle famiglie d'attacco incluse nella partizione di addestramento di un modello $M$:
+        \begin{equation}
+            \Gamma(M) = \left| \mathcal{A}_m(M) \right|, \qquad \mathcal{A}_m(M) \subseteq \mathcal{A}
+            \label{eq:granularity_index}
+        \end{equation}
+        dove $\mathcal{A}_m(M)$ denota l'insieme delle famiglie d'attacco osservate in addestramento dal modello $M$. Per i modelli aggregati (Sezione~\ref{subsec:modelli_aggregati}) si ha $\Gamma(\mathcal{M}_S) = |\mathcal{A}_S|$ e $\Gamma(\mathcal{M}_H^{(T)}) = |\mathcal{A}_T|$, ossia l'intera tassonomia disponibile nel rispettivo dominio; per i modelli biclasse (Sezione~\ref{subsec:modelli_biclasse}) si ha invece $\Gamma(\mathcal{M}_{S,a}) = \Gamma(\mathcal{M}_{H,T,a}) = 1$ per costruzione. In questo senso, i modelli aggregati costituiscono l'estremo a granularità grossolana (\textit{``multiclasse''}, in quanto la loro frontiera deve generalizzare simultaneamente su una molteplicità eterogenea di segnature d'attacco), mentre i modelli biclasse costituiscono l'estremo a granularità fine (\textit{``biclasse''} propriamente detto, con una frontiera dedicata alla singola famiglia).
+
+        \subsubsection{Regione Decisionale e Copertura del Supporto Malevolo}
+        \label{subsubsec:regione_decisionale}
+        Sia $R_1(M) = \{\mathbf{x} \in \mathcal{X} : f_{\theta^*}(\mathbf{x}) \ge \tau\}$ la regione decisionale positiva associata al modello $M$, secondo la regola già formalizzata nell'Equazione~\eqref{eq:binary_decision}. Per un modello aggregato, tale regione deve necessariamente coprire l'unione dei supporti delle distribuzioni condizionate di ciascuna famiglia d'attacco osservata:
+        \begin{equation}
+            R_1(\mathcal{M}_S) \supseteq \bigcup_{a \in \mathcal{A}_S} \operatorname{supp} P_S(\mathbf{x} \mid Y=1, A=a)
+            \label{eq:region_aggregate}
+        \end{equation}
+        mentre per un modello biclasse la regione positiva è calibrata in modo mirato sul supporto di un'unica sotto-distribuzione\footnote{In un contesto d'apprendimento induttivo reale, la regione decisionale $R_1(\mathcal{M}_{S,a})$ racchiude il supporto effettivo $\operatorname{supp} P_S(\mathbf{x} \mid Y=1, A=a)$ estendendosi oltre di esso per un margine di generalizzazione $\epsilon > 0$, indotto dalla struttura dell'iperpiano o dagli split degli alberi decisionali.}:
+        \begin{equation}
+            R_1(\mathcal{M}_{S,a}) \supseteq \operatorname{supp} P_S(\mathbf{x} \mid Y=1, A=a)
+            \label{eq:region_biclasse}
+        \end{equation}
+
+        Tale distinzione strutturale ha una diretta implicazione geometrica, coerente con il partizionamento ricorsivo $\{R_m\}_{m=1}^M$ formalizzato nella Sezione~\ref{subsec:famiglie_classificatori}: al crescere di $\Gamma(M)$, la regione $R_1(M)$ deve estendersi su un volume dello spazio $\mathcal{X}$ tendenzialmente più ampio ed eterogeneo, risultante dalla composizione delle regioni foglia associate a più sotto-distribuzioni distinte; al diminuire di $\Gamma(M)$ (limite $\Gamma=1$), $R_1(M)$ si concentra invece attorno a un unico manifold di supporto, con margine decisionale calibrato sulla sola distribuzione della famiglia $a$.
+
+        \subsubsection{Compromesso tra Rigidità Specialistica e Copertura Generalista}
+        \label{subsubsec:compromesso_rigidita}
+        La calibrazione di $R_1(M)$ su un manifold ristretto ($\Gamma(M)=1$) produce un confine decisionale a elevata specificità: il classificatore biclasse è, per costruzione, ottimizzato per discriminare la sola famiglia $a$ dal traffico nominale, senza compromessi indotti dalla necessità di generalizzare su segnature eterogenee. Tale specificità comporta tuttavia una maggiore \textit{rigidità} del confine sotto \textit{domain shift}: qualora il vettore osservato nel dominio di destinazione risulti sistematicamente perturbato secondo il modello $\tilde{\mathbf{x}} = \mathbf{x} + \boldsymbol{\eta}$ già discussed in Sezione~\ref{subsec:famiglie_classificatori}, uno spostamento del manifold malevolo oltre il margine appreso in fase di addestramento non è compensato da alcuna informazione di supporto proveniente da altre famiglie d'attacco, risultando in un decadimento prestazionale puntuale e localizzato.
+
+        Al contrario, un modello aggregato, essendo vincolato a costruire una regione $R_1(M)$ che copra congiuntamente più sotto-distribuzioni (Equazione~\eqref{eq:region_aggregate}), sviluppa margini decisionali strutturalmente più ampi e meno specifici per la singola famiglia d'attacco. Tale maggiore ampiezza può conferire una tolleranza intrinseca a perturbazioni locali di una singola sotto-distribuzione, a scapito però della purezza discriminativa per classe\footnote{Questo compromesso è la controparte teorica dei fenomeni empirici già anticipati nel framework: il \textit{class shadowing} (Sezione~\ref{subsubsec:persistenza_aggregati}), per cui un'elevata accuratezza aggregata può mascherare un decadimento su famiglie specifiche, e la polarizzazione dello spazio decisionale osservabile in fase di \textit{cross-evaluation} per i modelli biclasse (Sezione~\ref{subsubsec:invarianza_biclasse}).}.
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}[
+                font=\small,
+                >=stealth,
+                % Stili dei nodi per mantenere il grigio IEEE
+                attack/.style={draw=black!90, fill=black!30, ellipse, minimum width=1.5cm, minimum height=1cm, inner sep=0},
+                shifted/.style={draw=black!70, fill=black!5, ellipse, minimum width=1.5cm, minimum height=1cm, inner sep=0, dashed},
+                bnd_agg/.style={draw=black, ultra thick, rounded corners=20pt},
+                bnd_bic/.style={draw=black!80, thick, rounded corners=10pt, dotted},
+                axis/.style={->, thick, black!50}
+            ]
+
+            % ==========================================
+            % Riquadro A: Modello Aggregato (Multiclasse)
+            % ==========================================
+            \begin{scope}[shift={(0,0)}]
+                \node[anchor=south] at (1.5, 3.5) {\textbf{(a) Modello Aggregato ($\Gamma > 1$)}};
+                
+                % Assi spazio delle caratteristiche X
+                \draw[axis] (-1,-2.5) -- (4.5,-2.5) node[right] {$x_1$};
+                \draw[axis] (-1,-2.5) -- (-1,3) node[above] {$x_2$};
+                
+                % Regione decisionale ampia R_1(M_S)
+                \draw[bnd_agg, fill=black!10] (-0.5, -2) rectangle (4, 2.5);
+                \node[anchor=south west, text=black!90] at (-0.5, 2.5) {$R_1(\mathcal{M}_S)$};
+
+                % Manifold delle distribuzioni
+                \node[attack] (a1) at (0.5, 1) {$a_1$};
+                \node[attack] (a2) at (1, -1) {$a_2$};
+                \node[attack] (a3) at (2.5, 0.5) {$a_3$};
+
+                % Perturbazione (Domain Shift) di a1
+                \node[shifted] (a1_shift) at (2, 1.8) {$\tilde{a}_1$};
+                \draw[->, thick, black] (a1) -- (a1_shift) node[midway, above left] {$\boldsymbol{\eta}$};
+                
+                % Didascalia concettuale
+                \node[text width=4.5cm, align=center, text=black!80, font=\footnotesize] at (1.5, -3.2) {
+                    La regione copre l'unione dei supporti. Lo shift $\boldsymbol{\eta}$ viene assorbito dall'ampio margine.
+                };
+            \end{scope}
+
+            % ==========================================
+            % Riquadro B: Modello Biclasse (Specifico)
+            % ==========================================
+            \begin{scope}[shift={(7.5,0)}]
+                \node[anchor=south] at (1.5, 3.5) {\textbf{(b) Modello Biclasse ($\Gamma = 1$)}};
+                
+                % Assi spazio delle caratteristiche X
+                \draw[axis] (-1,-2.5) -- (4.5,-2.5) node[right] {$x_1$};
+                \draw[axis] (-1,-2.5) -- (-1,3) node[above] {$x_2$};
+                
+                % Regione decisionale specifica e ristretta R_1(M_{S,a})
+                \draw[bnd_bic, fill=black!10] (-0.2, 0.2) rectangle (1.2, 1.8);
+                \node[anchor=south west, text=black!90] at (-0.2, 1.8) {$R_1(\mathcal{M}_{S,a_1})$};
+
+                % Manifold della distribuzione
+                \node[attack] (b1) at (0.5, 1) {$a_1$};
+
+                % Perturbazione (Domain Shift) di a1
+                \node[shifted] (b1_shift) at (2, 1.8) {$\tilde{a}_1$};
+                \draw[->, thick, black] (b1) -- (b1_shift) node[midway, above left] {$\boldsymbol{\eta}$};
+                
+                % Didascalia concettuale
+                \node[text width=4.5cm, align=center, text=black!80, font=\footnotesize] at (1.5, -3.2) {
+                    La regione calza strettamente il singolo supporto. Lo shift $\boldsymbol{\eta}$ elude il confine decisionale.
+                };
+            \end{scope}
+
+            \end{tikzpicture}
+            \caption{Rappresentazione bidimensionale nello spazio delle caratteristiche $\mathcal{X}$ dell'impatto del \textit{domain shift} (vettore di traslazione $\boldsymbol{\eta}$) a seconda della granularità del modello. A sinistra, la maggiore ampiezza spaziale del modello aggregato garantisce tolleranza generalista; a destra, l'ottimizzazione specialistica sul singolo supporto malevolo determina rigidità sotto perturbazione.}
+            \label{fig:domain_shift_granularity}
+        \end{figure}
+
+
+
+        \subsubsection{Il Modello Baseline come Punto di Riferimento Intermedio}
+        \label{subsubsec:baseline_riferimento_granularita}
+        Il modello $\mathcal{M}_{\text{base}}$ (Sezione~\ref{subsubsec:modello_baseline}) occupa, rispetto all'indice $\Gamma$, una posizione concettualmente intermedia tra i due estremi. La sua regione decisionale eredita la copertura ad ampio spettro propria dei modelli aggregati, essendo $\mathcal{A}_S \subseteq \mathcal{A}_m(\mathcal{M}_{\text{base}})$, ma viene incrementalmente perturbata da una conoscenza mirata e altamente sparsa del dominio target ($\Delta \mathcal{D}_T^{(\text{train})}$, Equazione~\eqref{eq:dinj_composition}), la cui esiguità cardinale ($|\Delta \mathcal{D}_T^{(\text{train})}| \ll |\mathcal{D}_S^{(\text{train})}|$) ne impedisce una piena riqualificazione come copertura multiclasse del dominio di destinazione. $\mathcal{M}_{\text{base}}$ costituisce pertanto l'ancora di riferimento rispetto alla quale entrambi gli estremi della granularità — l'ampia copertura generalista dei modelli aggregati $\mathcal{M}_S, \mathcal{M}_H^{(T)}$ e l'elevata specificità dei modelli biclasse $\mathcal{M}_{S,a}, \mathcal{M}_{H,T,a}$ — vengono confrontati, secondo il protocollo di verifica statistica formalizzato in Sezione~\ref{subsubsec:welch_test}, al fine di determinare quale livello di granularità offra il compromesso più favorevole tra specificità discriminativa e robustezza al \textit{domain shift}.
 
     \section{Framework Analitico, Spiegabilità e Significatività Statistica}
     \label{sec:framework_analitico}
