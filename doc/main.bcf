@@ -2446,7 +2446,11 @@
     <bcf:citekey order="71" intorder="1">ke2017</bcf:citekey>
     <bcf:citekey order="72" intorder="1">welch1947</bcf:citekey>
     <bcf:citekey order="73" intorder="1">demsar2006</bcf:citekey>
-    <bcf:citekey order="74" intorder="1" nocite="1">*</bcf:citekey>
+    <bcf:citekey order="74" intorder="1">pearson1901</bcf:citekey>
+    <bcf:citekey order="74" intorder="2">hotelling1933</bcf:citekey>
+    <bcf:citekey order="75" intorder="1">rosenblatt1956</bcf:citekey>
+    <bcf:citekey order="76" intorder="1">parzen1962</bcf:citekey>
+    <bcf:citekey order="77" intorder="1" nocite="1">*</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="nty">

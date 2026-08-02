@@ -946,61 +946,72 @@
                 font=\small,
                 >=stealth,
                 % Stili blocchi IEEE (grigi)
-                data_block/.style={rectangle, draw=black!90, fill=white, text width=4cm, text centered, minimum height=1cm, dashed, rounded corners=2pt},
-                proc_block/.style={rectangle, draw=black, fill=black!15, text width=3.5cm, text centered, minimum height=1.2cm, rounded corners=5pt},
-                seed_node/.style={rectangle, fill=black!70, text=white, rounded corners=3pt, inner sep=4pt, font=\footnotesize\bfseries},
-                arrow/.style={->, thick, black!70}
+                data_block/.style={
+                    rectangle, draw=black, fill=white, text centered, 
+                    dashed, rounded corners=2pt, inner sep=5pt
+                },
+                proc_block/.style={
+                    rectangle, draw=black, fill=gray!10, text centered, 
+                    rounded corners=2pt, inner sep=5pt
+                },
+                seed_node/.style={
+                    rectangle, fill=black!70, text=white, text centered,
+                    rounded corners=2pt, inner sep=5pt
+                },
+                arrow/.style={->, thick, black}
             ]
 
             % Livello 1: Dati Iniziali
-            \node[data_block] (raw_data) at (0, 0) {Traffico Raw (Sorgente \& Target)};
+            \node[data_block, text width=3cm] (raw_data) at (0, 0) {Traffico Raw};
             
             % Nodo Seed deterministico
-            \node[seed_node] (seed0) at (0, -1.2) {Seed Fissetto: $s_0$};
+            \node[seed_node, text width=5cm, below=0.5cm of raw_data] (seed0) {Seed Deterministico: $s_0$};
             
             % Livello 2: Split e Benchmark Fissi
-            \node[proc_block, text width=5cm] (benchmarks) at (0, -2.5) {Partizionamento invariante e Generazione dei Benchmark $\mathcal{B}$};
+            \node[proc_block, text width=5cm, below=0.5cm of seed0] (benchmarks) {Partizionamento invariante e Generazione dei Benchmark $\mathcal{B}$};
             
             \draw[arrow] (raw_data) -- (seed0);
             \draw[arrow] (seed0) -- (benchmarks);
 
             % Livello 3: Nodi Multi-seed e Addestramenti Paralleli
-            \node[seed_node] (seed1) at (-4, -4.5) {Seed Stocastico: $s_1$};
-            \node[seed_node] (seed2) at (0, -4.5) {Seed Stocastico: $s_2$};
-            \node at (2, -4.5) {\dots};
-            \node[seed_node] (seedK) at (4, -4.5) {Seed Stocastico: $s_K$};
+            \node[seed_node, below left=1cm and 0cm of benchmarks] (seed1) {Seed Stocastico: $s_1$};
+            \node[seed_node, below=1cm of benchmarks] (seed2) {Seed Stocastico: $s_2$};
+            \node[right=0.14cm of seed2] {\dots};
+            \node[seed_node, below right=1cm and 0cm of benchmarks] (seedK) {Seed Stocastico: $s_K$};
 
-            \node[proc_block, fill=black!5, text width=2.5cm] (train1) at (-4, -6) {Addestramento Modello $M$};
-            \node[proc_block, fill=black!5, text width=2.5cm] (train2) at (0, -6) {Addestramento Modello $M$};
-            \node[proc_block, fill=black!5, text width=2.5cm] (trainK) at (4, -6) {Addestramento Modello $M$};
+            \node[proc_block, text width=3cm, below=0.5cm of seed1] (train1) {Addestramento Modello $M$};
+            \node[proc_block, text width=3cm, below=0.5cm of seed2] (train2) {Addestramento Modello $M$};
+            \node[right=0.14cm of train2] {\dots};
+            \node[proc_block, text width=3cm, below=0.5cm of seedK] (trainK) {Addestramento Modello $M$};
 
             % Frecce dal blocco Benchmark ai percorsi paralleli
-            \draw[arrow, rounded corners] (benchmarks.south) |- (-4, -3.5) -- (seed1);
-            \draw[arrow, rounded corners] (benchmarks.south) |- (0, -3.5) -- (seed2);
-            \draw[arrow, rounded corners] (benchmarks.south) |- (4, -3.5) -- (seedK);
+            \draw[arrow] (benchmarks.south) |- ++(-4, -0.5) -| (seed1);
+            \draw[arrow] (benchmarks.south) -- (seed2);
+            \draw[arrow] (benchmarks.south) |- ++(4, -0.5) -| (seedK);
 
             \draw[arrow] (seed1) -- (train1);
             \draw[arrow] (seed2) -- (train2);
             \draw[arrow] (seedK) -- (trainK);
 
             % Livello 4: Valutazione
-            \node[data_block, text width=2.5cm] (eval1) at (-4, -7.5) {Matrice $H_1$};
-            \node[data_block, text width=2.5cm] (eval2) at (0, -7.5) {Matrice $H_2$};
-            \node[data_block, text width=2.5cm] (evalK) at (4, -7.5) {Matrice $H_K$};
+            \node[data_block, text width=3cm, below=0.5cm of train1] (eval1) {Matrice $H_1$};
+            \node[data_block, text width=3cm, below=0.5cm of train2] (eval2) {Matrice $H_2$};
+            \node[right=0.14cm of eval2] {\dots};            
+            \node[data_block, text width=3cm, below=0.5cm of trainK] (evalK) {Matrice $H_K$};
 
             \draw[arrow] (train1) -- (eval1);
             \draw[arrow] (train2) -- (eval2);
             \draw[arrow] (trainK) -- (evalK);
 
             % Livello 5: Aggregazione Statistica
-            \node[proc_block, fill=black!25, text width=5cm] (agg) at (0, -9.5) {Calcolo Stime Campionarie\\ $\hat{\mu}(M, D)$ e $\hat{\sigma}^2(M, D)$};
+            \node[proc_block, fill=gray!30, text width=5cm, below=1cm of eval2] (agg) {Calcolo Stime Campionarie\\ $\hat{\mu}(M, D)$ e $\hat{\sigma}^2(M, D)$};
             
-            \draw[arrow, rounded corners] (eval1.south) |- (0, -8.7) -- (agg.north);
+            \draw[arrow] (eval1.south) |- ++(0, -0.5) -| (agg.north);
             \draw[arrow] (eval2) -- (agg);
-            \draw[arrow, rounded corners] (evalK.south) |- (0, -8.7) -- (agg.north);
+            \draw[arrow] (evalK.south) |- ++(0,-0.5) -| (agg.north);
 
             % Livello 6: Test
-            \node[data_block, draw=black!90, fill=black!10, text width=4cm, minimum height=1cm, dashed=false] (welch) at (0, -11) {Test $t$ di Welch ($p$-value)};
+            \node[data_block, fill=gray!20, text width=5cm, below=0.5cm of agg] (welch) {Test $t$ di Welch ($p$-value)};
             
             \draw[arrow] (agg) -- (welch);
 
@@ -1095,38 +1106,38 @@
                 font=\small,
                 >=stealth,
                 % Stili dei nodi per mantenere il grigio IEEE
-                attack/.style={draw=black!90, fill=black!30, ellipse, minimum width=1.5cm, minimum height=1cm, inner sep=0},
-                shifted/.style={draw=black!70, fill=black!5, ellipse, minimum width=1.5cm, minimum height=1cm, inner sep=0, dashed},
+                attack/.style={draw=black, fill=gray!30, ellipse, inner sep=5},
+                shifted/.style={draw=black, fill=gray!10, ellipse, inner sep=5, dashed},
                 bnd_agg/.style={draw=black, ultra thick, rounded corners=20pt},
-                bnd_bic/.style={draw=black!80, thick, rounded corners=10pt, dotted},
-                axis/.style={->, thick, black!50}
+                bnd_bic/.style={draw=black, thick, rounded corners=10pt, dotted},
+                axis/.style={->, thick, black}
             ]
 
             % ==========================================
             % Riquadro A: Modello Aggregato (Multiclasse)
             % ==========================================
             \begin{scope}[shift={(0,0)}]
-                \node[anchor=south] at (1.5, 3.5) {\textbf{(a) Modello Aggregato ($\Gamma > 1$)}};
+                \node[anchor=south] at (3, 6.2) {\textbf{(a) Modello Aggregato ($\Gamma > 1$)}};
                 
                 % Assi spazio delle caratteristiche X
-                \draw[axis] (-1,-2.5) -- (4.5,-2.5) node[right] {$x_1$};
-                \draw[axis] (-1,-2.5) -- (-1,3) node[above] {$x_2$};
+                \draw[axis] (0, 0) -- (6, 0) node[right] {$x_1$};
+                \draw[axis] (0, 0) -- (0, 6) node[above] {$x_2$};
                 
                 % Regione decisionale ampia R_1(M_S)
-                \draw[bnd_agg, fill=black!10] (-0.5, -2) rectangle (4, 2.5);
-                \node[anchor=south west, text=black!90] at (-0.5, 2.5) {$R_1(\mathcal{M}_S)$};
+                \draw[bnd_agg, fill=gray!5] (0.5, 0.5) rectangle (5.5, 5.5);
+                \node[text=black] at (3, 5.9) {$R_1(\mathcal{M}_S)$};
 
                 % Manifold delle distribuzioni
-                \node[attack] (a1) at (0.5, 1) {$a_1$};
-                \node[attack] (a2) at (1, -1) {$a_2$};
-                \node[attack] (a3) at (2.5, 0.5) {$a_3$};
+                \node[attack] (a1) at (1.55, 3.75) {$a_1$};
+                \node[attack] (a2) at (2.25, 1.75) {$a_2$};
+                \node[attack] (a3) at (3.75, 3.25) {$a_3$};
 
                 % Perturbazione (Domain Shift) di a1
-                \node[shifted] (a1_shift) at (2, 1.8) {$\tilde{a}_1$};
+                \node[shifted] (a1_shift) at (3.25, 4.55) {$\tilde{a}_1$};
                 \draw[->, thick, black] (a1) -- (a1_shift) node[midway, above left] {$\boldsymbol{\eta}$};
                 
                 % Didascalia concettuale
-                \node[text width=4.5cm, align=center, text=black!80, font=\footnotesize] at (1.5, -3.2) {
+                \node[text width=5cm, align=center, text=black, font=\footnotesize] at (3, -1) {
                     La regione copre l'unione dei supporti. Lo shift $\boldsymbol{\eta}$ viene assorbito dall'ampio margine.
                 };
             \end{scope}
@@ -1134,26 +1145,26 @@
             % ==========================================
             % Riquadro B: Modello Biclasse (Specifico)
             % ==========================================
-            \begin{scope}[shift={(7.5,0)}]
-                \node[anchor=south] at (1.5, 3.5) {\textbf{(b) Modello Biclasse ($\Gamma = 1$)}};
+            \begin{scope}[shift={(8,0)}]
+                \node[anchor=south] at (3, 6.2) {\textbf{(b) Modello Biclasse ($\Gamma = 1$)}};
                 
                 % Assi spazio delle caratteristiche X
-                \draw[axis] (-1,-2.5) -- (4.5,-2.5) node[right] {$x_1$};
-                \draw[axis] (-1,-2.5) -- (-1,3) node[above] {$x_2$};
+                \draw[axis] (0,0) -- (6,0) node[right] {$x_1$};
+                \draw[axis] (0,0) -- (0,6) node[above] {$x_2$};
                 
                 % Regione decisionale specifica e ristretta R_1(M_{S,a})
-                \draw[bnd_bic, fill=black!10] (-0.2, 0.2) rectangle (1.2, 1.8);
-                \node[anchor=south west, text=black!90] at (-0.2, 1.8) {$R_1(\mathcal{M}_{S,a_1})$};
+                \draw[bnd_bic, fill=gray!5] (1, 3) rectangle (2.5, 4.5);
+                \node[text=black] at (1.75, 4.9) {$R_1(\mathcal{M}_{S,a_1})$};
 
                 % Manifold della distribuzione
-                \node[attack] (b1) at (0.5, 1) {$a_1$};
+                \node[attack] (b1) at (1.75, 3.75) {$a_1$};
 
                 % Perturbazione (Domain Shift) di a1
-                \node[shifted] (b1_shift) at (2, 1.8) {$\tilde{a}_1$};
+                \node[shifted] (b1_shift) at (3.25, 4.55) {$\tilde{a}_1$};
                 \draw[->, thick, black] (b1) -- (b1_shift) node[midway, above left] {$\boldsymbol{\eta}$};
                 
                 % Didascalia concettuale
-                \node[text width=4.5cm, align=center, text=black!80, font=\footnotesize] at (1.5, -3.2) {
+                \node[text width=5cm, align=center, text=black, font=\footnotesize] at (3,-1) {
                     La regione calza strettamente il singolo supporto. Lo shift $\boldsymbol{\eta}$ elude il confine decisionale.
                 };
             \end{scope}
@@ -1163,18 +1174,109 @@
             \label{fig:domain_shift_granularity}
         \end{figure}
 
-
-
         \subsubsection{Il Modello Baseline come Punto di Riferimento Intermedio}
         \label{subsubsec:baseline_riferimento_granularita}
         Il modello $\mathcal{M}_{\text{base}}$ (Sezione~\ref{subsubsec:modello_baseline}) occupa, rispetto all'indice $\Gamma$, una posizione concettualmente intermedia tra i due estremi. La sua regione decisionale eredita la copertura ad ampio spettro propria dei modelli aggregati, essendo $\mathcal{A}_S \subseteq \mathcal{A}_m(\mathcal{M}_{\text{base}})$, ma viene incrementalmente perturbata da una conoscenza mirata e altamente sparsa del dominio target ($\Delta \mathcal{D}_T^{(\text{train})}$, Equazione~\eqref{eq:dinj_composition}), la cui esiguità cardinale ($|\Delta \mathcal{D}_T^{(\text{train})}| \ll |\mathcal{D}_S^{(\text{train})}|$) ne impedisce una piena riqualificazione come copertura multiclasse del dominio di destinazione. $\mathcal{M}_{\text{base}}$ costituisce pertanto l'ancora di riferimento rispetto alla quale entrambi gli estremi della granularità — l'ampia copertura generalista dei modelli aggregati $\mathcal{M}_S, \mathcal{M}_H^{(T)}$ e l'elevata specificità dei modelli biclasse $\mathcal{M}_{S,a}, \mathcal{M}_{H,T,a}$ — vengono confrontati, secondo il protocollo di verifica statistica formalizzato in Sezione~\ref{subsubsec:welch_test}, al fine di determinare quale livello di granularità offra il compromesso più favorevole tra specificità discriminativa e robustezza al \textit{domain shift}.
 
     \section{Framework Analitico, Spiegabilità e Significatività Statistica}
-    \label{sec:framework_analitico}
+    \label{sec:framework_analitico} 
 
         \subsection{Caratterizzazione Densometrica e Proiezioni Latenti}
         \label{subsec:proiezioni_densita}
-        % Modellazione teorica della stima di densità del kernel (KDE) e della riduzione dimensionale ortogonale (PCA) sui dataset di test per la visualizzazione dello scostamento distributivo.
+
+        L'analisi dello scostamento distributivo (\textit{domain shift}) e la valutazione della separabilità geometrica tra traffico nominale e traffico malevolo richiedono l'impiego di tecniche di riduzione dimensionale e stima di densità. Come anticipato nella Sezione~\ref{subsubsec:invarianza_monotonica}, mentre l'architettura di classificazione basata su modelli ad albero gode dell'invarianza alle trasformazioni monotoniche e prescinde dalla scala dei dati, gli strumenti diagnostici e visivi (PCA e KDE) sono sensibili alla grandezza numerica delle variabili. 
+
+        Pertanto, preliminarmente all'estrazione delle proiezioni e alla stima densometrica, viene applicata una normalizzazione dedicata. Tale trasformazione è ancorata unicamente alle statistiche del dominio sorgente $\mathcal{D}_S$ e viene mantenuta rigorosamente disaccoppiata dalla pipeline di addestramento dei modelli.
+
+        \subsubsection{Standardizzazione Diagnostica Dipendente dal Sorgente}
+        \label{subsubsec:zscore_sorgente}
+
+        Per evitare fenomeni di contaminazione informativa (\textit{data leakage}), derivati dall'estrazione di statistiche da domini target incogniti, e per preservare la reale ampiezza del \textit{domain shift}, i dati di ciascun dataset $k$ vengono standardizzati utilizzando esclusivamente la media $\boldsymbol{\mu}_S$ e la deviazione standard $\boldsymbol{\sigma}_S$ calcolate sul benchmark sorgente di riferimento $S$.
+
+        Sia $\mathbf{X}_k \in \mathbb{R}^{N_k \times d}$ la matrice dei dati grezzi del generico dataset $k$. Il generico elemento della matrice trasformata $\mathbf{Z}_k \in \mathbb{R}^{N_k \times d}$ è definito come:
+        \begin{equation}
+            \mathbf{Z}_{k, ij} = \frac{\mathbf{X}_{k, ij} - \mu_{S, j}}{\sigma_{S, j}}
+            \label{eq:z_score_source}
+        \end{equation}
+        dove $\mu_{S, j}$ e $\sigma_{S, j}$ rappresentano la media e la deviazione standard campionarie della $j$-esima caratteristica stimata sul set sorgente $S$. 
+
+        L'ancoraggio a $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S)$ garantisce che eventuali traslazioni di media o contrazioni di varianza presenti nel dominio target $k$ non vengano annullate artificialmente (come accadrebbe con una normalizzazione locale), ma rimangano interamente visibili nel piano latente e nei profili di densità, rispecchiando esattamente la "prospettiva geometrica" con cui il classificatore osserva i vettori in fase di inferenza.
+
+        \subsubsection{Proiezioni Ortogonali e Relatività dello Spazio Latente (PCA)}
+        \label{subsubsec:pca_relativita}
+
+        Per ispezionare visivamente le relazioni topologiche del traffico di rete, lo spazio delle caratteristiche viene mappato in un sottospazio latente a due dimensioni tramite Analisi delle Componenti Principali (PCA)~\cite{pearson1901, hotelling1933}. 
+
+        \paragraph{Necessità tecnica dello scaling per la PCA}
+        La PCA si basa sulla decomposizione spettrale della matrice di covarianza $\boldsymbol{\Sigma}_k$, massimizzando la varianza lungo gli assi ortogonali. In assenza della trasformazione espressa nell'Equazione~\eqref{eq:z_score_source}, l'impiego diretto di caratteristiche in scala grezza eterogenea (es. volumi in byte con varianze dell'ordine di $10^6$ affiancati a \textit{ratio} adimensionali compresi in $[0,1]$) causerebbe una dominanza artificiale della matrice di covarianza da parte delle variabili a magnitudo numerica maggiore. La prima componente principale si schiaccerebbe unicamente sulle variabili a scala più ampia, indipendentemente dal loro effettivo valore informativo o discriminante.
+
+        Sulla matrice standardizzata $\mathbf{Z}_k$, la matrice di covarianza campionaria $\boldsymbol{\Sigma}_k$ è formulata come:
+        \begin{equation}
+            \boldsymbol{\Sigma}_k = \frac{1}{N_k - 1} \mathbf{Z}_k^\top \mathbf{Z}_k
+            \label{eq:cov_matrix}
+        \end{equation}
+        La matrice di proiezione $\mathbf{W}_k \in \mathbb{R}^{d \times 2}$ è composta dagli autovettori ortonormali associati ai due principali autovalori di $\boldsymbol{\Sigma}_k$. 
+
+        La standardizzazione preventiva isola una proprietà teorica fondamentale del framework: sebbene i campioni della classe lecita ($Y=0$) derivino dalla medesima distribuzione stazionaria di base in tutti i dataset, la loro proiezione nel piano latente muta geometricamente al variare del benchmark $k$. Poiché $\boldsymbol{\Sigma}_k$ risente della varianza congiunta dell'intero set di dati, l'accoppiamento con vettori malevoli ($Y=1$) eterogenei riorienta gli assi di massima varianza. L'eliminazione degli artefatti di scala mediante $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S)$ assicura che tali rotazioni descrivano esclusivamente la specifica struttura dell'attacco contestuale e il relativo \textit{domain shift}\footnote{Questo comportamento conferma come la PCA non preservi un'isometria assoluta per i sottoinsiemi stazionari quando analizzati all'interno di insiemi complessivi mutevoli: l'asse di massima varianza nello spazio standardizzato è dettato dalla distanza euclidea intrinseca tra i centroidi delle classi.}.
+
+        \subsubsection{Stima di Densità (KDE) su Sub-spazio Selettivo}
+        \label{subsubsec:kde_features}
+
+        Per quantificare la sovrapposizione distributiva e l'incertezza decisionale tra le classi, l'analisi si avvale della \textit{Kernel Density Estimation} (KDE) univariata, i cui fondamenti teorici risalgono ai lavori di Rosenblatt~\cite{rosenblatt1956} e Parzen~\cite{parzen1962}. Per garantire l'interpretabilità geometrica e superare la sparsità dei dati in alta dimensione, la KDE viene confinata alle tre caratteristiche di maggiore rilevanza empirica individuate tramite l'aggregazione dei valori di Shapley (SHAP, Sezione~\ref{subsec:spiegabilita_shap}).
+
+        \paragraph{Motivazione metodologica dello scaling per la KDE}
+        A differenza della PCA, dal punto di vista strettamente matematico la forma della stima di densità univariata 1D è equivariante alle trasformazioni lineari (la geometria della curva non si distorce). Tuttavia, l'applicazione della \textit{Z}-score dipendente dal sorgente risulta indispensabile per tre ragioni pratiche e metodologiche:
+        \begin{enumerate}
+            \item \textbf{Preservazione visiva del Domain Shift:} L'utilizzo delle metriche del sorgente $(\mu_{S,j}, \sigma_{S,j})$ fa sì che se una caratteristica nel dataset target $k$ subisce una traslazione sistematica della media, la curva di densità KDE risulti fisicamente traslata rispetto all'origine $z=0$, rendendo immediata l'ispezione visiva del \textit{domain shift}.
+            \item \textbf{Comparabilità grafica cross-feature:} Le tre \textit{feature} selezionate mediante SHAP, originariamente espresse in unità di misura disomogenee (es. microsecondi vs. byte/s), vengono mappate sullo stesso asse adimensionale espresso in deviazioni standard dal sorgente, consentendone l'affiancamento visivo su scale omogenee.
+            \item \textbf{Calibrazione stabile della Bandwidth ($h$):} La condivisione dello spazio adimensionale ($z \sim \mathcal{N}(0,1)$ sul dominio sorgente) stabilizza l'ottimizzazione della larghezza di banda del kernel $h$, prevenendo fenomeni di sotto-lisciamento (\textit{undersmoothing}) o sovra-lisciamento (\textit{oversmoothing}) selettivo tra variabili a diversa varianza grezza.
+        \end{enumerate}
+
+        Sia $z \in \mathbb{R}$ la variabile standardizzata derivata tramite l'Equazione~\eqref{eq:z_score_source} per una singola caratteristica del sottoinsieme SHAP. Coerentemente con la natura dicotomica delle decisioni dei sistemi NIDS, i dati vengono raggruppati nella variabile binaria $Y \in \{0, 1\}$ (traffico lecito vs. malevolo). La stima marginale di densità continua $\hat{f}_c(z)$ per la classe $c \in \{0, 1\}$ calcolata su $N_c$ campioni è definita da:
+        \begin{equation}
+            \hat{f}_c(z) = \frac{1}{N_c h} \sum_{i=1}^{N_c} K\left( \frac{z - z_{i,c}}{h} \right)
+            \label{eq:kde_univariate}
+        \end{equation}
+        dove $K(\cdot)$ rappresenta la funzione kernel Gaussiana e $h$ è il parametro di lisciamento ottimizzato.
+
+        \subsubsection{Compensazione dello Squilibrio di Classe tramite Scala Logaritmica}
+        \label{subsubsec:log_scale_kde}
+
+        Per contrastare lo schiacciamento visivo della classe minoritaria derivante dal forte sbilanciamento cardinale ($P(Y=0) \gg P(Y=1)$ o viceversa nei vari benchmark), i valori di densità stimata $\hat{f}_c(z)$ vengono proiettati su scala logaritmica in base $10$:
+        \begin{equation}
+            \hat{f}_{c,\text{log}}(z) = \log_{10}\left( \hat{f}_c(z) + \epsilon \right)
+            \label{eq:kde_log}
+        \end{equation}
+        dove $\epsilon > 0$ è una costante infinitesima di stabilizzazione numerica. La rappresentazione logaritmica permette di ispezionare visivamente le code delle distribuzioni e le micro-aree di sovrapposizione ad alta incertezza, fornendo supporto analitico alla comprensione dei falsi positivi al variare della soglia decisionale $\tau$.
+
+        \begin{table}[H]
+            \centering
+            \caption{Sintesi del ruolo e dell'impatto della standardizzazione dipendente dal sorgente $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S)$ sulle componenti diagnostiche del framework.}
+            \label{tab:confronto_scaling_pca_kde}
+            \small
+            \renewcommand{\arraystretch}{1.35}
+            \begin{tabularx}{\textwidth}{@{} >{\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}X @{}}
+            \toprule
+            \textbf{Strumento} & \textbf{Natura del Requisito} & \textbf{Impatto Tecnico e Motivazione Metodologica} \\
+            \midrule
+            \textbf{Classificatori (Tree-Based)} & 
+            Nessuno (Nessuna Trasformazione) & 
+            Invarianza Monotonica: Gli algoritmi basati su albero operano su ordinamenti relativi dei dati. Nessun impatto sulle metriche di accuratezza. \\
+            \midrule
+            \textbf{Proiezioni Latenti (PCA)} & 
+            Matematicamente Indispensabile & 
+            Prevenzione della Dominanza delle Scale: La matrice di covarianza $\boldsymbol{\Sigma}_k$ richiede unità adimensionali; in caso contrario, le componenti principali catturano solo la scala numerica grezza più ampia. \\
+            \midrule
+            \textbf{Stima di Densità (KDE 1D)} & 
+            Metodologico e Visivo & 
+            Preservazione del Shift e Omogeneità: Non altera la forma intrinseca della stima 1D, ma rende visibile lo spostamento di media dal sorgente $z=0$, rende i grafici affiancati comparabili e stabilizza la \textit{bandwidth} $h$. \\
+            \bottomrule
+            \end{tabularx}
+        \end{table}
+
+
+
+
 
         \subsection{Spiegabilità e Attribuzione delle Feature}
         \label{subsec:spiegabilita_shap}
