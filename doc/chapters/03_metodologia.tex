@@ -1181,6 +1181,49 @@
     \section{Framework Analitico, Spiegabilità e Significatività Statistica}
     \label{sec:framework_analitico}
 
+    Il presente capitolo definisce il framework analitico, diagnostico e statistico adottato per caratterizzare lo scostamento distributivo (\textit{domain shift}), decodificare le logiche decisionali dei modelli e valutare la significatività delle variazioni prestazionali tra domini eterogenei[cite: 3]. L'impianto metodologico integra tecniche di riduzione dimensionale, stima non parametrica di densità e attribuzione dell'importanza delle caratteristiche fondata sulla teoria dei giochi cooperativi, affiancandole a un formalismo rigoroso per l'operatività a soglia e la verifica di ipotesi statistiche[cite: 3].
+    Per agevolare la consultazione della trattazione, i simboli matematici, i costrutti diagnostici e le metriche prestazionali introdotti in questa sezione sono riepilogati nella Tabella~\ref{tab:notazione_framework}[cite: 3].
+
+    \begin{table}[H]
+        \centering
+        \caption{Sintesi della notazione relativa al framework analitico, all'interpretabilità e alla valutazione statistica.}
+        \label{tab:notazione_framework}
+        \small
+        \renewcommand{\arraystretch}{1.3}
+        \begin{tabularx}{\textwidth}{@{} >{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}X @{}}
+        \toprule
+        \textbf{Simbolo} & \textbf{Descrizione e Significato Concettuale} \\
+        \midrule
+        $\mathbf{Z}_D$ & 
+        Matrice dei dati del benchmark $D$ standardizzata mediante la media $\boldsymbol{\mu}_S$ e la deviazione standard $\boldsymbol{\sigma}_S$ del solo dominio sorgente[cite: 3] \\
+        
+        $\boldsymbol{\Sigma}_D, \mathbf{W}_D$ & 
+        Matrice di covarianza campionaria e matrice di proiezione ortogonale sui primi due assi della PCA[cite: 3] \\
+        
+        $\hat{f}_y(z), h_{\text{KDE}}$ & 
+        Stima di densità univariata KDE per la classe $y$ e relativo parametro di lisciamento (\textit{bandwidth}) con kernel gaussiano $\kappa(\cdot)$[cite: 3] \\
+        
+        $\phi_j(\mathbf{x})$ & 
+        Valore SHAP associato alla $j$-esima caratteristica del vettore $\mathbf{x}$, rappresentante il suo contributo marginale esatto[cite: 3] \\
+        
+        $I_j^{(D)}, C_j$ & 
+        Importanza media assoluta SHAP della $j$-esima caratteristica sul benchmark $D$ e frequenza globale di inclusione nella \textit{top-3}[cite: 3] \\
+        
+        $TP(\tau), FP(\tau), TN(\tau), FN(\tau)$ & 
+        Cardinalità della matrice di confusione determinate in funzione della soglia decisionale parametrica $\tau$[cite: 3] \\
+        
+        $AUC_{ROC}, AUC_{PR}$ & 
+        Area sottesa alle curve \textit{Receiver Operating Characteristic} e \textit{Precision-Recall} per la caratterizzazione al variare di $\tau \in [0,1]$[cite: 3] \\
+        
+        $\Delta F_1$ & 
+        Variazione prestazionale in termini di $F_1$-score per la quantificazione del degrado da \textit{covariate shift} tra sorgente $\mathcal{D}_S$ e target $\mathcal{D}_T$[cite: 3] \\
+        
+        $t, \nu, H_0$ & 
+        Statistica del test $t$ di Welch, gradi di libertà effettivi di Welch--Satterthwaite e ipotesi nulla di equivalenza delle medie prestazionali[cite: 3] \\
+        \bottomrule
+        \end{tabularx}
+    \end{table}
+
         \subsection{Caratterizzazione Densometrica e Proiezioni Latenti}
         \label{subsec:proiezioni_densita}
 
@@ -1280,21 +1323,6 @@
             \end{tabularx}
         \end{table}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         \subsection{Spiegabilità e Attribuzione delle Feature}
         \label{subsec:spiegabilita_shap}
 
@@ -1305,16 +1333,16 @@
 
         Nella teoria dei giochi, il valore di Shapley definisce un metodo per distribuire equamente un "guadagno" totale tra un insieme di giocatori cooperanti. Nel contesto dell'apprendimento supervisionato formalizzato dal framework, il "gioco" corrisponde alla funzione decisionale parametrica $f_{\theta^*}(\mathbf{x})$, e i "giocatori" coincidono con le caratteristiche in ingresso. 
         
-        Sia $\mathcal{F}$ l'insieme totale delle caratteristiche a disposizione del modello (con $|\mathcal{F}| = d$) e $S \subseteq \mathcal{F}$ un generico sottoinsieme di esse. Definita $v(S)$ la funzione di valore che esprime l'output atteso del modello condizionato al solo sottoinsieme $S$\footnote{In un contesto operativo di apprendimento automatico, tale funzione coincide con il valore atteso condizionato della stima parametrica, ovvero $v(S) = \mathbb{E}[f_{\theta^*}(\mathbf{x}) \mid \mathbf{x}_S]$.}, il valore di Shapley $\phi_j(\mathbf{x})$ per la $j$-esima caratteristica del singolo vettore $\mathbf{x} \in \mathcal{X}$ è calcolato come:
+        Sia $\mathcal{F}$ l'insieme totale delle caratteristiche a disposizione del modello (con $|\mathcal{F}| = d$) e $\mathcal{C} \subseteq \mathcal{F}$ un generico sottoinsieme (coalizione) di esse. Definita $v(\mathcal{C})$ la funzione di valore che esprime l'output atteso del modello condizionato al solo sottoinsieme $\mathcal{C}$\footnote{In un contesto operativo di apprendimento automatico, tale funzione coincide con il valore atteso condizionato della stima parametrica, ovvero $v(\mathcal{C}) = \mathbb{E}[f_{\theta^*}(\mathbf{x}) \mid \mathbf{x}_{\mathcal{C}}]$.}, il valore di Shapley $\phi_j(\mathbf{x})$ per la $j$-esima caratteristica del singolo vettore $\mathbf{x} \in \mathcal{X}$ è calcolato come:
 
         \begin{equation}
-            \phi_j(\mathbf{x}) = \sum_{S \subseteq \mathcal{F} \setminus \{j\}} \frac{|S|!(|\mathcal{F}| - |S| - 1)!}{|\mathcal{F}|!} \left[ v(S \cup \{j\}) - v(S) \right]
+            \phi_j(\mathbf{x}) = \sum_{\mathcal{C} \subseteq \mathcal{F} \setminus \{j\}} \frac{|\mathcal{C}|!(|\mathcal{F}| - |\mathcal{C}| - 1)!}{|\mathcal{F}|!} \left[ v(\mathcal{C} \cup \{j\}) - v(\mathcal{C}) \right]
         \end{equation}
 
         La robustezza di SHAP e la sua superiorità metodologica rispetto a metriche di impurità alternative risiedono nel soddisfacimento di quattro assiomi matematici fondamentali\footnote{L'aderenza a questi assiomi garantisce che l'importanza delle \textit{feature} sia equa e non soggetta a paradossi di attribuzione tipici delle metriche puramente empiriche.}:
         \begin{enumerate}
             \item \textbf{Efficienza Locale (Additività):} La somma dei valori SHAP di tutte le caratteristiche eguaglia la differenza tra la predizione per lo specifico vettore $\mathbf{x}$ e la predizione media del modello (baseline). Ovvero: $f_{\theta^*}(\mathbf{x}) = \phi_0 + \sum_{j=1}^{d} \phi_j(\mathbf{x})$.
-            \item \textbf{Simmetria:} Se due caratteristiche $i$ e $j$ apportano il medesimo contributo marginale a ogni possibile sottoinsieme $S$, i loro valori SHAP risultano algebricamente identici ($\phi_i = \phi_j$).
+            \item \textbf{Simmetria:} Se due caratteristiche $i$ e $j$ apportano il medesimo contributo marginale a ogni possibile sottoinsieme $\mathcal{C}$, i loro valori SHAP risultano algebricamente identici ($\phi_i = \phi_j$).
             \item \textbf{Giocatore Nullo (Missingness):} Una caratteristica che non altera mai la predizione, indipendentemente dal sottoinsieme di attributi a cui viene aggiunta, possiede un valore SHAP rigorosamente pari a zero.
             \item \textbf{Coerenza:} Se un modello viene modificato in modo tale che il contributo marginale di una caratteristica aumenti (o rimanga invariato), il relativo valore SHAP non può diminuire.
         \end{enumerate}
@@ -1322,9 +1350,9 @@
         \subsubsection{Implementazione e Ottimizzazione Tramite TreeSHAP}
         \label{subsubsec:treeshap_implementazione}
 
-        Sotto il profilo operativo, l'estrazione dei valori $\phi_j$ è stata condotta avvalendosi dell'ecosistema software dedicato in ambiente Python. Considerata l'architettura dei classificatori impiegati, basati sul partizionamento ricorsivo dello spazio (e.g., \textit{Random Forest}, \textit{Histogram-based Gradient Boosting}), l'implementazione sfrutta intrinsecamente l'algoritmo \textit{TreeSHAP}~\cite{lundberg2019}\footnote{\textit{TreeSHAP}~\cite{lundberg2019} abbatte la complessità computazionale del calcolo esatto dei valori di Shapley da esponenziale $\mathcal{O}(2^{|\mathcal{F}|})$ a polinomiale $\mathcal{O}(T L D^2)$, dove $T$ è il numero di alberi dell'ensemble, $L$ il numero massimo di foglie e $D$ la profondità massima.}. 
+        Sotto il profilo operativo, l'estrazione dei valori $\phi_j$ è condotta tramite un'ottimizzazione dell'algoritmo basata sulla struttura interna degli stimatori. Considerata l'architettura dei classificatori impiegati, basati sul partizionamento ricorsivo dello spazio (e.g., \textit{Random Forest}, \textit{Histogram-based Gradient Boosting}), la metodologia sfrutta l'algoritmo \textit{TreeSHAP}~\cite{lundberg2019}\footnote{\textit{TreeSHAP}~\cite{lundberg2019} abbatte la complessità computazionale del calcolo esatto dei valori di Shapley da esponenziale $\mathcal{O}(2^{|\mathcal{F}|})$ a polinomiale $\mathcal{O}(T L D^2)$, dove $T$ è il numero di alberi dell'ensemble, $L$ il numero massimo di foglie e $D$ la profondità massima.}. 
 
-        Per garantire la stabilità statistica delle stime limitando contestualmente l'overhead computazionale, l'algoritmo (\textit{TreeExplainer}) viene applicato su un sottoinsieme della partizione di test $\mathcal{D}^{(\text{test})}$, estratto tramite campionamento stratificato. Tale campionamento preserva inalterato il vincolo di proporzionamento parametrico $\rho$ originario tra il traffico nominale ($Y = 0$) e il traffico malevolo ($Y = 1$).
+        Per garantire la stabilità statistica delle stime limitando contestualmente l'overhead computazionale, la spiegazione locale viene calcolata su un sottoinsieme $\mathcal{D}_{\text{sample}}^{(\text{test})} \subset \mathcal{D}^{(\text{test})}$, estratto mediante campionamento stratificato. Tale campionamento preserva inalterato il vincolo di proporzionamento parametrico $\rho$ originario tra il traffico nominale ($Y = 0$) e il traffico malevolo ($Y = 1$).
         
         L'output dell'operazione consiste in matrici ad alta dimensionalità contenenti i valori $\phi_j$. Limitando l'analisi al dominio di classificazione binario e alla classe malevola ($Y = 1$), tali valori esprimono l'impatto sul margine non normalizzato del modello (es. \textit{log-odds}) e vengono resi interpretabili attraverso proiezioni a dispersione (\textit{summary dot plot}). In tali costrutti visivi, la posizione sull'asse orizzontale quantifica il valore SHAP (intensità e direzione dell'impatto decisionale), mentre lo spettro cromatico codifica il valore quantitativo grezzo della caratteristica, consentendo di individuare relazioni dirette o inverse tra le metriche trasmissive e l'etichetta di intrusione.
 
@@ -1333,31 +1361,254 @@
 
         I risultati prodotti da SHAP a livello locale per ciascuna configurazione di benchmark sono stati impiegati per alimentare l'indagine densometrica trasversale descritta nella Sezione~\ref{subsubsec:kde_features}. A tal fine, è stata definita una metrica di aggregazione progettata per estrarre le tre dimensioni dello spazio $\mathcal{X}$ globalmente più influenti.
 
-        Per ogni esperimento di classificazione $k$, le caratteristiche vengono inizialmente ordinate in senso decrescente in base alla loro importanza media assoluta $I_j^{(k)}$:
+        Per ogni generico benchmark di test $D \in \mathcal{B}$, le caratteristiche vengono inizialmente ordinate in senso decrescente in base alla loro importanza media assoluta $I_j^{(D)}$:
         \begin{equation}
-            I_j^{(k)} = \frac{1}{N} \sum_{i=1}^N \left| \phi_j(\mathbf{x}_i^{(k)}) \right|
+            I_j^{(D)} = \frac{1}{N} \sum_{i=1}^N \left| \phi_j(\mathbf{x}_i^{(D)}) \right|
         \end{equation}
-        dove $N = |\mathcal{D}_{\text{sample}}^{(\text{test})}|$ rappresenta la cardinalità del sottoinsieme estratto tramite campionamento stratificato, e non l'intero dataset a disposizione.
+        dove $N = |\mathcal{D}_{\text{sample}}^{(\text{test})}|$ rappresenta la cardinalità del sottoinsieme campionato estratto in precedenza, e non l'intero dataset a disposizione.
         
-        Sia $\mathcal{T}_k \subset \mathcal{F}$ l'insieme contenente le prime tre caratteristiche classificate nel benchmark $k$. Per identificare i descrittori maggiormente resilienti e discriminanti ai confini tra domini $\mathcal{D}_S$ e $\mathcal{D}_T$, è stato implementato un contatore di frequenza globale $C_j$:
+        Sia $\mathcal{T}_D \subset \mathcal{F}$ l'insieme contenente le prime tre caratteristiche classificate nel benchmark $D$. Per identificare i descrittori maggiormente resilienti e discriminanti ai confini tra domini $\mathcal{D}_S$ e $\mathcal{D}_T$, è stato implementato un contatore di frequenza globale $C_j$:
         \begin{equation}
-            C_j = \sum_k \mathbb{I}(j \in \mathcal{T}_k)
+            C_j = \sum_{D \in \mathcal{B}} \mathbb{I}(j \in \mathcal{T}_D)
         \end{equation}
-        dove $\mathbb{I}(\cdot)$ è la funzione indicatrice che assume valore $1$ se la caratteristica $j$ figura nella \textit{top-3} dello scenario $k$, e $0$ altrimenti. 
+        dove $\mathbb{I}(\cdot)$ è la funzione indicatrice che assume valore $1$ se la caratteristica $j$ figura nella \textit{top-3} dello scenario $D$, e $0$ altrimenti. 
         Le tre dimensioni vettoriali associate ai valori massimi di $C_j$ al termine di tutte le combinazioni di addestramento e inferenza costituiscono il nucleo stabile informativo utilizzato per tracciare le curve KDE precedentemente illustrate. Questo processo di selezione garantisce che la valutazione del \textit{domain shift} si concentri unicamente sulle proiezioni spaziali che i modelli considerano universalmente più critiche per l'isolamento delle anomalie.
-
-
-
-
-
-
-
-
-
-
-
 
         \subsection{Metriche Operative, Operatività a Soglia e Significatività dei Confronti}
         \label{subsec:metriche_significativita}
-        % Formalizzazione di TNR, TPR, mappe di calore, curve Precision-Recall e dinamica delle probabilità al variare delle soglie di decisione.
-        % Valutazione della significatività statistica del degrado e dei confronti cross-modello tramite test d'ipotesi parametrici (Welch's t-test su F1-score).
+
+        Per valutare analiticamente le prestazioni dei modelli di classificazione formalizzati nella sezione precedente e quantificare l'impatto del \textit{domain shift}, si definisce un framework di valutazione fondato sulla teoria della decisione statistica. In particolare, si distingue la valutazione puntuale delle prestazioni, riferita a una specifica soglia operativa, dall'analisi del comportamento discriminativo del classificatore al variare della soglia di decisione.
+
+        \subsubsection{Formalizzazione della Matrice di Confusione}
+        \label{subsubsec:decisione_parametrica}
+
+        Richiamando la regola di decisione parametrica introdotta nella Sezione~\ref{subsubsec:formulazione_erm}, la classe predetta $\hat{y}_i(\tau)$ consente di definire le cardinalità della matrice di confusione, espresse come funzioni della soglia operativa $\tau$:
+
+        \begin{align}
+        TP(\tau) &= \sum_{i=1}^{N} \mathbb{I}(y_i=1 \land \hat{y}_i(\tau)=1) \\
+        FP(\tau) &= \sum_{i=1}^{N} \mathbb{I}(y_i=0 \land \hat{y}_i(\tau)=1) \\
+        TN(\tau) &= \sum_{i=1}^{N} \mathbb{I}(y_i=0 \land \hat{y}_i(\tau)=0) \\
+        FN(\tau) &= \sum_{i=1}^{N} \mathbb{I}(y_i=1 \land \hat{y}_i(\tau)=0)
+        \end{align}
+
+        Le quattro quantità rappresentano rispettivamente il numero di veri positivi, falsi positivi, veri negativi e falsi negativi prodotti dal classificatore per una determinata soglia decisionale.
+
+        \begin{table}[H]
+            \centering
+            \caption{Struttura della Matrice di Confusione parametrizzata rispetto alla soglia operativa $\tau$.}
+            \label{tab:matrice_confusione}
+            \small
+            \renewcommand{\arraystretch}{1.3}
+            \begin{tabular}{cc|cc}
+                \multicolumn{2}{c}{} & \multicolumn{2}{c}{\textbf{Classe Reale ($y$)}} \\
+                \multicolumn{2}{c}{} & \textbf{Positivo ($y=1$)} & \textbf{Negativo ($y=0$)} \\
+                \hline
+                \multirow{2}{*}{\textbf{Classe Predetta ($\hat{y}(\tau)$)}} 
+                & \textbf{Positivo ($\hat{y}=1$)} & True Positive ($TP(\tau)$) & False Positive ($FP(\tau)$) \\
+                & \textbf{Negativo ($\hat{y}=0$)} & False Negative ($FN(\tau)$) & True Negative ($TN(\tau)$) \\
+                \hline
+            \end{tabular}
+        \end{table}
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}[scale=0.9, every node/.style={transform shape}]
+                % Assi cartesiani
+                \draw[->, thick] (0,0) -- (8.5,0) node[right] {\small $f(\mathbf{x}) \in [0,1]$};
+                \draw[->, thick] (0,0) -- (0,3.5) node[above] {\small $p(f(\mathbf{x}) \mid y)$};
+
+                % Distribuzione Classe 0 (Lecito) - Linea continua
+                \draw[thick, black, smooth, domain=0.2:5.5] plot (\x, {3.0*exp(-(\x-2.0)^2/0.8)});
+                \node at (1.8, 2.5) [anchor=south] {\small $y=0$ (Traffico Lecito)};
+
+                % Distribuzione Classe 1 (Malevolo) - Linea tratteggiata
+                \draw[thick, dashed, black!80, smooth, domain=2.5:8.0] plot (\x, {2.5*exp(-(\x-5.5)^2/1.2)});
+                \node at (6.0, 2.0) [anchor=south] {\small $y=1$ (Traffico Malevolo)};
+
+                % Soglia decisionale tau
+                \draw[very thick, gray!80!black] (3.8, 0) -- (3.8, 3.2);
+                \node[above] at (3.8, 3.2) {\small Soglia $\tau$};
+                \fill (3.8,0) circle (2pt) node[below] {$\tau$};
+
+                % Regioni decisionali
+                \draw[<->, thick, shorten >=2pt, shorten <=2pt] (0, -0.6) -- (3.75, -0.6) node[midway, below] {\footnotesize Decisione: $\hat{y}(\tau)=0$};
+                \draw[<->, thick, shorten >=2pt, shorten <=2pt] (3.85, -0.6) -- (8.2, -0.6) node[midway, below] {\footnotesize Decisione: $\hat{y}(\tau)=1$};
+            \end{tikzpicture}
+            \caption{Mappatura della probabilità a posteriori $f(\mathbf{x})$ sulla regola decisionale binaria $\hat{y}(\tau)$ in funzione della soglia $\tau$.}
+            \label{fig:soglia_decisionale}
+        \end{figure}
+
+        \subsubsection{Formalizzazione delle Metriche Derivate}
+        \label{subsubsec:metriche_derivate_formali}
+
+        Per rendere la valutazione indipendente dalla numerosità del campione di test, si introducono i principali tassi relativi derivati dalla matrice di confusione \cite{fawcett2006}:
+
+        \begin{equation}
+        TPR(\tau)=\frac{TP(\tau)}{TP(\tau)+FN(\tau)},
+        \qquad
+        FPR(\tau)=\frac{FP(\tau)}{FP(\tau)+TN(\tau)}
+        \end{equation}
+
+        cui corrispondono i rispettivi complementari
+
+        \[
+        FNR(\tau)=1-TPR(\tau),
+        \qquad
+        TNR(\tau)=1-FPR(\tau).
+        \]
+
+        L'affidabilità delle segnalazioni generate dal classificatore è invece misurata dalla \textit{Precision}:
+
+        \begin{equation}
+        Precision(\tau)=
+        \frac{TP(\tau)}
+        {TP(\tau)+FP(\tau)}
+        \end{equation}
+
+        Per sintetizzare il compromesso tra capacità di rilevamento degli attacchi e contenimento dei falsi allarmi si utilizza l'\textit{F1-score}, definito come media armonica tra Precision e Recall\footnote{Nei sistemi NIDS la media armonica è preferita alla media aritmetica poiché penalizza maggiormente modelli caratterizzati da un forte sbilanciamento tra sensibilità agli attacchi e precisione delle segnalazioni.}:
+
+        \begin{equation}
+        F_1(\tau)
+        =
+        2
+        \cdot
+        \frac{Precision(\tau)\cdot TPR(\tau)}
+        {Precision(\tau)+TPR(\tau)}
+        \end{equation}
+
+        Infine, l'\textit{Accuracy} rappresenta la proporzione complessiva di classificazioni corrette:
+
+        \begin{equation}
+        Accuracy(\tau)
+        =
+        \frac{TP(\tau)+TN(\tau)}{N}
+        \end{equation}
+
+        Tale indicatore assume tuttavia un ruolo secondario nei problemi di intrusion detection, poiché non risulta sufficientemente informativo in presenza di distribuzioni fortemente sbilanciate tra traffico nominale e traffico malevolo.
+
+        \subsubsection{Dinamica della Soglia e Analisi Grafica (ROC e PR AUC)}
+        \label{subsubsec:analisi_grafica}
+
+        La valutazione puntuale delle metriche presuppone la scelta di uno specifico valore della soglia operativa (ad esempio $\tau=0.5$). Una caratterizzazione più completa del comportamento discriminativo del classificatore richiede invece l'analisi dell'intero intervallo di valori della soglia, $\tau\in[0,1]$.
+
+        A tale scopo si impiegano le curve \textit{Receiver Operating Characteristic} (ROC) e \textit{Precision--Recall} (PR), sintetizzate mediante l'area sottesa alla rispettiva curva (\textit{Area Under the Curve}, AUC):
+
+        \begin{equation}
+        AUC_{ROC}
+        =
+        \int_{0}^{1}
+        TPR
+        \,d(FPR),
+        \qquad
+        AUC_{PR}
+        =
+        \int_{0}^{1}
+        Precision
+        \,d(TPR)
+        \end{equation}
+
+        \begin{figure}[H]
+            \centering
+            \begin{tikzpicture}
+                % --- Sottofigura (a): Curva ROC ---
+                \begin{scope}[shift={(0,0)}]
+                    % Assi
+                    \draw[->, thick] (0,0) -- (3.8,0) node[right] {\footnotesize $FPR$};
+                    \draw[->, thick] (0,0) -- (0,3.8) node[above] {\footnotesize $TPR$};
+                    
+                    % Griglia di riferimento
+                    \draw[gray!30, thin] (0,3.2) -- (3.2,3.2) -- (3.2,0);
+                    \node[below left] at (0,0) {\tiny $0$};
+                    \node[below] at (3.2,0) {\tiny $1$};
+                    \node[left] at (0,3.2) {\tiny $1$};
+                    
+                    % Area sottesa (AUC) in toni di grigio
+                    \fill[gray!20] (0,0) -- plot[smooth, domain=0:3.2] (\x, {3.2*sqrt(\x/3.2)}) -- (3.2,0) -- cycle;
+                    
+                    % Baseline casuale (diagonale)
+                    \draw[dashed, gray!80] (0,0) -- (3.2,3.2);
+                    
+                    % Curva ROC
+                    \draw[thick, black, smooth, domain=0:3.2] plot (\x, {3.2*sqrt(\x/3.2)});
+                    
+                    % Etichette
+                    \node at (1.8, 1.0) {\footnotesize $AUC_{ROC}$};
+                    \node[above] at (1.6, 3.4) {\textbf{(a) Curva ROC}};
+                \end{scope}
+
+                % --- Sottofigura (b): Curva Precision-Recall ---
+                \begin{scope}[shift={(5.2,0)}]
+                    % Assi
+                    \draw[->, thick] (0,0) -- (3.8,0) node[right] {\footnotesize $Recall\ (TPR)$};
+                    \draw[->, thick] (0,0) -- (0,3.8) node[above] {\footnotesize $Precision$};
+                    
+                    % Griglia di riferimento
+                    \draw[gray!30, thin] (0,3.2) -- (3.2,3.2) -- (3.2,0);
+                    \node[below left] at (0,0) {\tiny $0$};
+                    \node[below] at (3.2,0) {\tiny $1$};
+                    \node[left] at (0,3.2) {\tiny $1$};
+                    
+                    % Area sottesa (AUC) in toni di grigio
+                    \fill[gray!20] (0,3.2) -- plot[smooth, domain=0:3.2] (\x, {3.2 - 2.2*(\x/3.2)^2}) -- (3.2,0) -- (0,0) -- cycle;
+                    
+                    % Baseline prevalenza (linea orizzontale)
+                    \draw[dashed, gray!80] (0,0.8) -- (3.2,0.8) node[right] {\tiny $\pi$};
+                    
+                    % Curva PR
+                    \draw[thick, black, smooth, domain=0:3.2] plot (\x, {3.2 - 2.2*(\x/3.2)^2});
+                    
+                    % Etichette
+                    \node at (1.2, 1.2) {\footnotesize $AUC_{PR}$};
+                    \node[above] at (1.6, 3.4) {\textbf{(textbf{b}) Curva PR}};
+                \end{scope}
+            \end{tikzpicture}
+            \caption{Rappresentazione schematica dell'Area Sottesa alla Curva (AUC) per le analisi grafiche ROC (a) e Precision-Recall (b).}
+            \label{fig:curve_roc_pr}
+        \end{figure}
+
+        L'indice $AUC_{ROC}$ fornisce una misura della capacità discriminativa complessiva del classificatore, mentre $AUC_{PR}$ risulta particolarmente indicato nei sistemi NIDS, dove la forte prevalenza del traffico legittimo rende più significativa la valutazione del compromesso tra Precision e Recall \cite{saito2015}.
+
+        \subsubsection{Degrado Prestazionale e Significatività Statistica (Welch's t-test)}
+        \label{subsubsec:significativita_statistica}
+
+        Il trasferimento di un modello tra domini caratterizzati da differenti distribuzioni marginali delle caratteristiche $P(\mathbf{x})$ (\textit{covariate shift}) può determinare una degradazione delle prestazioni di classificazione \cite{pan2010}. Tale variazione dell'efficacia discriminativa di un modello $M$, valutato sul dominio sorgente $\mathcal{D}_S$ e sul dominio target $\mathcal{D}_T$, può essere espressa come
+
+        \begin{equation}
+        \Delta F_1
+        =
+        F_1(M,\mathcal{D}_S)
+        -
+        F_1(M,\mathcal{D}_T).
+        \end{equation}
+
+        Per valutare la significatività statistica delle differenze prestazionali tra modelli differenti, oppure tra un modello e una baseline di riferimento, si adotta il test $t$ di Welch, appropriato nel caso di campioni indipendenti con varianze non necessariamente uguali. Date due distribuzioni campionarie della metrica di interesse, caratterizzate da medie $\bar{x}_1$, $\bar{x}_2$, varianze $s_1^2$, $s_2^2$ e numerosità $n_1$, $n_2$, la statistica del test è definita da
+
+        \begin{equation}
+        t
+        =
+        \frac{\bar{x}_1-\bar{x}_2}
+        {\sqrt{\frac{s_1^2}{n_1}+\frac{s_2^2}{n_2}}}.
+        \end{equation}
+
+        I corrispondenti gradi di libertà effettivi sono stimati mediante l'approssimazione di Welch--Satterthwaite:
+
+        \begin{equation}
+        \nu
+        \approx
+        \frac{\left(\frac{s_1^2}{n_1}+\frac{s_2^2}{n_2}\right)^2}
+        {\frac{\left(s_1^2/n_1\right)^2}{n_1-1}
+        +
+        \frac{\left(s_2^2/n_2\right)^2}{n_2-1}}.
+        \end{equation}
+
+        L'ipotesi nulla di uguaglianza delle medie,
+
+        \[
+        H_0:\mu_1=\mu_2,
+        \]
+
+        viene respinta qualora il valore $p$ associato alla statistica $t$ risulti inferiore al livello di significatività prefissato $\alpha$ (tipicamente $\alpha=0.05$), indicando che la differenza prestazionale osservata è statisticamente significativa e non può essere ragionevolmente attribuita al solo errore campionario.
+
+
+
+
