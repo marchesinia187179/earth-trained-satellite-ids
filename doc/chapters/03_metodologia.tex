@@ -1178,11 +1178,6 @@
         \label{subsubsec:baseline_riferimento_granularita}
         Il modello $\mathcal{M}_{\text{base}}$ (Sezione~\ref{subsubsec:modello_baseline}) occupa, rispetto all'indice $\Gamma$, una posizione concettualmente intermedia tra i due estremi. La sua regione decisionale eredita la copertura ad ampio spettro propria dei modelli aggregati, essendo $\mathcal{A}_S \subseteq \mathcal{A}_m(\mathcal{M}_{\text{base}})$, ma viene incrementalmente perturbata da una conoscenza mirata e altamente sparsa del dominio target ($\Delta \mathcal{D}_T^{(\text{train})}$, Equazione~\eqref{eq:dinj_composition}), la cui esiguità cardinale ($|\Delta \mathcal{D}_T^{(\text{train})}| \ll |\mathcal{D}_S^{(\text{train})}|$) ne impedisce una piena riqualificazione come copertura multiclasse del dominio di destinazione. $\mathcal{M}_{\text{base}}$ costituisce pertanto l'ancora di riferimento rispetto alla quale entrambi gli estremi della granularità — l'ampia copertura generalista dei modelli aggregati $\mathcal{M}_S, \mathcal{M}_H^{(T)}$ e l'elevata specificità dei modelli biclasse $\mathcal{M}_{S,a}, \mathcal{M}_{H,T,a}$ — vengono confrontati, secondo il protocollo di verifica statistica formalizzato in Sezione~\ref{subsubsec:welch_test}, al fine di determinare quale livello di granularità offra il compromesso più favorevole tra specificità discriminativa e robustezza al \textit{domain shift}.
 
-
-
-
-
-
     \section{Framework Analitico, Spiegabilità e Significatività Statistica}
     \label{sec:framework_analitico}
 
@@ -1191,21 +1186,21 @@
 
         L'analisi dello scostamento distributivo (\textit{domain shift}) e la valutazione della separabilità geometrica tra traffico nominale e traffico malevolo richiedono l'impiego di tecniche di riduzione dimensionale e stima di densità. Come anticipato nella Sezione~\ref{subsubsec:invarianza_monotonica}, mentre l'architettura di classificazione basata su modelli ad albero gode dell'invarianza alle trasformazioni monotoniche e prescinde dalla scala dei dati, gli strumenti diagnostici e visivi (PCA e KDE) sono sensibili alla grandezza numerica delle variabili.
 
-        Pertanto, preliminarmente all'estrazione delle proiezioni e alla stima densometrica, viene applicata una normalizzazione dedicata. Tale trasformazione è ancorata unicamente alle statistiche del dominio sorgente $\mathcal{D}_S$ e viene mantenuta rigorosamente disaccoppiata dalla pipeline di addestramento dei modelli.
+        Pertanto, preliminarmente all'estrazione delle proiezioni e alla stima densometrica, viene applicata una normalizzazione dedicata a ciascun benchmark $D \in \mathcal{B}$, secondo l'insieme dei benchmark di test già introdotto nella Sezione~\ref{subsubsec:metriche_aggregazione}. Tale trasformazione è ancorata unicamente alle statistiche del dominio sorgente $\mathcal{D}_S$ e viene mantenuta rigorosamente disaccoppiata dalla pipeline di addestramento dei modelli.
 
         \subsubsection{Standardizzazione Diagnostica Dipendente dal Sorgente}
         \label{subsubsec:zscore_sorgente}
 
-        Per evitare fenomeni di contaminazione informativa (\textit{data leakage}), derivati dall'estrazione di statistiche da domini target incogniti, e per preservare la reale ampiezza del \textit{domain shift}, i dati di ciascun dataset $k$ vengono standardizzati utilizzando esclusivamente la media $\boldsymbol{\mu}_S$ e la deviazione standard $\boldsymbol{\sigma}_S$ calcolate sul benchmark sorgente di riferimento $S$.
+        Per evitare fenomeni di contaminazione informativa (\textit{data leakage}), derivati dall'estrazione di statistiche da domini target incogniti, e per preservare la reale ampiezza del \textit{domain shift}, i dati di ciascun benchmark $D \in \mathcal{B}$ vengono standardizzati utilizzando esclusivamente la media $\boldsymbol{\mu}_S$ e la deviazione standard $\boldsymbol{\sigma}_S$ calcolate sul benchmark sorgente di riferimento $S$.
 
-        Sia $\mathbf{X}_k \in \mathbb{R}^{N_k \times d}$ la matrice dei dati grezzi del generico dataset $k$. Il generico elemento della matrice trasformata $\mathbf{Z}_k \in \mathbb{R}^{N_k \times d}$ è definito come:
+        Sia $\mathbf{X}_D \in \mathbb{R}^{N_D \times d}$ la matrice dei dati grezzi del generico benchmark $D$. Il generico elemento della matrice trasformata $\mathbf{Z}_D \in \mathbb{R}^{N_D \times d}$ è definito come:
         \begin{equation}
-            \mathbf{Z}_{k, ij} = \frac{\mathbf{X}_{k, ij} - \mu_{S, j}}{\sigma_{S, j} + \epsilon}
+            \mathbf{Z}_{D, ij} = \frac{\mathbf{X}_{D, ij} - \mu_{S, j}}{\sigma_{S, j} + \epsilon}
             \label{eq:z_score_source}
         \end{equation}
         dove $\mu_{S, j}$ e $\sigma_{S, j}$ rappresentano la media e la deviazione standard campionarie della $j$-esima caratteristica stimata sul set sorgente $S$, e $\epsilon > 0$ è una costante infinitesima introdotta a scopo di stabilità numerica, per prevenire divisioni per valori prossimi a zero in presenza di caratteristiche a varianza sorgente quasi nulla (es. indicatori binari fortemente sbilanciati).
 
-        L'ancoraggio a $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S)$, anziché a statistiche ricalcolate localmente su ciascun dataset $k$, garantisce che eventuali traslazioni di media o contrazioni di varianza presenti nel dominio target non vengano annullate artificialmente: una standardizzazione locale ricentrerebbe infatti ogni target sulla propria origine, occultando esattamente lo scostamento distributivo che l'analisi si propone di rendere visibile. Si osserva che tale ancoraggio è una scelta di riferimento per la sola finalità diagnostico-visiva, e non implica alcuna dipendenza dalla scala da parte del classificatore stesso: come dimostrato nella Sezione~\ref{subsubsec:invarianza_monotonica}, la decisione dei modelli ad albero è invariante rispetto a qualsiasi trasformazione monotonica crescente, ancorata o meno al dominio sorgente. L'ancoraggio a $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S)$ risponde dunque esclusivamente all'esigenza di disporre di un sistema di riferimento fisso e interpretabile per l'ispezione visiva, non a un requisito del modello di classificazione.
+        L'ancoraggio a $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S)$, anziché a statistiche ricalcolate localmente su ciascun benchmark $D$, garantisce che eventuali traslazioni di media o contrazioni di varianza presenti nel benchmark $D$ non vengano annullate artificialmente: una standardizzazione locale ricentrerebbe infatti ogni benchmark sulla propria origine, occultando esattamente lo scostamento distributivo che l'analisi si propone di rendere visibile. Si osserva che tale ancoraggio è una scelta di riferimento per la sola finalità diagnostico-visiva, e non implica alcuna dipendenza dalla scala da parte del classificatore stesso: come dimostrato nella Sezione~\ref{subsubsec:invarianza_monotonica}, la decisione dei modelli ad albero è invariante rispetto a qualsiasi trasformazione monotonica crescente, ancorata o meno al dominio sorgente. L'ancoraggio a $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S)$ risponde dunque esclusivamente all'esigenza di disporre di un sistema di riferimento fisso e interpretabile per l'ispezione visiva, non a un requisito del modello di classificazione.
 
         \subsubsection{Proiezioni Ortogonali e Relatività dello Spazio Latente (PCA)}
         \label{subsubsec:pca_relativita}
@@ -1213,16 +1208,16 @@
         Per ispezionare visivamente le relazioni topologiche del traffico di rete, lo spazio delle caratteristiche viene mappato in un sottospazio latente a due dimensioni tramite Analisi delle Componenti Principali (PCA)~\cite{pearson1901, hotelling1933}.
 
         \paragraph{Necessità tecnica dello scaling per la PCA}
-        La PCA si basa sulla decomposizione spettrale della matrice di covarianza $\boldsymbol{\Sigma}_k$, massimizzando la varianza lungo gli assi ortogonali. In assenza della trasformazione espressa nell'Equazione~\eqref{eq:z_score_source}, l'impiego diretto di caratteristiche in scala grezza eterogenea (es. volumi in byte con varianze dell'ordine di $10^6$ affiancati a \textit{ratio} adimensionali compresi in $[0,1]$) causerebbe una dominanza artificiale della matrice di covarianza da parte delle variabili a magnitudo numerica maggiore. La prima componente principale si schiaccerebbe unicamente sulle variabili a scala più ampia, indipendentemente dal loro effettivo valore informativo o discriminante.
+        La PCA si basa sulla decomposizione spettrale della matrice di covarianza $\boldsymbol{\Sigma}_D$, massimizzando la varianza lungo gli assi ortogonali. In assenza della trasformazione espressa nell'Equazione~\eqref{eq:z_score_source}, l'impiego diretto di caratteristiche in scala grezza eterogenea (es. volumi in byte con varianze dell'ordine di $10^6$ affiancati a \textit{ratio} adimensionali compresi in $[0,1]$) causerebbe una dominanza artificiale della matrice di covarianza da parte delle variabili a magnitudo numerica maggiore. La prima componente principale si schiaccerebbe unicamente sulle variabili a scala più ampia, indipendentemente dal loro effettivo valore informativo o discriminante.
 
-        Sulla matrice standardizzata $\mathbf{Z}_k$, la matrice di covarianza campionaria $\boldsymbol{\Sigma}_k$ è formulata come:
+        Sulla matrice standardizzata $\mathbf{Z}_D$, la matrice di covarianza campionaria $\boldsymbol{\Sigma}_D$ è formulata come:
         \begin{equation}
-            \boldsymbol{\Sigma}_k = \frac{1}{N_k - 1} \mathbf{Z}_k^\top \mathbf{Z}_k
+            \boldsymbol{\Sigma}_D = \frac{1}{N_D - 1} \mathbf{Z}_D^\top \mathbf{Z}_D
             \label{eq:cov_matrix}
         \end{equation}
-        La matrice di proiezione $\mathbf{W}_k \in \mathbb{R}^{d \times 2}$ è composta dagli autovettori ortonormali associati ai due principali autovalori di $\boldsymbol{\Sigma}_k$.
+        La matrice di proiezione $\mathbf{W}_D \in \mathbb{R}^{d \times 2}$ è composta dagli autovettori ortonormali associati ai due principali autovalori di $\boldsymbol{\Sigma}_D$.
 
-        La standardizzazione preventiva isola una proprietà rilevante del framework: sebbene i campioni della classe lecita ($Y=0$) derivino dalla medesima distribuzione stazionaria di base in tutti i dataset, la loro proiezione nel piano latente muta geometricamente al variare del benchmark $k$. Poiché $\boldsymbol{\Sigma}_k$ risente della varianza congiunta dell'intero set di dati, l'accoppiamento con vettori malevoli ($Y=1$) eterogenei riorienta gli assi di massima varianza. L'eliminazione degli artefatti di scala mediante $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S)$ assicura che tali rotazioni non siano attribuibili a discrepanze puramente dimensionali, ma riflettano la specifica struttura dell'attacco contestuale e il relativo \textit{domain shift}. Va precisato che, trattandosi di una tecnica non supervisionata, la PCA massimizza la varianza totale dei dati senza impiego esplicito dell'etichetta $Y$: l'osservazione secondo cui l'asse di massima varianza tende a riflettere la separazione tra le classi è pertanto un comportamento empiricamente frequente, ma non una proprietà garantita in generale, a differenza di tecniche supervisionate come l'Analisi Discriminante Lineare (LDA).
+        La standardizzazione preventiva isola una proprietà rilevante del framework: sebbene i campioni della classe lecita ($Y=0$) derivino dalla medesima distribuzione stazionaria di base in tutti i benchmark, la loro proiezione nel piano latente muta geometricamente al variare del benchmark $D$. Poiché $\boldsymbol{\Sigma}_D$ risente della varianza congiunta dell'intero set di dati, l'accoppiamento con vettori malevoli ($Y=1$) eterogenei riorienta gli assi di massima varianza. L'eliminazione degli artefatti di scala mediante $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S)$ assicura che tali rotazioni non siano attribuibili a discrepanze puramente dimensionali, ma riflettano la specifica struttura dell'attacco contestuale e il relativo \textit{domain shift}. Va precisato che, trattandosi di una tecnica non supervisionata, la PCA massimizza la varianza totale dei dati senza impiego esplicito dell'etichetta $Y$: l'osservazione secondo cui l'asse di massima varianza tende a riflettere la separazione tra le classi è pertanto un comportamento empiricamente frequente, ma non una proprietà garantita in generale, a differenza di tecniche supervisionate come l'Analisi Discriminante Lineare (LDA).
 
         \subsubsection{Stima di Densità (KDE) su Sub-spazio Selettivo}
         \label{subsubsec:kde_features}
@@ -1232,28 +1227,28 @@
         \paragraph{Motivazione metodologica dello scaling per la KDE}
         A differenza della PCA, dal punto di vista strettamente matematico la forma della stima di densità univariata è equivariante alle trasformazioni lineari (la geometria della curva non si distorce, ma trasla e si riscala coerentemente). Tuttavia, l'applicazione della standardizzazione $Z$-score dipendente dal sorgente risulta indispensabile per tre ragioni pratiche e metodologiche:
         \begin{enumerate}
-            \item \textbf{Preservazione visiva del Domain Shift:} L'utilizzo delle metriche del sorgente $(\mu_{S,j}, \sigma_{S,j})$ fa sì che se una caratteristica nel dataset target $k$ subisce una traslazione sistematica della media, la curva di densità KDE risulti fisicamente traslata rispetto all'origine $z=0$, rendendo immediata l'ispezione visiva del \textit{domain shift};
+            \item \textbf{Preservazione visiva del Domain Shift:} L'utilizzo delle metriche del sorgente $(\mu_{S,j}, \sigma_{S,j})$ fa sì che se una caratteristica nel benchmark $D$ subisce una traslazione sistematica della media, la curva di densità KDE risulti fisicamente traslata rispetto all'origine $z=0$, rendendo immediata l'ispezione visiva del \textit{domain shift};
             \item \textbf{Comparabilità grafica cross-feature:} Le tre \textit{feature} selezionate mediante SHAP, originariamente espresse in unità di misura disomogenee (es. microsecondi vs. byte/s), vengono mappate sullo stesso asse adimensionale espresso in deviazioni standard dal sorgente, consentendone l'affiancamento visivo su scale omogenee;
-            \item \textbf{Calibrazione stabile della Bandwidth ($h$):} La condivisione dello spazio adimensionale ($z \sim \mathcal{N}(0,1)$ sul dominio sorgente) stabilizza l'ottimizzazione della larghezza di banda del kernel $h$, prevenendo fenomeni di \textit{undersmoothing} (una banda eccessivamente stretta, che produce una curva frastagliata e sovra-adattata al singolo campione osservato) o di \textit{oversmoothing} selettivo (una banda eccessivamente ampia, che appiattisce dettagli distributivi rilevanti) tra variabili a diversa varianza grezza.
+            \item \textbf{Calibrazione stabile della Bandwidth ($h_{\text{KDE}}$):} La condivisione dello spazio adimensionale ($z \sim \mathcal{N}(0,1)$ sul dominio sorgente) stabilizza l'ottimizzazione della larghezza di banda del kernel $h_{\text{KDE}}$, prevenendo fenomeni di \textit{undersmoothing} (una banda eccessivamente stretta, che produce una curva frastagliata e sovra-adattata al singolo campione osservato) o di \textit{oversmoothing} selettivo (una banda eccessivamente ampia, che appiattisce dettagli distributivi rilevanti) tra variabili a diversa varianza grezza.
         \end{enumerate}
 
-        Sia $z \in \mathbb{R}$ la variabile standardizzata derivata tramite l'Equazione~\eqref{eq:z_score_source} per una singola caratteristica del sottoinsieme SHAP. Coerentemente con la natura dicotomica delle decisioni dei sistemi NIDS, i dati vengono raggruppati nella variabile binaria $Y \in \{0, 1\}$ (traffico lecito vs. malevolo). La stima marginale di densità continua $\hat{f}_c(z)$ per la classe $c \in \{0, 1\}$ calcolata su $N_c$ campioni è definita da:
+        Sia $z \in \mathbb{R}$ la variabile standardizzata derivata tramite l'Equazione~\eqref{eq:z_score_source} per una singola caratteristica del sottoinsieme SHAP. Coerentemente con la natura dicotomica delle decisioni dei sistemi NIDS, i dati vengono raggruppati secondo l'etichetta binaria $Y \in \mathcal{Y} = \{0, 1\}$ (traffico lecito vs. malevolo). La stima marginale di densità continua $\hat{f}_y(z)$ per la classe $Y=y$ calcolata su $N_y$ campioni è definita da:
         \begin{equation}
-            \hat{f}_c(z) = \frac{1}{N_c h} \sum_{i=1}^{N_c} K\left( \frac{z - z_{i,c}}{h} \right)
+            \hat{f}_y(z) = \frac{1}{N_y \, h_{\text{KDE}}} \sum_{i=1}^{N_y} \kappa\left( \frac{z - z_{i,y}}{h_{\text{KDE}}} \right)
             \label{eq:kde_univariate}
         \end{equation}
-        dove $h$ è il parametro di lisciamento (\textit{bandwidth}) e $K(\cdot)$ è la funzione kernel, per la quale si adotta la forma gaussiana standard:
+        dove $h_{\text{KDE}}$ è il parametro di lisciamento (\textit{bandwidth}), da non confondersi con la trasformazione monotonica $h_j$ della Sezione~\ref{subsec:famiglie_classificatori}, e $\kappa(\cdot)$ è la funzione kernel, per la quale si adotta la forma gaussiana standard\footnote{Il simbolo $\kappa(\cdot)$, anziché la più comune notazione $K(\cdot)$, è adottato per evitare ambiguità con la cardinalità $K$ dell'insieme dei seed stocastici $\mathcal{S}$ introdotta nella Sezione~\ref{subsec:stabilita_stocastica}.}:
         \begin{equation}
-            K(u) = \frac{1}{\sqrt{2\pi}} \exp\left( -\frac{u^2}{2} \right)
+            \kappa(u) = \frac{1}{\sqrt{2\pi}} \exp\left( -\frac{u^2}{2} \right)
             \label{eq:gaussian_kernel}
         \end{equation}
 
         \subsubsection{Compensazione dello Squilibrio di Classe tramite Scala Logaritmica}
         \label{subsubsec:log_scale_kde}
 
-        Per contrastare lo schiacciamento visivo della classe minoritaria derivante dal forte sbilanciamento cardinale ($P(Y=0) \gg P(Y=1)$ o viceversa nei vari benchmark), i valori di densità stimata $\hat{f}_c(z)$ vengono proiettati su scala logaritmica in base $10$:
+        Per contrastare lo schiacciamento visivo della classe minoritaria derivante dal forte sbilanciamento cardinale ($P(Y=0) \gg P(Y=1)$ o viceversa nei vari benchmark), i valori di densità stimata $\hat{f}_y(z)$ vengono proiettati su scala logaritmica in base $10$:
         \begin{equation}
-            \hat{f}_{c,\text{log}}(z) = \log_{10}\left( \hat{f}_c(z) + \epsilon \right)
+            \hat{f}_{y,\text{log}}(z) = \log_{10}\left( \hat{f}_y(z) + \epsilon \right)
             \label{eq:kde_log}
         \end{equation}
         dove $\epsilon > 0$ è una costante infinitesima di stabilizzazione numerica. La rappresentazione logaritmica permette di ispezionare visivamente le code delle distribuzioni e le micro-aree di sovrapposizione ad alta incertezza, fornendo supporto analitico alla comprensione dei falsi positivi al variare della soglia decisionale $\tau$.
@@ -1276,11 +1271,11 @@
             \midrule
             \textbf{Proiezioni Latenti (PCA)} &
             Matematicamente Indispensabile &
-            Prevenzione della Dominanza delle Scale: La matrice di covarianza $\boldsymbol{\Sigma}_k$ richiede unità adimensionali; in caso contrario, le componenti principali catturano solo la scala numerica grezza più ampia. \\
+            Prevenzione della Dominanza delle Scale: La matrice di covarianza $\boldsymbol{\Sigma}_D$ richiede unità adimensionali; in caso contrario, le componenti principali catturano solo la scala numerica grezza più ampia. \\
             \midrule
             \textbf{Stima di Densità (KDE 1D)} &
             Metodologico e Visivo &
-            Preservazione del Shift e Omogeneità: Non altera la forma intrinseca della stima 1D, ma rende visibile lo spostamento di media dal sorgente $z=0$, rende i grafici affiancati comparabili e stabilizza la \textit{bandwidth} $h$. \\
+            Preservazione del Shift e Omogeneità: Non altera la forma intrinseca della stima 1D, ma rende visibile lo spostamento di media dal sorgente $z=0$, rende i grafici affiancati comparabili e stabilizza la \textit{bandwidth} $h_{\text{KDE}}$. \\
             \bottomrule
             \end{tabularx}
         \end{table}
@@ -1300,10 +1295,67 @@
 
 
 
-
         \subsection{Spiegabilità e Attribuzione delle Feature}
         \label{subsec:spiegabilita_shap}
-        % Formalizzazione dell'attribuzione dell'importanza delle feature tramite teoria dei giochi (valori di Shapley) per l'interpretazione dei confini decisionali cross-dominio.
+
+        Allo scopo di decodificare le logiche decisionali dei classificatori \textit{black-box} e isolare le caratteristiche dello spazio condiviso $\mathcal{X}$ che governano la stima della probabilità a posteriori al variare dei domini, il framework integra un impianto di interpretabilità basato su SHAP (\textit{SHapley Additive exPlanations})~\cite{lundberg2017}. Tale approccio, fondato sui rigorosi principi della teoria dei giochi cooperativi~\cite{shapley1953}, consente di quantificare analiticamente il contributo marginale esatto di ciascuna variabile vettoriale alla stima predittiva locale.
+
+        \subsubsection{Formulazione Teorica dei Valori di Shapley e Proprietà Assiomatiche}
+        \label{subsubsec:shap_teoria}
+
+        Nella teoria dei giochi, il valore di Shapley definisce un metodo per distribuire equamente un "guadagno" totale tra un insieme di giocatori cooperanti. Nel contesto dell'apprendimento supervisionato formalizzato dal framework, il "gioco" corrisponde alla funzione decisionale parametrica $f_{\theta^*}(\mathbf{x})$, e i "giocatori" coincidono con le caratteristiche in ingresso. 
+        
+        Sia $\mathcal{F}$ l'insieme totale delle caratteristiche a disposizione del modello (con $|\mathcal{F}| = d$) e $S \subseteq \mathcal{F}$ un generico sottoinsieme di esse. Definita $v(S)$ la funzione di valore che esprime l'output atteso del modello condizionato al solo sottoinsieme $S$\footnote{In un contesto operativo di apprendimento automatico, tale funzione coincide con il valore atteso condizionato della stima parametrica, ovvero $v(S) = \mathbb{E}[f_{\theta^*}(\mathbf{x}) \mid \mathbf{x}_S]$.}, il valore di Shapley $\phi_j(\mathbf{x})$ per la $j$-esima caratteristica del singolo vettore $\mathbf{x} \in \mathcal{X}$ è calcolato come:
+
+        \begin{equation}
+            \phi_j(\mathbf{x}) = \sum_{S \subseteq \mathcal{F} \setminus \{j\}} \frac{|S|!(|\mathcal{F}| - |S| - 1)!}{|\mathcal{F}|!} \left[ v(S \cup \{j\}) - v(S) \right]
+        \end{equation}
+
+        La robustezza di SHAP e la sua superiorità metodologica rispetto a metriche di impurità alternative risiedono nel soddisfacimento di quattro assiomi matematici fondamentali\footnote{L'aderenza a questi assiomi garantisce che l'importanza delle \textit{feature} sia equa e non soggetta a paradossi di attribuzione tipici delle metriche puramente empiriche.}:
+        \begin{enumerate}
+            \item \textbf{Efficienza Locale (Additività):} La somma dei valori SHAP di tutte le caratteristiche eguaglia la differenza tra la predizione per lo specifico vettore $\mathbf{x}$ e la predizione media del modello (baseline). Ovvero: $f_{\theta^*}(\mathbf{x}) = \phi_0 + \sum_{j=1}^{d} \phi_j(\mathbf{x})$.
+            \item \textbf{Simmetria:} Se due caratteristiche $i$ e $j$ apportano il medesimo contributo marginale a ogni possibile sottoinsieme $S$, i loro valori SHAP risultano algebricamente identici ($\phi_i = \phi_j$).
+            \item \textbf{Giocatore Nullo (Missingness):} Una caratteristica che non altera mai la predizione, indipendentemente dal sottoinsieme di attributi a cui viene aggiunta, possiede un valore SHAP rigorosamente pari a zero.
+            \item \textbf{Coerenza:} Se un modello viene modificato in modo tale che il contributo marginale di una caratteristica aumenti (o rimanga invariato), il relativo valore SHAP non può diminuire.
+        \end{enumerate}
+
+        \subsubsection{Implementazione e Ottimizzazione Tramite TreeSHAP}
+        \label{subsubsec:treeshap_implementazione}
+
+        Sotto il profilo operativo, l'estrazione dei valori $\phi_j$ è stata condotta avvalendosi dell'ecosistema software dedicato in ambiente Python. Considerata l'architettura dei classificatori impiegati, basati sul partizionamento ricorsivo dello spazio (e.g., \textit{Random Forest}, \textit{Histogram-based Gradient Boosting}), l'implementazione sfrutta intrinsecamente l'algoritmo \textit{TreeSHAP}~\cite{lundberg2019}\footnote{\textit{TreeSHAP}~\cite{lundberg2019} abbatte la complessità computazionale del calcolo esatto dei valori di Shapley da esponenziale $\mathcal{O}(2^{|\mathcal{F}|})$ a polinomiale $\mathcal{O}(T L D^2)$, dove $T$ è il numero di alberi dell'ensemble, $L$ il numero massimo di foglie e $D$ la profondità massima.}. 
+
+        Per garantire la stabilità statistica delle stime limitando contestualmente l'overhead computazionale, l'algoritmo (\textit{TreeExplainer}) viene applicato su un sottoinsieme della partizione di test $\mathcal{D}^{(\text{test})}$, estratto tramite campionamento stratificato. Tale campionamento preserva inalterato il vincolo di proporzionamento parametrico $\rho$ originario tra il traffico nominale ($Y = 0$) e il traffico malevolo ($Y = 1$).
+        
+        L'output dell'operazione consiste in matrici ad alta dimensionalità contenenti i valori $\phi_j$. Limitando l'analisi al dominio di classificazione binario e alla classe malevola ($Y = 1$), tali valori esprimono l'impatto sul margine non normalizzato del modello (es. \textit{log-odds}) e vengono resi interpretabili attraverso proiezioni a dispersione (\textit{summary dot plot}). In tali costrutti visivi, la posizione sull'asse orizzontale quantifica il valore SHAP (intensità e direzione dell'impatto decisionale), mentre lo spettro cromatico codifica il valore quantitativo grezzo della caratteristica, consentendo di individuare relazioni dirette o inverse tra le metriche trasmissive e l'etichetta di intrusione.
+
+        \subsubsection{Aggregazione Trasversale e Selezione per l'Analisi Densometrica}
+        \label{subsubsec:aggregazione_shap_kde}
+
+        I risultati prodotti da SHAP a livello locale per ciascuna configurazione di benchmark sono stati impiegati per alimentare l'indagine densometrica trasversale descritta nella Sezione~\ref{subsubsec:kde_features}. A tal fine, è stata definita una metrica di aggregazione progettata per estrarre le tre dimensioni dello spazio $\mathcal{X}$ globalmente più influenti.
+
+        Per ogni esperimento di classificazione $k$, le caratteristiche vengono inizialmente ordinate in senso decrescente in base alla loro importanza media assoluta $I_j^{(k)}$:
+        \begin{equation}
+            I_j^{(k)} = \frac{1}{N} \sum_{i=1}^N \left| \phi_j(\mathbf{x}_i^{(k)}) \right|
+        \end{equation}
+        dove $N = |\mathcal{D}_{\text{sample}}^{(\text{test})}|$ rappresenta la cardinalità del sottoinsieme estratto tramite campionamento stratificato, e non l'intero dataset a disposizione.
+        
+        Sia $\mathcal{T}_k \subset \mathcal{F}$ l'insieme contenente le prime tre caratteristiche classificate nel benchmark $k$. Per identificare i descrittori maggiormente resilienti e discriminanti ai confini tra domini $\mathcal{D}_S$ e $\mathcal{D}_T$, è stato implementato un contatore di frequenza globale $C_j$:
+        \begin{equation}
+            C_j = \sum_k \mathbb{I}(j \in \mathcal{T}_k)
+        \end{equation}
+        dove $\mathbb{I}(\cdot)$ è la funzione indicatrice che assume valore $1$ se la caratteristica $j$ figura nella \textit{top-3} dello scenario $k$, e $0$ altrimenti. 
+        Le tre dimensioni vettoriali associate ai valori massimi di $C_j$ al termine di tutte le combinazioni di addestramento e inferenza costituiscono il nucleo stabile informativo utilizzato per tracciare le curve KDE precedentemente illustrate. Questo processo di selezione garantisce che la valutazione del \textit{domain shift} si concentri unicamente sulle proiezioni spaziali che i modelli considerano universalmente più critiche per l'isolamento delle anomalie.
+
+
+
+
+
+
+
+
+
+
+
 
         \subsection{Metriche Operative, Operatività a Soglia e Significatività dei Confronti}
         \label{subsec:metriche_significativita}
