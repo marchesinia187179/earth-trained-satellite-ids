@@ -333,7 +333,7 @@
 
         \`E opportuno precisare che tale omissione riguarda esclusivamente la pipeline di addestramento e inferenza dei classificatori. Qualora strumenti diagnostici non invarianti alla scala (es. \textit{Principal Component Analysis} o stime di densità kernel, \textit{KDE}) vengano impiegati a valle per l'ispezione visiva del \textit{covariate shift} o per finalità di spiegabilità, essi richiedono una normalizzazione dedicata, applicata unicamente a scopo diagnostico-visivo e non reintrodotta nella pipeline di classificazione.
 
-    \section{Tassonomia delle Architetture di Classificazione e Valutazione Multi-Modello}
+    \section[Tassonomia delle Architetture di Classificazione e Valutazione Multi-Modello]{Tassonomia delle Architetture di Classificazione e \\ Valutazione Multi-Modello}
     \label{sec:tassonomia_modelli}
 
     L'intera tassonomia condivide una comune formulazione basata sulla stima della probabilità a posteriori, subordinando l'assegnazione della classe a una soglia decisionale parametrica $\tau$, garantendo così una base di confronto omogenea e indipendente dallo specifico algoritmo di apprendimento sottostante. 
@@ -881,7 +881,7 @@
             \label{fig:bagging_vs_boosting}
         \end{figure}
 
-    \section{Framework di Adattamento, Granularità e Stabilità Statistica}
+    \section[Framework di Adattamento, Granularità e Stabilità Statistica]{Framework di Adattamento, Granularità e Stabilità \\ Statistica}
     \label{sec:framework_adattamento}
 
     La valutazione dell'efficacia delle architetture e delle strategie di \textit{transfer learning} precedentemente formalizzate richiede un apparato metodologico capace di isolare i reali guadagni prestazionali dal rumore stocastico intrinseco ai processi di apprendimento. Questa sezione definisce il framework di valutazione e di analisi teorica adottato per garantire la solidità e la riproducibilità dei risultati. 
@@ -1178,11 +1178,11 @@
         \label{subsubsec:baseline_riferimento_granularita}
         Il modello $\mathcal{M}_{\text{base}}$ (Sezione~\ref{subsubsec:modello_baseline}) occupa, rispetto all'indice $\Gamma$, una posizione concettualmente intermedia tra i due estremi. La sua regione decisionale eredita la copertura ad ampio spettro propria dei modelli aggregati, essendo $\mathcal{A}_S \subseteq \mathcal{A}_m(\mathcal{M}_{\text{base}})$, ma viene incrementalmente perturbata da una conoscenza mirata e altamente sparsa del dominio target ($\Delta \mathcal{D}_T^{(\text{train})}$, Equazione~\eqref{eq:dinj_composition}), la cui esiguità cardinale ($|\Delta \mathcal{D}_T^{(\text{train})}| \ll |\mathcal{D}_S^{(\text{train})}|$) ne impedisce una piena riqualificazione come copertura multiclasse del dominio di destinazione. $\mathcal{M}_{\text{base}}$ costituisce pertanto l'ancora di riferimento rispetto alla quale entrambi gli estremi della granularità — l'ampia copertura generalista dei modelli aggregati $\mathcal{M}_S, \mathcal{M}_H^{(T)}$ e l'elevata specificità dei modelli biclasse $\mathcal{M}_{S,a}, \mathcal{M}_{H,T,a}$ — vengono confrontati, secondo il protocollo di verifica statistica formalizzato in Sezione~\ref{subsubsec:welch_test}, al fine di determinare quale livello di granularità offra il compromesso più favorevole tra specificità discriminativa e robustezza al \textit{domain shift}.
 
-    \section{Framework Analitico, Spiegabilità e Significatività Statistica}
+    \section[Framework Analitico, Spiegabilità e Significatività Statistica]{Framework Analitico, Spiegabilità e Significatività \\ Statistica}
     \label{sec:framework_analitico}
 
-    Il presente capitolo definisce il framework analitico, diagnostico e statistico adottato per caratterizzare lo scostamento distributivo (\textit{domain shift}), decodificare le logiche decisionali dei modelli e valutare la significatività delle variazioni prestazionali tra domini eterogenei[cite: 3]. L'impianto metodologico integra tecniche di riduzione dimensionale, stima non parametrica di densità e attribuzione dell'importanza delle caratteristiche fondata sulla teoria dei giochi cooperativi, affiancandole a un formalismo rigoroso per l'operatività a soglia e la verifica di ipotesi statistiche[cite: 3].
-    Per agevolare la consultazione della trattazione, i simboli matematici, i costrutti diagnostici e le metriche prestazionali introdotti in questa sezione sono riepilogati nella Tabella~\ref{tab:notazione_framework}[cite: 3].
+    Il presente capitolo definisce il framework analitico, diagnostico e statistico adottato per caratterizzare lo scostamento distributivo (\textit{domain shift}), decodificare le logiche decisionali dei modelli e valutare la significatività delle variazioni prestazionali tra domini eterogenei. L'impianto metodologico integra tecniche di riduzione dimensionale, stima non parametrica di densità e attribuzione dell'importanza delle caratteristiche fondata sulla teoria dei giochi cooperativi, affiancandole a un formalismo rigoroso per l'operatività a soglia e la verifica di ipotesi statistiche.
+    Per agevolare la consultazione della trattazione, i simboli matematici, i costrutti diagnostici e le metriche prestazionali introdotti in questa sezione sono riepilogati nella Tabella~\ref{tab:notazione_framework}.
 
     \begin{table}[H]
         \centering
@@ -1190,36 +1190,36 @@
         \label{tab:notazione_framework}
         \small
         \renewcommand{\arraystretch}{1.3}
-        \begin{tabularx}{\textwidth}{@{} >{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}X @{}}
+        \begin{tabularx}{\textwidth}{@{} >{\raggedright\arraybackslash}p{3cm} >{\raggedright\arraybackslash}X @{}}
         \toprule
         \textbf{Simbolo} & \textbf{Descrizione e Significato Concettuale} \\
         \midrule
         $\mathbf{Z}_D$ & 
-        Matrice dei dati del benchmark $D$ standardizzata mediante la media $\boldsymbol{\mu}_S$ e la deviazione standard $\boldsymbol{\sigma}_S$ del solo dominio sorgente[cite: 3] \\
+        Matrice dei dati del benchmark $D$ standardizzata mediante la media $\boldsymbol{\mu}_S$ e la deviazione standard $\boldsymbol{\sigma}_S$ del solo dominio sorgente \\
         
         $\boldsymbol{\Sigma}_D, \mathbf{W}_D$ & 
-        Matrice di covarianza campionaria e matrice di proiezione ortogonale sui primi due assi della PCA[cite: 3] \\
+        Matrice di covarianza campionaria e matrice di proiezione ortogonale sui primi due assi della PCA \\
         
         $\hat{f}_y(z), h_{\text{KDE}}$ & 
-        Stima di densità univariata KDE per la classe $y$ e relativo parametro di lisciamento (\textit{bandwidth}) con kernel gaussiano $\kappa(\cdot)$[cite: 3] \\
+        Stima di densità univariata KDE per la classe $y$ e relativo parametro di lisciamento (\textit{bandwidth}) con kernel gaussiano $\kappa(\cdot)$ \\
         
         $\phi_j(\mathbf{x})$ & 
-        Valore SHAP associato alla $j$-esima caratteristica del vettore $\mathbf{x}$, rappresentante il suo contributo marginale esatto[cite: 3] \\
+        Valore SHAP associato alla $j$-esima caratteristica del vettore $\mathbf{x}$, rappresentante il suo contributo marginale esatto \\
         
         $I_j^{(D)}, C_j$ & 
-        Importanza media assoluta SHAP della $j$-esima caratteristica sul benchmark $D$ e frequenza globale di inclusione nella \textit{top-3}[cite: 3] \\
+        Importanza media assoluta SHAP della $j$-esima caratteristica sul benchmark $D$ e frequenza globale di inclusione nella \textit{top-3} \\
         
-        $TP(\tau), FP(\tau), TN(\tau), FN(\tau)$ & 
-        Cardinalità della matrice di confusione determinate in funzione della soglia decisionale parametrica $\tau$[cite: 3] \\
+        $TP(\tau), FP(\tau), \newline TN(\tau), FN(\tau)$ & 
+        Cardinalità della matrice di confusione determinate in funzione della soglia decisionale parametrica $\tau$ \\
         
         $AUC_{ROC}, AUC_{PR}$ & 
-        Area sottesa alle curve \textit{Receiver Operating Characteristic} e \textit{Precision-Recall} per la caratterizzazione al variare di $\tau \in [0,1]$[cite: 3] \\
+        Area sottesa alle curve \textit{Receiver Operating Characteristic} e \textit{Precision-Recall} per la caratterizzazione al variare di $\tau \in [0,1]$ \\
         
         $\Delta F_1$ & 
-        Variazione prestazionale in termini di $F_1$-score per la quantificazione del degrado da \textit{covariate shift} tra sorgente $\mathcal{D}_S$ e target $\mathcal{D}_T$[cite: 3] \\
+        Variazione prestazionale in termini di $F_1$-score per la quantificazione del degrado da \textit{covariate shift} tra sorgente $\mathcal{D}_S$ e target $\mathcal{D}_T$ \\
         
         $t, \nu, H_0$ & 
-        Statistica del test $t$ di Welch, gradi di libertà effettivi di Welch--Satterthwaite e ipotesi nulla di equivalenza delle medie prestazionali[cite: 3] \\
+        Statistica del test $t$ di Welch, gradi di libertà effettivi di Welch--Satterthwaite e ipotesi nulla di equivalenza delle medie prestazionali \\
         \bottomrule
         \end{tabularx}
     \end{table}
@@ -1385,10 +1385,10 @@
         Richiamando la regola di decisione parametrica introdotta nella Sezione~\ref{subsubsec:formulazione_erm}, la classe predetta $\hat{y}_i(\tau)$ consente di definire le cardinalità della matrice di confusione, espresse come funzioni della soglia operativa $\tau$:
 
         \begin{align}
-        TP(\tau) &= \sum_{i=1}^{N} \mathbb{I}(y_i=1 \land \hat{y}_i(\tau)=1) \\
-        FP(\tau) &= \sum_{i=1}^{N} \mathbb{I}(y_i=0 \land \hat{y}_i(\tau)=1) \\
-        TN(\tau) &= \sum_{i=1}^{N} \mathbb{I}(y_i=0 \land \hat{y}_i(\tau)=0) \\
-        FN(\tau) &= \sum_{i=1}^{N} \mathbb{I}(y_i=1 \land \hat{y}_i(\tau)=0)
+            TP(\tau) &= \sum_{i=1}^{N} \mathbb{I}(y_i=1 \land \hat{y}_i(\tau)=1) \\
+            FP(\tau) &= \sum_{i=1}^{N} \mathbb{I}(y_i=0 \land \hat{y}_i(\tau)=1) \\
+            TN(\tau) &= \sum_{i=1}^{N} \mathbb{I}(y_i=0 \land \hat{y}_i(\tau)=0) \\
+            FN(\tau) &= \sum_{i=1}^{N} \mathbb{I}(y_i=1 \land \hat{y}_i(\tau)=0)
         \end{align}
 
         Le quattro quantità rappresentano rispettivamente il numero di veri positivi, falsi positivi, veri negativi e falsi negativi prodotti dal classificatore per una determinata soglia decisionale.
@@ -1414,25 +1414,31 @@
             \centering
             \begin{tikzpicture}[scale=0.9, every node/.style={transform shape}]
                 % Assi cartesiani
-                \draw[->, thick] (0,0) -- (8.5,0) node[right] {\small $f(\mathbf{x}) \in [0,1]$};
-                \draw[->, thick] (0,0) -- (0,3.5) node[above] {\small $p(f(\mathbf{x}) \mid y)$};
+                \draw[->, thick] (0,0) -- (10,0) node[right] {\small $f(\mathbf{x}) \in [0,1]$};
+                \draw[->, thick] (0,0) -- (0,5) node[above] {\small $p(f(\mathbf{x}) \mid y)$};
 
                 % Distribuzione Classe 0 (Lecito) - Linea continua
-                \draw[thick, black, smooth, domain=0.2:5.5] plot (\x, {3.0*exp(-(\x-2.0)^2/0.8)});
-                \node at (1.8, 2.5) [anchor=south] {\small $y=0$ (Traffico Lecito)};
+                \draw[thick, black, smooth, domain=0:10] plot (\x, {4.0*exp(-(\x-2.5)^2/1.1)});
+                \node at (2.5, 4) [anchor=south, align=center] {
+                    \small $y=0$ \\[-5pt]
+                    \small (Traffico Lecito)
+                };
 
                 % Distribuzione Classe 1 (Malevolo) - Linea tratteggiata
-                \draw[thick, dashed, black!80, smooth, domain=2.5:8.0] plot (\x, {2.5*exp(-(\x-5.5)^2/1.2)});
-                \node at (6.0, 2.0) [anchor=south] {\small $y=1$ (Traffico Malevolo)};
+                \draw[thick, dashed, black!80, smooth, domain=0:10] plot (\x, {3.5*exp(-(\x-6)^2/1.5)});
+                \node at (6.0, 3.5) [anchor=south, align=center] {
+                    \small $y=1$ \\[-5pt]
+                    \small (Traffico Malevolo)
+                };
 
                 % Soglia decisionale tau
-                \draw[very thick, gray!80!black] (3.8, 0) -- (3.8, 3.2);
-                \node[above] at (3.8, 3.2) {\small Soglia $\tau$};
-                \fill (3.8,0) circle (2pt) node[below] {$\tau$};
+                \draw[very thick, gray!80!black] (4.14,0) -- (4.14,5);
+                \node[above] at (4.14, 5) {\small Soglia $\tau$};
+                \fill (4.14,0) circle (2pt) node[below] {$\tau$};
 
                 % Regioni decisionali
-                \draw[<->, thick, shorten >=2pt, shorten <=2pt] (0, -0.6) -- (3.75, -0.6) node[midway, below] {\footnotesize Decisione: $\hat{y}(\tau)=0$};
-                \draw[<->, thick, shorten >=2pt, shorten <=2pt] (3.85, -0.6) -- (8.2, -0.6) node[midway, below] {\footnotesize Decisione: $\hat{y}(\tau)=1$};
+                \draw[<->, thick, shorten >=2pt, shorten <=2pt] (0, -0.6) -- (4.14, -0.6) node[midway, below] {\footnotesize Decisione: $\hat{y}(\tau)=0$};
+                \draw[<->, thick, shorten >=2pt, shorten <=2pt] (4.14, -0.6) -- (9, -0.6) node[midway, below] {\footnotesize Decisione: $\hat{y}(\tau)=1$};
             \end{tikzpicture}
             \caption{Mappatura della probabilità a posteriori $f(\mathbf{x})$ sulla regola decisionale binaria $\hat{y}(\tau)$ in funzione della soglia $\tau$.}
             \label{fig:soglia_decisionale}
@@ -1444,44 +1450,35 @@
         Per rendere la valutazione indipendente dalla numerosità del campione di test, si introducono i principali tassi relativi derivati dalla matrice di confusione \cite{fawcett2006}:
 
         \begin{equation}
-        TPR(\tau)=\frac{TP(\tau)}{TP(\tau)+FN(\tau)},
-        \qquad
-        FPR(\tau)=\frac{FP(\tau)}{FP(\tau)+TN(\tau)}
+            TPR(\tau)=\frac{TP(\tau)}{TP(\tau)+FN(\tau)},
+            \qquad
+            FPR(\tau)=\frac{FP(\tau)}{FP(\tau)+TN(\tau)}
         \end{equation}
 
         cui corrispondono i rispettivi complementari
 
         \[
-        FNR(\tau)=1-TPR(\tau),
-        \qquad
-        TNR(\tau)=1-FPR(\tau).
+            FNR(\tau)=1-TPR(\tau),
+            \qquad
+            TNR(\tau)=1-FPR(\tau).
         \]
 
         L'affidabilità delle segnalazioni generate dal classificatore è invece misurata dalla \textit{Precision}:
 
         \begin{equation}
-        Precision(\tau)=
-        \frac{TP(\tau)}
-        {TP(\tau)+FP(\tau)}
+            Precision(\tau)=\frac{TP(\tau)}{TP(\tau)+FP(\tau)}
         \end{equation}
 
         Per sintetizzare il compromesso tra capacità di rilevamento degli attacchi e contenimento dei falsi allarmi si utilizza l'\textit{F1-score}, definito come media armonica tra Precision e Recall\footnote{Nei sistemi NIDS la media armonica è preferita alla media aritmetica poiché penalizza maggiormente modelli caratterizzati da un forte sbilanciamento tra sensibilità agli attacchi e precisione delle segnalazioni.}:
 
         \begin{equation}
-        F_1(\tau)
-        =
-        2
-        \cdot
-        \frac{Precision(\tau)\cdot TPR(\tau)}
-        {Precision(\tau)+TPR(\tau)}
+            F_1(\tau)=2\cdot\frac{Precision(\tau)\cdot TPR(\tau)}{Precision(\tau)+TPR(\tau)}
         \end{equation}
 
         Infine, l'\textit{Accuracy} rappresenta la proporzione complessiva di classificazioni corrette:
 
         \begin{equation}
-        Accuracy(\tau)
-        =
-        \frac{TP(\tau)+TN(\tau)}{N}
+            Accuracy(\tau)=\frac{TP(\tau)+TN(\tau)}{N}
         \end{equation}
 
         Tale indicatore assume tuttavia un ruolo secondario nei problemi di intrusion detection, poiché non risulta sufficientemente informativo in presenza di distribuzioni fortemente sbilanciate tra traffico nominale e traffico malevolo.
@@ -1494,17 +1491,9 @@
         A tale scopo si impiegano le curve \textit{Receiver Operating Characteristic} (ROC) e \textit{Precision--Recall} (PR), sintetizzate mediante l'area sottesa alla rispettiva curva (\textit{Area Under the Curve}, AUC):
 
         \begin{equation}
-        AUC_{ROC}
-        =
-        \int_{0}^{1}
-        TPR
-        \,d(FPR),
-        \qquad
-        AUC_{PR}
-        =
-        \int_{0}^{1}
-        Precision
-        \,d(TPR)
+            AUC_{ROC}=\int_{0}^{1}TPR\,d(FPR),
+            \qquad
+            AUC_{PR}=\int_{0}^{1}Precision\,d(TPR)
         \end{equation}
 
         \begin{figure}[H]
@@ -1513,53 +1502,53 @@
                 % --- Sottofigura (a): Curva ROC ---
                 \begin{scope}[shift={(0,0)}]
                     % Assi
-                    \draw[->, thick] (0,0) -- (3.8,0) node[right] {\footnotesize $FPR$};
-                    \draw[->, thick] (0,0) -- (0,3.8) node[above] {\footnotesize $TPR$};
+                    \draw[->, thick] (0,0) -- (6,0) node[right] {\footnotesize $FPR$};
+                    \draw[->, thick] (0,0) -- (0,6) node[above] {\footnotesize $TPR$};
                     
                     % Griglia di riferimento
-                    \draw[gray!30, thin] (0,3.2) -- (3.2,3.2) -- (3.2,0);
-                    \node[below left] at (0,0) {\tiny $0$};
-                    \node[below] at (3.2,0) {\tiny $1$};
-                    \node[left] at (0,3.2) {\tiny $1$};
+                    \draw[gray!30, thin] (0,5) -- (5,5) -- (5,0);
+                    \node[below left] at (0,0) {\small $0$};
+                    \node[below] at (5,0) {\small $1$};
+                    \node[left] at (0,5) {\small $1$};
                     
                     % Area sottesa (AUC) in toni di grigio
-                    \fill[gray!20] (0,0) -- plot[smooth, domain=0:3.2] (\x, {3.2*sqrt(\x/3.2)}) -- (3.2,0) -- cycle;
+                    \fill[gray!20] (0,0) -- plot[smooth, domain=0:5] (\x, {5*sqrt(\x/5)}) -- (5,0) -- cycle;
                     
                     % Baseline casuale (diagonale)
-                    \draw[dashed, gray!80] (0,0) -- (3.2,3.2);
+                    \draw[dashed, gray!80] (0,0) -- (5,5);
                     
                     % Curva ROC
-                    \draw[thick, black, smooth, domain=0:3.2] plot (\x, {3.2*sqrt(\x/3.2)});
+                    \draw[thick, black, smooth, domain=0:5] plot (\x, {5*sqrt(\x/5)});
                     
                     % Etichette
-                    \node at (1.8, 1.0) {\footnotesize $AUC_{ROC}$};
-                    \node[above] at (1.6, 3.4) {\textbf{(a) Curva ROC}};
+                    \node at (2.3, 1.2) {\footnotesize $AUC_{ROC}$};
+                    \node[above] at (3, 6) {\textbf{(a) Curva ROC}};
                 \end{scope}
 
                 % --- Sottofigura (b): Curva Precision-Recall ---
-                \begin{scope}[shift={(5.2,0)}]
+                \begin{scope}[shift={(7.5,0)}]
                     % Assi
-                    \draw[->, thick] (0,0) -- (3.8,0) node[right] {\footnotesize $Recall\ (TPR)$};
-                    \draw[->, thick] (0,0) -- (0,3.8) node[above] {\footnotesize $Precision$};
+                    \draw[->, thick] (0,0) -- (6,0) node[right] {\footnotesize $Recall\ (TPR)$};
+                    \draw[->, thick] (0,0) -- (0,6) node[above] {\footnotesize $Precision$};
                     
                     % Griglia di riferimento
-                    \draw[gray!30, thin] (0,3.2) -- (3.2,3.2) -- (3.2,0);
-                    \node[below left] at (0,0) {\tiny $0$};
-                    \node[below] at (3.2,0) {\tiny $1$};
-                    \node[left] at (0,3.2) {\tiny $1$};
+                    \draw[gray!30, thin] (0,5) -- (5,5) -- (5,0);
+                    \node[below left] at (0,0) {\small $0$};
+                    \node[below] at (5,0) {\small $1$};
+                    \node[left] at (0,5) {\small $1$};
                     
                     % Area sottesa (AUC) in toni di grigio
-                    \fill[gray!20] (0,3.2) -- plot[smooth, domain=0:3.2] (\x, {3.2 - 2.2*(\x/3.2)^2}) -- (3.2,0) -- (0,0) -- cycle;
+                    \fill[gray!20] (0,5) -- plot[smooth, domain=0:5] (\x, {5 - 2.2*(\x/5)^2}) -- (5,0) -- (0,0) -- cycle;
                     
                     % Baseline prevalenza (linea orizzontale)
-                    \draw[dashed, gray!80] (0,0.8) -- (3.2,0.8) node[right] {\tiny $\pi$};
+                    \draw[dashed, gray!80] (0,0.8) -- (5,0.8) node[right] {\small $\pi$};
                     
                     % Curva PR
-                    \draw[thick, black, smooth, domain=0:3.2] plot (\x, {3.2 - 2.2*(\x/3.2)^2});
+                    \draw[thick, black, smooth, domain=0:5] plot (\x, {5 - 2.2*(\x/5)^2});
                     
                     % Etichette
                     \node at (1.2, 1.2) {\footnotesize $AUC_{PR}$};
-                    \node[above] at (1.6, 3.4) {\textbf{(textbf{b}) Curva PR}};
+                    \node[above] at (3, 6) {\textbf{(b) Curva PR}};
                 \end{scope}
             \end{tikzpicture}
             \caption{Rappresentazione schematica dell'Area Sottesa alla Curva (AUC) per le analisi grafiche ROC (a) e Precision-Recall (b).}
@@ -1574,38 +1563,24 @@
         Il trasferimento di un modello tra domini caratterizzati da differenti distribuzioni marginali delle caratteristiche $P(\mathbf{x})$ (\textit{covariate shift}) può determinare una degradazione delle prestazioni di classificazione \cite{pan2010}. Tale variazione dell'efficacia discriminativa di un modello $M$, valutato sul dominio sorgente $\mathcal{D}_S$ e sul dominio target $\mathcal{D}_T$, può essere espressa come
 
         \begin{equation}
-        \Delta F_1
-        =
-        F_1(M,\mathcal{D}_S)
-        -
-        F_1(M,\mathcal{D}_T).
+            \Delta F_1=F_1(M,\mathcal{D}_S)-F_1(M,\mathcal{D}_T).
         \end{equation}
 
         Per valutare la significatività statistica delle differenze prestazionali tra modelli differenti, oppure tra un modello e una baseline di riferimento, si adotta il test $t$ di Welch, appropriato nel caso di campioni indipendenti con varianze non necessariamente uguali. Date due distribuzioni campionarie della metrica di interesse, caratterizzate da medie $\bar{x}_1$, $\bar{x}_2$, varianze $s_1^2$, $s_2^2$ e numerosità $n_1$, $n_2$, la statistica del test è definita da
 
         \begin{equation}
-        t
-        =
-        \frac{\bar{x}_1-\bar{x}_2}
-        {\sqrt{\frac{s_1^2}{n_1}+\frac{s_2^2}{n_2}}}.
+            t=\frac{\bar{x}_1-\bar{x}_2}{\sqrt{\frac{s_1^2}{n_1}+\frac{s_2^2}{n_2}}}.
         \end{equation}
 
         I corrispondenti gradi di libertà effettivi sono stimati mediante l'approssimazione di Welch--Satterthwaite:
 
         \begin{equation}
-        \nu
-        \approx
-        \frac{\left(\frac{s_1^2}{n_1}+\frac{s_2^2}{n_2}\right)^2}
-        {\frac{\left(s_1^2/n_1\right)^2}{n_1-1}
-        +
-        \frac{\left(s_2^2/n_2\right)^2}{n_2-1}}.
+            \nu\approx\frac{\left(\frac{s_1^2}{n_1}+\frac{s_2^2}{n_2}\right)^2}{\frac{\left(s_1^2/n_1\right)^2}{n_1-1}+\frac{\left(s_2^2/n_2\right)^2}{n_2-1}}.
         \end{equation}
 
         L'ipotesi nulla di uguaglianza delle medie,
 
-        \[
-        H_0:\mu_1=\mu_2,
-        \]
+        \[ H_0:\mu_1=\mu_2, \]
 
         viene respinta qualora il valore $p$ associato alla statistica $t$ risulti inferiore al livello di significatività prefissato $\alpha$ (tipicamente $\alpha=0.05$), indicando che la differenza prestazionale osservata è statisticamente significativa e non può essere ragionevolmente attribuita al solo errore campionario.
 
