@@ -4,9 +4,11 @@
 \section{Modello del Sistema e Spazi di Rappresentazione}
 \label{sec:modello_sistema}
 
-La presente sezione formalizza l'impalcatura teorica e matematica del framework analitico, definendo in modo rigoroso gli spazi vettoriali di rappresentazione e le distribuzioni di probabilità necessarie per modellare i fenomeni di transizione cross-dominio nei sistemi NIDS. L'obiettivo è stabilire un modello astratto, indipendente dalle specifiche implementative dei singoli dataset, in grado di garantire il rigore metodologico, la comparabilità delle metriche e l'assenza di contaminazione informativa.
+La presente sezione formalizza l'impalcatura teorica e matematica del framework analitico, definendo in modo rigoroso gli spazi vettoriali di rappresentazione e le distribuzioni di probabilità necessarie per modellare i fenomeni di transizione cross-dominio nei sistemi NIDS. L'obiettivo è stabilire un modello astratto, indipendente dalle peculiarità di implementazione dei singoli dataset, in grado di garantire il rigore metodologico, la comparabilità delle metriche e l'assenza di contaminazione informativa.
 
-A tal fine, la trattazione introduce preliminarmente la formalizzazione dei domini di origine e destinazione, delineando la semantica a doppia etichettatura $(Y, A)$, le regole di partizionamento preventivo anti-\textit{data leakage} e il vincolo di proporzionamento parametrico $\rho$ alla base delle cinque categorie astratte di benchmark, native e ibride, istanziabili dal framework. Successivamente, viene definito l'operatore di proiezione $\boldsymbol{\psi}_k$, specifico per ciascun dominio $k \in \{S, T\}$, che mappa le caratteristiche grezze eterogenee nello spazio delle \textit{feature} condiviso $\mathcal{X}$, esplicitando i criteri concettuali di filtraggio e armonizzazione degli attributi. La trattazione si conclude motivando, sulla base della proprietà di invarianza rispetto a trasformazioni monotoniche propria dei classificatori a partizionamento ricorsivo, l'omissione della fase esplicita di scalatura dalla pipeline di preprocessing.
+Questa formalizzazione prosegue direttamente la disamina svolta nel Capitolo~\ref{ch:bck_rltd_wrks}, traducendo in termini matematici e procedurali le criticità del confronto tra segmenti terrestri e spaziali e le esigenze di adattamento dei NIDS delineate nel contesto di riferimento.
+
+A tal fine, la trattazione introduce preliminarmente la formalizzazione dei domini di origine e destinazione, delineando la semantica a doppia etichettatura $(Y, A)$, le regole di partizionamento preventivo anti-\textit{data leakage} e il vincolo di proporzionamento parametrico $\rho$ alla base delle cinque categorie astratte di benchmark, native e ibride, istanziabili dal framework. Successivamente, viene definito l'operatore di proiezione $\boldsymbol{\psi}_k$, specifico per ciascun dominio $k \in \{S, T\}$, che mappa le caratteristiche grezze eterogenee nello spazio delle \textit{feature} condiviso $\mathcal{X}$, esplicitando i criteri concettuali di filtraggio e armonizzazione degli attributi. La trattazione si conclude motivando, sulla base della proprietà di invarianza rispetto a trasformazioni monotoniche propria dei classificatori a partizionamento ricorsivo, l'omissione della fase esplicita di scalatura dalla definizione dello spazio delle \textit{feature}.
 
 Per facilitare la lettura della trattazione successiva, i principali simboli e costrutti matematici adottati sono sintetizzati nella Tabella~\ref{tab:notazione_matematica}.
 
@@ -56,7 +58,7 @@ Per facilitare la lettura della trattazione successiva, i principali simboli e c
 \subsection{Formalizzazione dei Domini e Composizione Asimmetrica del Traffico}
 \label{subsec:composizione_domini}
 
-La formalizzazione del framework analitico richiede la definizione rigorosa degli spazi di rappresentazione vettoriale e delle distribuzioni di probabilità associate ai diversi contesti di rete considerati. Si definisce un dominio $\mathcal{D}$ come la coppia $(\mathcal{X}, P(\mathbf{x}))$, dove $\mathcal{X} \subseteq \mathbb{R}^d$ rappresenta lo spazio delle \textit{feature} $d$-dimensionale condiviso e $P(\mathbf{x})$ la distribuzione di probabilità marginale definita sul vettore delle caratteristiche $\mathbf{x} = (x_1, x_2, \dots, x_d)^\top \in \mathcal{X}$.
+Il framework analitico richiede la definizione rigorosa degli spazi di rappresentazione vettoriale e delle distribuzioni di probabilità associate ai diversi contesti di rete considerati. Si definisce un dominio $\mathcal{D}$ come la coppia $(\mathcal{X}, P(\mathbf{x}))$, dove $\mathcal{X} \subseteq \mathbb{R}^d$ rappresenta lo spazio delle \textit{feature} $d$-dimensionale condiviso e $P(\mathbf{x})$ la distribuzione di probabilità marginale definita sul vettore delle caratteristiche $\mathbf{x} = (x_1, x_2, \dots, x_d)^\top \in \mathcal{X}$.
 
 Associato a ciascun dominio, la semantica del traffico è modellata tramite una doppia etichettatura. Lo spazio discreto primario $\mathcal{Y} = \{0,1\}$ stabilisce la natura del flusso, dove $Y = 0$ indica il traffico nominale (\textit{Normal}) e $Y = 1$ identifica genericamente un vettore malevolo. In aggiunta, si definisce un'ulteriore variabile descrittiva $A \in \mathcal{A}$ che specifica il nome della classe, garantendo una caratterizzazione puntuale sia per la componente benevola ($Y = 0$), per la quale $A$ assume tipicamente un unico valore costante (\textit{Normal}), sia per le diverse famiglie di attacco ($Y = 1$), per le quali $A$ è genuinamente multi-valore.
 
@@ -70,7 +72,7 @@ Il framework analitico modella il fenomeno di transizione cross-dominio a partir
 
 \subsubsection{Isolamento Preventivo delle Partizioni e Politiche Anti-Data Leakage}
 \label{subsubsec:isolamento_partizioni}
-Per garantire il rigore metodologico ed evitare fenomeni di contaminazione informativa tra la fase di addestramento e quella di valutazione (\textit{data leakage})\footnote{L'esecuzione dello split a monte di qualsiasi fusione previene che campioni identici della classe nominale, riutilizzati per la composizione di benchmark diversi, possano figurare contemporaneamente negli insiemi di addestramento e di test di esperimenti incrociati.}, la partizione di ciascun dominio primario $\mathcal{D}_k$ nei sotto-insiemi di addestramento ($\mathcal{D}_k^{(train)}$) e di verifica ($\mathcal{D}_k^{(test)}$) viene definita a livello logico a monte di qualsiasi operazione di aggregazione o composizione dei benchmark derivati\footnote{Dal punto di vista implementativo, tale partizionamento e la successiva ricomposizione dei vettori vengono gestiti dinamicamente in memoria a runtime mediante pipeline riproducibili (fissando opportuni \textit{seed} stocastici), senza la necessità di persistenza fisica di dataset intermedi.}. In modo uniforme per tutte le configurazioni sperimentali, viene adottata una suddivisione stocastica stratificata con proporzione fissa:
+Per garantire il rigore metodologico ed evitare fenomeni di contaminazione informativa tra la fase di addestramento e quella di valutazione (\textit{data leakage})\footnote{L'esecuzione dello split a monte di qualsiasi fusione previene che campioni identici della classe nominale, riutilizzati per benchmark diversi, compaiano simultaneamente negli insiemi di addestramento e di test.}, la partizione di ciascun dominio primario $\mathcal{D}_k$ nei sotto-insiemi di addestramento ($\mathcal{D}_k^{(train)}$) e di verifica ($\mathcal{D}_k^{(test)}$) viene definita a monte di qualsiasi aggregazione o composizione dei benchmark derivati\footnote{Dal punto di vista metodologico, tale partizionamento e la successiva ricomposizione dei vettori vengono eseguiti prima di qualsiasi composizione dei benchmark, evitando la creazione di dataset intermedi.}. In tutte le configurazioni sperimentali viene adottata una suddivisione stocastica stratificata con proporzione fissa:
 \begin{equation}
     \mathcal{D}_k = \mathcal{D}_k^{(train)} \cup \mathcal{D}_k^{(test)}, \quad \text{con } \mathcal{D}_k^{(train)} \cap \mathcal{D}_k^{(test)} = \emptyset
     \label{eq:split_train_test}
@@ -81,16 +83,16 @@ garantendo la totale indipendenza strutturale dei vettori impiegati per l'infere
 \label{subsubsec:sintesi_benchmark}
 Sia per le configurazioni generate internamente al dominio sorgente sia per i benchmark ibridi ricomposti cross-dominio (necessari per l'assenza di traffico nominale etichettato nei contesti di destinazione), il framework applica una politica di proporzionamento controllato.
 
-Per rispecchiare le condizioni operative di rete e prevenire uno sbilanciamento artificiale dei classificatori\footnote{Nei sistemi NIDS reali, il traffico lecito costituisce la stragrande maggioranza del volume di rete. La parametrizzazione del rapporto emula tale asimmetria operativa mantenendo una densità di attacchi sufficiente a garantire la stabilità statistica delle metriche.}, il framework impone un vincolo di proporzionamento parametrico $\rho$ tra la componente benevola e la componente malevola complessiva:
+Per rispecchiare le condizioni realistiche di rete e prevenire uno sbilanciamento artificiale dei classificatori\footnote{Nei sistemi NIDS reali, il traffico lecito costituisce la stragrande maggioranza del volume di rete. La parametrizzazione del rapporto emula tale asimmetria mantenendo una densità di attacchi sufficiente a garantire la stabilità statistica delle metriche.}, il framework impone un vincolo di proporzionamento parametrico $\rho$ tra la componente benevola e la componente malevola complessiva:
 \begin{equation}
     \frac{N(Y = 0)}{\sum_{a \in \mathcal{A}_m} N(Y = 1, A = a)} = \rho
     \label{eq:rho_constraint}
 \end{equation}
-dove $N(\cdot)$ indica la cardinalità dei campioni estratti, $\mathcal{A}_m$ rappresenta l'insieme delle specifiche famiglie di attacco incluse nella configurazione e $\rho \in \mathbb{R}^+$ costituisce il fattore di asimmetria volumetrica prescritto dal protocollo metodologico.
+Tale vincolo definisce in modo esplicito l'asimmetria volumetrica tra il traffico nominale ($Y = 0$) e il traffico malevolo ($Y = 1$). Dove $N(\cdot)$ indica la cardinalità dei campioni estratti, $\mathcal{A}_m$ rappresenta l'insieme delle specifiche famiglie di attacco incluse nella configurazione e $\rho \in \mathbb{R}^+$ costituisce il fattore di asimmetria volumetrica prescritto dal protocollo metodologico.
 
-Nei benchmark di tipo aggregato (sia sorgenti che ibridi), la composizione interna del sottoinsieme malevolo non adotta l'equiprobabilità artificiale tra le classi d'attacco. Al contrario, si preserva la distribuzione naturale a priori $P(A = a \mid Y = 1)$ caratteristica dei domini di origine, evitando alterazioni sintetiche e mantenendo la fedeltà alle frequenze di occorrenza reali delle minacce.
+Nei benchmark di tipo aggregato (sia sorgenti che ibridi), la composizione interna del sottoinsieme malevolo non adotta l'equiprobabilità artificiale tra le classi d'attacco. Si preserva invece la distribuzione naturale \textit{a priori} $P(A = a \mid Y = 1)$ caratteristica dei domini di origine, evitando alterazioni sintetiche e mantenendo la fedeltà alle frequenze di occorrenza reali delle minacce.
 
-L'intero processo di isolamento procedurale e ricomposizione dei benchmark è schematizzato nella Figura~\ref{fig:pipeline_astratta}.
+L'intero processo di isolamento procedurale e ricomposizione dei benchmark è schematizzato nella Figura~\ref{fig:flusso_benchmark}.
 
 \begin{figure}[H]
     \centering
@@ -159,17 +161,17 @@ L'intero processo di isolamento procedurale e ricomposizione dei benchmark è sc
 
     \end{tikzpicture}
     }
-    \caption{Pipeline logica astratta: allineamento dello spazio delle feature $\mathcal{X}$, isolamento preventivo Train/Test anti-\textit{data leakage}, sintesi parametrica con ratio $\rho$ (mantenendo separate le unioni di train e di test) e istanziazione in-memory dei benchmark. I blocchi tratteggiati indicano le elaborazioni logiche a runtime, mentre i blocchi a linea continua rappresentano gli insiemi di dati e le categorie di output.}
-    \label{fig:pipeline_astratta}
+    \caption{Pipeline logica astratta: allineamento dello spazio delle feature $\mathcal{X}$, isolamento preventivo Train/Test anti-\textit{data leakage}, sintesi parametrica con ratio $\rho$ (mantenendo separate le unioni di train e di test) e istanziazione logica dei benchmark. I blocchi tratteggiati indicano le elaborazioni logiche, mentre i blocchi a linea continua rappresentano gli insiemi di dati e le categorie di output.}
+    \label{fig:flusso_benchmark}
 \end{figure}
 
 \subsubsection{Tassonomia Astratta delle Configurazioni Sperimentali}
 \label{subsubsec:tassonomia_configurazioni}
-L'applicazione sistematica delle regole metodologiche descritte porta alla generazione dinamica (a runtime) di cinque categorie funzionali di benchmark. Ognuna di queste configurazioni viene istanziata in memoria rispettando il preventivo isolamento logico delle partizioni di train e test e imponendo il vincolo di proporzionamento parametrico $\rho$ tra traffico benevolo e malevolo:
+L'applicazione sistematica delle regole metodologiche descritte porta alla generazione dinamica di cinque categorie funzionali di benchmark. Ognuna di queste configurazioni viene istanziata logicamente rispettando il preventivo isolamento logico delle partizioni di train e test e imponendo il vincolo di proporzionamento parametrico $\rho$ tra traffico benevolo e malevolo:
 \begin{enumerate}
     \item \textbf{Set Nativo Sorgente Aggregato:} composto dalla baseline nominale $Y=0$ di $\mathcal{D}_S$ unita alla totalità delle famiglie di attacco sorgenti $A \in \mathcal{A}_S$ (a valle della procedura di \textit{minority removal}), preservando la distribuzione naturale a priori $P(A = a \mid Y = 1)$ caratteristica del dominio di origine.
     \item \textbf{Set Nativi Sorgente Biclasse:} formati dall'unione della classe nominale $Y=0$ con una singola famiglia di attacco $A = a \in \mathcal{A}_S$ isolata all'interno del dominio sorgente.
-    \item \textbf{Set Ibridi Aggregati:} composti dalla classe nominale $Y=0$ del dominio sorgente unita alla totalità delle minacce dei domini di destinazione $A \in \mathcal{A}_T$ (strutturate tramite \textit{minority merge}), preservando le frequenze a priori originali del dominio target.
+    \item \textbf{Set Ibridi Aggregati:} composti dalla classe nominale $Y=0$ del dominio sorgente unita alla totalità delle minacce dei domini di destinazione $A \in \mathcal{A}_T$ (strutturate tramite \textit{minority merge}), preservando le frequenze \textit{a priori} originali del dominio target.
     \item \textbf{Set Ibridi Biclasse:} formati dalla combinazione della classe nominale $Y=0$ sorgente con le singole famiglie d'attacco $A = a \in \mathcal{A}_T$ isolate all'interno dei domini target.
     \item \textbf{Set di Iniezione di Riferimento:} progettato in conformità agli standard di letteratura~\cite{azar2023}, mantiene l'intera distribuzione nativa del dominio sorgente (sia il traffico nominale che l'aggregato malevolo di $\mathcal{D}_S$) integrandola con un'iniezione sparsa e controllata di vettori d'attacco provenienti dai domini target $\mathcal{D}_T$.
 \end{enumerate}
@@ -178,7 +180,7 @@ I dettagli analitici di composizione per ciascuna delle cinque categorie, opport
 
 \begin{table}[H]
     \centering
-    \caption{Tassonomia astratta delle cinque categorie di benchmark sperimentali istanziate dinamicamente a runtime.}
+    \caption{Tassonomia astratta delle cinque categorie di benchmark sperimentali istanziate dinamicamente.}
     \label{tab:tassonomia_benchmark}
     \small
     \renewcommand{\arraystretch}{1.3}
@@ -188,7 +190,7 @@ I dettagli analitici di composizione per ciascuna delle cinque categorie, opport
     \midrule
     \textbf{Set Nativo Sorgente Aggregato} &
     Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ &
-    Tutte le minacce sorgente $P_S(\mathbf{x} \mid Y=1, A \in \mathcal{A}_S)$ con distribuzioni a priori naturali. \\
+    Tutte le minacce sorgente $P_S(\mathbf{x} \mid Y=1, A \in \mathcal{A}_S)$ con distribuzioni \textit{a priori} naturali. \\
 
     \textbf{Set Nativo Sorgente Biclasse} &
     Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ &
@@ -196,7 +198,7 @@ I dettagli analitici di composizione per ciascuna delle cinque categorie, opport
 
     \textbf{Set Ibrido Aggregato} &
     Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ &
-    Tutte le minacce target $P_T(\mathbf{x} \mid Y=1, A \in \mathcal{A}_T)$ con distribuzioni a priori naturali. \\
+    Tutte le minacce target $P_T(\mathbf{x} \mid Y=1, A \in \mathcal{A}_T)$ con distribuzioni \textit{a priori} naturali. \\
 
     \textbf{Set Ibrido Biclasse} &
     Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ &
@@ -204,7 +206,8 @@ I dettagli analitici di composizione per ciascuna delle cinque categorie, opport
 
     \textbf{Set di Iniezione di Riferimento} &
     Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ &
-    Minacce sorgente in aggregato $P_S(\mathbf{x} \mid Y=1, A \in \mathcal{A}_S)$ \\ \textbf{+} iniezione altamente sparsa da $\mathcal{D}_T$ ($A \in \mathcal{A}_T$). \\
+    Minacce sorgente in aggregato $P_S(\mathbf{x} \mid Y=1, A \in \mathcal{A}_S)$ \\
+    & & \textbf{+} iniezione altamente sparsa da $\mathcal{D}_T$ ($A \in \mathcal{A}_T$). \\
     \bottomrule
     \end{tabularx}
 \end{table}
@@ -212,7 +215,7 @@ I dettagli analitici di composizione per ciascuna delle cinque categorie, opport
 \subsection{Allineamento dello Spazio delle Feature e Preprocessing Astratto}
 \label{subsec:allineamento_feature}
 
-La disomogeneità strutturale tra le sonde di rilevamento e i formati di tracciamento adottati nei diversi ambienti di rete comporta un'asimmetria nativa negli spazi delle caratteristiche grezze. Per consentire la comparabilità cross-dominio, il framework definisce una procedura astratta di riallineamento spaziale e un impianto di preprocessing che mappa osservazioni eterogenee in uno spazio vettoriale comune, preservando la semantica trasmissiva e ottimizzando l'efficienza computazionale. L'intero flusso di mappatura è sintetizzato in Figura~\ref{fig:allineamento_feature}.
+La disomogeneità strutturale tra le sonde di rilevamento e i formati di tracciamento adottati nei diversi ambienti di rete comporta un'asimmetria nativa negli spazi delle caratteristiche grezze. Per consentire la comparabilità cross-dominio, il framework definisce una procedura astratta di riallineamento spaziale e un impianto di trasformazione che mappa osservazioni eterogenee in uno spazio vettoriale comune, preservando la semantica trasmissiva e ottimizzando l'efficienza concettuale. L'intero flusso di mappatura è sintetizzato in Figura~\ref{fig:allineamento_feature}.
 
 \subsubsection{Mappatura e Omogeneizzazione dello Spazio Vettoriale}
 \label{subsubsec:mappatura_feature}
@@ -221,7 +224,7 @@ Siano $\mathcal{X}_S^{(grezzo)} \subseteq \mathbb{R}^{d_S}$ e $\mathcal{X}_T^{(g
     \mathbf{x}_k = \boldsymbol{\psi}_k(\mathbf{x}_k^{(grezzo)}) = \left( \psi_{k,1}(\mathbf{x}_k^{(grezzo)}), \psi_{k,2}(\mathbf{x}_k^{(grezzo)}), \dots, \psi_{k,d}(\mathbf{x}_k^{(grezzo)}) \right)^\top \in \mathcal{X} \subseteq \mathbb{R}^d
     \label{eq:feature_mapping}
 \end{equation}
-Ciascuna componente $\psi_{k,j}$ ($j = 1, \dots, d$) rappresenta una combinazione algebrica o un'estrazione semantica costruita a partire dalle variabili primarie disponibili nel dominio $k$. Sebbene $\boldsymbol{\psi}_S$ e $\boldsymbol{\psi}_T$ siano definite separatamente per adattarsi alle rispettive variabili native grezze, entrambe sono vincolate a produrre uno spazio d'arrivo $\mathcal{X}$ condiviso e semanticamente equivalente, secondo i criteri di armonizzazione descritti di seguito. Tale formulazione consente di derivare un set di \textit{feature} condiviso e omogeneo $\mathcal{X}$, indipendentemente dalle difformità applicative dei formati di origine.
+Ciascuna componente $\psi_{k,j}$ ($j = 1, \dots, d$) rappresenta una combinazione algebrica o un'estrazione semantica costruita a partire dalle variabili primarie disponibili nel dominio $k$. Sebbene $\boldsymbol{\psi}_S$ e $\boldsymbol{\psi}_T$ siano definite separatamente per adattarsi alle rispettive variabili native grezze, entrambe sono vincolate a produrre uno spazio d'arrivo $\mathcal{X}$ condiviso e semanticamente equivalente, secondo i criteri di armonizzazione descritti di seguito. La formulazione consente di derivare un set di \textit{feature} condiviso e omogeneo $\mathcal{X}$, indipendentemente dalle difformità applicative dei formati di origine.
 
 \subsubsection{Invarianza Concettuale e Filtraggio degli Attributi}
 \label{subsubsec:invarianza_filtraggio}
@@ -307,9 +310,9 @@ La definizione dello spazio proiettato $\mathcal{X}$ risponde a rigorosi vincoli
 
 \subsubsection{Invarianza Monotonica e Omissione della Scalatura Esplicita}
 \label{subsubsec:invarianza_monotonica}
-Un aspetto centrale del design del preprocessing riguarda la gestione della scala delle variabili. Sebbene le tecniche di riscalamento lineare o di standardizzazione ($Z$-score, Min-Max scaling) siano ampiamente adottate in letteratura per uniformare i domini di variabilità, il framework teorico sfrutta una nota proprietà algebrica delle famiglie di classificatori impiegate in questa tesi~\cite{breiman1984,hastie2009}.
+La gestione della scala delle variabili è centrale. Sebbene le tecniche di riscalamento lineare o di standardizzazione ($Z$-score, Min-Max scaling) siano ampiamente adottate in letteratura per uniformare i domini di variabilità, il framework teorico sfrutta una nota proprietà algebrica delle famiglie di classificatori impiegate in questa tesi~\cite{breiman1984,hastie2009}.
 
-Per la classe dei modelli basati sul partizionamento ricorsivo dello spazio dei dati\footnote{Tale famiglia include architetture ad albero di decisione singolo e relative estensioni ad \textit{ensemble}. La presente derivazione, e la conseguente omissione della scalatura esplicita, è valida esclusivamente per questa famiglia di modelli; qualora il framework venisse esteso a classificatori sensibili alla scala delle variabili (es. reti neurali, SVM a kernel, $k$-NN, regressione logistica regolarizzata), la normalizzazione andrebbe reintrodotta esplicitamente nella pipeline.}, la funzione di suddivisione $s(\mathbf{x})$ lungo ciascuna dimensione $j$ poggia sull'ordinamento relativo dei valori rispetto a una soglia $\theta \in \mathbb{R}$:
+Per la classe dei modelli basati sul partizionamento ricorsivo dello spazio dei dati\footnote{Tale famiglia include architetture ad albero di decisione singolo e relative estensioni ad \textit{ensemble}. La presente derivazione, e la conseguente omissione della scalatura esplicita, è valida esclusivamente per questa famiglia di modelli; qualora il framework venisse esteso a classificatori sensibili alla scala delle variabili (es. reti neurali, SVM a kernel, $k$-NN, regressione logistica regolarizzata), la normalizzazione andrebbe reintrodotta esplicitamente nello stadio di elaborazione iniziale.}, la funzione di suddivisione $s(\mathbf{x})$ lungo ciascuna dimensione $j$ poggia sull'ordinamento relativo dei valori rispetto a una soglia $\theta \in \mathbb{R}$:
 \begin{equation}
     s(\mathbf{x}) = \mathbb{I}\left(x^{(j)} \le \theta\right)
 \end{equation}
@@ -317,9 +320,9 @@ Poiché l'indicatore di partizione $\mathbb{I}(\cdot)$ è rigorosamente invarian
 \begin{equation}
     \mathbb{I}\left(x^{(j)} \le \theta\right) \iff \mathbb{I}\left(h(x^{(j)}) \le h(\theta)\right)
 \end{equation}
-Di conseguenza, la topologia dell'albero di decisione e la costruzione dei confini di separazione risultano algebricamente identiche sia operando sulle componenti nello spazio nativo $\mathbf{x}$, sia applicando una trasformazione di scala $h(\mathbf{x})$. Omettendo la fase di normalizzazione esplicita, il framework preserva la geometria naturale dei dati senza alterare la capacità discriminativa dei modelli, riducendo l'overhead computazionale nella pipeline di preprocessing.
+Di conseguenza, la topologia dell'albero di decisione e la costruzione dei confini di separazione risultano algebricamente identiche sia operando sulle componenti nello spazio nativo $\mathbf{x}$, sia applicando una trasformazione di scala $h(\mathbf{x})$. Omettendo la fase di normalizzazione esplicita, il framework preserva la geometria naturale dei dati senza alterare la capacità discriminativa dei modelli, riducendo l'overhead computazionale nello stadio di parsificazione iniziale.
 
-\`E opportuno precisare che tale omissione riguarda esclusivamente la pipeline di addestramento e inferenza dei classificatori. Qualora strumenti diagnostici non invarianti alla scala (es. \textit{Principal Component Analysis} o stime di densità kernel, \textit{KDE}) vengano impiegati a valle per l'ispezione visiva del \textit{covariate shift} o per finalità di spiegabilità, essi richiedono una normalizzazione dedicata, applicata unicamente a scopo diagnostico-visivo e non reintrodotta nella pipeline di classificazione.
+\`E opportuno precisare che tale omissione riguarda esclusivamente lo stadio di addestramento e inferenza dei classificatori. Qualora strumenti diagnostici non invarianti alla scala (es. \textit{Principal Component Analysis} o stime di densità kernel, \textit{KDE}) vengano impiegati a valle per l'ispezione visiva del \textit{covariate shift} o per finalità di spiegabilità, essi richiedono una normalizzazione dedicata, applicata unicamente a scopo diagnostico-visivo e non reintrodotta nello stadio di classificazione.
 
 \section[Tassonomia delle Architetture di Classificazione e Valutazione Multi-Modello]{Tassonomia delle Architetture di Classificazione e \\\ Valutazione Multi-Modello}
 \label{sec:tassonomia_modelli}
@@ -343,7 +346,7 @@ L'intera tassonomia condivide una comune formulazione basata sulla stima della p
     Decisione binaria finale predetta dal classificatore \\
 
     $\tau \in (0, 1)$ &
-    Soglia decisionale parametrica, tarabile operativamente lungo la curva ROC per il bilanciamento dei falsi positivi \\
+    Soglia decisionale parametrica, tarabile lungo la curva ROC per il bilanciamento dei falsi positivi \\
 
     $\mathcal{M}_{\text{base}}$ &
     Modello baseline, addestrato sul \textit{Set di Iniezione} $\mathcal{D}_{\text{inj}}^{(\text{train})}$ includendo conoscenza target sparsa \\
@@ -369,7 +372,7 @@ L'intera tassonomia condivide una comune formulazione basata sulla stima della p
 \subsection{Modello di Riferimento (Baseline) e Modelli Aggregati}
 \label{subsec:modelli_aggregati}
 
-In questa sezione viene formalizzato lo spazio dei classificatori supervisionati operanti all'interno del framework analitico. Indipendentemente dalle specifiche architetture algoritmiche impiegate per la stima dei parametri, il problema di rilevamento delle intrusioni viene modellato in chiave rigorosamente binaria. Sebbene i sottoinsiemi malevoli racchiudano al loro interno un insieme eterogeneo di famiglie d'attacco $A \in \mathcal{A}$, la funzione di decisione appresa mappa lo spazio delle \textit{feature} $\mathcal{X} \subseteq \mathbb{R}^d$ direttamente sulla natura del flusso $\mathcal{Y} = \{0, 1\}$, isolando le componenti lecite ($Y = 0$) da qualsiasi manifestazione anomala o minaccia ($Y = 1$).
+In questa sezione si formalizza lo spazio dei classificatori supervisionati operanti all'interno del framework analitico. Indipendentemente dalle specifiche architetture algoritmiche impiegate per la stima dei parametri, il problema di rilevamento delle intrusioni viene modellato in chiave rigorosamente binaria. Sebbene i sottoinsiemi malevoli racchiudano al loro interno un insieme eterogeneo di famiglie d'attacco $A \in \mathcal{A}$, la funzione di decisione appresa mappa lo spazio delle \textit{feature} $\mathcal{X} \subseteq \mathbb{R}^d$ direttamente sulla natura del flusso $\mathcal{Y} = \{0, 1\}$, isolando le componenti lecite ($Y = 0$) da qualsiasi manifestazione anomala o minaccia ($Y = 1$).
 
 \subsubsection{Formulazione Matematica Astratta dell'Apprendimento Supervisionato}
 \label{subsubsec:formulazione_erm}
@@ -393,7 +396,7 @@ il problema di ottimizzazione assume la seguente formulazione analitica:
 
 Per la classe di modelli basati su alberi di decisione adottata nel framework, tale formalizzazione esprime la minimizzazione diretta dell'errore nel caso di ensemble additivi basati su boosting (es. \textit{Gradient Boosted Decision Trees}), in cui l'ottimizzazione avviene tramite discesa funzionale del gradiente sulla loss BCE. Nel caso di foreste casuali (\textit{Random Forest}), l'addestramento locale minimizza i criteri di impurità nei nodi e $f_\theta(\mathbf{x})$ rappresenta la frequenza relativa dei campioni malevoli nelle foglie, rendendo la BCE il criterio di misura globale dell'errore di calibrazione probabilistica.
 
-La decisione binaria finale $\hat{Y} \in \{0, 1\}$ per un generico vettore di test viene determinata applicando la funzione indicatrice $\mathbb{I}(\cdot)$ rispetto a una soglia canonica di decisione $\tau$\footnote{Sebbene $\tau = 0.5$ rappresenti il punto di lavoro neutrale sul piano della minimizzazione del rischio teorico sotto costi simmetrici, nei contesti NIDS reali tale valore costituisce una variabile operativa tarabile lungo la curva ROC per bilanciare la sensibilità rispetto ai falsi positivi.}:
+La decisione binaria finale $\hat{Y} \in \{0, 1\}$ per un generico vettore di test viene determinata applicando la funzione indicatrice $\mathbb{I}(\cdot)$ rispetto a una soglia canonica di decisione $\tau$\footnote{Sebbene $\tau = 0.5$ sia neutro sotto costi simmetrici, nei contesti NIDS reali la soglia viene adattata lungo la curva ROC in funzione del trade-off tra sensibilità e falsi positivi. L'Area Under the ROC Curve (AUC) quantifica la capacità discriminativa complessiva indipendentemente dalla soglia.}: 
 \begin{equation}
     \hat{Y} = \mathbb{I}\left(f_{\theta^*}(\mathbf{x}) \ge \tau\right)
     \label{eq:binary_decision}
@@ -401,9 +404,9 @@ La decisione binaria finale $\hat{Y} \in \{0, 1\}$ per un generico vettore di te
 
 \subsubsection{Il Modello Baseline Proposto ($\mathcal{M}_{\text{base}}$)}
 \label{subsubsec:modello_baseline}
-A differenza degli approcci convenzionali di letteratura che adottano come baseline modelli addestrati su sole distribuzioni stazionarie native, il framework metodologico propone come unico modello baseline di riferimento ($\mathcal{M}_{\text{base}}$) un classificatore addestrato sulla partizione di train del \textit{Set di Iniezione di Riferimento} ($\mathcal{D}_{\text{inj}}^{(\text{train})}$).
+Contrariamente agli approcci convenzionali della letteratura che adottano come baseline modelli addestrati su sole distribuzioni stazionarie native, il framework metodologico propone come unico modello baseline di riferimento ($\mathcal{M}_{\text{base}}$) un classificatore addestrato sulla partizione di train del \textit{Set di Iniezione di Riferimento} ($\mathcal{D}_{\text{inj}}^{(\text{train})}$).
 
-La formulazione di questo modello risponde all'esigenza concettuale di definire un'ancora di prestazione per contesti operativi soggetti a transizione trasmissiva (es. il passaggio da reti terrestri a canali satellitari). $\mathcal{M}_{\text{base}}$ simula un sistema NIDS ad elevata capacità adattiva, in grado di generalizzare non solo su minacce non viste della medesima distribuzione, ma anche su distribuzioni eterogenee grazie a una conoscenza preventiva sparsa. Il vettore dei parametri ottimali $\theta_{\text{base}}^*$ viene ottenuto mediante:
+Questo modello definisce un'ancora di prestazione per contesti affetti da transizione trasmissiva (es. il passaggio da reti terrestri a canali satellitari). In tale ruolo, $\mathcal{M}_{\text{base}}$ fornisce un riferimento stabilizzante per la valutazione dei modelli e consente di confrontare le prestazioni lungo una traiettoria di cambiamento di canale reale. $\mathcal{M}_{\text{base}}$ è un sistema NIDS ad elevata capacità adattiva, in grado di generalizzare non solo su minacce non viste della medesima distribuzione, ma anche su distribuzioni eterogenee grazie alla conoscenza preventiva sparsa. Il vettore dei parametri ottimali $\theta_{\text{base}}^*$ viene ottenuto mediante:
 \begin{equation}
     \theta_{\text{base}}^* = \arg\min_\theta \mathcal{R}_{\text{emp}}\left(\theta; \mathcal{D}_{\text{inj}}^{(\text{train})}\right)
     \label{eq:mbase_optimization}
@@ -467,9 +470,9 @@ in cui la classe nominale $Y=0$ di origine è unita alla totalità dei vettori d
     \end{tabularx}
 \end{table}
 
-\subsubsection{Persistenza dei Modelli, Inferenza e Disaggregazione delle Prestazioni}
+\subsubsection{Conservazione dei Modelli, Inferenza e Disaggregazione delle Prestazioni}
 \label{subsubsec:persistenza_aggregati}
-Al completamento della fase di ottimizzazione parametrica e dopo la verifica della convergenza sui rispettivi set di test locali, tutti i modelli generati ($\mathcal{M}_{\text{base}}$, $\mathcal{M}_{S}$ e le istanze $\mathcal{M}_{H}^{(T)}$) vengono immagazzinati in memoria e congelati nella propria struttura.
+Al completamento della fase di ottimizzazione parametrica e dopo la verifica della convergenza sui rispettivi set di test locali, tutti i modelli generati ($\mathcal{M}_{\text{base}}$, $\mathcal{M}_{S}$ e le istanze $\mathcal{M}_{H}^{(T)}$) vengono mantenuti fissi nella propria struttura.
 
 Il protocollo di valutazione per tali classificatori, schematizzato in Figura~\ref{fig:multiclass_evaluation} secondo la notazione standard a diagramma di flusso (\textit{flowchart})\footnote{A differenza degli schemi architetturali e compositivi delle Figure~\ref{fig:pipeline_astratta} e~\ref{fig:allineamento_feature}, che rappresentano relazioni statiche tra insiemi di dati, la Figura~\ref{fig:multiclass_evaluation} e la successiva Figura~\ref{fig:cross_evaluation} descrivono un protocollo procedurale con un autentico punto di biforcazione (il confronto $f_{\theta^*}(\mathbf{x}) \gtrless \tau$). Per tale ragione si adotta qui la notazione a diagramma di flusso convenzionale (nodi ellittici per gli insiemi di dati, rombi per i punti di decisione, rettangoli per i processi), coerentemente con la prassi diffusa in letteratura per la rappresentazione di protocolli algoritmici a bivi condizionali.}, segue un doppio binario analitico:
 \begin{enumerate}
@@ -547,7 +550,7 @@ Si precisa che la formalizzazione dei modelli biclasse specialistici e il relati
 \subsection{Decomposizione Specialistica Biclasse}
 \label{subsec:modelli_biclasse}
 
-In integrazione ai modelli aggregati definiti nella Sezione~\ref{subsec:modelli_aggregati}, il framework metodologico prevede una formalizzazione specialistica basata sulla decomposizione del problema di rilevamento in classificatori biclasse focalizzati su singole famiglie d'attacco $a \in \mathcal{A}$. L'obiettivo primario di tale decomposizione non consiste nella riconfigurazione dell'architettura di inferenza, bensì nell'isolamento analitico delle singole tipologie di minaccia per valutarne la rilevabilità puntuale rispetto al profilo di traffico nominale e confrontarne direttamente le prestazioni con le rispettive varianti multi-classe\footnote{La decomposizione introduce un costo computazionale di addestramento proporzionale alla cardinalità del set delle minacce $\mathcal{O}(|\mathcal{A}|)$. Tale overhead rappresenta un compromesso metodologico consapevole, poiché l'obiettivo primario di questa formulazione risiede nell'isolamento analitico della rilevabilità e non nell'ottimizzazione dell'efficienza per il deployment in produzione.}.
+In integrazione ai modelli aggregati definiti nella Sezione~\ref{subsec:modelli_aggregati}, il framework metodologico prevede una formalizzazione specialistica basata sulla decomposizione del problema di rilevamento in classificatori biclasse focalizzati su singole famiglie d'attacco $a \in \mathcal{A}$. L'obiettivo primario di tale decomposizione non consiste nella riconfigurazione dell'architettura di inferenza, bensì nell'isolamento analitico delle singole tipologie di minaccia per valutarne la rilevabilità puntuale rispetto al profilo di traffico nominale e confrontarne direttamente le prestazioni con le rispettive varianti multi-classe\footnote{La decomposizione introduce un costo computazionale di addestramento proporzionale alla cardinalità del set delle minacce $\mathcal{O}(|\mathcal{A}|)$. Tale overhead rappresenta un compromesso metodologico consapevole, poiché l'obiettivo primario della formulazione risiede nell'isolamento analitico della rilevabilità e non nell'ottimizzazione dell'efficienza.}.
 
 \subsubsection{Sintesi e Bilanciamento delle Partizioni Biclasse}
 \label{subsubsec:sintesi_biclasse}
@@ -613,7 +616,7 @@ Le caratteristiche essenziali e le finalità concettuali delle due categorie di 
 \label{subsubsec:invarianza_biclasse}
 Il meccanismo decisionale dei classificatori biclasse rimane del tutto identico a quello formalizzato nell'Equazione~\eqref{eq:binary_decision}: la funzione appresa $f_{\theta^*, a}(\mathbf{x})$ stima la probabilità a posteriori $P(Y = 1 \mid \mathbf{x})$, e la decisione finale $\hat{Y} \in \{0, 1\}$ viene determinata dal confronto con la soglia canonica $\tau$.
 
-Poiché l'output di classificazione è limitato al dominio binario $\mathcal{Y} = \{0, 1\}$ (presenza o assenza di intrusione), ciascun modello biclasse è strutturalmente autocontenuto e indipendente. Non viene applicata alcuna regola di aggregazione d'insieme (es. sistemi di voto o regole di massimo); i modelli vengono immagazzinati in memoria e congelati nello stato post-addestramento, rispecchiando esattamente il protocollo di persistenza definito per i modelli aggregati.
+Poiché l'output di classificazione è limitato al dominio binario $\mathcal{Y} = \{0, 1\}$ (presenza o assenza di intrusione), ciascun modello biclasse è strutturalmente autocontenuto e indipendente. Non viene applicata alcuna regola di aggregazione d'insieme (es. sistemi di voto o regole di massimo); i modelli rimangono invariati nello stato post-addestramento, rispecchiando la procedura di conservazione definita per i modelli aggregati.
 
 In fase di valutazione sperimentale, il protocollo per i classificatori biclasse, schematizzato in Figura~\ref{fig:cross_evaluation} secondo la medesima notazione a diagramma di flusso introdotta in Figura~\ref{fig:multiclass_evaluation}, segue due direttive analitiche complementari:
 \begin{enumerate}
@@ -682,14 +685,14 @@ In fase di valutazione sperimentale, il protocollo per i classificatori biclasse
 
     \end{tikzpicture}%
     }
-    \caption{Flusso concettuale del protocollo di valutazione incrociata (\textit{cross-evaluation}). Il modello specialistico $\mathcal{M}_{S,a}$, addestrato esclusivamente sulla singola minaccia $a$, viene congelato e proiettato in fase di inferenza sull'intero benchmark eterogeneo $\mathcal{D}^{(\text{test})}$.}
+    \caption{Flusso concettuale del protocollo di valutazione incrociata (\textit{cross-evaluation}). Il modello specialistico $\mathcal{M}_{S,a}$, addestrato esclusivamente sulla singola minaccia $a$, rimane invariato e viene proiettato in fase di inferenza sull'intero benchmark eterogeneo $\mathcal{D}^{(\text{test})}$.}
     \label{fig:cross_evaluation}
 \end{figure}
 
 \subsection{Spazio delle Famiglie di Decisione Alberiformi ed Ensembling}
 \label{subsec:famiglie_classificatori}
 
-La modellazione della superficie di decisione nei sistemi di \textit{Network Intrusion Detection} (NIDS) operanti su canali ibridi terrestri-spaziali richiede architetture di apprendimento capaci di gestire elevata non-linearità, eterogeneità delle metriche e degradazioni del segnale trasmissivo. In questa sezione viene formalizzato lo spazio delle famiglie di decisione basate sul partizionamento dello spazio delle caratteristiche, analizzandone le proprietà di invarianza e l'estensione a schemi di stima aggregata (\textit{ensembling}).
+La modellazione della superficie di decisione nei sistemi di \textit{Network Intrusion Detection} (NIDS) operanti su canali ibridi terrestri-spaziali richiede architetture di apprendimento capaci di gestire elevata non-linearità, eterogeneità delle metriche e degradazioni del segnale trasmissivo. Questa sezione formalizza lo spazio delle famiglie di decisione basate sul partizionamento dello spazio delle caratteristiche, analizzandone le proprietà di invarianza e l'estensione a schemi di stima aggregata (\textit{ensembling}).
 
 \subsubsection{Partizionamento Ricorsivo dello Spazio delle Caratteristiche}
 Sia $\mathcal{X} \subseteq \mathbb{R}^d$ lo spazio delle caratteristiche $d$-dimensionale rappresentativo delle metriche di traffico di rete e telemetria, e sia $\mathcal{Y} = \{0, 1\}$ lo spazio delle etichette corrispondente a traffico lecito o malevolo. Un albero di decisione~\cite{breiman1984} definisce una mappa $f: \mathcal{X} \to [0,1]$ mediante un partizionamento ricorsivo dello spazio $\mathcal{X}$ in $M$ regioni disgiunte e iper-rettangolari $\{R_m\}_{m=1}^M$, tali per cui:
@@ -1036,7 +1039,7 @@ dove l'F1-Score, in quanto media armonica di Precision e Recall ($\equiv$ TPR), 
 \label{subsubsec:welch_test}
 La sola stima di $\hat{\mu}$ e $\hat{\sigma}^2$ non è sufficiente a stabilire se lo scostamento prestazionale tra un modello $M$ e il modello baseline $\mathcal{M}_{\text{base}}$ sia statisticamente rilevante o riconducibile alla naturale variabilità campionaria. Il framework adotta a tal fine il test $t$ di Welch~\cite{welch1947}, nella sua formulazione per campioni indipendenti a varianza non necessariamente omogenea.
 
-Si osserva che la letteratura sul confronto statistico di classificatori~\cite{demsar2006} sconsiglia, in generale, l'impiego di test parametrici quando il confronto avviene su un numero ridotto di dataset eterogenei, per i quali ciascun dataset fornisce un singolo valore appaiato e l'assunzione di normalità risulta difficilmente verificabile; in tali condizioni sono raccomandate alternative non parametriche (test dei ranghi con segno di Wilcoxon, test di Friedman). Lo scenario qui considerato è tuttavia strutturalmente distinto: ciascuna osservazione $\overline{\text{F1}}_k(M)$ non è un valore puntuale su un singolo dataset, bensì la media di riga dell'F1-Score, calcolata su $|\mathcal{B}|$ benchmark di test per un dato seed $s_k$. In virtù del Teorema del Limite Centrale, tale quantità aggregata tende a una distribuzione approssimativamente normale al crescere di $|\mathcal{B}|$, indipendentemente dalla distribuzione delle singole osservazioni F1 per dataset, fornendo una base più solida per l'impiego di un test parametrico rispetto al caso di confronto diretto su valori singoli non aggregati. La formulazione di Welch, in particolare, è preferita alla variante omoschedastica dello Student's $t$-test poiché non assume l'uguaglianza delle varianze tra le distribuzioni per-seed del modello $M$ e del baseline, condizione non garantita a priori tra famiglie di modelli strutturalmente eterogenee.
+La letteratura sul confronto statistico di classificatori~\cite{demsar2006} sconsiglia, in generale, l'impiego di test parametrici quando il confronto avviene su un numero ridotto di dataset eterogenei, per i quali ciascun dataset fornisce un singolo valore appaiato e l'assunzione di normalità risulta difficilmente verificabile; in tali condizioni sono raccomandate alternative non parametriche (test dei ranghi con segno di Wilcoxon, test di Friedman). Lo scenario qui considerato è tuttavia strutturalmente distinto: ciascuna osservazione $\overline{\text{F1}}_k(M)$ non è un valore puntuale su un singolo dataset, bensì la media di riga dell'F1-Score, calcolata su $|\mathcal{B}|$ benchmark di test per un dato seed $s_k$. In virtù del Teorema del Limite Centrale, tale quantità aggregata tende a una distribuzione approssimativamente normale al crescere di $|\mathcal{B}|$, indipendentemente dalla distribuzione delle singole osservazioni F1 per dataset, fornendo una base più solida per l'impiego di un test parametrico rispetto al caso di confronto diretto su valori singoli non aggregati. La formulazione di Welch, in particolare, è preferita alla variante omoschedastica dello Student's $t$-test poiché non assume l'uguaglianza delle varianze tra le distribuzioni per-seed del modello $M$ e del baseline, condizione non garantita a priori tra famiglie di modelli strutturalmente eterogenee.
 
 Per ciascun modello $M$ (con esclusione del baseline stesso), sia $\overline{\text{F1}}_k(M) = \frac{1}{|\mathcal{B}|}\sum_{D\in\mathcal{B}} \text{F1}_k(M,D)$ la media di riga dell'F1-Score per il seed $s_k$, definita in analogia all'Equazione~\eqref{eq:row_mean} a partire dalla metrica dell'Equazione~\eqref{eq:precision_f1_def}. Siano $\{\overline{\text{F1}}_k(M)\}_{k=1}^{K}$ e $\{\overline{\text{F1}}_k(\mathcal{M}_{\text{base}})\}_{k=1}^{K}$ le rispettive sequenze di medie per seed per il modello $M$ e per il baseline. Definita l'ipotesi nulla $H_0: \mu_M = \mu_{\text{base}}$, la statistica del test è espressa come:
 \begin{equation}
@@ -1162,7 +1165,7 @@ Il modello $\mathcal{M}_{\text{base}}$ (Sezione~\ref{subsubsec:modello_baseline}
 \section[Framework Analitico, Spiegabilità e Significatività Statistica]{Framework Analitico, Spiegabilità e Significatività \\\ Statistica}
 \label{sec:framework_analitico}
 
-Il presente capitolo definisce il framework analitico, diagnostico e statistico adottato per caratterizzare lo scostamento distributivo (\textit{domain shift}), decodificare le logiche decisionali dei modelli e valutare la significatività delle variazioni prestazionali tra domini eterogenei. L'impianto metodologico integra tecniche di riduzione dimensionale, stima non parametrica di densità e attribuzione dell'importanza delle caratteristiche fondata sulla teoria dei giochi cooperativi, affiancandole a un formalismo rigoroso per l'operatività a soglia e la verifica di ipotesi statistiche.
+Il presente capitolo definisce il framework analitico, diagnostico e statistico adottato per caratterizzare lo scostamento distributivo (\textit{domain shift}), decodificare le logiche decisionali dei modelli e valutare la significatività delle variazioni prestazionali tra domini eterogenei. L'impianto metodologico integra tecniche di riduzione dimensionale, stima non parametrica di densità e attribuzione dell'importanza delle caratteristiche fondata sulla teoria dei giochi cooperativi, affiancandole a un formalismo rigoroso per la gestione delle soglie e la verifica di ipotesi statistiche.
 Per agevolare la consultazione della trattazione, i simboli matematici, i costrutti diagnostici e le metriche prestazionali introdotti in questa sezione sono riepilogati nella Tabella~\ref{tab:notazione_framework}.
 
 \begin{table}[H]
@@ -1210,7 +1213,7 @@ Per agevolare la consultazione della trattazione, i simboli matematici, i costru
 
 L'analisi dello scostamento distributivo (\textit{domain shift}) e la valutazione della separabilità geometrica tra traffico nominale e traffico malevolo richiedono l'impiego di tecniche di riduzione dimensionale e stima di densità. Come anticipato nella Sezione~\ref{subsubsec:invarianza_monotonica}, mentre l'architettura di classificazione basata su modelli ad albero gode dell'invarianza alle trasformazioni monotoniche e prescinde dalla scala dei dati, gli strumenti diagnostici e visivi (PCA e KDE) sono sensibili alla grandezza numerica delle variabili.
 
-Pertanto, preliminarmente all'estrazione delle proiezioni e alla stima densometrica, viene applicata una normalizzazione dedicata a ciascun benchmark $D \in \mathcal{B}$, secondo l'insieme dei benchmark di test già introdotto nella Sezione~\ref{subsubsec:metriche_aggregazione}. Tale trasformazione è ancorata unicamente alle statistiche del dominio sorgente $\mathcal{D}_S$ e viene mantenuta rigorosamente disaccoppiata dalla pipeline di addestramento dei modelli.
+Prima dell'estrazione delle proiezioni e della stima densometrica, viene applicata una normalizzazione dedicata a ciascun benchmark $D \in \mathcal{B}$, secondo l'insieme dei benchmark di test già introdotto nella Sezione~\ref{subsubsec:metriche_aggregazione}. Tale trasformazione è ancorata unicamente alle statistiche del dominio sorgente $\mathcal{D}_S$ e rimane rigorosamente disaccoppiata dallo stadio di addestramento dei modelli.
 
 \subsubsection{Standardizzazione Diagnostica Dipendente dal Sorgente}
 \label{subsubsec:zscore_sorgente}
@@ -1223,7 +1226,7 @@ Sia $\mathbf{X}_D \in \mathbb{R}^{N_D \times d}$ la matrice dei dati grezzi del 
 \end{equation}
 dove $\mu_{S, j}$ e $\sigma_{S, j}$ rappresentano la media e la deviazione standard campionarie della $j$-esima caratteristica stimata sul set sorgente $S$, e $\epsilon > 0$ è una costante infinitesima introdotta a scopo di stabilità numerica, per prevenire divisioni per valori prossimi a zero in presenza di caratteristiche a varianza sorgente quasi nulla (es. indicatori binari fortemente sbilanciati).
 
-L'ancoraggio a $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S)$, anziché a statistiche ricalcolate localmente su ciascun benchmark $D$, garantisce che eventuali traslazioni di media o contrazioni di varianza presenti nel benchmark $D$ non vengano annullate artificialmente: una standardizzazione locale ricentrerebbe infatti ogni benchmark sulla propria origine, occultando esattamente lo scostamento distributivo che l'analisi si propone di rendere visibile. Si osserva che tale ancoraggio è una scelta di riferimento per la sola finalità diagnostico-visiva, e non implica alcuna dipendenza dalla scala da parte del classificatore stesso: come dimostrato nella Sezione~\ref{subsubsec:invarianza_monotonica}, la decisione dei modelli ad albero è invariante rispetto a qualsiasi trasformazione monotonica crescente, ancorata o meno al dominio sorgente. L'ancoraggio a $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S)$ risponde dunque esclusivamente all'esigenza di disporre di un sistema di riferimento fisso e interpretabile per l'ispezione visiva, non a un requisito del modello di classificazione.
+L'ancoraggio a $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S)$, anziché a statistiche ricalcolate localmente su ciascun benchmark $D$, garantisce che eventuali traslazioni di media o contrazioni di varianza presenti nel benchmark $D$ non vengano annullate artificialmente: una standardizzazione locale ricentrerebbe infatti ogni benchmark sulla propria origine, occultando esattamente lo scostamento distributivo che l'analisi si propone di rendere visibile. Questo ancoraggio è una scelta di riferimento per la sola finalità diagnostico-visiva e non implica alcuna dipendenza dalla scala da parte del classificatore: come dimostrato nella Sezione~\ref{subsubsec:invarianza_monotonica}, la decisione dei modelli ad albero è invariante rispetto a qualsiasi trasformazione monotonica crescente, ancorata o meno al dominio sorgente. L'ancoraggio a $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S)$ risponde dunque esclusivamente all'esigenza di disporre di un sistema di riferimento fisso e interpretabile per l'ispezione visiva, non a un requisito del modello di classificazione.
 
 \subsubsection{Proiezioni Ortogonali e Relatività dello Spazio Latente (PCA)}
 \label{subsubsec:pca_relativita}
@@ -1310,7 +1313,7 @@ Allo scopo di decodificare le logiche decisionali dei classificatori \textit{bla
 
 Nella teoria dei giochi, il valore di Shapley definisce un metodo per distribuire equamente un "guadagno" totale tra un insieme di giocatori cooperanti. Nel contesto dell'apprendimento supervisionato formalizzato dal framework, il "gioco" corrisponde alla funzione decisionale parametrica $f_{\theta^*}(\mathbf{x})$, e i "giocatori" coincidono con le caratteristiche in ingresso.
         
-Sia $\mathcal{F}$ l'insieme totale delle caratteristiche a disposizione del modello (con $|\mathcal{F}| = d$) e $\mathcal{C} \subseteq \mathcal{F}$ un generico sottoinsieme (coalizione) di esse. Definita $v(\mathcal{C})$ la funzione di valore che esprime l'output atteso del modello condizionato al solo sottoinsieme $\mathcal{C}$\footnote{In un contesto operativo di apprendimento automatico, tale funzione coincide con il valore atteso condizionato della stima parametrica, ovvero $v(\mathcal{C}) = \mathbb{E}[f_{\theta^*}(\mathbf{x}) \mid \mathbf{x}_{\mathcal{C}}]$.}, il valore di Shapley $\phi_j(\mathbf{x})$ per la $j$-esima caratteristica del singolo vettore $\mathbf{x} \in \mathcal{X}$ è calcolato come:
+Sia $\mathcal{F}$ l'insieme totale delle caratteristiche a disposizione del modello (con $|\mathcal{F}| = d$) e $\mathcal{C} \subseteq \mathcal{F}$ un generico sottoinsieme (coalizione) di esse. Definita $v(\mathcal{C})$ la funzione di valore che esprime l'output atteso del modello condizionato al solo sottoinsieme $\mathcal{C}$\footnote{In un contesto applicativo di apprendimento automatico, tale funzione coincide con il valore atteso condizionato della stima parametrica, ovvero $v(\mathcal{C}) = \mathbb{E}[f_{\theta^*}(\mathbf{x}) \mid \mathbf{x}_{\mathcal{C}}]$.}, il valore di Shapley $\phi_j(\mathbf{x})$ per la $j$-esima caratteristica del singolo vettore $\mathbf{x} \in \mathcal{X}$ è calcolato come:
 
 \begin{equation}
     \phi_j(\mathbf{x}) = \sum_{\mathcal{C} \subseteq \mathcal{F} \setminus \{j\}} \frac{|\mathcal{C}|!(|\mathcal{F}| - |\mathcal{C}| - 1)!}{|\mathcal{F}|!} \left[ v(\mathcal{C} \cup \{j\}) - v(\mathcal{C}) \right]
@@ -1324,10 +1327,10 @@ La robustezza di SHAP e la sua superiorità metodologica rispetto a metriche di 
     \item \textbf{Coerenza:} se un modello viene modificato in modo tale che il contributo marginale di una caratteristica aumenti (o rimanga invariato), il relativo valore SHAP non può diminuire.
 \end{enumerate}
 
-\subsubsection{Implementazione e Ottimizzazione Tramite TreeSHAP}
-\label{subsubsec:treeshap_implementazione}
+\subsubsection{TreeSHAP e Ottimizzazione Algoritmica}
+\label{subsubsec:treeshap}
 
-Sotto il profilo operativo, l'estrazione dei valori $\phi_j$ è condotta tramite un'ottimizzazione dell'algoritmo basata sulla struttura interna degli stimatori. Considerata l'architettura dei classificatori impiegati, basati sul partizionamento ricorsivo dello spazio (e.g., \textit{Random Forest}, \textit{Histogram-based Gradient Boosting}), la metodologia sfrutta l'algoritmo \textit{TreeSHAP}~\cite{lundberg2019} \footnote{\textit{TreeSHAP}~\cite{lundberg2019} abbatte la complessità computazionale del calcolo esatto dei valori di Shapley da esponenziale $\mathcal{O}(2^{|\mathcal{F}|})$ a polinomiale $\mathcal{O}(T L D^2)$, dove $T$ è il numero di alberi dell'ensemble, $L$ il numero massimo di foglie e $D$ la profondità massima.}.
+Dal punto di vista algoritmico, l'estrazione dei valori $\phi_j$ è condotta tramite un'ottimizzazione basata sulla struttura interna degli stimatori. Considerata l'architettura dei classificatori impiegati, basati sul partizionamento ricorsivo dello spazio (e.g., \textit{Random Forest}, \textit{Histogram-based Gradient Boosting}), la metodologia sfrutta l'algoritmo \textit{TreeSHAP}~\cite{lundberg2019} \footnote{\textit{TreeSHAP}~\cite{lundberg2019} abbatte la complessità computazionale del calcolo esatto dei valori di Shapley da esponenziale $\mathcal{O}(2^{|\mathcal{F}|})$ a polinomiale $\mathcal{O}(T L D^2)$, dove $T$ è il numero di alberi dell'ensemble, $L$ il numero massimo di foglie e $D$ la profondità massima.}.
 
 Per garantire la stabilità statistica delle stime limitando contestualmente l'overhead computazionale, la spiegazione locale viene calcolata su un sottoinsieme $\mathcal{D}_{\text{sample}}^{(\text{test})} \subset \mathcal{D}^{(\text{test})}$, estratto mediante campionamento stratificato. Tale campionamento preserva inalterato il vincolo di proporzionamento parametrico $\rho$ originario tra il traffico nominale ($Y = 0$) e il traffico malevolo ($Y = 1$).
         
@@ -1344,21 +1347,21 @@ Per ogni generico benchmark di test $D \in \mathcal{B}$, le caratteristiche veng
 \end{equation}
 dove $N = |\mathcal{D}_{\text{sample}}^{(\text{test})}|$ rappresenta la cardinalità del sottoinsieme campionato estratto in precedenza, e non l'intero dataset a disposizione.
         
-Sia $\mathcal{T}_D \subset \mathcal{F}$ l'insieme contenente le prime tre caratteristiche classificate nel benchmark $D$. Per identificare i descrittori maggiormente resilienti e discriminanti ai confini tra domini $\mathcal{D}_S$ e $\mathcal{D}_T$, è stato implementato un contatore di frequenza globale $C_j$:
+Sia $\mathcal{T}_D \subset \mathcal{F}$ l'insieme contenente le prime tre caratteristiche classificate nel benchmark $D$. Per identificare i descrittori maggiormente resilienti e discriminanti ai confini tra domini $\mathcal{D}_S$ e $\mathcal{D}_T$, si definisce un contatore di frequenza globale $C_j$:
 \begin{equation}
     C_j = \sum_{D \in \mathcal{B}} \mathbb{I}(j \in \mathcal{T}_D)
 \end{equation}
 dove $\mathbb{I}(\cdot)$ è la funzione indicatrice che assume valore $1$ se la caratteristica $j$ figura nella \textit{top-3} dello scenario $D$, e $0$ altrimenti. 
 Le tre dimensioni vettoriali associate ai valori massimi di $C_j$ al termine di tutte le combinazioni di addestramento e inferenza costituiscono il nucleo stabile informativo utilizzato per tracciare le curve KDE precedentemente illustrate. Questo processo di selezione garantisce che la valutazione del \textit{domain shift} si concentri unicamente sulle proiezioni spaziali che i modelli considerano universalmente più critiche per l'isolamento delle anomalie.
 
-\subsection{Metriche Operative, Operatività a Soglia e Significatività dei Confronti}
+\subsection{Metriche, Soglia e Significatività dei Confronti}
 \label{subsec:metriche_significativita}
 
-Per valutare analiticamente le prestazioni dei modelli di classificazione formalizzati nella sezione precedente e quantificare l'impatto del \textit{domain shift}, si definisce un framework di valutazione fondato sulla teoria della decisione statistica. In particolare, si distingue la valutazione puntuale delle prestazioni, riferita a una specifica soglia operativa, dall'analisi del comportamento discriminativo del classificatore al variare della soglia di decisione.
+Per valutare analiticamente le prestazioni dei modelli di classificazione formalizzati nella sezione precedente e quantificare l'impatto del \textit{domain shift}, si definisce un framework di valutazione fondato sulla teoria della decisione statistica. In particolare, si distingue la valutazione puntuale delle prestazioni, riferita a una specifica soglia decisionale, dall'analisi del comportamento discriminativo del classificatore al variare della soglia di decisione.
 
 \subsubsection{Formalizzazione della Matrice di Confusione}
 \label{subsubsec:decisione_parametrica}
-Richiamando la regola di decisione parametrica introdotta nella Sezione~\ref{subsubsec:formulazione_erm}, la classe predetta $\hat{y}_i(\tau)$ consente di definire le cardinalità della matrice di confusione, espresse come funzioni della soglia operativa $\tau$:
+Richiamando la regola di decisione parametrica introdotta nella Sezione~\ref{subsubsec:formulazione_erm}, la classe predetta $\hat{y}_i(\tau)$ consente di definire le cardinalità della matrice di confusione, espresse come funzioni della soglia decisionale $\tau$:
 
 \begin{align}
     TP(\tau) &= \sum_{i=1}^{N} \mathbb{I}(y_i=1 \land \hat{y}_i(\tau)=1) \\
@@ -1371,7 +1374,7 @@ Le quattro quantità rappresentano rispettivamente il numero di veri positivi, f
 
 \begin{table}[H]
     \centering
-    \caption{Struttura della Matrice di Confusione parametrizzata rispetto alla soglia operativa $\tau$.}
+    \caption{Struttura della Matrice di Confusione parametrizzata rispetto alla soglia decisionale $\tau$.}
     \label{tab:matrice_confusione}
     \small
     \renewcommand{\arraystretch}{1.3}
@@ -1394,49 +1397,27 @@ Le quattro quantità rappresentano rispettivamente il numero di veri positivi, f
         \draw[->, thick] (0,0) -- (0,5) node[above] {\small $p(f(\mathbf{x}) \mid y)$};
 
         % Distribuzione Classe 0 (Lecito) - Linea continua
-        \draw[thick, black, smooth, domain=0:10] plot (\x, {4.0*exp(-(\x-2.5)^2/4)}) node[right] {\small $Y=0$};
+        \draw[thick, black, smooth, domain=0:10] plot (\x, {4.0*exp(-(\x-2.5)^2/1.1)});
+        \node at (2.5, 4) [anchor=south, align=center] {
+            \small $y=0$ \\[-5pt]
+            \small (Traffico Lecito)
+        };
+
         % Distribuzione Classe 1 (Malevolo) - Linea tratteggiata
-        \draw[thick, black, dashed, smooth, domain=0:10] plot (\x, {3.4*exp(-(\x-6.5)^2/3)}) node[right] {\small $Y=1$};
+        \draw[thick, dashed, black!80, smooth, domain=0:10] plot (\x, {3.5*exp(-(\x-6)^2/1.5)});
+        \node at (6.0, 3.5) [anchor=south, align=center] {
+            \small $y=1$ \\[-5pt]
+            \small (Traffico Malevolo)
+        };
 
-        % Soglia operativa
-        \draw[red, thick] (5.2,0) -- (5.2,4.8);
-        \node[red, above] at (5.2,4.8) {\small $\tau$};
+        % Soglia decisionale tau
+        \draw[very thick, gray!80!black] (4.14,0) -- (4.14,5);
+        \node[above] at (4.14, 5) {\small Soglia $\tau$};
+        \fill (4.14,0) circle (2pt) node[below] {$\tau$};
 
-        % Aree di confusione
-        \fill[blue!10] (5.2,0) -- plot[domain=5.2:10] (\x, {4.0*exp(-(\x-2.5)^2/4)}) -- (10,0) -- cycle;
-        \node[black, right] at (9.6,0.4) {\tiny FP};
-        \fill[green!10] (0,0) -- plot[domain=0:5.2] (\x, {3.4*exp(-(\x-6.5)^2/3)}) -- (5.2,0) -- cycle;
-        \node[black, left] at (1.0,0.8) {\tiny FN};
-        \fill[green!10] (0,0) -- plot[domain=0:5.2] (\x, {4.0*exp(-(\x-2.5)^2/4)}) -- (5.2,0) -- cycle;
-        \node[black, below] at (2.3,0.2) {\tiny TN};
-        \fill[blue!10] (5.2,0) -- plot[domain=5.2:10] (\x, {3.4*exp(-(\x-6.5)^2/3)}) -- (10,0) -- cycle;
-        \node[black, right] at (6.8,1.8) {\tiny TP};
-    \end{tikzpicture}
-    \caption{Esempio illustrativo delle distribuzioni dei punteggi predittivi per le classi nominale e malevola e del ruolo della soglia operativa $\tau$ nella determinazione delle aree di vero positivo, falso positivo, vero negativo e falso negativo.}
-    \label{fig:threshold_confusion}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
-    \begin{tikzpicture}
-        % Asse delle probabilità
-        \draw[->, thick] (0,0) -- (7,0) node[right] {\footnotesize $f(\mathbf{x})$};
-        \draw[->, thick] (0,0) -- (0,5) node[above] {\footnotesize Frequenza};
-
-        % Distribuzione fittizia della probabilità a posteriori
-        \draw[thick, black, smooth, domain=0:6] plot (\x, {2.5*exp(-0.5*(\x-2)^2) + 0.5*exp(-0.6*(\x-4.2)^2)}) node[right] {\small $P(f(\mathbf{x}) \mid Y=1)$};
-        \draw[thick, dashed, gray!80, smooth, domain=0:6] plot (\x, {1.8*exp(-0.55*(\x-1.2)^2)}) node[above] {\small $P(f(\mathbf{x}) \mid Y=0)$};
-
-        % Soglia decisionale
-        \draw[very thick, red] (3.2,0) -- (3.2,5);
-        \node[above, red] at (3.2,5) {\small $\tau$};
-
-        % Aree classi
-        \fill[blue!10] (0,0) -- plot[domain=0:3.2] (\x, {1.8*exp(-0.55*(\x-1.2)^2)}) -- (3.2,0) -- cycle;
-        \fill[green!10] (3.2,0) -- plot[domain=3.2:6] (\x, {2.5*exp(-0.5*(\x-2)^2) + 0.5*exp(-0.6*(\x-4.2)^2)}) -- (6,0) -- cycle;
-
-        % Legend
-        \node[black, align=left] at (5.5,4.5) {\footnotesize $\hat{y}(\tau)=0$ \quad \footnotesize $\hat{y}(\tau)=1$};
+        % Regioni decisionali
+        \draw[<->, thick, shorten >=2pt, shorten <=2pt] (0, -0.6) -- (4.14, -0.6) node[midway, below] {\footnotesize Decisione: $\hat{y}(\tau)=0$};
+        \draw[<->, thick, shorten >=2pt, shorten <=2pt] (4.14, -0.6) -- (9, -0.6) node[midway, below] {\footnotesize Decisione: $\hat{y}(\tau)=1$};
     \end{tikzpicture}
     \caption{Mappatura della probabilità a posteriori $f(\mathbf{x})$ sulla regola decisionale binaria $\hat{y}(\tau)$ in funzione della soglia $\tau$.}
     \label{fig:soglia_decisionale}
@@ -1484,7 +1465,7 @@ Tale indicatore assume tuttavia un ruolo secondario nei problemi di intrusion de
 \subsubsection{Dinamica della Soglia e Analisi Grafica (ROC e PR AUC)}
 \label{subsubsec:analisi_grafica}
 
-La valutazione puntuale delle metriche presuppone la scelta di uno specifico valore della soglia operativa (ad esempio $\tau=0.5$). Una caratterizzazione più completa del comportamento discriminativo del classificatore richiede invece l'analisi dell'intero intervallo di valori della soglia, $\tau\in[0,1]$.
+La valutazione puntuale delle metriche presuppone la scelta di uno specifico valore della soglia decisionale (ad esempio $\tau=0.5$). Una caratterizzazione più completa del comportamento discriminativo del classificatore richiede invece l'analisi dell'intero intervallo di valori della soglia, $\tau\in[0,1]$.
 
 A tale scopo si impiegano le curve \textit{Receiver Operating Characteristic} (ROC) e \textit{Precision--Recall} (PR), sintetizzate mediante l'area sottesa alla rispettiva curva (\textit{Area Under the Curve}, AUC):
 
