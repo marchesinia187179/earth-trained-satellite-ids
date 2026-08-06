@@ -1,0 +1,139 @@
+\chapter{Implementazione del Framework Sperimentale e Pipeline Software}
+\label{chap:implementazione_sperimentale}
+
+\noindent Il presente capitolo concretizza la formulazione teorica e il framework metodologico introdotti nel Capitolo~\ref{ch:metodologia}. Vengono descritti nel dettaglio l'architettura software, gli strumenti di sviluppo, i dataset utilizzati, le procedure di preprocessing e le configurazioni iperparametriche delle architetture di classificazione implementate, garantendo la completa riproducibilità degli esperimenti.
+
+% ==========================================
+% SEZIONE 4.1: AMBIENTE DI SVILUPPO E REPO
+% ==========================================
+\section{Ambiente di Sviluppo, Librerie e Riproducibilità}
+\label{sec:ambiente_sviluppo}
+
+% % COMMENTO GENERALIZATORE SEZIONE 4.1:
+% Questa sezione descrive l'infrastruttura di calcolo, lo stack software utilizzato 
+% (Python, PyTorch/Scikit-Learn/XGBoost/LightGBM) e fornisce il riferimento ufficiale 
+% al repository Git aziendale/accademico contenente il codice sorgente.
+
+\subsection{Piattaforma Hardware, Stack Software e Repository Git}
+\label{subsec:repo_hardware_stack}
+% % COMMENTO SUBSECTION 4.1.1:
+% - Inserire i dettagli della macchina di test (CPU, RAM, eventuale GPU/CUDA).
+% - Indicare le versioni delle librerie chiave (es. Python 3.10+, Scikit-Learn, XGBoost, LightGBM, SHAP, SciPy).
+% - Inserire il link diretto al repository GitHub/GitLab di progetto (es. \url{https://github.com/...}), 
+%   illustrando brevemente la struttura delle cartelle del codice (data/, src/models/, src/preprocessing/, etc.).
+
+\subsection{Gestione della Stocasticità e Controllo dei Seed}
+\label{subsec:controllo_seed_implementazione}
+% % COMMENTO SUBSECTION 4.1.2:
+% - Collegarsi alla trattazione teorica del Multi-Seed (Sezione 3.3.1).
+% - Mostrare lo snippet o la funzione Python utilizzata per fissare il generatore di numeri pseudocasuali 
+%   (random.seed, np.random.seed, torch.manual_seed) sui diversi seed sperimentali selezionati.
+
+
+% ==========================================
+% SEZIONE 4.2: PIPELINE DATI E PREPROCESSING
+% ==========================================
+\section{Ingegneria dei Dati e Pipeline di Preprocessing}
+\label{sec:ingegneria_dati_preprocessing}
+
+% % COMMENTO GENERALIZATORE SEZIONE 4.2:
+% Questa sezione rende operativi i concetti descritti nelle Sezioni 3.1.1 e 3.1.2. 
+% Si descrivono la struttura reale dei dataset (UNSW-NB15 e STIN), la pulizia del dato, 
+% le codifiche categoriali, la normalizzazione e l'isolamento rigoroso delle partizioni.
+fdfd
+
+\subsection{Caratterizzazione del Dataset Terrestre di Addestramento (UNSW-NB15)}
+\label{subsec:dataset_unsw_nb15}
+% % COMMENTO SUBSECTION 4.2.1:
+% - Descrivere la struttura grezza del dataset UNSW-NB15 (numero di record, feature di flusso, tipi di attacco).
+% - Inserire una tabella riassuntiva con la distribuzione delle classi (Benigno vs Maligno e sottoclassi di attacco).
+
+\subsection{Modellazione e Strutturazione della Distribuzione Target (STIN)}
+\label{subsec:dataset_stin_target}
+% % COMMENTO SUBSECTION 4.2.2:
+% - Descrivere la composizione del dataset STIN (Satellite-Terrestrial Integrated Networks).
+% - Dettagliare le peculiarità del traffico satellitare e terrestre del dominio target, evidenziando 
+%   le caratteristiche di sbilanciamento e la presenza di domain shift riscontrate sul campo.
+
+\subsection{Pipeline di Clean-up, Codifica Categoriale e Scalatura Vettoriale}
+\label{subsec:pipeline_preprocessing_dati}
+% % COMMENTO SUBSECTION 4.2.3:
+% - Dettagliare la gestione dei valori mancanti, infiniti e duplicati.
+% - Inserire gli algoritmi di encodifica adottati (es. One-Hot Encoding / Ordinal Encoding per protocolli e servizi).
+% - Mostrare l'implementazione del StandardScaler/RobustScaler calcolato esclusivamente sul training set sorgente.
+
+\subsection{Isolamento delle Partizioni ed Allineamento delle Feature}
+\label{subsec:partizionamento_feature_mapping}
+% % COMMENTO SUBSECTION 4.2.4:
+% - Spiegare l'implementazione pratica del vincolo anti-data-leakage (split prima delle trasformazioni).
+% - Descrivere l'algoritmo di intersezione e mappatura dello spazio delle feature $X_S \cap X_T$ per garantire 
+%   l'allineamento dimensionale tra UNSW-NB15 e il dominio STIN.
+
+
+% ==========================================
+% SEZIONE 4.3: CONFIGURAZIONE DEI MODELLI
+% ==========================================
+\section{Configurazione e Addestramento delle Architetture di Classificazione}
+\label{sec:configurazione_classificatori}
+
+% % COMMENTO GENERALIZATORE SEZIONE 4.3:
+% Questa sezione specifica la configurazione pratica dei modelli teorizzati nella Sezione 3.2 
+% e 3.3.2, riportando i parametri esatti, le loss function e le strategie di tuning utilizzate.
+
+\subsection{Implementazione del Modello Baseline}
+\label{subsec:implementazione_baseline}
+% % COMMENTO SUBSECTION 4.3.1:
+% - Dettagliare l'architettura del modello Baseline (es. Logistic Regression o Decision Tree standard) 
+%   utilizzato come ancora di prestazione (Sezione 3.2.1).
+% - Elencare gli iperparametri esatti (solver, C, penalty, max_iter).
+
+\subsection{Configurazione delle Architetture Ensembling e Alberiformi}
+\label{subsec:implementazione_ensembling_alberi}
+% % COMMENTO SUBSECTION 4.3.2:
+% - Specificare le configurazioni avanzate per i modelli Random Forest, XGBoost e LightGBM (Sezione 3.2.3).
+% - Inserire una Tabella con tutti gli iperparametri impostati (n_estimators, max_depth, learning_rate, 
+%   subsample, colsample_bytree, gamma, ecc.).
+
+\subsection{Decomposizione Specialistica Biclasse e Gestione dello Sbilanciamento}
+\label{subsec:implementazione_biclasse_specialistica}
+% % COMMENTO SUBSECTION 4.3.3:
+% - Spiegare come è stata implementata la decomposizione per classi di attacco specifiche (Sezione 3.2.2).
+% - Mostrare le tecniche usate per gestire lo sbilanciamento delle classi in fase di addestramento 
+%   (es. scale_pos_weight in XGBoost, SMOTE o class_weight='balanced').
+
+\subsection{Implementazione della Granularità Operativa: Binaria vs Multiclasse}
+\label{subsec:implementazione_granularita_binaria_multiclasse}
+% % COMMENTO SUBSECTION 4.3.4:
+% - Descrivere il setup del codice per addestrare i classificatori nella modalità di rilevamento binario 
+%   (Normal vs Attack) e nella modalità di caratterizzazione multiclasse (Sezione 3.3.2).
+
+
+% ==========================================
+% SEZIONE 4.4: TOOLING DIAGNOSTICO E STATISTICO
+% ==========================================
+\section{Strumenti di Diagnostica Spaziale, Spiegabilità e Test Statistici}
+\label{sec:tooling_diagnostica_statistica}
+
+% % COMMENTO GENERALIZATORE SEZIONE 4.4:
+% Questa sezione descrive le librerie e gli script Python sviluppati per realizzare l'analisi 
+% diagnostica, l'estrazione degli SHAP values e l'automazione dei test di ipotesi (Sezione 3.4).
+
+\subsection{Pipeline di Riduzione Dimensionale e Stima di Densità (PCA e KDE)}
+\label{subsec:implementazione_pca_kde}
+% % COMMENTO SUBSECTION 4.4.1:
+% - Descrivere l'implementazione software per la proiezione PCA a 2D/3D del domain shift (Sezione 3.4.1).
+% - Dettagliare la configurazione del kernel gaussian KDE (libreria SciPy/Seaborn, scelta della bandwidth $h_{\text{KDE}}$).
+
+\subsection{Integrazione del Modulo SHAP per l'Attribuibilità delle Feature}
+\label{subsec:implementazione_shap_explainability}
+% % COMMENTO SUBSECTION 4.4.2:
+% - Descrivere l'uso della libreria `shap` (TreeExplainer / KernelExplainer) (Sezione 3.4.2).
+% - Spiegare come sono stati calcolati e salvati i valori globali di importanza $I_j^{(D)}$ per i domini $S$ e $T$.
+
+\subsection{Automazione del Threshold Sweeping e del Test t di Welch}
+\label{subsec:implementazione_threshold_welch}
+% % COMMENTO SUBSECTION 4.4.3:
+% - Mostrare lo script sviluppato per eseguire lo sweep della soglia decisionale $\tau \in [0, 1]$ 
+%   con passo 0.01 per la generazione automatica delle curve ROC e PR (Sezione 3.4.3).
+% - Descrivere il modulo software (tramite `scipy.stats.ttest_ind` con `equal_var=False`) realizzato per 
+%   eseguire il test $t$ di Welch sulle metriche distribuite sui vari seed e calcolarne i relativi $p$-value.
