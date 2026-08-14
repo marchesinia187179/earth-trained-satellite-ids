@@ -90,6 +90,8 @@ Per rispecchiare le condizioni realistiche di rete e prevenire uno sbilanciament
 \end{equation}
 Tale vincolo definisce in modo esplicito l'asimmetria volumetrica tra il traffico nominale ($Y = 0$) e il traffico malevolo ($Y = 1$). Dove $N(\cdot)$ indica la cardinalità dei campioni estratti, $\mathcal{A}_m$ rappresenta l'insieme delle specifiche famiglie di attacco incluse nella configurazione e $\rho \in \mathbb{R}^+$ costituisce il fattore di asimmetria volumetrica prescritto dal protocollo metodologico.
 
+A livello di estrazione, come regola generale si adotta il campionamento senza reinserimento (\textit{without replacement}), precludendo la duplicazione sintetica delle istanze. Qualora, a seguito dell'applicazione del rapporto $\rho$, una delle due classi $Y \in \{0, 1\}$ non disponga di una quantità di dati sufficiente a raggiungere il volume teorico prefissato, il framework rifiuta l'uso del \textit{replacing}. In tale evenienza, il dimensionamento complessivo del benchmark si ridimensiona ancorandosi alla classe minoritaria (ovvero quella con minore disponibilità di campioni): l'estrazione per l'altra classe viene riproporzionata di conseguenza per soddisfare il rapporto $\rho$, accettando la potenziale perdita o il mancato utilizzo di una quota di campioni della classe maggioritaria pur di preservare l'unicità e l'integrità statistica delle osservazioni.
+
 Nei benchmark di tipo aggregato (sia sorgenti che ibridi), la composizione interna del sottoinsieme malevolo non adotta l'equiprobabilità artificiale tra le classi d'attacco. Si preserva invece la distribuzione naturale \textit{a priori} $P(A = a \mid Y = 1)$ caratteristica dei domini di origine, evitando alterazioni sintetiche e mantenendo la fedeltà alle frequenze di occorrenza reali delle minacce.
 
 L'intero processo di isolamento procedurale e ricomposizione dei benchmark è schematizzato nella Figura~\ref{fig:flusso_benchmark}.
@@ -134,11 +136,11 @@ L'intero processo di isolamento procedurale e ricomposizione dei benchmark è sc
             \textbf{Isolamento Logico} (Train/Test)
         };
 
-        % RIGA 3: Sintesi Logica
+        % RIGA 3: Sintesi Logica (Aggiornato con vincolo senza reinserimento)
         \node [process] (synth) at (0, 3.9) {
             \textbf{Sintesi Logica}\\
             $\mathcal{D}_S^{(train)} \cup \mathcal{D}_T^{(train)}$ \quad e, \textit{separatamente}, \quad $\mathcal{D}_S^{(test)} \cup \mathcal{D}_T^{(test)}$\\
-            \textit{Asimmetria volumetrica: Ratio $\rho$}\\
+            \textit{Asimmetria volumetrica: Ratio $\rho$ (Senza Reinserimento)}\\
             \textit{Prior naturali in aggregato}
         };
 
@@ -161,7 +163,7 @@ L'intero processo di isolamento procedurale e ricomposizione dei benchmark è sc
 
     \end{tikzpicture}
     }
-    \caption{Pipeline logica astratta: allineamento dello spazio delle feature $\mathcal{X}$, isolamento preventivo Train/Test anti-\textit{data leakage}, sintesi parametrica con ratio $\rho$ (mantenendo separate le unioni di train e di test) e istanziazione logica dei benchmark. I blocchi tratteggiati indicano le elaborazioni logiche, mentre i blocchi a linea continua rappresentano gli insiemi di dati e le categorie di output.}
+    \caption{Pipeline logica astratta: allineamento dello spazio delle feature $\mathcal{X}$, isolamento preventivo Train/Test anti-\textit{data leakage}, sintesi parametrica con ratio $\rho$ senza reinserimento (con ancoraggio alla classe minoritaria) e istanziazione logica dei benchmark. I blocchi tratteggiati indicano le elaborazioni logiche, mentre i blocchi a linea continua rappresentano gli insiemi di dati e le categorie di output.}
     \label{fig:flusso_benchmark}
 \end{figure}
 
@@ -480,6 +482,8 @@ Il protocollo di valutazione per tali classificatori, schematizzato in Figura~\r
     \item \textbf{Disaggregazione delle Prestazioni per Classe:} i modelli aggregati vengono contestualmente valutati sulle singole sottopartizioni per famiglia d'attacco $\mathcal{D}_a^{(\text{test})} \subseteq \mathcal{D}^{(\text{test})}$, ristrette ai soli vettori con $A=a$ per una data classe di minaccia $a \in \mathcal{A}$. Tale analisi disaggregata evita l'effetto di mascheramento delle prestazioni (\textit{class shadowing}), verificando se un'elevata accuratezza globale celi un decadimento selettivo su specifiche classi di minaccia.
 \end{enumerate}
 
+È fondamentale sottolineare che l'insieme di test $\mathcal{D}^{(\text{test})}$ non rappresenta un bacino dati specifico e isolato, locale alla sola famiglia dei modelli aggregati. Al contrario, esso coincide formalmente con l'insieme universale condiviso dei benchmark $\mathcal{B}$, che verrà rigorosamente definito nella Sezione~\ref{subsec:stabilita_stocastica}. Di conseguenza, l'intero pool di modelli (siano essi aggregati o biclasse) viene proiettato sistematicamente sull'intera totalità di $\mathcal{B}$, garantendo un incrocio analitico esaustivo tra tutte le architetture e tutte le partizioni sperimentali.
+
 Si precisa che la formalizzazione dei modelli biclasse specialistici e il relativo protocollo di \textit{cross-evaluation} speculare sono trattati separatamente nella Sezione~\ref{subsec:modelli_biclasse}.
 
 \begin{figure}[H]
@@ -623,6 +627,8 @@ In fase di valutazione sperimentale, il protocollo per i classificatori biclasse
     \item \textbf{Valutazione Nominale Specialistica (\textit{In-Domain}):} ciascun modello $\mathcal{M}_{S, a}$ (o $\mathcal{M}_{H, T, a}$) viene inizialmente testato sulla partizione dedicata alla singola minaccia $\mathcal{D}_a^{(\text{test})}$, stabilendo la prestazione ideale del classificatore nel proprio dominio di addestramento primario;
     \item \textbf{Valutazione Incrociata di Classe (\textit{Cross-Evaluation}):} il modello specialistico viene successivamente proiettato sull'intera gamma di benchmark multi-classe eterogenei $\mathcal{D}^{(\text{test})}$. Tale analisi permette di verificare se la firma appresa per la minaccia $a$ generi falsi allarmi su attacchi $b \neq a$, quantificando la selettività di classe e l'eventuale polarizzazione dello spazio decisionale.
 \end{enumerate}
+
+Come anticipato per la famiglia dei modelli aggregati, l'insieme eterogeneo $\mathcal{D}^{(\text{test})}$ impiegato nella \textit{cross-evaluation} coincide esattamente con l'insieme universale dei benchmark $\mathcal{B}$ (Sezione~\ref{subsec:stabilita_stocastica}). In quella sede verrà introdotta la matrice strutturata $H_k \in \mathbb{R}^{|\mathcal{M}|\times|\mathcal{B}|}$, in cui verranno incrociati tutti i modelli formulati $\{\mathcal{M}_{\text{base}}, \mathcal{M}_S, \mathcal{M}_H^{(T)}, \mathcal{M}_{S,a}, \mathcal{M}_{H,T,a}\}$ con l'intera estensione dei domini di test generati, fornendo così la rappresentazione visiva e matematica unificata che concretizza questo incrocio prestazionale.
 
 \begin{figure}[H]
     \centering
@@ -1020,6 +1026,66 @@ Per ciascun seed $s_k$, i valori $\text{TPR}_k(M,D)$ e $\text{TNR}_k(M,D)$ vengo
     \overline{H}_k(M) = \frac{1}{|\mathcal{B}|} \sum_{D \in \mathcal{B}} H_k(M, D)
     \label{eq:row_mean}
 \end{equation}
+
+L'impianto metodologico fin qui descritto culmina nella definizione della matrice $H_k$, che concretizza l'operazione di proiezione incrociata di \textit{tutte} le architetture formulate (siano esse aggregati multiclasse o specialisti biclasse) sull'intera estensione dei domini di test disponibili. Come illustrato nella Figura~\ref{fig:matrice_incrociata}, lo spazio delle valutazioni si articola in una griglia strutturata che elimina ogni barriera valutativa tra le categorie di classificazione e quelle di benchmark, rendendo esplicita l'universalità dell'insieme di test $\mathcal{B}$.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[
+        font=\small,
+        >=stealth,
+        cell/.style={
+            rectangle, draw=black, thick, text centered,
+            minimum width=3.5cm, minimum height=1.5cm, inner sep=5pt
+        },
+        header/.style={
+            rectangle, draw=black, thick, fill=gray!20, text centered,
+            minimum width=3.5cm, minimum height=1.5cm, inner sep=5pt, font=\bfseries
+        }
+    ]
+
+    % Intestazione angolo in alto a sx
+    \node[draw=none, minimum width=3.5cm, minimum height=1.5cm, inner sep=5pt, text centered, font=\bfseries] (corner) at (0, 5.5) {$H_k \in \mathbb{R}^{|\mathcal{M}| \times |\mathcal{B}|}$};
+
+    % Intestazioni di Colonna (Benchmark in \mathcal{B})
+    \node[header, align=center, right=0.2 of corner] (col1) {$\mathcal{D}^{(\text{test})}$\\[-5pt] {\footnotesize (Aggregati)}};
+    \node[header, align=center, right=0.2 of col1] (col2) {$\mathcal{D}_a^{(\text{test})}$\\[-5pt] {\footnotesize (Biclasse In-Domain)}};
+    \node[header, align=center, right=0.2 of col2] (col3) {$\mathcal{D}_{b\neq a}^{(\text{test})}$\\[-5pt] {\footnotesize (Biclasse Cross)}};
+    
+    % Riga 1: \mathcal{M}_{base}
+    \node[header, below=0.2 of corner] (row1) {$\mathcal{M}_{\text{base}}$};
+    \node[cell, below=0.2 of col1] (r1c1) {\checkmark};
+    \node[cell, below=0.2 of col2] (r1c2) {\checkmark};
+    \node[cell, below=0.2 of col3] (r1c3) {\checkmark};
+
+    % Riga 2: \mathcal{M}_S
+    \node[header, below=0.2 of row1] (row2) {$\mathcal{M}_S$};
+    \node[cell, below=0.2 of r1c1] (r2c1) {\checkmark};
+    \node[cell, below=0.2 of r1c2] (r2c2) {\checkmark};
+    \node[cell, below=0.2 of r1c3] (r2c3) {\checkmark};
+
+    % Riga 3: \mathcal{M}_H^{(T)}
+    \node[header, below=0.2 of row2] (row3) {$\mathcal{M}_H^{(T)}$};
+    \node[cell, below=0.2 of r2c1] (r3c1) {\checkmark};
+    \node[cell, below=0.2 of r2c2] (r3c2) {\checkmark};
+    \node[cell, below=0.2 of r2c3] (r3c3) {\checkmark};
+
+    % Riga 4: \mathcal{M}_{S,a}
+    \node[header, below=0.2 of row3] (row4) {$\mathcal{M}_{S,a}$};
+    \node[cell, below=0.2 of r3c1] (r4c1) {\checkmark};
+    \node[cell, below=0.2 of r3c2] (r4c2) {\checkmark};
+    \node[cell, below=0.2 of r3c3] (r4c3) {\checkmark};
+
+    % Riga 5: \mathcal{M}_{H,T,a}
+    \node[header, below=0.2 of row4] (row5) {$\mathcal{M}_{H,T,a}$};
+    \node[cell, below=0.2 of r4c1] (r5c1) {\checkmark};
+    \node[cell, below=0.2 of r4c2] (r5c2) {\checkmark};
+    \node[cell, below=0.2 of r4c3] (r5c3) {\checkmark};
+
+    \end{tikzpicture}
+    \caption{Rappresentazione concettuale della matrice di valutazione incrociata $H_k \in \mathbb{R}^{|\mathcal{M}| \times |\mathcal{B}|}$. Ogni riga corrisponde a una famiglia di modelli $\mathcal{M}$ (aggregati e biclasse) e ogni colonna a una macro-categoria dell'insieme universale dei benchmark $\mathcal{B}$. Le spunte (\checkmark) evidenziano l'esecuzione sistematica della proiezione di ciascun modello su tutte le partizioni di test, indipendentemente dalla loro natura nativa, coprendo così sia gli scenari in-domain che di cross-evaluation.}
+    \label{fig:matrice_incrociata}
+\end{figure}
 
 La stima puntuale del valore atteso e della dispersione prestazionale per la coppia $(M,D)$, marginalizzata sulle $K$ repliche stocastiche, è data dalla media e dalla varianza campionarie:
 \begin{equation}
