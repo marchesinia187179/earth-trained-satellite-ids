@@ -888,7 +888,7 @@ Per agevolare la consultazione delle metriche e dei parametri statistici discuss
     \label{tab:notazione_valutazione}
     \small
     \renewcommand{\arraystretch}{1.3}
-    \begin{tabularx}{\textwidth}{@{} >{\raggedright\arraybackslash}p{3.8cm} >{\raggedright\arraybackslash}X @{} }
+    \begin{tabularx}{\textwidth}{@{} >{\raggedright\arraybackslash}p{4cm} >{\raggedright\arraybackslash}X @{} }
     \toprule
     \textbf{Simbolo} & \textbf{Descrizione e Significato Concettuale} \\
     \midrule
@@ -1350,7 +1350,7 @@ Il ruolo e l'impatto della standardizzazione dipendente dal sorgente sulle diver
     \label{tab:confronto_scaling_pca_kde}
     \small
     \renewcommand{\arraystretch}{1.3}
-    \begin{tabularx}{\textwidth}{@{} >{\raggedright\arraybackslash}p{2.6cm} >{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}X @{} }
+    \begin{tabularx}{\textwidth}{@{} >{\raggedright\arraybackslash}p{3cm} >{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}X @{} }
     \toprule
     \textbf{Strumento} & \textbf{Natura del Requisito} & \textbf{Impatto Tecnico e Motivazione Metodologica} \\
     \midrule
@@ -1547,53 +1547,53 @@ A tale scopo si impiegano le curve \textit{Receiver Operating Characteristic} (R
         % --- Sottofigura (a): Curva ROC ---
         \begin{scope}[shift={(0,0)}]
             % Assi
-            \draw[->, thick] (0,0) -- (6,0) node[right] {\footnotesize $FPR$};
-            \draw[->, thick] (0,0) -- (0,6) node[above] {\footnotesize $TPR$};
+            \draw[->, thick] (0,0) -- (5.5,0) node[right] {\footnotesize $FPR$};
+            \draw[->, thick] (0,0) -- (0,5.5) node[above] {\footnotesize $TPR$};
 
             % Griglia di riferimento
-            \draw[gray!30, thin] (0,5) -- (5,5) -- (5,0);
+            \draw[gray!30, thin] (0,4.5) -- (4.5,4.5) -- (4.5,0);
             \node[below left] at (0,0) {\small $0$};
-            \node[below] at (5,0) {\small $1$};
-            \node[left] at (0,5) {\small $1$};
+            \node[below] at (4.5,0) {\small $1$};
+            \node[left] at (0,4.5) {\small $1$};
 
             % Area sottesa (AUC) in toni di grigio
-            \fill[gray!20] (0,0) -- plot[smooth, domain=0:5] (\x, {5*sqrt(\x/5)}) -- (5,0) -- cycle;
+            \fill[gray!20] (0,0) -- plot[smooth, domain=0:4.5] (\x, {4.5*sqrt(\x/4.5)}) -- (4.5,0) -- cycle;
 
             % Baseline casuale (diagonale)
-            \draw[dashed, gray!80] (0,0) -- (5,5);
+            \draw[dashed, gray!80] (0,0) -- (4.5,4.5);
 
             % Curva ROC
-            \draw[thick, black, smooth, domain=0:5] plot (\x, {5*sqrt(\x/5)});
+            \draw[thick, black, smooth, domain=0:4.5] plot (\x, {4.5*sqrt(\x/4.5)});
 
             % Etichette
             \node at (2.3, 1.2) {\footnotesize $AUC_{ROC}$};
-            \node[above] at (3, 6) {\textbf{(a) Curva ROC}};
+            \node[above] at (2.75, 5.5) {\textbf{(a) Curva ROC}};
         \end{scope}
 
         % --- Sottofigura (b): Curva Precision-Recall ---
         \begin{scope}[shift={(7.5,0)}]
             % Assi
-            \draw[->, thick] (0,0) -- (6,0) node[right] {\footnotesize $Recall\ (TPR)$};
-            \draw[->, thick] (0,0) -- (0,6) node[above] {\footnotesize $Precision$};
+            \draw[->, thick] (0,0) -- (5.5,0) node[right] {\footnotesize $Recall\ (TPR)$};
+            \draw[->, thick] (0,0) -- (0,5.5) node[above] {\footnotesize $Precision$};
 
             % Griglia di riferimento
-            \draw[gray!30, thin] (0,5) -- (5,5) -- (5,0);
+            \draw[gray!30, thin] (0,4.5) -- (4.5,4.5) -- (4.5,0);
             \node[below left] at (0,0) {\small $0$};
-            \node[below] at (5,0) {\small $1$};
-            \node[left] at (0,5) {\small $1$};
+            \node[below] at (4.5,0) {\small $1$};
+            \node[left] at (0,4.5) {\small $1$};
 
             % Area sottesa (AUC) in toni di grigio
-            \fill[gray!20] (0,5) -- plot[smooth, domain=0:5] (\x, {5 - 2.2*(\x/5)^2}) -- (5,0) -- (0,0) -- cycle;
-
+            \fill[gray!20] (0,0) -- plot[smooth, domain=0:4.5] (\x, {4.5 - 2*(\x/4.5)^2}) -- (4.5,0) -- cycle;
+            
             % Baseline prevalenza (linea orizzontale)
-            \draw[dashed, gray!80] (0,0.8) -- (5,0.8) node[right] {\small $\pi$};
+            \draw[dashed, gray!80] (0,0.8) -- (4.5,0.8) node[right] {\small $\pi$};
 
             % Curva PR
-            \draw[thick, black, smooth, domain=0:5] plot (\x, {5 - 2.2*(\x/5)^2});
+            \draw[thick, black, smooth, domain=0:4.5] plot (\x, {4.5 - 2*(\x/4.5)^2});
 
             % Etichette
             \node at (1.2, 1.2) {\footnotesize $AUC_{PR}$};
-            \node[above] at (3, 6) {\textbf{(b) Curva PR}};
+            \node[above] at (2.75, 5.5) {\textbf{(b) Curva PR}};
         \end{scope}
     \end{tikzpicture}
     \caption{Rappresentazione schematica dell'Area Sottesa alla Curva (AUC) per le analisi grafiche ROC (a) e Precision-Recall (b).}
