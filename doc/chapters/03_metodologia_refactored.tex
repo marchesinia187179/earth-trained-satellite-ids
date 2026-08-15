@@ -1,14 +1,27 @@
 \chapter{Formulazione Teorica e Framework Metodologico}
 \label{ch:metodologia}
 
+Il presente capitolo definisce l'impalcatura teorica e il framework metodologico alla base dell'intera indagine sperimentale, fornendo gli strumenti formali necessari per la modellazione, l'analisi e l'adattamento dei sistemi di \textit{Network Intrusion Detection} (NIDS) in contesti operativi eterogenei. L'obiettivo primario risiede nell'instaurazione di un paradigma valutativo rigoroso, strutturalmente svincolato dalle specificità implementative dei singoli dataset, che consenta di quantificare oggettivamente i fenomeni di traslazione di dominio (\textit{domain shift}) e di validare le performance di generalizzazione isolando i reali contributi algoritmici dalla varianza stocastica.
+
+La trattazione si articola secondo una progressione logica suddivisa in quattro sezioni principali:
+\begin{itemize}
+    \item La \textbf{Sezione~\ref{sec:modello_sistema}} formalizza il modello astratto del sistema, definendo rigorosamente gli spazi vettoriali di rappresentazione, gli operatori di proiezione per l'armonizzazione delle \textit{feature} e le regole architetturali di partizionamento dei domini.
+    \item La \textbf{Sezione~\ref{sec:tassonomia_modelli}} delinea la tassonomia delle architetture di classificazione adottate e le relative strategie di \textit{transfer learning}, uniformando le metriche di confronto mediante una formulazione omogenea basata sulla stima della probabilità a posteriori.
+    \item La \textbf{Sezione~\ref{sec:framework_adattamento}} stabilisce il protocollo valutativo per la stabilità statistica, affrontando la gestione dell'incertezza stocastica tramite valutazione \textit{multi-seed} e definendo gli indici morfologici di granularità dello spazio decisionale.
+    \item Infine, la \textbf{Sezione~\ref{sec:framework_analitico}} completa l'architettura metodologica descrivendo l'apparato diagnostico e di \textit{explainability}, integrando strumenti di stima di densità e metriche di rilevanza fondate sulla teoria dei giochi cooperativi per la caratterizzazione e l'interpretazione causale delle divergenze distributive.
+\end{itemize}
+
 \section{Modello del Sistema e Spazi di Rappresentazione}
 \label{sec:modello_sistema}
 
-La presente sezione formalizza l'impalcatura teorica e matematica del framework analitico, definendo in modo rigoroso gli spazi vettoriali di rappresentazione e le distribuzioni di probabilità necessarie per modellare i fenomeni di transizione cross-dominio nei sistemi NIDS. L'obiettivo è stabilire un modello astratto, indipendente dalle peculiarità di implementazione dei singoli dataset, in grado di garantire il rigore metodologico, la comparabilità delle metriche e l'assenza di contaminazione informativa.
+La presente sezione formalizza l'impalcatura teorica e matematica del framework analitico, definendo in modo rigoroso gli spazi vettoriali di rappresentazione e le distribuzioni di probabilità necessarie per modellare i fenomeni di transizione cross-dominio nei sistemi NIDS. 
+L'obiettivo è stabilire un modello astratto, indipendente dalle peculiarità di implementazione dei singoli dataset, in grado di garantire il rigore metodologico, la comparabilità delle metriche e l'assenza di contaminazione informativa.
 
 Questa formalizzazione prosegue direttamente la disamina svolta nel Capitolo~\ref{ch:bck_rltd_wrks}, traducendo in termini matematici e procedurali le criticità del confronto tra segmenti terrestri e spaziali e le esigenze di adattamento dei NIDS delineate nel contesto di riferimento.
 
-A tal fine, la trattazione introduce preliminarmente la formalizzazione dei domini di origine e destinazione, delineando la semantica a doppia etichettatura $(Y, A)$, le regole di partizionamento preventivo anti-\textit{data leakage} e il vincolo di proporzionamento parametrico $\rho$ alla base delle cinque categorie astratte di benchmark, native e ibride, istanziabili dal framework. Successivamente, viene definito l'operatore di proiezione $\boldsymbol{\psi}_k$, specifico per ciascun dominio $k \in \{S, T\}$, che mappa le caratteristiche grezze eterogenee nello spazio delle \textit{feature} condiviso $\mathcal{X}$, esplicitando i criteri concettuali di filtraggio e armonizzazione degli attributi. La trattazione si conclude motivando, sulla base della proprietà di invarianza rispetto a trasformazioni monotoniche propria dei classificatori a partizionamento ricorsivo, l'omissione della fase esplicita di scalatura dalla definizione dello spazio delle \textit{feature}.
+A tal fine, la trattazione introduce preliminarmente la formalizzazione dei domini di origine e destinazione, delineando la semantica a doppia etichettatura $(Y, A)$, le regole di partizionamento preventivo anti-\textit{data leakage} e il vincolo di proporzionamento parametrico $\rho$ alla base delle cinque categorie astratte di benchmark, native e ibride, istanziabili dal framework. 
+Successivamente, viene definito l'operatore di proiezione $\boldsymbol{\psi}_k$, specifico per ciascun dominio $k \in \{S, T\}$, che mappa le caratteristiche grezze eterogenee nello spazio delle \textit{feature} condiviso $\mathcal{X}$, esplicitando i criteri concettuali di filtraggio e armonizzazione degli attributi. 
+La trattazione si conclude motivando, sulla base della proprietà di invarianza rispetto a trasformazioni monotoniche propria dei classificatori a partizionamento ricorsivo, l'omissione della fase esplicita di scalatura dalla definizione dello spazio delle \textit{feature}.
 
 Per facilitare la lettura della trattazione successiva, i principali simboli e costrutti matematici adottati sono sintetizzati nella Tabella~\ref{tab:notazione_matematica}.
 
@@ -329,7 +342,12 @@ Di conseguenza, la topologia dell'albero di decisione e la costruzione dei confi
 \section[Tassonomia delle Architetture di Classificazione e Valutazione Multi-Modello]{Tassonomia delle Architetture di Classificazione e \\\ Valutazione Multi-Modello}
 \label{sec:tassonomia_modelli}
 
-L'intera tassonomia condivide una comune formulazione basata sulla stima della probabilità a posteriori, subordinando l'assegnazione della classe a una soglia decisionale parametrica $\tau$, garantendo così una base di confronto omogenea e indipendente dallo specifico algoritmo di apprendimento sottostante. Per agevolare la consultazione, i formalismi architetturali e i parametri funzionali introdotti in questa sezione sono riepilogati nella Tabella~\ref{tab:notazione_modelli}.
+La presente sezione formalizza la tassonomia delle architetture di classificazione impiegate all'interno del framework metodologico, delineando i criteri per la valutazione multi-modello e l'analisi prestazionale incrociata. 
+L'intera architettura condivide una formulazione matematica unificata fondata sulla stima della probabilità a posteriori: subordinando l'assegnazione finale della classe a una soglia decisionale parametrica $\tau$, viene garantita una base di confronto rigorosa, omogenea e strutturalmente indipendente dallo specifico algoritmo di apprendimento sottostante. 
+
+La trattazione procede definendo lo spazio dei modelli aggregati e le relative strategie di \textit{transfer learning}, per poi introdurre la decomposizione in classificatori specialistici biclasse per l'isolamento analitico delle singole minacce e il relativo protocollo di valutazione incrociata (\textit{cross-evaluation}). La sezione si conclude con la caratterizzazione formale delle famiglie di decisione alberiformi e dei paradigmi di \textit{ensembling} (Bagging e Gradient Boosting), evidenziandone le proprietà algebriche di invarianza e robustezza rispetto alle distorsioni di canale.
+
+Per agevolare la consultazione, i formalismi architetturali e i parametri funzionali introdotti in questa sezione sono riepilogati nella Tabella~\ref{tab:notazione_modelli}.
 
 \begin{table}[H]
     \centering
@@ -876,9 +894,13 @@ dove $\nu \in (0, 1]$ rappresenta il tasso di apprendimento (\textit{learning ra
 \section[Framework di Adattamento, Granularità e Stabilità Statistica]{Framework di Adattamento, Granularità e Stabilità \\\ Statistica}
 \label{sec:framework_adattamento}
 
-La valutazione dell'efficacia delle architetture e delle strategie di \textit{transfer learning} precedentemente formalizzate richiede un apparato metodologico capace di isolare i reali guadagni prestazionali dal rumore stocastico intrinseco ai processi di apprendimento. Questa sezione definisce il framework di valutazione e di analisi teorica adottato per garantire la solidità e la riproducibilità dei risultati.
+La valutazione dell'efficacia delle architetture e delle strategie di \textit{transfer learning} precedentemente formalizzate richiede un apparato metodologico capace di isolare i reali guadagni prestazionali dal rumore stocastico intrinseco ai processi di apprendimento. 
+Questa sezione definisce il framework di valutazione e di analisi teorica adottato per garantire la solidità e la riproducibilità dei risultati.
 
-Nella prima parte della trattazione viene affrontato il problema dell'incertezza algoritmica legata ai modelli ad albero, introducendo un rigoroso protocollo di valutazione \textit{multi-seed}. Vengono definite le metriche prestazionali di aggregazione e viene formalizzato l'impiego del test $t$ di Welch per stabilire oggettivamente la significatività statistica degli scostamenti osservati rispetto al modello di riferimento (\textit{baseline}). Successivamente, l'analisi si sposta sulle proprietà strutturali e geometriche dello spazio decisionale. Viene introdotto l'indice di granularità per valutare l'impatto della formulazione del problema — differenziando tra partizioni a grana grossa e a grana fine — sulla morfologia dei confini decisionali, discutendo il compromesso teorico tra rigidità specialistica e tolleranza al \textit{domain shift}.
+Nella prima parte della trattazione viene affrontato il problema dell'incertezza algoritmica legata ai modelli ad albero, introducendo un rigoroso protocollo di valutazione \textit{multi-seed}. 
+Vengono definite le metriche prestazionali di aggregazione e viene formalizzato l'impiego del test $t$ di Welch per stabilire oggettivamente la significatività statistica degli scostamenti osservati rispetto al modello di riferimento (\textit{baseline}). 
+Successivamente, l'analisi si sposta sulle proprietà strutturali e geometriche dello spazio decisionale. 
+Viene introdotto l'indice di granularità per valutare l'impatto della formulazione del problema — differenziando tra partizioni a grana grossa e a grana fine — sulla morfologia dei confini decisionali, discutendo il compromesso teorico tra rigidità specialistica e tolleranza al \textit{domain shift}.
 
 Per agevolare la consultazione delle metriche e dei parametri statistici discussi, la notazione principale introdotta in questa sezione è riepilogata nella Tabella~\ref{tab:notazione_valutazione}.
 
@@ -1231,7 +1253,9 @@ Il modello $\mathcal{M}_{\text{base}}$ (Sezione~\ref{subsubsec:modello_baseline}
 \section[Framework Analitico, Spiegabilità e Significatività Statistica]{Framework Analitico, Spiegabilità e Significatività \\\ Statistica}
 \label{sec:framework_analitico}
 
-Il presente capitolo definisce il framework analitico, diagnostico e statistico adottato per caratterizzare lo scostamento distributivo (\textit{domain shift}), decodificare le logiche decisionali dei modelli e valutare la significatività delle variazioni prestazionali tra domini eterogenei. L'impianto metodologico integra tecniche di riduzione dimensionale, stima non parametrica di densità e attribuzione dell'importanza delle caratteristiche fondata sulla teoria dei giochi cooperativi, affiancandole a un formalismo rigoroso per la gestione delle soglie e la verifica di ipotesi statistiche.
+La presente sezione definisce il framework analitico, diagnostico e statistico adottato per caratterizzare lo scostamento distributivo (\textit{domain shift}), decodificare le logiche decisionali dei modelli e valutare la significatività delle variazioni prestazionali tra domini eterogenei. 
+L'impianto metodologico integra tecniche di riduzione dimensionale, stima non parametrica di densità e attribuzione dell'importanza delle caratteristiche fondata sulla teoria dei giochi cooperativi, affiancandole a un formalismo rigoroso per la gestione delle soglie e la verifica di ipotesi statistiche.
+
 Per agevolare la consultazione della trattazione, i simboli matematici, i costrutti diagnostici e le metriche prestazionali introdotti in questa sezione sono riepilogati nella Tabella~\ref{tab:notazione_framework}.
 
 \begin{table}[H]
@@ -1630,3 +1654,13 @@ L'ipotesi nulla di uguaglianza delle medie,
 \]
 
 viene respinta qualora il valore $p$ associato alla statistica $t$ risulti inferiore al livello di significatività prefissato $\alpha$ (tipicamente $\alpha=0.05$), indicando che la differenza prestazionale osservata è statisticamente significativa e non può essere ragionevolmente attribuita al solo errore campionario.
+
+\section[Sintesi del Capitolo e Raccordo con la Campagna Sperimentale]{Sintesi del Capitolo e Raccordo con la Campagna \\\ Sperimentale}
+\label{sec:sintesi_raccordo_ch4}
+
+L'impalcatura teorica e metodologica formalizzata nel presente capitolo definisce un modello astratto e rigoroso per la valutazione dei sistemi NIDS soggetti a \textit{domain shift}. 
+Attraverso l'allineamento degli spazi delle \textit{feature}, la formalizzazione dei modelli di classificazione (aggregati e specialistici) e la definizione di un protocollo stocastico fondato su valutazioni \textit{multi-seed} e test di significatività, il framework garantisce l'isolamento dei reali contributi algoritmici dal rumore di misura.
+
+Tuttavia, la validità dei vincoli analitici e delle proprietà di invarianza descritte richiede un riscontro quantitativo su scenari operativi concreti. 
+Nel Capitolo~\ref{ch:risultati_sperimentali} \textcolor{red}{\textbf{[RICORDATI DI AGGIORNARE LA LABEL]}}, il framework teorico viene pertanto istanziato ed eseguito empiricamente. 
+Verranno presentati la caratterizzazione dei dataset di traffico reale, il setup infrastrutturale di addestramento e la discussione critica dei risultati ottenuti, valutando le capacità di generalizzazione e le prestazioni dei modelli al variare dei contesti di rete.
