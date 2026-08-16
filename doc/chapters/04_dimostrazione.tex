@@ -73,7 +73,7 @@ Per isolare il runtime e prevenire conflitti con librerie di sistema, le dipende
 
 Le librerie e i pacchetti impiegati per la manipolazione dati, l'addestramento dei modelli e le verifiche statistiche sono riassunti nella Tabella~\ref{tab:stack_tecnologico}.
 
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
 \caption{Stack tecnologico, librerie e relative versioni vincolate nell'ambiente di runtime.}
 \label{tab:stack_tecnologico}
@@ -122,11 +122,12 @@ Per evitare contaminazioni incrociate (\textit{cross-seed contamination}), il fr
 \subsection{Dominio Sorgente: UNSW-NB15}
 \label{subsec:dataset_source}
 
-Il dataset \texttt{UNSW-NB15}~\cite{7348942}\footnote{\url{https://research.unsw.edu.au/projects/unsw-nb15-dataset}} è stato adottato come rappresentazione concreta del dominio sorgente $\mathcal{D}_S$. Il dataset è stato acquisito nella sua formulazione tabulare in formato CSV comprende inizialmente un volume complessivo di $257.673$ record. 
+Il dataset \texttt{UNSW-NB15}~\cite{nb15}\footnote{\url{https://research.unsw.edu.au/projects/unsw-nb15-dataset}} è stato adottato come rappresentazione concreta del dominio sorgente $\mathcal{D}_S$. 
+Il dataset è stato acquisito nella sua formulazione tabulare in formato CSV comprende inizialmente un volume complessivo di $257.673$ record. 
 
 La tassonomia nativa delle minacce, indicata formalmente con $\mathcal{A}_S$, include oltre alla classe di traffico lecito (\textit{Normal}) nove categorie di attacco: \textit{Fuzzers}, \textit{Analysis}, \textit{Backdoors}, \textit{DoS}, \textit{Exploits}, \textit{Generic}, \textit{Reconnaissance}, \textit{Shellcode} e \textit{Worms}.
 
-Al fine di prevenire il degrado prestazionale dei modelli di apprendimento automatico causato da un marcato sbilanciamento delle classi, è stata applicata una procedura di rimozione delle classi fortemente minoritarie (\textit{minority removal}), in accordo con la metodologia validata in letteratura da Azar et al.~\cite{\textcolor{red}{\textbf{azar2023}}}. In particolare, sono state eliminate quattro categorie di attacco caratterizzate da una frequenza relativa estremamente ridotta nell'insieme originario:
+Al fine di prevenire il degrado prestazionale dei modelli di apprendimento automatico causato da un marcato sbilanciamento delle classi, è stata applicata una procedura di rimozione delle classi fortemente minoritarie (\textit{minority removal}), in accordo con la metodologia validata in letteratura da Azar et al.~\cite{azar2023}. In particolare, sono state eliminate quattro categorie di attacco caratterizzate da una frequenza relativa estremamente ridotta nell'insieme originario:
 \begin{itemize}
     \item \textit{Analysis} ($1{,}141\%$ delle istanze totali);
     \item \textit{Backdoors} ($0{,}996\%$ delle istanze totali);
@@ -136,7 +137,7 @@ Al fine di prevenire il degrado prestazionale dei modelli di apprendimento autom
 
 A seguito dell'eliminazione delle classi minoritarie, la volumetria complessiva del dominio sorgente si attesta a $250.982$ record. La distribuzione dettagliata delle istanze per le sei classi residue è riassunta nella Tabella~\ref{tab:unsw_distribution}. Il successivo campionamento e la scalatura in funzione del parametro $\rho$ vengono formalizzati nella Sezione~\ref{subsec:parametrizzazione_benchmark}.
 
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
 \caption{Distribuzione delle istanze del dataset UNSW-NB15 a seguito della procedura di \textit{minority removal}.}
 \label{tab:unsw_distribution}
@@ -160,18 +161,77 @@ A seguito dell'eliminazione delle classi minoritarie, la volumetria complessiva 
 
 
 
-    \subsection{Domini di Destinazione: Segmento Satellitare/Terrestre STIN}
-    \label{subsec:dataset_target}
-    % Provenienza, formato nativo, tassonomia nativa delle minacce
-    % (istanziazione concreta di $\mathcal{A}_T$), classi accorpate in
-    % \textit{minority merge} e criterio di raggruppamento adottato.
+\subsection{Domini di Destinazione: Segmento Satellitare/Terrestre STIN}
+\label{subsec:dataset_target}
 
-    \subsection{Parametrizzazione e Istanziazione dei Benchmark}
-    \label{subsec:parametrizzazione_benchmark}
-    % Valore numerico concreto di $\rho$, criterio without-replacement
-    % applicato, conteggio effettivo delle istanze generate per ciascuna
-    % delle cinque categorie [rif. teorico: subsubsec:tassonomia_configurazioni],
-    % eventuale tabella riepilogativa delle cardinalità.
+I domini di destinazione $\mathcal{D}_T$ sono stati formalizzati a partire dal dataset \texttt{STIN} (\textit{Satellite-Terrestrial Integrated Network})~\cite{stin}\footnote{\url{https://github.com/kun9717/STIN-data-set/}}, focalizzato sull'identificazione di minacce informatiche in architetture di rete e infrastrutture spaziali integrate. A differenza del dominio sorgente $\mathcal{D}_S$, i dataset target considerati contengono esclusivamente traffico malevolo, con una totale assenza di campioni appartenenti alla classe di traffico lecito (\textit{Normal}).
+
+La caratterizzazione del target si articola su due segmenti operativi distinti:
+\begin{itemize}
+    \item \textbf{Segmento Terrestre (\texttt{TER20}):} Rappresenta il traffico rilevato dai nodi di terra dell'infrastruttura STIN.
+    \item \textbf{Segmento Satellitare (\texttt{SAT20}):} Modellizza il traffico intercettato dai vettori spaziali, precisamente quelli satellitari.
+\end{itemize}
+
+\subsubsection{Segmento Terrestre (\texttt{TER20})}
+Il dataset \texttt{TER20} comprende originariamente $127.244$ record ripartiti su dieci classi native di attacco: \textit{Botnet}, \textit{DDoS}, \textit{Syn\_DDoS}, \textit{UDP\_DDoS}, \textit{Web Attack}, \textit{Backdoor}, \textit{LDAP\_DDoS}, \textit{MSSQL\_DDoS}, \textit{NetBIOS\_DDoS} e \textit{Portmap\_DDoS}.
+
+In linea con la metodologia di accorpamento delle classi minoritarie (\textit{minority merge}) proposta da Azar et al.~\cite{azar2023}, le categorie con caratteristiche funzionali sovrapponibili e frequenza ridotta sono state raggruppate per preservare la significatività statistica e riflettere la tassonomia delle macro-minacce. Nello specifico:
+\begin{enumerate}
+    \item Le classi \textit{Web Attack} e \textit{Backdoor} sono state accorpate alla classe principale \textit{Botnet};
+    \item Le sottoclassi di attacco volumetrico \textit{LDAP\_DDoS}, \textit{MSSQL\_DDoS}, \textit{NetBIOS\_DDoS} e \textit{Portmap\_DDoS} sono state fuso nella macro-categoria \textit{DDoS}.
+\end{enumerate}
+
+A seguito del processo di \textit{minority merge}, la volumetria complessiva rimane invariata a $127.244$ record, strutturata nelle quattro macro-classi risultanti riportate nella Tabella~\ref{tab:ter20_distribution}.
+
+\subsubsection{Segmento Satellitare (\texttt{SAT20})}
+Il dataset \texttt{SAT20} include un totale di $82.320$ istanze, focalizzate in modo specifico sulle minacce dirette al segmento spaziale. La tassonomia nativa si articola esclusivamente su due vettori di attacco volumetrico: \textit{UDP\_DDoS} e \textit{Syn\_DDoS}. Vista l'assenza di classi marginali o fortemente sbilanciate, non è stata applicata alcuna procedura di \textit{minority merge}. La distribuzione finale del segmento \texttt{SAT20} è dettagliata nella Tabella~\ref{tab:sat20_distribution}.
+
+\begin{table}[H]
+\centering
+\caption{Distribuzione delle istanze del dataset \texttt{TER20} a seguito del processo di \textit{minority merge}.}
+\label{tab:ter20_distribution}
+\begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X r}
+\hline
+\textbf{Macro-Classe Target ($\mathcal{A}_T$)} & \textbf{Classi Native Accorpate} & \textbf{Conteggio Istanze} \\
+\hline
+\textit{DDoS} & \textit{DDoS}, \textit{LDAP\_DDoS}, \textit{MSSQL\_DDoS}, \textit{NetBIOS\_DDoS}, \textit{Portmap\_DDoS} & $57.292$ \\
+\textit{Botnet} & \textit{Botnet}, \textit{Web Attack}, \textit{Backdoor} & $40.401$ \\
+\textit{Syn\_DDoS} & \textit{Syn\_DDoS} & $15.713$ \\
+\textit{UDP\_DDoS} & \textit{UDP\_DDoS} & $13.838$ \\
+\hline
+\textbf{Totale} & & $\mathbf{127.244}$ \\
+\hline
+\end{tabularx}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Distribuzione delle istanze del dataset \texttt{SAT20}.}
+\label{tab:sat20_distribution}
+\begin{tabular}{llr}
+\hline
+\textbf{Classe Target ($\mathcal{A}_T$)} & \textbf{Tipologia Minaccia} & \textbf{Conteggio Istanze} \\
+\hline
+\textit{UDP\_DDoS} & Attacco Volumetrico Satellitare & $43.244$ \\
+\textit{Syn\_DDoS} & Attacco Volumetrico Satellitare & $39.076$ \\
+\hline
+\textbf{Totale} & & $\mathbf{82.320}$ \\
+\hline
+\end{tabular}
+\end{table}
+
+
+
+
+
+
+
+\subsection{Parametrizzazione e Istanziazione dei Benchmark}
+\label{subsec:parametrizzazione_benchmark}
+% Valore numerico concreto di $\rho$, criterio without-replacement
+% applicato, conteggio effettivo delle istanze generate per ciascuna
+% delle cinque categorie [rif. teorico: subsubsec:tassonomia_configurazioni],
+% eventuale tabella riepilogativa delle cardinalità.
 
 
 
