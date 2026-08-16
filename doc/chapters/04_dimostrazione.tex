@@ -10,10 +10,8 @@ ciao
 
 \section{Ambiente Sperimentale e Riproducibilità}
 \label{sec:ambiente_sperimentale}
-% Introduzione di sezione: infrastruttura tecnica a supporto dell'intero framework.
 
-L'infrastruttura tecnica descritta nel presente capitolo costituisce il supporto computazionale ed esecutivo dell'intero framework metodologico. 
-Al fine di garantire la totale trasparenza e la riproducibilità end-to-end degli esperimenti, la presente sezione dettagli la struttura della repository software, le dipendenze tecnologiche impiegate e i meccanismi di controllo dell'aleatorietà stocastica.
+Al fine di garantire la totale trasparenza e la riproducibilità end-to-end degli esperimenti, la presente sezione dettaglia la struttura della repository software, le dipendenze tecnologiche impiegate e i meccanismi di controllo dell'aleatorietà stocastica.
 
 \subsection{Repository e Organizzazione del Codice}
 \label{subsec:repository}
@@ -83,15 +81,15 @@ Le librerie e i pacchetti impiegati per la manipolazione dati, l'addestramento d
 \hline
 \textbf{Libreria / Tool} & \textbf{Versione} & \textbf{Scopo Applicativo} \\
 \hline
-\texttt{Python}\footnote{\url{https://www.python.org/}} & \texttt{3.14.4} & Ambiente di esecuzione e interprete base \\
-\texttt{pandas}\footnote{\url{https://pandas.pydata.org/}} & \texttt{3.0.3} & Manipolazione ed elaborazione di strutture dati tabulari \\
-\texttt{numpy}\footnote{\url{https://numpy.org/}} & \texttt{2.5.1} & Calcolo scientifico e operazioni vettoriali ad alte prestazioni \\
-\texttt{scikit-learn}\footnote{\url{https://scikit-learn.org/}} & \texttt{1.9.0} & Pre-elaborazione \textit{feature} e addestramento classificatori \\
-\texttt{scipy}\footnote{\url{https://scipy.org/}} & \texttt{1.18.0} & Verifiche di significatività statistica (es. test $t$ di Welch) \\
-\texttt{shap}\footnote{\url{https://github.com/slundberg/shap}} & \texttt{0.52.0} & Calcolo dei valori Shapley per l'analisi di \textit{explainability} (XAI) \\
-\texttt{joblib}\footnote{\url{https://joblib.readthedocs.io/}} & \texttt{1.5.3} & Serializzazione e caricamento efficiente dei modelli su disco \\
-\texttt{matplotlib}\footnote{\url{https://matplotlib.org/}} & \texttt{3.11.1} & Generazione di grafici e diagrammi prestazionali \\
-\texttt{seaborn}\footnote{\url{https://seaborn.pydata.org/}} & \texttt{0.13.2} & Visualizzazione avanzata e mappe di calore comparative \\
+\texttt{Python}\tablefootnote{\url{https://www.python.org/}} & \texttt{3.14.4} & Ambiente di esecuzione e interprete base \\
+\texttt{pandas}\tablefootnote{\url{https://pandas.pydata.org/}} & \texttt{3.0.3} & Manipolazione ed elaborazione di strutture dati tabulari \\
+\texttt{numpy}\tablefootnote{\url{https://numpy.org/}} & \texttt{2.5.1} & Calcolo scientifico e operazioni vettoriali ad alte prestazioni \\
+\texttt{scikit-learn}\tablefootnote{\url{https://scikit-learn.org/}} & \texttt{1.9.0} & Pre-elaborazione \textit{feature} e addestramento classificatori \\
+\texttt{scipy}\tablefootnote{\url{https://scipy.org/}} & \texttt{1.18.0} & Verifiche di significatività statistica (es. test $t$ di Welch) \\
+\texttt{shap}\tablefootnote{\url{https://github.com/slundberg/shap}} & \texttt{0.52.0} & Calcolo dei valori Shapley per l'analisi di \textit{explainability} (XAI) \\
+\texttt{joblib}\tablefootnote{\url{https://joblib.readthedocs.io/}} & \texttt{1.5.3} & Serializzazione e caricamento efficiente dei modelli su disco \\
+\texttt{matplotlib}\tablefootnote{\url{https://matplotlib.org/}} & \texttt{3.11.1} & Generazione di grafici e diagrammi prestazionali \\
+\texttt{seaborn}\tablefootnote{\url{https://seaborn.pydata.org/}} & \texttt{0.13.2} & Visualizzazione avanzata e mappe di calore comparative \\
 \hline
 \end{tabular}
 \end{table}
@@ -116,22 +114,51 @@ La campagna di addestramento e validazione si sviluppa invece su un insieme di $
 L'iniezione del controllo stocastico avviene tramite l'assegnazione esplicita del parametro \texttt{random\_state} nelle routine di \texttt{scikit-learn}. 
 Per evitare contaminazioni incrociate (\textit{cross-seed contamination}), il framework garantisce l'isolamento dei processi: ogni esecuzione riferita a un seme $s_k \in \mathcal{S}$ opera in maniera autonoma, leggendo le risorse e scrivendo i propri artefatti esclusivamente nella directory dedicata (es. \texttt{runs/hybrid\_models/rf/42/}).
 
-
-
-
-
 \section{Caratterizzazione dei Dataset e Composizione dei Benchmark}
 \label{sec:dataset_caratterizzazione}
 % Introduzione: istanziazione concreta di D_S e D_T
 % [rif. teorico: subsec:composizione_domini].
 
-ciao
+\subsection{Dominio Sorgente: UNSW-NB15}
+\label{subsec:dataset_source}
 
-    \subsection{Dominio Sorgente: UNSW-NB15}
-    \label{subsec:dataset_source}
-    % Provenienza, dimensione, formato nativo, tassonomia nativa delle classi
-    % (istanziazione concreta di $\mathcal{A}_S$), classi rimosse in
-    % \textit{minority removal} e relativa soglia numerica.
+Il dataset \texttt{UNSW-NB15}~\cite{7348942}\footnote{\url{https://research.unsw.edu.au/projects/unsw-nb15-dataset}} è stato adottato come rappresentazione concreta del dominio sorgente $\mathcal{D}_S$. Il dataset è stato acquisito nella sua formulazione tabulare in formato CSV comprende inizialmente un volume complessivo di $257.673$ record. 
+
+La tassonomia nativa delle minacce, indicata formalmente con $\mathcal{A}_S$, include oltre alla classe di traffico lecito (\textit{Normal}) nove categorie di attacco: \textit{Fuzzers}, \textit{Analysis}, \textit{Backdoors}, \textit{DoS}, \textit{Exploits}, \textit{Generic}, \textit{Reconnaissance}, \textit{Shellcode} e \textit{Worms}.
+
+Al fine di prevenire il degrado prestazionale dei modelli di apprendimento automatico causato da un marcato sbilanciamento delle classi, è stata applicata una procedura di rimozione delle classi fortemente minoritarie (\textit{minority removal}), in accordo con la metodologia validata in letteratura da Azar et al.~\cite{\textcolor{red}{\textbf{azar2023}}}. In particolare, sono state eliminate quattro categorie di attacco caratterizzate da una frequenza relativa estremamente ridotta nell'insieme originario:
+\begin{itemize}
+    \item \textit{Analysis} ($1{,}141\%$ delle istanze totali);
+    \item \textit{Backdoors} ($0{,}996\%$ delle istanze totali);
+    \item \textit{Shellcode} ($0{,}646\%$ delle istanze totali);
+    \item \textit{Worms} ($0{,}074\%$ delle istanze totali).
+\end{itemize}
+
+A seguito dell'eliminazione delle classi minoritarie, la volumetria complessiva del dominio sorgente si attesta a $250.982$ record. La distribuzione dettagliata delle istanze per le sei classi residue è riassunta nella Tabella~\ref{tab:unsw_distribution}. Il successivo campionamento e la scalatura in funzione del parametro $\rho$ vengono formalizzati nella Sezione~\ref{subsec:parametrizzazione_benchmark}.
+
+\begin{table}[htbp]
+\centering
+\caption{Distribuzione delle istanze del dataset UNSW-NB15 a seguito della procedura di \textit{minority removal}.}
+\label{tab:unsw_distribution}
+\begin{tabular}{llr}
+\hline
+\textbf{Classe Nativa} & \textbf{Tipologia} & \textbf{Conteggio Istanze} \\
+\hline
+\textit{Normal} & Traffico Lecito & $93.000$ \\
+\textit{Generic} & Attacco Malevolo & $58.871$ \\
+\textit{Exploits} & Attacco Malevolo & $44.525$ \\
+\textit{Fuzzers} & Attacco Malevolo & $24.246$ \\
+\textit{DoS} & Attacco Malevolo & $16.353$ \\
+\textit{Reconnaissance} & Attacco Malevolo & $13.987$ \\
+\hline
+\textbf{Totale} & & $\mathbf{250.982}$ \\
+\hline
+\end{tabular}
+\end{table}
+
+
+
+
 
     \subsection{Domini di Destinazione: Segmento Satellitare/Terrestre STIN}
     \label{subsec:dataset_target}
@@ -145,6 +172,15 @@ ciao
     % applicato, conteggio effettivo delle istanze generate per ciascuna
     % delle cinque categorie [rif. teorico: subsubsec:tassonomia_configurazioni],
     % eventuale tabella riepilogativa delle cardinalità.
+
+
+
+
+
+
+
+
+
 
 \section{Allineamento delle Feature e Pipeline di Preprocessing}
 \label{sec:preprocessing_implementazione}
