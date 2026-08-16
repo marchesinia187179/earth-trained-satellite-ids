@@ -114,16 +114,19 @@ La campagna di addestramento e validazione si sviluppa invece su un insieme di $
 L'iniezione del controllo stocastico avviene tramite l'assegnazione esplicita del parametro \texttt{random\_state} nelle routine di \texttt{scikit-learn}. 
 Per evitare contaminazioni incrociate (\textit{cross-seed contamination}), il framework garantisce l'isolamento dei processi: ogni esecuzione riferita a un seme $s_k \in \mathcal{S}$ opera in maniera autonoma, leggendo le risorse e scrivendo i propri artefatti esclusivamente nella directory dedicata (es. \texttt{runs/hybrid\_models/rf/42/}).
 
-\section{Caratterizzazione dei Dataset e Composizione dei Benchmark}
+\section[Caratterizzazione dei Dataset e Composizione dei Benchmark]{Caratterizzazione dei Dataset e Composizione dei \\ Benchmark}
 \label{sec:dataset_caratterizzazione}
-% Introduzione: istanziazione concreta di D_S e D_T
-% [rif. teorico: subsec:composizione_domini].
+
+La presente sezione è dedicata alla traduzione dell'impianto teorico del framework, definito nel capitolo precedente, in una configurazione sperimentale concreta e riproducibile. 
+Affinché i modelli di \textit{Intrusion Detection} possano essere addestrati e valutati rispetto alle sfide imposte dal \textit{domain shift}, è fondamentale istanziare fisicamente il dominio sorgente ($\mathcal{D}_S$) e i domini di destinazione ($\mathcal{D}_T$). 
+Nelle sottosezioni seguenti verranno analizzate le fonti di dati originarie, descrivendo le tassonomie di minaccia native e le relative procedure di pulizia e normalizzazione (Sezioni~\ref{subsec:dataset_source} e~\ref{subsec:dataset_target}). 
+Infine, la Sezione~\ref{subsec:parametrizzazione_benchmark} formalizzerà l'algoritmo di campionamento e scalatura che ha guidato l'aggregazione di tali fonti, culminando nella generazione dei benchmark fisici standardizzati su cui poggeranno le successive fasi di addestramento e classificazione.
 
 \subsection{Dominio Sorgente: UNSW-NB15}
 \label{subsec:dataset_source}
 
 Il dataset \texttt{UNSW-NB15}~\cite{nb15}\footnote{\url{https://research.unsw.edu.au/projects/unsw-nb15-dataset}} è stato adottato come rappresentazione concreta del dominio sorgente $\mathcal{D}_S$. 
-Il dataset è stato acquisito nella sua formulazione tabulare in formato CSV comprende inizialmente un volume complessivo di $257.673$ record. 
+Il dataset, acquisito nella sua formulazione tabulare in formato CSV, comprende inizialmente un volume complessivo di $257.673$ record. 
 
 La tassonomia nativa delle minacce, indicata formalmente con $\mathcal{A}_S$, include oltre alla classe di traffico lecito (\textit{Normal}) nove categorie di attacco: \textit{Fuzzers}, \textit{Analysis}, \textit{Backdoors}, \textit{DoS}, \textit{Exploits}, \textit{Generic}, \textit{Reconnaissance}, \textit{Shellcode} e \textit{Worms}.
 
@@ -135,7 +138,9 @@ Al fine di prevenire il degrado prestazionale dei modelli di apprendimento autom
     \item \textit{Worms} ($0{,}074\%$ delle istanze totali).
 \end{itemize}
 
-A seguito dell'eliminazione delle classi minoritarie, la volumetria complessiva del dominio sorgente si attesta a $250.982$ record. La distribuzione dettagliata delle istanze per le sei classi residue è riassunta nella Tabella~\ref{tab:unsw_distribution}. Il successivo campionamento e la scalatura in funzione del parametro $\rho$ vengono formalizzati nella Sezione~\ref{subsec:parametrizzazione_benchmark}.
+A seguito dell'eliminazione delle classi minoritarie, la volumetria complessiva del dominio sorgente si attesta a $250.982$ record. 
+La distribuzione dettagliata delle istanze per le sei classi residue è riassunta nella Tabella~\ref{tab:unsw_distribution}. 
+Il successivo campionamento e la scalatura in funzione del parametro $\rho$ vengono formalizzati nella Sezione~\ref{subsec:parametrizzazione_benchmark}.
 
 \begin{table}[H]
 \centering
@@ -157,14 +162,11 @@ A seguito dell'eliminazione delle classi minoritarie, la volumetria complessiva 
 \end{tabular}
 \end{table}
 
-
-
-
-
 \subsection{Domini di Destinazione: Segmento Satellitare/Terrestre STIN}
 \label{subsec:dataset_target}
 
-I domini di destinazione $\mathcal{D}_T$ sono stati formalizzati a partire dal dataset \texttt{STIN} (\textit{Satellite-Terrestrial Integrated Network})~\cite{stin}\footnote{\url{https://github.com/kun9717/STIN-data-set/}}, focalizzato sull'identificazione di minacce informatiche in architetture di rete e infrastrutture spaziali integrate. A differenza del dominio sorgente $\mathcal{D}_S$, i dataset target considerati contengono esclusivamente traffico malevolo, con una totale assenza di campioni appartenenti alla classe di traffico lecito (\textit{Normal}).
+I domini di destinazione $\mathcal{D}_T$ sono stati formalizzati a partire dal dataset \texttt{STIN} (\textit{Satellite-Terrestrial Integrated Network})~\cite{stin}\footnote{\url{https://github.com/kun9717/STIN-data-set/}}, focalizzato sull'identificazione di minacce informatiche in architetture di rete e infrastrutture spaziali integrate. 
+Acquisiti nella formulazione tabulare in formato CSV, a differenza del dominio sorgente $\mathcal{D}_S$, i dataset target considerati contengono esclusivamente traffico malevolo, con una totale assenza di campioni appartenenti alla classe di traffico lecito (\textit{Normal}).
 
 La caratterizzazione del target si articola su due segmenti operativi distinti:
 \begin{itemize}
@@ -178,13 +180,10 @@ Il dataset \texttt{TER20} comprende originariamente $127.244$ record ripartiti s
 In linea con la metodologia di accorpamento delle classi minoritarie (\textit{minority merge}) proposta da Azar et al.~\cite{azar2023}, le categorie con caratteristiche funzionali sovrapponibili e frequenza ridotta sono state raggruppate per preservare la significatività statistica e riflettere la tassonomia delle macro-minacce. Nello specifico:
 \begin{enumerate}
     \item Le classi \textit{Web Attack} e \textit{Backdoor} sono state accorpate alla classe principale \textit{Botnet};
-    \item Le sottoclassi di attacco volumetrico \textit{LDAP\_DDoS}, \textit{MSSQL\_DDoS}, \textit{NetBIOS\_DDoS} e \textit{Portmap\_DDoS} sono state fuso nella macro-categoria \textit{DDoS}.
+    \item Le sottoclassi di attacco volumetrico \textit{LDAP\_DDoS}, \textit{MSSQL\_DDoS}, \textit{NetBIOS\_DDoS} e \textit{Portmap\_DDoS} sono state fuse nella macro-categoria \textit{DDoS}.
 \end{enumerate}
 
 A seguito del processo di \textit{minority merge}, la volumetria complessiva rimane invariata a $127.244$ record, strutturata nelle quattro macro-classi risultanti riportate nella Tabella~\ref{tab:ter20_distribution}.
-
-\subsubsection{Segmento Satellitare (\texttt{SAT20})}
-Il dataset \texttt{SAT20} include un totale di $82.320$ istanze, focalizzate in modo specifico sulle minacce dirette al segmento spaziale. La tassonomia nativa si articola esclusivamente su due vettori di attacco volumetrico: \textit{UDP\_DDoS} e \textit{Syn\_DDoS}. Vista l'assenza di classi marginali o fortemente sbilanciate, non è stata applicata alcuna procedura di \textit{minority merge}. La distribuzione finale del segmento \texttt{SAT20} è dettagliata nella Tabella~\ref{tab:sat20_distribution}.
 
 \begin{table}[H]
 \centering
@@ -204,6 +203,12 @@ Il dataset \texttt{SAT20} include un totale di $82.320$ istanze, focalizzate in 
 \end{tabularx}
 \end{table}
 
+\subsubsection{Segmento Satellitare (\texttt{SAT20})}
+Il dataset \texttt{SAT20} include un totale di $82.320$ istanze, focalizzate in modo specifico sulle minacce dirette al segmento spaziale. 
+La tassonomia nativa si articola esclusivamente su due vettori di attacco volumetrico: \textit{UDP\_DDoS} e \textit{Syn\_DDoS}. 
+Vista l'assenza di classi marginali o fortemente sbilanciate, non è stata applicata alcuna procedura di \textit{minority merge}. 
+La distribuzione finale del segmento \texttt{SAT20} è dettagliata nella Tabella~\ref{tab:sat20_distribution}.
+
 \begin{table}[H]
 \centering
 \caption{Distribuzione delle istanze del dataset \texttt{SAT20}.}
@@ -220,19 +225,51 @@ Il dataset \texttt{SAT20} include un totale di $82.320$ istanze, focalizzate in 
 \end{tabular}
 \end{table}
 
-
-
-
-
-
+Per entrambi i dataset target, il successivo campionamento e la scalatura in funzione del parametro $\rho$ vengono formalizzati nella Sezione~\ref{subsec:parametrizzazione_benchmark}.
 
 \subsection{Parametrizzazione e Istanziazione dei Benchmark}
 \label{subsec:parametrizzazione_benchmark}
-% Valore numerico concreto di $\rho$, criterio without-replacement
-% applicato, conteggio effettivo delle istanze generate per ciascuna
-% delle cinque categorie [rif. teorico: subsubsec:tassonomia_configurazioni],
-% eventuale tabella riepilogativa delle cardinalità.
 
+Al fine di garantire un confronto rigoroso, equo e immune da bias legati alle fluttuazioni nella cardinalità dei dati tra i diversi scenari di test, la costruzione materiale dei benchmark fisici a partire dai domini sorgente e target ($\mathcal{D}_S$ e $\mathcal{D}_T$) è stata sottoposta a un rigido vincolo di bilanciamento matematico. 
+Il parametro di scalatura e proporzione tra classi, definito formalmente come $\rho$, è stato fissato a un valore numerico pari a $10$. Tale configurazione (\texttt{NORMAL\_ANOMALY\_RATIO} nell'infrastruttura di codice) impone che per ogni istanza appartenente allo spazio delle etichette primarie malevole ($Y=1$), siano presenti esattamente dieci istanze relative al traffico lecito ($Y=0$).
+
+Il processo di istanziazione opera mediante un campionamento stratificato senza reinserimento (\textit{without-replacement stratified sampling}). 
+Poiché l'operatore di cardinalità applicato alla componente benevola del dominio sorgente restituisce $N(\mathbf{x} \in \mathcal{D}_S \mid Y=0) = 93.000$ record, l'algoritmo vincola l'estrazione della componente anomala a esattamente $9.300$ istanze complessive per ciascun benchmark. 
+La partizione dei domini in insiemi di addestramento e collaudo ($\mathcal{D}_k^{(train)}$ e $\mathcal{D}_k^{(test)}$) è mantenuta costante attraverso uno \textit{split} dell'80\% per il training e del 20\% per il test.
+
+L'applicazione di questa logica ha permesso di istanziare i dataset aggregati previsti dal framework teorico. 
+In tutte le configurazioni, la componente benevola corrisponde invariabilmente alle distribuzioni stazionarie originarie del dominio sorgente, $P_S(\mathbf{x} \mid Y = 0)$. 
+La differenziazione degli scenari avviene modulando la componente malevola ($Y=1$) in funzione della famiglia di attacco esplorata ($A \in \mathcal{A}_S$ oppure $A \in \mathcal{A}_T$):
+
+\begin{enumerate}
+    \item \textbf{Set di Iniezione di Riferimento (\texttt{INJECTION}):} Costituisce la baseline proposta dall'architettura ($\mathcal{M}_{base}$). Progettato per fornire un'ancora di prestazione basata su \textit{few-shot learning}, questo set combina le minacce sorgente $P_S(\mathbf{x} \mid Y = 1, A \in \mathcal{A}_S)$ (pari a $9.271$ istanze) con l'infusione controllata di una porzione altamente sparsa di traffico target $\Delta\mathcal{D}_T$ (pari a $29$ istanze, corrispondente allo $0{,}3\%$ delle anomalie totali).
+    \item \textbf{Set Nativo Sorgente (\texttt{NB15}):} Rappresenta il NIDS tradizionale ($\mathcal{M}_S$). La componente anomala ammonta a $9.300$ istanze appartenenti esclusivamente alla tassonomia nativa sorgente $\mathcal{A}_S$. È impiegato per misurare analiticamente la degradazione prestazionale causata dal \textit{domain shift} in totale assenza di adattamento al target.
+    \item \textbf{Set Ibridi Aggregati (\texttt{NB15\_SAT20}, \texttt{NB15\_TER20}, \texttt{NB15\_STIN}):} Formulati per addestrare i modelli aggregati ibridi ($\mathcal{M}_H^{(T)}$), questi dataset istituiscono il limite teorico di rilevamento (\textit{upper bound}, paradigma Oracle). La componente anomala di $9.300$ record è interamente governata dalle distribuzioni a priori del dominio target $P_T(\mathbf{x} \mid Y = 1, A \in \mathcal{A}_T)$, prelevate rispettivamente dal segmento spaziale (\texttt{SAT20}), terrestre (\texttt{TER20}) o dall'ecosistema olistico congiunto (\texttt{STIN}).
+\end{enumerate}
+
+Grazie al vincolo imposto da $\rho$, i cinque benchmark aggregati presentano un'architettura dimensionale e un partizionamento perfettamente identici, come esposto nella Tabella~\ref{tab:benchmark_cardinality}. Tale standardizzazione volumetrica neutralizza il rischio di divergenze prestazionali derivanti dalle variazioni della mole campionaria.
+
+\begin{table}[H]
+\centering
+\caption{Riepilogo delle cardinalità finali per i benchmark aggregati, con partizionamento 80/20 e vincolo $\rho=10$. Il modello \texttt{INJECTION} funge da baseline di riferimento dell'infrastruttura.}
+\label{tab:benchmark_cardinality}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lcccccc}
+\hline
+\textbf{Benchmark} & \textbf{Istanze \textit{Normal} ($Y=0$)} & \textbf{Istanze Anomale ($Y=1$)} & \textbf{Totale Istanze} & \textbf{Training Set (80\%)} & \textbf{Test Set (20\%)} \\
+\hline
+\texttt{INJECTION} (Baseline) & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+\texttt{NB15} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+\texttt{NB15\_SAT20} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+\texttt{NB15\_TER20} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+\texttt{NB15\_STIN} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+\hline
+\end{tabular}}
+\end{table}
+
+Infine, a partire dai macro-dataset aggregati e scalati finora descritti, la pipeline di pre-elaborazione procede alla derivazione sistematica dei Set Nativi Sorgente Biclasse e dei Set Ibridi Biclasse. 
+Tramite un filtraggio a livello di etichetta secondaria $A=a$, le singole famiglie di minaccia (es. $a \in \mathcal{A}_S$ per \texttt{NB15} o $a \in \mathcal{A}_T$ per \texttt{STIN}) vengono isolate e combinate esclusivamente con la baseline nativa lecita $P_S(\mathbf{x} \mid Y = 0)$. 
+Questi dataset ristretti risultano indispensabili per l'addestramento dei rilevatori specialistici ($\mathcal{M}_{S,a}$ e $\mathcal{M}_{H,T,a}$), consentendo di valutare la sensibilità del sistema verso singole tipologie di attacco senza incorrere nelle distorsioni intrinseche generate dalla sovrapposizione di distribuzioni anomale eterogenee.
 
 
 
@@ -269,6 +306,11 @@ ciao
     % standardizzazione diagnostica (sezione successiva sugli strumenti
     % analitici).
 
+
+
+
+
+    
 \section{Implementazione dei Classificatori}
 \label{sec:implementazione_classificatori}
 % Introduzione: istanziazione concreta della tassonomia dei modelli
