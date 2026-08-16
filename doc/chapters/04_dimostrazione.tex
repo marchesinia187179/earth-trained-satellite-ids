@@ -12,61 +12,109 @@ ciao
 \label{sec:ambiente_sperimentale}
 % Introduzione di sezione: infrastruttura tecnica a supporto dell'intero framework.
 
-    \subsection{Repository e Organizzazione del Codice}
-    \label{subsec:repository}
+L'infrastruttura tecnica descritta nel presente capitolo costituisce il supporto computazionale ed esecutivo dell'intero framework metodologico. 
+Al fine di garantire la totale trasparenza e la riproducibilità end-to-end degli esperimenti, la presente sezione dettagli la struttura della repository software, le dipendenze tecnologiche impiegate e i meccanismi di controllo dell'aleatorietà stocastica.
 
-    Al fine di garantire la totale trasparenza e la verificabilità della metodologia proposta, l'intera infrastruttura software sviluppata è stata resa pubblicamente accessibile all'interno di una repository dedicata hosted su piattaforma GitHub\footnote{\url{https://github.com/marchesinia187179/earth-trained-satellite-ids}}. 
-    Il progetto, distribuito sotto licenza open-source MIT alla versione \texttt{v4.0.0}, è organizzato secondo una struttura modulare mirata a separare nettamente la logica di pre-elaborazione dei dati, la definizione dei modelli, l'esecuzione della suite sperimentale e la produzione degli artefatti documentali.
+\subsection{Repository e Organizzazione del Codice}
+\label{subsec:repository}
 
-    La gerarchia fondamentale delle directory del progetto si articola nei seguenti moduli principali:
-    \begin{itemize}
-        \item \texttt{src/}: contiene il core logico dell'applicazione, suddiviso in script funzionali per la manipolazione dei dati (\texttt{data\_preprocessing.py}), la definizione dei classificatori (\texttt{models.py}), l'esecuzione della logica di classificazione (\texttt{classification.py}) e la generazione delle rappresentazioni grafiche (\texttt{plotting.py}). La sotto-cartella \texttt{utils/} raccoglie i moduli di supporto per la gestione delle configurazioni di sistema (\texttt{config.py}), la persistenza su disco (\texttt{file\_utils.py}) e la formalizzazione delle metriche di valutazione (\texttt{metrics.py}).
-        \item \texttt{data/}: dedicata all'archiviazione dei dati, strutturata per contenere i dataset nello stato successivo alle fasi di pulizia e trasformazione (\texttt{preprocessed/}) unitamente ai relativi metadati di tracciamento.
-        \item \texttt{runs/}: costituisce l'ambiente di persistenza degli esperimenti e dei risultati. La struttura interna riflette l'organizzazione per tipologia di modello utilizzata rispetto alla baseline (es. \texttt{hybrid\_models/}, \texttt{nb15\_models/}) ed è ulteriormente sotto-articolata per ciascun seme stocastico utilizzato (es. \texttt{0/}, \texttt{42/}, \texttt{2026/}). Ciascuna sotto-cartella memorizza gli artefatti serializzati dei modelli addestrati (\texttt{models/}), le rilevazioni metriche grezze (\texttt{results/}) e i prodotti delle analisi di significatività statistica e aggregazione (es. test t di Welch e heatmaps).
-        \item \texttt{doc/}: racchiude i sorgenti \LaTeX{} e le risorse grafiche impiegate per la stesura della documentazione scientifica e dell'elaborato.
-    \end{itemize}
+L'intera architettura software sviluppata è stata resa pubblicamente accessibile su piattaforma GitHub\footnote{\url{https://github.com/marchesinia187179/earth-trained-satellite-ids}}. 
+Il progetto, distribuito sotto licenza open-source MIT alla versione \texttt{v4.0.0}, è organizzato secondo una struttura modulare concepita per disaccoppiare la logica di pre-elaborazione dei dati, la definizione dei modelli, l'esecuzione della suite sperimentale e la produzione degli artefatti documentali.
 
-    L'esecuzione del framework non richiede configurazioni manuali complesse: l'infrastruttura è concepita come una suite di script gestiti da un punto di ingresso principale (\texttt{main.py}). 
-    Una volta soddisfatte le dipendenze di sistema dichiarate nel file \texttt{requirement.txt}, l'avvio del punto di ingresso attiva un'interfaccia a riga di comando (CLI) interattiva. 
-    Tale interfaccia guida l'operatore attraverso le diverse fasi della campagna sperimentale, automatizzando in sequenza la preparazione dei dati, l'addestramento multi-seed e la generazione delle analisi comparative.
+La gerarchia fondamentale delle directory, illustrata nella Figura~\ref{fig:struttura_repository}, si articola nei seguenti moduli principali:
+\begin{itemize}
+    \item \texttt{src/}: racchiude il core logico dell'applicazione, integrando i moduli di pre-elaborazione (\texttt{data\_preprocessing.py}), definizione dei classificatori (\texttt{models.py}), esecuzione delle procedure di classificazione (\texttt{classification.py}) e generazione grafica (\texttt{plotting.py}). La sotto-cartella \texttt{utils/} gestisce le configurazioni di sistema (\texttt{config.py}), l'I/O su disco (\texttt{file\_utils.py}) e la formalizzazione delle metriche (\texttt{metrics.py}).
+    \item \texttt{data/}: destinata alla memorizzazione dei dataset nello stato successivo alle fasi di pulizia e trasformazione (\texttt{preprocessed/}) unitamente ai relativi metadati.
+    \item \texttt{runs/}: ambiente di persistenza strutturato per tipologia di modello usato per il confronto con la baseline (es. \texttt{hybrid\_models/}, \texttt{nb15\_models/}) e scomposizione per seme stocastico. Ogni cartella raccoglie gli artefatti serializzati dei modelli (\texttt{models/}), le misurazioni grezze (\texttt{results/}) e i prodotti delle analisi di significatività statistica (es. test $t$ di Welch e mappe di calore).
+    \item \texttt{doc/}: contiene i sorgenti \LaTeX{} e le risorse grafiche della documentazione scientifica.
+\end{itemize}
 
-    \subsection{Stack Tecnologico e Dipendenze}
-    \label{subsec:stack_tecnologico}
+\begin{figure}[H]
+\small
+\dirtree{%
+.1 earth-trained-satellite-ids/.
+.2 data/.
+.3 preprocessed/ \DTcomment{(generata a runtime)}.
+.3 raw/ \DTcomment{(non tracciata in Git)}.
+.2 doc/ \DTcomment{(contiene i sorgenti \LaTeX{} e le risorse grafiche della documentazione scientifica)}.
+.2 runs/ \DTcomment{(generata a runtime)}.
+.3 {hybrid\_models/ \quad nb15\_models/}.
+.4 {dt/ \quad hgb/ \quad rf/}.
+.5 {0/ ... 12345/}.
+.6 models/.
+.6 results/.
+.5 aggregated\_heatmaps/.
+.5 welch\_ttest/.
+.2 src/.
+.3 utils/.
+.4 {config.py \quad file\_utils.py \quad metrics.py}.
+.3 {classification.py}.
+.3 {data\_preprocessing.py}.
+.3 {file\_preprocessing.py}.
+.3 {models.py}.
+.3 {plotting.py}.
+.2 venv/ \DTcomment{(non tracciata in Git)}.
+.2 {.gitignore \quad LICENSE \quad README.md}.
+.2 {requirement\_fixed.txt} \DTcomment{(non tracciato in Git)}.
+.2 {requirement.txt}.
+.2 {main.py}.
+}
+\caption{Rappresentazione schematica della gerarchia delle directory del progetto e delle risorse generate a runtime.}
+\label{fig:struttura_repository}
+\end{figure}
 
-    L'intera architettura software è stata realizzata adottando l'interprete \texttt{Python} nella versione \texttt{3.14.4} quale ambiente di esecuzione principale. 
-    Al fine di garantire l'isolamento delle dipendenze e prevenire conflitti tra librerie a livello di sistema operativo, l'ambiente di runtime è stato gestito in maniera deterministica tramite il modulo nativo \texttt{venv}.
+L'esecuzione dell'infrastruttura non richiede configurazioni manuali complesse. 
+L'avvio del punto di ingresso principale (\texttt{main.py}), previa installazione delle dipendenze dichiarate nel file di testo \texttt{requirement.txt}, attiva un'interfaccia a riga di comando (CLI) interattiva. 
+Tale interfaccia guida l'operatore attraverso le fasi di preparazione dei dati, addestramento multi-seed e generazione delle analisi comparative.
 
-    Lo stack tecnologico impiegato per la manipolazione dei dati, l'addestramento dei modelli e le analisi statistiche include un insieme selezionato di pacchetti, le cui versioni sono state rigorosamente vincolate all'interno del file di configurazione delle dipendenze:
-    \begin{itemize}
-        \item \textbf{Manipolazione dei dati e calcolo scientifico:} \texttt{pandas}\footnote{\url{https://pandas.pydata.org/}} (v\texttt{3.0.3}) e \texttt{numpy}\footnote{\url{https://numpy.org/}} (v\texttt{2.5.1}), impiegate per la gestione efficiente delle strutture dati tabulari e per l'esecuzione di operazioni vettoriali ad alte prestazioni.
-        \item \textbf{Apprendimento automatico e validazione statistica:} \texttt{scikit-learn}\footnote{\url{https://scikit-learn.org/}} (v\texttt{1.9.0}), utilizzata per la definizione, la pre-elaborazione delle \textit{feature} e l'addestramento dei classificatori; \texttt{scipy}\footnote{\url{https://scipy.org/}} (v\texttt{1.18.0}), adottata per l'esecuzione delle verifiche di significatività statistica (es. test $t$ di Welch).
-        \item \textbf{Explainable Artificial Intelligence (XAI):} \texttt{shap}\footnote{\url{https://shap.readthedocs.io/}} (v\texttt{0.52.0}), integrata per l'estrazione e il calcolo dei valori attesi secondo la teoria dei giochi cooperativi, al fine di quantificare l'impatto di ciascuna variabile sulle predizioni.
-        \item \textbf{Persistenza ed elaborazione grafica:} \texttt{joblib}\footnote{\url{https://joblib.readthedocs.io/}} (v\texttt{1.5.3}), per la serializzazione e il caricamento efficiente degli oggetti di modello su disco; \texttt{matplotlib}\footnote{\url{https://matplotlib.org/}} (v\texttt{3.11.1}) e \texttt{seaborn}\footnote{\url{https://seaborn.pydata.org/}} (v\texttt{0.13.2}), impiegate per la generazione automatizzata dei diagrammi metrici e delle mappe di calore comparative.
-    \end{itemize}
+\subsection{Stack Tecnologico e Dipendenze}
+\label{subsec:stack_tecnologico}
 
-    L'esecuzione e la validazione del sistema sono state condotte su una stazione di calcolo basata su architettura Apple MacBook Air 2020 (modello A2179), equipaggiata con un processore quad-core Intel Core i5. 
-    Per eliminare l'overhead prestazionale introdotto dai livelli di astrazione virtualizzati ed effettuare un controllo diretto sul consumo di risorse di sistema, il calcolatore è stato eseguito in ambiente nativo \textit{dual-boot} con distribuzione Linux Xubuntu.
+L'infrastruttura software è stata sviluppata adottando l'interprete \texttt{Python} (v\texttt{3.14.4}) quale ambiente di esecuzione. 
+Per isolare il runtime e prevenire conflitti con librerie di sistema, le dipendenze sono state gestite in un ambiente virtuale dedicato tramite il modulo nativo \texttt{venv}.
 
-    \subsection{Gestione della Riproducibilità Stocastica}
-    \label{subsec:riproducibilita_seed}
+Le librerie e i pacchetti impiegati per la manipolazione dati, l'addestramento dei modelli e le verifiche statistiche sono riassunti nella Tabella~\ref{tab:stack_tecnologico}.
 
-    La garanzia della riproducibilità sperimentale e il controllo della variabilità stocastica intrinseca negli algoritmi di apprendimento automatico costituiscono requisiti primari dell'architettura implementata. A tal fine, il framework gestisce l'aleatorietà attraverso una netta separazione tra la fase di preparazione deterministica del dato e la successiva fase di addestramento e valutazione dei classificatori.
+\begin{table}[htbp]
+\centering
+\caption{Stack tecnologico, librerie e relative versioni vincolate nell'ambiente di runtime.}
+\label{tab:stack_tecnologico}
+\begin{tabular}{lll}
+\hline
+\textbf{Libreria / Tool} & \textbf{Versione} & \textbf{Scopo Applicativo} \\
+\hline
+\texttt{Python}\footnote{\url{https://www.python.org/}} & \texttt{3.14.4} & Ambiente di esecuzione e interprete base \\
+\texttt{pandas}\footnote{\url{https://pandas.pydata.org/}} & \texttt{3.0.3} & Manipolazione ed elaborazione di strutture dati tabulari \\
+\texttt{numpy}\footnote{\url{https://numpy.org/}} & \texttt{2.5.1} & Calcolo scientifico e operazioni vettoriali ad alte prestazioni \\
+\texttt{scikit-learn}\footnote{\url{https://scikit-learn.org/}} & \texttt{1.9.0} & Pre-elaborazione \textit{feature} e addestramento classificatori \\
+\texttt{scipy}\footnote{\url{https://scipy.org/}} & \texttt{1.18.0} & Verifiche di significatività statistica (es. test $t$ di Welch) \\
+\texttt{shap}\footnote{\url{https://github.com/slundberg/shap}} & \texttt{0.52.0} & Calcolo dei valori Shapley per l'analisi di \textit{explainability} (XAI) \\
+\texttt{joblib}\footnote{\url{https://joblib.readthedocs.io/}} & \texttt{1.5.3} & Serializzazione e caricamento efficiente dei modelli su disco \\
+\texttt{matplotlib}\footnote{\url{https://matplotlib.org/}} & \texttt{3.11.1} & Generazione di grafici e diagrammi prestazionali \\
+\texttt{seaborn}\footnote{\url{https://seaborn.pydata.org/}} & \texttt{0.13.2} & Visualizzazione avanzata e mappe di calore comparative \\
+\hline
+\end{tabular}
+\end{table}
 
-    La fase di pre-elaborazione e pulizia del dataset è vincolata in modo esclusivo al seme stocastico primario $s_0 = 127001$. L'impiego di $s_0$ garantisce che le operazioni di trasformazione, la generazione dei metadati e il successivo salvataggio delle strutture dati all'interno della cartella \texttt{data/preprocessed/} avvengano in maniera perfettamente deterministica e univoca, fornendo un'origine immutabile per le successive analisi.
+La suite sperimentale è stata eseguita su un calcolatore Apple MacBook Air 2020 (modello A2179), equipaggiato con un processore quad-core Intel Core i5. 
+Per azzerare l'overhead della virtualizzazione e garantire un controllo diretto sulle risorse hardware, l'esecuzione è avvenuta in ambiente nativo \textit{dual-boot} sotto distribuzione Linux Xubuntu.
 
-    La campagna sperimentale di addestramento e validazione si articola invece su un insieme di $K=10$ semi stocastici distinti, formalizzato come:
-    \begin{equation}
-        \mathcal{S} = \{0, 1, 7, 42, 101, 123, 999, 1337, 2026, 12345\}
-    \end{equation}
-    L'iniezione del controllo stocastico avviene programmaticamente mediante l'assegnazione esplicita del parametro \texttt{random\_state} nelle routine di \texttt{scikit-learn}, vincolando deterministicamente la suddivisione interna, il campionamento e l'inizializzazione dei parametri degli algoritmi.
+\subsection{Gestione della Riproducibilità Stocastica}
+\label{subsec:riproducibilita_seed}
 
-    Oltre al fissaggio dei semi a livello di codice, il framework implementa una segregazione architetturale dei processi per prevenire qualsiasi forma di interferenza o contaminazione incrociata tra le differenti run (\textit{cross-seed contamination}):
-    \begin{itemize}
-        \item Ogni esperimento relativo a uno specifico seme $s_k \in \mathcal{S}$ viene eseguito in maniera totalmente indipendente dagli altri.
-        \item L'accesso alle risorse in lettura e scrittura è vincolato all'albero delle directory dedicato; ciascun processo attinge i dati e persiste i propri artefatti (modelli serializzati nella cartella \texttt{models/} e rilevazioni grezze in \texttt{results/}) all'interno del sotto-percorso identificato dal valore numerico del relativo seme (es. \texttt{runs/nb15\_models/rf/42/}).
-    \end{itemize}
-    Tale isolamento garantisce il determinismo \textit{end-to-end} della pipeline, assicurando la completa tracciabilità e la riproducibilità autonoma di ciascuna esecuzione.
+Il controllo della variabilità stocastica negli algoritmi di apprendimento automatico costituisce un requisito imprescindibile del framework. 
+L'aleatorietà viene gestita separando nettamente la fase di preparazione deterministica del dato dall'addestramento dei classificatori.
 
+La fase di pulizia e trasformazione del dataset originale è vincolata in modo univoco al seme stocastico primario $s_0 = 127001$. 
+Tale vincolo assicura che la generazione dei metadati e il salvataggio dei dati pre-elaborati in \texttt{data/preprocessed/} avvengano in maniera deterministica e immutabile.
+
+La campagna di addestramento e validazione si sviluppa invece su un insieme di $K=10$ semi stocastici distinti:
+\begin{equation}
+    \mathcal{S} = \{0, 1, 7, 42, 101, 123, 999, 1337, 2026, 12345\}
+\end{equation}
+
+L'iniezione del controllo stocastico avviene tramite l'assegnazione esplicita del parametro \texttt{random\_state} nelle routine di \texttt{scikit-learn}. 
+Per evitare contaminazioni incrociate (\textit{cross-seed contamination}), il framework garantisce l'isolamento dei processi: ogni esecuzione riferita a un seme $s_k \in \mathcal{S}$ opera in maniera autonoma, leggendo le risorse e scrivendo i propri artefatti esclusivamente nella directory dedicata (es. \texttt{runs/hybrid\_models/rf/42/}).
 
 
 
