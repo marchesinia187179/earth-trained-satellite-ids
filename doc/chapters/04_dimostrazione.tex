@@ -343,13 +343,13 @@ Questi dataset ristretti risultano indispensabili per l'addestramento dei rileva
     \node [dataset, above right=1.5cm and -1cm of filter] (dt) {\textbf{Target $\mathcal{D}_T$}\\STIN (TER20 / SAT20)\\(32 col., $d_T=30$)};
 
     % --- STADIO 5: RAMO PRINCIPALE E DIAGNOSTICO ---
-    \node [process, below left=1.5cm and -3cm of final_data, align=center] (models) {
+    \node [process, below left=1.5cm and 0cm of final_data, align=center] (models) {
         \textbf{Pipeline di Training e Inferenza}\\
         Model Tree-based (\textit{DT}, \textit{RF}, \textit{HistGB})\\
         \textbf{Nessuna Scalatura Applicata}
     };
 
-    \node [branch, below right=1.5cm and -3cm of final_data, align=center] (diag) {
+    \node [branch, below right=1.5cm and 0cm of final_data, align=center] (diag) {
         \textbf{Modulo Diagnostico Offline}\\
         \scriptsize \texttt{StandardScaler} ($z$-score)\\
         \textit{PCA}, \textit{KDE} (\texttt{plotting.py})
