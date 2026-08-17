@@ -279,24 +279,131 @@ Questi dataset ristretti risultano indispensabili per l'addestramento dei rileva
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 \section{Allineamento delle Feature e Pipeline di Preprocessing}
 \label{sec:preprocessing_implementazione}
 % Introduzione: istanziazione concreta dell'operatore $\psi_k$
 % [rif. teorico: subsec:allineamento_feature].
 
-ciao
 
-    \subsection{Feature Grezze e Criteri di Filtraggio Applicati}
-    \label{subsec:feature_grezze}
-    % Elenco/tabella delle feature native $d_S$, $d_T$; feature scartate per
-    % ciascuno dei tre criteri (identificatori, calcolabilità cross-dominio,
-    % armonizzazione unità di misura); valore numerico finale di $d$.
 
-    \subsection{Implementazione dell'Operatore di Mappatura} % $\boldsymbol{\psi}_k$
-    \label{subsec:implementazione_psi}
-    % Dettaglio implementativo delle trasformazioni $\psi_{k,j}$ concrete
-    % (es. derivazioni, rapporti, conversioni di unità), a livello di codice
-    % o pseudocodice.
+
+
+
+
+
+
+
+\subsection{Feature Grezze e Criteri di Filtraggio Applicati}
+\label{subsec:feature_grezze}
+
+La fase preliminare della pipeline di preprocessing è volta ad allineare gli spazi delle feature originariamente eterogenei del dominio sorgente $\mathcal{D}_S$ (UNSW-NB15) e dei domini di destinazione $\mathcal{D}_T$ (STIN, declinato in \texttt{TER20} e \texttt{SAT20}). 
+Il dataset sorgente si articola originariamente su un vettore di $d_S = 42$ attributi predittivi grezzi (a cui si aggiungono l'identificatore \texttt{id} e la doppia etichettatura nativa \texttt{attack\_cat} e \texttt{label}, per un totale di 45 colonne). 
+Diversamente, le sorgenti di destinazione presentano una struttura nativa derivata da catture di flusso composta da $d_T = 30$ attributi predittivi (unitamente all'identificatore \texttt{id} e all'etichetta binaria \texttt{label}, per un totale di 32 colonne).
+
+Per garantire l'interoperabilità e la generalizzabilità dei modelli di apprendimento automatico rispetto al \textit{domain shift}, la selezione dello spazio delle feature condiviso $d$ è stata regolata da tre criteri di filtraggio sequenziali:
+
+\begin{enumerate}
+    \item \textbf{Rimozione di identificatori univoci e metadati di tracciamento:}
+    Sia nel dominio sorgente che in quelli target, l'attributo identificativo progressivo (\texttt{id}) è stato rimosso. 
+    Tale eliminazione è indispensabile per prevenire fenomeni di correlazione spuria o \textit{overfitting} legati all'ordinamento sequenziale delle registrazioni di rete.
+    
+    \item \textbf{Criterio di non calcolabilità e assenza di corrispondenza cross-dominio:}
+    Sono stati scartati tutti gli attributi presenti esclusivamente in una delle due sorgenti che non potevano essere matematicamente o logicamente ricostruiti a partire dai dati dell'altra, o le cui metriche sono state scartate in favore di un ricalcolo run-time per garantire la consistenza tra i domini. 
+    La classificazione dettagliata delle feature eliminate per ciascun dominio in questa fase è sintetizzata nella Tabella~\ref{tab:removed_features}.
+
+    \begin{table}[H]
+    \centering
+    \caption{Feature eliminate durante la fase di pre-processing nei domini sorgente e target.}
+    \label{tab:removed_features}
+    \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}p{4cm} >{\raggedright\arraybackslash}X}
+    \hline
+    \textbf{Dominio} & \textbf{Categoria} & \textbf{Feature Rimosse} \\
+    \hline
+    Sorgente ($\mathcal{D}_S$) 
+    & Protocolli Applicativi & \texttt{service}, \texttt{trans\_depth}, \texttt{response\_body\_len}, \texttt{is\_ftp\_login}, \texttt{ct\_ftp\_cmd}, \texttt{ct\_flw\_http\_mthd} \\
+    & Contatori Aggregati & \texttt{ct\_srv\_src}, \texttt{ct\_state\_ttl}, \texttt{ct\_dst\_ltm}, \texttt{ct\_src\_dport\_ltm}, \texttt{ct\_dst\_sport\_ltm}, \texttt{ct\_dst\_src\_ltm}, \texttt{ct\_src\_ltm}, \texttt{ct\_srv\_dst} \\
+    & TTL e Perdita Pacchetti & \texttt{sttl}, \texttt{dttl}, \texttt{sloss}, \texttt{dloss}, \texttt{is\_sm\_ips\_ports} \\
+    & Jitter, TCP e Metriche & \texttt{sjit}, \texttt{djit}, \texttt{sinpkt}, \texttt{dinpkt}, \texttt{tcprtt}, \texttt{synack}, \texttt{ackdat}, \texttt{stcpb}, \texttt{dtcpb} \\
+    & Metriche Ridondanti & \texttt{smean}, \texttt{dmean}, \texttt{rate} \\
+    \hline
+    Target ($\mathcal{D}_T$) 
+    & Statistiche Lunghezza & \texttt{pkt\_len\_min}, \texttt{pkt\_len\_max}, \texttt{pkt\_len\_std}, \texttt{fw\_hdr\_len} \\
+    & Flag TCP & \texttt{bw\_psh\_flag}, \texttt{fw\_urg\_flag}, \texttt{bw\_urg\_flag}, \texttt{fin\_cnt}, \texttt{syn\_cnt}, \texttt{psh\_cnt}, \texttt{urg\_cnt}, \texttt{ece\_cnt} \\
+    & Intervalli Inter-arrivo & \texttt{fl\_iat\_min}, \texttt{bw\_iat\_tot}, \texttt{bw\_iat\_min} \\
+    & Contatori Burst & \texttt{fw\_byt\_blk\_avg}, \texttt{fw\_pkt\_blk\_avg}, \texttt{fw\_blk\_rate\_avg}, \texttt{bw\_byt\_blk\_avg}, \texttt{bw\_pkt\_blk\_avg}, \texttt{bw\_blk\_rate\_avg} \\
+    \hline
+    \end{tabularx}
+    \end{table}
+
+    \item \textbf{Criterio di incompatibilità e impossibilità di armonizzazione:}
+    Gli attributi categoriali ad alta cardinalità relativi al protocollo di trasporto (\texttt{proto}) e allo stato della connessione (\texttt{state}) presenti in UNSW-NB15 sono stati scartati. 
+    Tale scelta è stata motivata dall'assenza di attributi categoriali equivalenti nei dataset STIN e dall'impossibilità di stabilire una mappatura biunivoca senza introdurre codifiche arbitrarie che avrebbero distorto lo spazio delle feature.
+\end{enumerate}
+
+A seguito dell'applicazione di tali criteri di scarto, in entrambi i domini si isola un sottoinsieme condiviso di 9 feature predittive di base. A partire da queste, mediante operazioni algebriche calcolate a tempo di esecuzione (quali somme, rapporti e differenze dirette), vengono derivate 7 ulteriori feature sintetiche (es. \texttt{total\_bytes}, \texttt{pkts\_per\_sec}, \texttt{byte\_ratio}). Si ottiene così uno spazio condiviso armonizzato finale composto da $d = 16$ feature predittive continue e quantitative. 
+
+Nei dataset pre-processati finali, a questo vettore di 16 dimensioni si affiancano 3 variabili di controllo e destinazione (\texttt{class} per la macro/micro tassonomia della minaccia, \texttt{label} per la classificazione binaria, e \texttt{split\_type} per l'indicazione della partizione di addestramento o collaudo), portando la cardinalità complessiva delle tabelle a 19 colonne. 
+La Tabella~\ref{tab:feature_filtering_summary} riassume il processo logico di riduzione, derivazione e allineamento dimensionale.
+
+\begin{table}[H]
+\centering
+\caption{Sintesi del processo di selezione e allineamento dimensionale tra il dominio sorgente ($\mathcal{D}_S$) e i domini di destinazione ($\mathcal{D}_T$).}
+\label{tab:feature_filtering_summary}
+\begin{tabular}{lccc}
+\hline
+\textbf{Dominio / Sorgente} & \textbf{Colonne Totali} & \textbf{Feature Predittive Grezze} & \textbf{Feature Scartate} \\
+\hline
+Sorgente ($\mathcal{D}_S$) & 45 & $d_S = 42$ & 33 \\
+Target ($\mathcal{D}_T$) & 32 & $d_T = 30$ & 21 \\
+\hline
+\textbf{Spazio Allineato Finale} & \textbf{19} & $\mathbf{d = 16}$ & -- \\
+\hline
+\end{tabular}
+\end{table}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     \subsection{Verifica dell'Omissione della Scalatura Esplicita}
     \label{subsec:verifica_no_scaling}
@@ -305,6 +412,19 @@ ciao
     % [rif. teorico: subsubsec:invarianza_monotonica], a differenza della
     % standardizzazione diagnostica (sezione successiva sugli strumenti
     % analitici).
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
