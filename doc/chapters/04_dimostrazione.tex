@@ -295,13 +295,13 @@ Questi dataset ristretti risultano indispensabili per l'addestramento dei rileva
 
 \section{Allineamento delle Feature e Pipeline di Preprocessing}
 \label{sec:preprocessing_implementazione}
-% Introduzione: istanziazione concreta dell'operatore $\psi_k$
-% [rif. teorico: subsec:allineamento_feature].
 
+La presente sezione illustra l'istanziazione concreta e l'architettura software dell'operatore di mappatura $\boldsymbol{\psi}_k : \mathcal{X}_k \to \mathcal{X}_{\text{shared}}$, formalizzato sul piano teorico nella Sezione~\ref{subsec:allineamento_feature}. 
+L'obiettivo primario della pipeline di preprocessing consiste nel colmare il divario strutturale e semantico esistente tra le rappresentazioni grezze del dominio sorgente ($\mathcal{D}_S$, basato su UNSW-NB15) e dei domini di destinazione ($\mathcal{D}_T$, articolato sulle catture STIN \texttt{TER20} e \texttt{SAT20}), proiettando i rispettivi spazi delle feature in uno spazio coordinato condiviso, omogeneo e privo di distorsioni di tracciamento.
 
-
-
-
+L'architettura generale del flusso di elaborazione e la sua ripartizione in stadi sequenziali sono schematizzate nella Figura~\ref{fig:preprocessing_pipeline}. 
+La pipeline si sviluppa lungo tre fasi principali: un filtraggio preliminare per la rigida eliminazione di attributi non trasferibili o ridondanti, l'applicazione delle trasformazioni algebriche e analitiche definite dall'operatore $\boldsymbol{\psi}_k$, e la strutturazione della tabella coordinata finale composta da $d = 16$ feature predittive continue e 3 variabili di controllo. 
+Nelle sottosezioni seguenti vengono analizzati nel dettaglio i singoli criteri di selezione, la formulazione analitica delle trasformazioni e le proprietà di invarianza del grafo computazionale risultante.
 
 \begin{figure}[H]
 \centering
@@ -309,65 +309,102 @@ Questi dataset ristretti risultano indispensabili per l'addestramento dei rileva
     node distance=1.2cm and 1.8cm,
     font=\sffamily\small,
     % Stili dei blocchi IEEE
-    block/.style={draw=black, fill=white, rectangle, rounded corners=2pt, align=center, inner sep=5pt},
-    process/.style={block, fill=gray!10},
-    operator/.style={block, fill=gray!20},
-    dataset/.style={draw=black, fill=gray!15, rectangle, align=center, inner sep=5pt},
-    branch/.style={block, dashed, fill=gray!10},
-    arrow/.style={-{Stealth[scale=1.0]}, draw=black},
-    dashedarrow/.style={-{Stealth[scale=1.0]}, draw=black, dashed},
-    lbl/.style={font=\footnotesize, fill=gray!5}
+    block/.style={
+        draw=black, fill=white, rectangle, rounded corners=2pt, 
+        align=center, inner sep=5pt, minimum width=5.5cm
+    },
+    process/.style={
+        block, fill=gray!10
+    },
+    dataset/.style={
+        block, fill=gray!20, rounded corners=0pt
+    },
+    branch/.style={
+        block, dashed, fill=gray!10
+    },
+    arrow/.style={draw=black, thick, ->},
+    dashedarrow/.style={draw=black, dashed, ->},
+    lblgray/.style={font=\footnotesize, fill=gray!5},
+    lblwhite/.style={font=\footnotesize, fill=white}
 ]
 
     % --- STADIO 4: DATASET ALINEATO FINALE ---
-    \node [dataset] (final_data) at (0, 0) {
+    \node [dataset, fill=gray!30] (final_data) at (0, 0) {
+        Dataset Allineati Finali
+    };
+
+    \node [process, above=0.5cm of final_data] (tr_te_rho) {
         Partizione train/test\\[-5pt]
-        e\\
+        e\\[-5pt]
         Parametro di scalatura $\rho$\\[-5pt]
         \footnotesize
         (19 col., $d=16$)
     };
 
     % --- STADIO 3: OPERATORE DI MAPPATURA PSI ---
-    \node [operator, above=1.5cm of final_data] (psi) {
-        Operatore di Mappatura ${\psi}_k : \mathcal{X}_k \to \mathcal{X}_{\text{shared}}$
+    \node [process, above=1cm of tr_te_rho] (psi) {
+        Mappatura ${\psi}_k : \mathcal{X}_k \to \mathcal{X}_{\text{shared}}$
     };
 
     % --- STADIO 2: FILTRAGGIO E CRITERI ---
-    \node [process, above=1.5cm of psi, text width=6.5cm] (filter) {
+    \node [process, above=1cm of psi] (filter) {
         Filtraggio e Selezione Feature
     };
 
     % --- STADIO 1: INPUT DATASETS ---
-    \node [dataset, above left=1.5cm and -1cm of filter] (ds) {\textbf{Sorgente $\mathcal{D}_S$}\\UNSW-NB15\\(45 col., $d_S=42$)};
-    \node [dataset, above right=1.5cm and -1cm of filter] (dt) {\textbf{Target $\mathcal{D}_T$}\\STIN (TER20 / SAT20)\\(32 col., $d_T=30$)};
-
-    % --- STADIO 5: RAMO PRINCIPALE E DIAGNOSTICO ---
-    \node [process, below left=1.5cm and 0cm of final_data, align=center] (models) {
-        \textbf{Pipeline di Training e Inferenza}\\
-        Model Tree-based (\textit{DT}, \textit{RF}, \textit{HistGB})\\
-        \textbf{Nessuna Scalatura Applicata}
+    \node [dataset, above left=1cm and -1.5cm of filter] (ds) {
+        Sorgente $\mathcal{D}_S$\\[-5pt]
+        \footnotesize
+        UNSW-NB15\\[-5pt]
+        (45 col., $d_S=42$)
+    };
+    \node [dataset, above right=1cm and -1.5cm of filter] (dt) {
+        Target $\mathcal{D}_T$\\[-5pt]
+        \footnotesize
+        STIN (TER20 / SAT20)\\[-5pt]
+        (32 col., $d_T=30$)
     };
 
-    \node [branch, below right=1.5cm and 0cm of final_data, align=center] (diag) {
-        \textbf{Modulo Diagnostico Offline}\\
-        \scriptsize \texttt{StandardScaler} ($z$-score)\\
-        \textit{PCA}, \textit{KDE} (\texttt{plotting.py})
+    % --- STADIO 5: RAMO PRINCIPALE E DIAGNOSTICO ---
+    \node [process, below left=2cm and -1.5cm of final_data, align=center] (models) {
+        Pipeline di Training e Inferenza\\[-5pt]
+        \footnotesize
+        Nessuna Scalatura Applicata\\[-5pt]
+        \textit{DT}, \textit{RF}, \textit{HistGB}
+    };
+
+    \node [branch, below right=2cm and -1.5cm of final_data, align=center] (diag) {
+        Modulo Diagnostico Offline\\[-5pt]
+        \footnotesize 
+        \texttt{StandardScaler} ($z$-score)\\[-5pt]
+        \textit{PCA}, \textit{KDE}
     };
 
     % --- FRECCE E CONGIUNZIONI ---
-    \draw [arrow] (ds) |- (filter) node[lbl, pos=0.25] {$-33$ col.};
-    \draw [arrow] (dt) |- (filter) node[lbl, pos=0.25] {$-21$ col.};
+    \draw [arrow] (ds) |- (filter) node[lblgray, pos=0.25] {$-33$ col.};
+    \draw [arrow] (dt) |- (filter) node[lblgray, pos=0.25] {$-21$ col.};
     
-    \draw [arrow] (filter) -- (psi) node[midway, lbl] {9 Feature Base Condivise};
-    \draw [arrow] (psi) -- (final_data) node[midway, lbl] {$16$ Feature Allineate};
+    \draw [arrow] (filter) -- (psi) node[midway, lblgray] {9 Feature Base Condivise};
+    \draw [arrow] (psi) -- (tr_te_rho) node[midway, lblgray] {$16$ Feature Allineate};
+
+    \draw [arrow] (tr_te_rho) -- (final_data);
     
-    \draw [arrow] (final_data) |- (models) node[pos=0.25, lbl] {Flusso Dati Principale};
-    \draw [dashedarrow] (final_data) |- (diag) node[pos=0.25, lbl] {Solo Diagnostica};
+    \draw [arrow] (final_data.south) |- ++(0, -1) -| (models.north) node[pos=0.25, lblwhite] {Flusso Dati Principale};
+    \draw [dashedarrow] (final_data.south) |- ++(0, -1) -| (diag.north) node[pos=0.25, lblwhite] {Solo Diagnostica};
 
     % --- BOX DI RAGGRUPPAMENTO DI SFONDO ---
     \begin{scope}[on background layer]
-        \node [draw=gray!70, fill=gray!5, rectangle, rounded corners=2pt, fit=(ds) (dt) (filter) (psi) (final_data), inner sep=10pt, label={[font=\sffamily\bfseries\scriptsize, text=black!60]above:PIPELINE DI PREPROCESSING E ARMONIZZAZIONE CROSS-DOMINIO}] {};
+        % Le graffe attorno al valore di fit impediscono a TikZ di interpretare la virgola di yshift come separatore
+        \node (bgbox) [
+            draw=gray!70, fill=gray!5, 
+            rectangle, rounded corners=5pt, dashed, thick, 
+            fit={(ds) (dt) (filter) (psi) (tr_te_rho) (final_data) ([yshift=15pt]ds.north)}, 
+            inner sep=12pt
+        ] {};
+        
+        % Titolo posizionato nell'angolo in alto a sinistra del box
+        \node [anchor=north west, text=black, xshift=6pt, yshift=-6pt] 
+            at (bgbox.north west) {Pipeline di Preprocessing e Armonizzazione};
     \end{scope}
 
 \end{tikzpicture}
