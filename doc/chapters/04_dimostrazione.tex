@@ -303,9 +303,77 @@ Questi dataset ristretti risultano indispensabili per l'addestramento dei rileva
 
 
 
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=1.2cm and 1.8cm,
+    font=\sffamily\small,
+    % Stili dei blocchi IEEE
+    block/.style={draw=black, fill=white, rectangle, rounded corners=2pt, align=center, inner sep=5pt},
+    process/.style={block, fill=gray!10},
+    operator/.style={block, fill=gray!20},
+    dataset/.style={draw=black, fill=gray!15, rectangle, align=center, inner sep=5pt},
+    branch/.style={block, dashed, fill=gray!10},
+    arrow/.style={-{Stealth[scale=1.0]}, draw=black},
+    dashedarrow/.style={-{Stealth[scale=1.0]}, draw=black, dashed},
+    lbl/.style={font=\footnotesize, fill=gray!5}
+]
 
+    % --- STADIO 4: DATASET ALINEATO FINALE ---
+    \node [dataset] (final_data) at (0, 0) {
+        Partizione train/test\\[-5pt]
+        e\\
+        Parametro di scalatura $\rho$\\[-5pt]
+        \footnotesize
+        (19 col., $d=16$)
+    };
 
+    % --- STADIO 3: OPERATORE DI MAPPATURA PSI ---
+    \node [operator, above=1.5cm of final_data] (psi) {
+        Operatore di Mappatura ${\psi}_k : \mathcal{X}_k \to \mathcal{X}_{\text{shared}}$
+    };
 
+    % --- STADIO 2: FILTRAGGIO E CRITERI ---
+    \node [process, above=1.5cm of psi, text width=6.5cm] (filter) {
+        Filtraggio e Selezione Feature
+    };
+
+    % --- STADIO 1: INPUT DATASETS ---
+    \node [dataset, above left=1.5cm and -1cm of filter] (ds) {\textbf{Sorgente $\mathcal{D}_S$}\\UNSW-NB15\\(45 col., $d_S=42$)};
+    \node [dataset, above right=1.5cm and -1cm of filter] (dt) {\textbf{Target $\mathcal{D}_T$}\\STIN (TER20 / SAT20)\\(32 col., $d_T=30$)};
+
+    % --- STADIO 5: RAMO PRINCIPALE E DIAGNOSTICO ---
+    \node [process, below left=1.5cm and -3cm of final_data, align=center] (models) {
+        \textbf{Pipeline di Training e Inferenza}\\
+        Model Tree-based (\textit{DT}, \textit{RF}, \textit{HistGB})\\
+        \textbf{Nessuna Scalatura Applicata}
+    };
+
+    \node [branch, below right=1.5cm and -3cm of final_data, align=center] (diag) {
+        \textbf{Modulo Diagnostico Offline}\\
+        \scriptsize \texttt{StandardScaler} ($z$-score)\\
+        \textit{PCA}, \textit{KDE} (\texttt{plotting.py})
+    };
+
+    % --- FRECCE E CONGIUNZIONI ---
+    \draw [arrow] (ds) |- (filter) node[lbl, pos=0.25] {$-33$ col.};
+    \draw [arrow] (dt) |- (filter) node[lbl, pos=0.25] {$-21$ col.};
+    
+    \draw [arrow] (filter) -- (psi) node[midway, lbl] {9 Feature Base Condivise};
+    \draw [arrow] (psi) -- (final_data) node[midway, lbl] {$16$ Feature Allineate};
+    
+    \draw [arrow] (final_data) |- (models) node[pos=0.25, lbl] {Flusso Dati Principale};
+    \draw [dashedarrow] (final_data) |- (diag) node[pos=0.25, lbl] {Solo Diagnostica};
+
+    % --- BOX DI RAGGRUPPAMENTO DI SFONDO ---
+    \begin{scope}[on background layer]
+        \node [draw=gray!70, fill=gray!5, rectangle, rounded corners=2pt, fit=(ds) (dt) (filter) (psi) (final_data), inner sep=10pt, label={[font=\sffamily\bfseries\scriptsize, text=black!60]above:PIPELINE DI PREPROCESSING E ARMONIZZAZIONE CROSS-DOMINIO}] {};
+    \end{scope}
+
+\end{tikzpicture}
+\caption{Diagramma di flusso della pipeline di preprocessing e armonizzazione tra il dominio sorgente $\mathcal{D}_S$ e i domini target $\mathcal{D}_T$, dall'estrazione delle feature grezze alla generazione dello spazio coordinato finale a 16 dimensioni.}
+\label{fig:preprocessing_pipeline}
+\end{figure}
 
 \subsection{Feature Grezze e Criteri di Filtraggio Applicati}
 \label{subsec:feature_grezze}
@@ -375,14 +443,6 @@ Target ($\mathcal{D}_T$) & 32 & $d_T = 30$ & 21 \\
 \end{tabular}
 \end{table}
 
-
-
-
-
-
-
-
-
 \subsection{Implementazione dell'Operatore di Mappatura}
 \label{subsec:implementazione_psi}
 
@@ -430,43 +490,34 @@ Nel processo di mappatura emergono tre aspetti architetturali critici:
     \item \textbf{Stabilizzazione Numerica:} Durante il calcolo di indici razionali (come \texttt{down\_up\_ratio}, \texttt{byte\_ratio}, le densità di pacchetti e il \textit{packet rate}), è stata introdotta una costante di regolarizzazione $\epsilon = 10^{-6}$ ai denominatori. Questo accorgimento previene singolarità algebriche causate da divisioni per zero indotte da flussi anomali o malformati.
 \end{itemize}
 
-A completamento della trattazione teorica, le funzioni \texttt{\_align\_nb15} e \texttt{\_align\_stin}, implementate nel file \texttt{data\_preprocessing.py} del repository GitHub, costituiscono la trasposizione operativa dell'operatore di mappatura in linguaggio Python.
+A completamento della trattazione teorica, le funzioni \texttt{\_align\_nb15} e \texttt{\_align\_stin}, implementate nel file \texttt{data\_preprocessing.py} del repository GitHub\footnote{\href{https://github.com/marchesinia187179/earth-trained-satellite-ids/blob/main/src/data_preprocessing.py}{Link al file \texttt{data\_preprocessing.py} su GitHub.}}, costituiscono la trasposizione operativa dell'operatore di mappatura in linguaggio Python.
 L'implementazione sfrutta la libreria \texttt{pandas} per l'esecuzione vettorializzata delle operazioni sui \textit{DataFrame}, consentendo di elaborare in modo efficiente dataset di dimensioni considerevoli.
 
+\subsection{Verifica dell'Omissione della Scalatura Esplicita}
+\label{subsec:verifica_no_scaling}
 
+Un elemento caratterizzante dell'architettura della pipeline di preprocessing risiede nella scelta metodologica di omettere qualsiasi operazione di normalizzazione o re-scalatura globale dei dati (quali la standardizzazione $z$-score o il ridimensionamento Min-Max) dalle fasi di addestramento e inferenza valutativa cross-dominio.
 
+Tale impostazione si giustifica formalmente sulla base di tre considerazioni teorico-applicative:
 
+\begin{enumerate}
+    \item \textbf{Invarianza Monotonica dei Modelli Adottati:}
+    Gli algoritmi di classificazione integrati nella pipeline principale comprendono \textit{Decision Tree}, \textit{Random Forest} e \textit{Histogram-based Gradient Boosting}. 
+    Tali modelli determinano i punti di separazione negli iperpiani di decisione (\textit{split points}) valutando esclusivamente le relazioni d'ordine relativo tra i valori ($x_j \le \theta$). 
+    Essendo tali decisioni invarianti rispetto a qualsiasi trasformazione strettamente monotona, la presenza o l'assenza di scalatura lineare non altera la struttura degli alberi generati né la superficie di separazione appresa.
 
+    \item \textbf{Preservazione della Semantica Fisica e Trasparenza:}
+    Il mantenimento degli attributi nelle rispettive unità di misura fisiche originarie e derivate (microsecondi per le durate, byte per i volumi e valori adimensionali per i rapporti) preserva la leggibilità diretta delle feature. 
+    Ciò risulta determinante per l'interpretabilità dei vettori d'attacco e per l'estrazione di spiegazioni mediante attributori di importanza (\textit{SHAP} e \textit{Permutation Feature Importance}).
 
+    \item \textbf{Prevenzione del Data Leakage e Invarianza nell'Inferenza:}
+    L'eliminazione dei trasformatori di scala nel flusso di dati principale evita la necessità di stimare e congelare parametri statistici (media e deviazione standard) sul dominio sorgente $\mathcal{D}_S$ da proiettare sui domini target $\mathcal{D}_T$. 
+    In contesti di \textit{domain shift}, la proiezione di parametri di scala estratti da sorgenti eterogenee rischia di introdurre distorsioni o anomalie numeriche dovute a valori fuori scala (\textit{outliers}) non previsti.
+\end{enumerate}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    \subsection{Verifica dell'Omissione della Scalatura Esplicita}
-    \label{subsec:verifica_no_scaling}
-    % Nota implementativa: conferma che nessuno step di normalizzazione è
-    % presente nella pipeline di training/inferenza
-    % [rif. teorico: subsubsec:invarianza_monotonica], a differenza della
-    % standardizzazione diagnostica (sezione successiva sugli strumenti
-    % analitici).
-
+Si evidenzia che l'utilizzo di algoritmi di normalizzazione è stato rigorosamente limitato alle sole procedure di diagnostica offline ed esplorazione delle distribuzioni, analizzate sul piano teorico nel Capitolo~\ref{ch:metodologia}. 
+In particolare, la classe \texttt{StandardScaler} del modulo \texttt{sklearn.preprocessing} è stata impiegata unicamente all'interno del modulo di supporto \texttt{plotting.py} per standardizzare le feature a media nulla e varianza unitaria prima dell'esecuzione dell'Analisi delle Componenti Principali (\textit{PCA}) e della stima della densità di kernel (\textit{KDE}). 
+Tali trasformazioni diagnostiche sono state isolate all'interno delle routine di visualizzazione e non sono mai state integrate nel grafo computazionale di addestramento e inferenza dei classificatori.
 
 
 
