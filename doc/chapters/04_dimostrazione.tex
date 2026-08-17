@@ -383,6 +383,60 @@ Target ($\mathcal{D}_T$) & 32 & $d_T = 30$ & 21 \\
 
 
 
+\subsection{Implementazione dell'Operatore di Mappatura}
+\label{subsec:implementazione_psi}
+
+Al fine di proiettare gli spazi delle feature originari in uno spazio latente condiviso omogeneo, è stato implementato formalmente l'operatore di mappatura $\boldsymbol{\psi}_k : \mathcal{X}_k \to \mathcal{X}_{\text{shared}}$, con $k \in \{S, T\}$. 
+Tale operatore agisce sui vettori grezzi applicando trasformazioni algebriche, conversioni di unità di misura e derivazioni analitiche, garantendo la rigorosa coerenza semantica delle grandezze fisiche e di rete.
+
+La Tabella~\ref{tab:mapping_operator} formalizza le trasformazioni scalari $\psi_{k,j}$ applicate a ciascuna feature condivisa $j$, mettendo a confronto il dominio sorgente (UNSW-NB15) e il dominio target (STIN/TER20/SAT20).
+
+\begin{table}[H]
+\centering
+\caption{Formulazione algebrica dell'operatore di mappatura vettoriale nei domini $\mathcal{D}_S$ e $\mathcal{D}_T$.}
+\label{tab:mapping_operator}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lllc}
+\hline
+\textbf{Feature Coordinata ($x_j$)} & \textbf{Dominio Sorgente ($\psi_{S,j}$)} & \textbf{Dominio Target ($\psi_{T,j}$)} & \textbf{Unità di Misura} \\
+\hline
+\texttt{duration} & $\texttt{dur} \cdot 10^6$ & \texttt{fl\_dur} & $\mu$s \\
+\texttt{src\_bytes} & \texttt{sbytes} & \texttt{l\_fw\_pkt} & Byte \\
+\texttt{dst\_bytes} & \texttt{dbytes} & \texttt{l\_bw\_pkt} & Byte \\
+\texttt{src\_pkts} & \texttt{spkts} & \texttt{fw\_pk} & Adimensionale \\
+\texttt{dst\_pkts} & \texttt{dpkts} & $(\texttt{bw\_pkt\_s} \cdot \texttt{fl\_dur}) / 10^6$ & Adimensionale \\
+\texttt{src\_win\_byt} & \texttt{swin} & \texttt{fw\_win\_byt} & Byte \\
+\texttt{dst\_win\_byt} & \texttt{dwin} & \texttt{bw\_win\_byt} & Byte \\
+\texttt{load\_s} & $(\texttt{sload} + \texttt{dload}) / 8$ & \texttt{fl\_byt\_s} & Byte/s \\
+\texttt{down\_up\_ratio} & $\texttt{dpkts} / (\texttt{spkts} + \epsilon)$ & \texttt{down\_up\_ratio} & Adimensionale \\
+\hline
+\texttt{total\_bytes} & \multicolumn{2}{c}{\texttt{src\_bytes} + \texttt{dst\_bytes}} & Byte \\
+\texttt{total\_pkts} & \multicolumn{2}{c}{\texttt{src\_pkts} + \texttt{dst\_pkts}} & Adimensionale \\
+\texttt{src\_mean\_pkt\_size} & \multicolumn{2}{c}{$\texttt{src\_bytes} / (\texttt{src\_pkts} + \epsilon)$} & Byte \\
+\texttt{dst\_mean\_pkt\_size} & \multicolumn{2}{c}{$\texttt{dst\_bytes} / (\texttt{dst\_pkts} + \epsilon)$} & Byte \\
+\texttt{win\_diff} & \multicolumn{2}{c}{$\texttt{src\_win\_byt} - \texttt{dst\_win\_byt}$} & Byte \\
+\texttt{byte\_ratio} & \multicolumn{2}{c}{$\texttt{dst\_bytes} / (\texttt{src\_bytes} + \epsilon)$} & Adimensionale \\
+\hline
+\texttt{pkts\_per\_sec} & $\texttt{total\_pkts} / (\texttt{dur} + \epsilon)$ & $[\texttt{total\_pkts} / (\texttt{duration} + \epsilon)] \cdot 10^6$ & 1/s \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+Nel processo di mappatura emergono tre aspetti architetturali critici:
+\begin{itemize}
+    \item \textbf{Conversioni di Scala e Armonizzazione Temporale:} Per allineare le metriche, la durata dei flussi nel dominio sorgente è stata riscalata da secondi a microsecondi (fattore moltiplicativo $10^6$). Parallelamente, il throughput nominale (\texttt{sload}, \texttt{dload}), originariamente quantificato in bit/s in UNSW-NB15, è stato convertito in Byte/s (dividendolo per 8) per coincidere con l'unità di misura nativa dei domini target.
+    \item \textbf{Derivazione Analitica di Metriche Mancanti:} Nel dominio $\mathcal{D}_T$, il conteggio totale dei pacchetti di destinazione (\texttt{dst\_pkts}) non è fornito in forma diretta. Per garantire la ricostruzione fedele dello spazio latente, tale grandezza è stata derivata indirettamente tramite il prodotto analitico tra il tasso di arrivo pacchetti di ritorno (\texttt{bw\_pkt\_s}) e la durata del flusso (\texttt{fl\_dur}), normalizzato per i microsecondi ($10^6$).
+    \item \textbf{Stabilizzazione Numerica:} Durante il calcolo di indici razionali (come \texttt{down\_up\_ratio}, \texttt{byte\_ratio}, le densità di pacchetti e il \textit{packet rate}), è stata introdotta una costante di regolarizzazione $\epsilon = 10^{-6}$ ai denominatori. Questo accorgimento previene singolarità algebriche causate da divisioni per zero indotte da flussi anomali o malformati.
+\end{itemize}
+
+A completamento della trattazione teorica, le funzioni \texttt{\_align\_nb15} e \texttt{\_align\_stin}, implementate nel file \texttt{data\_preprocessing.py} del repository GitHub, costituiscono la trasposizione operativa dell'operatore di mappatura in linguaggio Python.
+L'implementazione sfrutta la libreria \texttt{pandas} per l'esecuzione vettorializzata delle operazioni sui \textit{DataFrame}, consentendo di elaborare in modo efficiente dataset di dimensioni considerevoli.
+
+
+
+
+
 
 
 
