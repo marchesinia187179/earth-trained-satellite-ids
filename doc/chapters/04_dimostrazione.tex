@@ -550,21 +550,15 @@ Tali trasformazioni diagnostiche sono state isolate all'interno delle routine di
 
 
 
-    
 \section{Implementazione dei Classificatori}
 \label{sec:implementazione_classificatori}
-% Introduzione: istanziazione concreta della tassonomia dei modelli
-% [rif. teorico: sec:tassonomia_modelli].
 
-ciao
+La presente sezione traduce in architettura software e in moduli operativi l'impianto di classificazione supervisionata introdotto nella Sezione~\ref{subsec:famiglie_classificatori}. 
+A valle del processo di armonizzazione e allineamento dello spazio delle feature descritto nel capitolo precedente, l'infrastruttura software è progettata per istanziare, addestrare e tracciare in modo sistematico le diverse famiglie di modelli predittivi. 
+L'obiettivo primario di questo modulo consiste nel definire una pipeline di fitting rigorosa, capace di gestire sia i classificatori basati su dataset aggregati (per la valutazione complessiva del \textit{domain shift}) sia la suite di modelli biclasse (per l'isolamento e l'analisi granulare di minacce mirate).
 
-
-
-
-
-
-
-
+Nelle sottosezioni seguenti vengono dettagliate le librerie di machine learning adottate, la configurazione degli iperparametri e la struttura dei registri di tracciamento persistenti (Sottosezione~\ref{subsec:algoritmi_iperparametri}). 
+Infine, le Sottosezioni~\ref{subsec:istanziazione_aggregati} e~\ref{subsec:istanziazione_biclasse} formalizzano le logiche procedurali e i criteri di campionamento stratificato impiegati per la generazione dei rispettivi insiemi di addestramento.
 
 
 \subsection{Algoritmi di Base e Iperparametri}
@@ -641,6 +635,160 @@ Tale meccanismo di tracciamento memorizza per ogni modello un record identificat
 
 L'archiviazione sistematica in \texttt{models\_metadata.csv} assicura la completa uditabilità dell'infrastruttura di addestramento, fornendo la base informativa per le successive fasi di inferenza e valutazione cross-dominio sui dataset di test target.
 
+\subsection{Istanziazione dei Modelli Aggregati}
+\label{subsec:istanziazione_aggregati}
+
+La strategia di istanziazione dei classificatori aggregati prevede la generazione di tre distinte classi di modelli per ciascun seed stocastico, corrispondenti alla formalizzazione teorica discussa nella Sezione~\ref{subsec:modelli_aggregati}. 
+Nonostante i dataset integrino l'etichettatura multi-classe (identificando la specifica tipologia di attacco), le architetture aggregate sono addestrate a risolvere un task di rilevamento binario, discriminando il traffico benevolo (\texttt{Normal}) dal generico traffico ostile (\texttt{Attack}).
+
+La composizione dei \textit{training set} per l'addestramento segue precise regole di proporzionalità e campionamento, ancorate al parametro di \textit{Injection Ratio} $\rho_{ben/mal} = 10/1$:
+\begin{enumerate}
+    \item \textbf{Modello Base ($\mathcal{M}_{\text{base}}$):} Costituisce la \textit{baseline} teorica. 
+    È addestrato su un dataset ingegnerizzato ad hoc tramite un approccio di \textit{injection} controllata. 
+    Mantenendo il rapporto 10/1, i campioni benigni sono estratti integralmente dal dataset UNSW-NB15, mentre la componente malevola è ripartita proporzionalmente: $\frac{299}{300}$ dei campioni anomali richiesti proviene da UNSW-NB15, mentre la frazione residua $\frac{1}{300}$ è popolata con attacchi estratti dal dataset satellitare integrato (STIN, composto da TER20 e SAT20). 
+    Nei registri di esecuzione, tale modello è identificato come \texttt{injection\_aggregate}.
+    
+    \item \textbf{Modello Sorgente ($\mathcal{M}_S$):} È il modello aggregato nativo, istanziato esclusivamente sui campioni appartenenti al dominio sorgente terrestre ($\mathcal{D}_S$). 
+    Si compone di traffico benigno e attacchi estratti unicamente dal dataset UNSW-NB15, denominato \texttt{nb15\_aggregate}.
+    
+    \item \textbf{Modelli Ibridi ($\mathcal{M}_H^{(T)}$):} Rappresentano la concretizzazione della procedura di \textit{fine-tuning} in ottica cross-dominio. 
+    Vengono istanziati combinando tutti i record benigni nativi del dataset sorgente (UNSW-NB15) con la totalità dei campioni malevoli estratti dai domini target armonizzati ($\Delta\mathcal{D}_T^{(\text{train})}$). 
+    Anche per l'addestramento di queste architetture viene garantito e forzato il rigoroso rispetto del rapporto di sbilanciamento $\rho_{ben/mal} = 10/1$. 
+    Sono state istanziate tre varianti di modelli ibridi aggregati:
+    \begin{itemize}
+        \item \texttt{nb15\_stin\_aggregate}: Ibrido su dataset STIN complessivo.
+        \item \texttt{nb15\_ter20\_aggregate}: Ibrido sul solo canale target TER20.
+        \item \texttt{nb15\_sat20\_aggregate}: Ibrido sul solo canale target SAT20.
+    \end{itemize}
+\end{enumerate}
+
+La Figura~\ref{fig:aggregati_data_flow} schematizza visivamente il flusso di composizione dei dati appena descritto, evidenziando il rigoroso mantenimento del vincolo proporzionale tra le classi in fase di addestramento.
+
+\begin{figure}[H]
+    \centering
+    \resizebox{\textwidth}{!}{
+    \begin{tikzpicture}[
+        >=latex,
+        dataset/.style={draw, rectangle, rounded corners, fill=gray!10, thick, minimum width=5cm, align=center, inner sep=5pt},
+        target/.style={draw, rectangle, rounded corners, fill=gray!10, thick, minimum width=5cm, align=center, inner sep=5pt},
+        model/.style={draw, rectangle, thick, fill=gray!30, minimum width=5cm, minimum height=3.5cm, align=center, inner sep=5pt},
+        arrow/.style={->, thick, draw=black},
+    ]
+
+    % Model Nodes
+    \node[model] (ms) at (0, 0) {
+        \textbf{Modello Sorgente} ($\mathcal{M}_S$) \\
+        $100\%$ Benigno $\mathcal{D}_S$ \\[-5pt]
+        $100\%$ Malevolo $\mathcal{D}_S$ \\[-5pt]
+        \\
+        \small $\rho = 10/1$
+    };
+    \node[model, right=0.5cm of ms] (mbase) {
+        \textbf{Modello Base} ($\mathcal{M}_{\text{base}}$) \\
+        $100\%$ Benigno $\mathcal{D}_S$ \\[-5pt]
+        $99,\overline{66}\%$ Malevolo $\mathcal{D}_S$ \\[-5pt] 
+        $0,\overline{33}\%$ Malevolo $\Delta\mathcal{D}_T$ \\
+        \small $\rho = 10/1$
+    };
+    \node[model, right=0.5cm of mbase] (mibrido) {
+        \textbf{Modello Ibrido} ($\mathcal{M}_H^{(T)}$) \\
+        $100\%$ Benigno $\mathcal{D}_S$ \\[-5pt]
+        $100\%$ Malevolo $\Delta\mathcal{D}_T$ \\[-5pt]
+        \\
+        \small $\rho = 10/1$
+    };
+
+    % Dataset Nodes
+    \node[dataset, above right=2cm and -2.25cm of ms] (unsw) {\textbf{UNSW-NB15} \\ (Dominio Sorgente $\mathcal{D}_S$)};
+    \node[target, above right=2cm and -2.25cm of mbase] (stin) {\textbf{Target (STIN)} \\ (Dominio Target $\Delta\mathcal{D}_T$)};
+
+    % Arrows UNSW
+    \draw[arrow] (unsw.south) -- ++(0,-0.66) -| (ms.north);
+    \draw[arrow] (unsw.south) -- ++(0,-0.66) -| ([xshift=-1cm]mbase.north);
+    \draw[arrow] (unsw.south) -- ++(0,-0.66) -| ([xshift=-1cm]mibrido.north);
+
+    % Arrows STIN
+    \draw[arrow] (stin.south) -- ++(0,-1.32) -| ([xshift=1cm]mbase.north);
+    \draw[arrow] (stin.south) -- ++(0,-1.32) -| ([xshift=1cm]mibrido.north);
+
+    \end{tikzpicture}
+    }
+    \caption{Architettura del flusso dati per l'addestramento dei Modelli Aggregati. Le percentuali indicano l'origine logica dei pacchetti che compongono i \textit{training set}, forzati strutturalmente al vincolo $\rho_{ben/mal} = 10/1$.}
+    \label{fig:aggregati_data_flow}
+\end{figure}
+
+Il prelievo dei campioni dalla partizione target ($\Delta\mathcal{D}_T^{(\text{train})}$) è governato da una procedura di campionamento casuale stratificato (\textit{stratified random sampling})\footnote{Implementato avvalendosi della funzione \texttt{train\_test\_split} di \texttt{scikit-learn}, valorizzando il parametro \texttt{stratify} per garantire la corretta preservazione delle proporzioni relative alle classi originali durante l'estrazione.}. 
+Questa metodologia garantisce che i sotto-insiemi estratti rispettino le proporzioni imposte dal ratio 10/1 e salvaguarda la rigida compartimentazione logica tra \textit{train set} e \textit{test set}, risultando fondamentale per scongiurare qualsiasi fenomeno di dispersione dell'informazione (\textit{Data Leakage}) in fase di validazione.
+
+Dal punto di vista dell'ingegneria del software, la pipeline di istanziazione e addestramento è centralizzata all'interno del modulo \texttt{models.py}. 
+La logica architetturale espone un punto di accesso pubblico, la funzione \texttt{model\_processing()}, la quale orchestra dinamicamente l'esecuzione. 
+Tale funzione delega il calcolo matematico del fitting a un \textit{helper} interno denominato \texttt{\_train\_classifier()}, responsabile dell'inizializzazione dell'algoritmo di ML richiesto e della valutazione asincrona delle metriche sul \textit{test set} in-sample. 
+Lo script gestisce inoltre il salvataggio dei pesi strutturali (formato \texttt{.joblib}\footnote{\href{https://joblib.readthedocs.io/en/latest/}{Link alla documentazione ufficiale della libreria \texttt{joblib}}. Tale formato rappresenta lo standard \textit{de facto} nell'ecosistema Python per la serializzazione efficiente di oggetti che ospitano array NumPy di grandi dimensioni, rendendolo particolarmente ottimizzato per il salvataggio dei modelli basati su alberi di decisione.}), garantendo l'aggiornamento automatico del registro \texttt{models\_metadata.csv} tramite l'assegnazione procedurale del \textit{Naming Standard} in base al dominio analizzato.
+
+\subsection{Istanziazione dei Modelli Biclasse}
+\label{subsec:istanziazione_biclasse}
+
+Al fine di condurre un'analisi comparativa granulare e valutare le prestazioni analitiche dei classificatori rispetto a minacce mirate, la metodologia prevede l'addestramento di una suite parallela di modelli biclasse, come anticipato nella Sezione~\ref{subsec:modelli_biclasse}. 
+A differenza delle varianti aggregate (discusse nella Sottosezione~\ref{subsec:istanziazione_aggregati}), ciascun classificatore biclasse è progettato per isolare e discriminare un'unica e specifica famiglia di attacco dal normale traffico di rete (\texttt{Normal}). 
+Tale approccio consente di misurare le metriche di accuratezza del modello dinanzi a pattern di traffico ostile altamente caratterizzati.
+
+Dal punto di vista dell'ingegnerizzazione dei dati, i sotto-insiemi impiegati per il \textit{fitting} di questi modelli vengono strutturati \textit{a priori} durante la macro-fase di pre-elaborazione del file. 
+In questa sede, i record appartenenti a vettori di attacco estranei al contesto di analisi vengono filtrati e scartati, restituendo un dominio di riferimento strettamente binario (es. \texttt{[Normal, DDoS]}). 
+Durante la generazione di questi dataset isolati, l'algoritmo di elaborazione impone rigorosamente il mantenimento del rapporto di sbilanciamento $\rho_{ben/mal} = 10/1$. 
+Contestualmente, viene preservata e fissata la partizione logica dei dati tramite etichettatura statica dei set di \textit{train} e \textit{test}, scongiurando eventuali contaminazioni informative (\textit{Data Leakage}).
+
+In perfetta simmetria con la suddivisione concettuale tra dominio sorgente e domini target ibridizzati, la pipeline ha generato le istanze biclasse riepilogate nella Tabella~\ref{tab:biclass_models_summary}.
+
+\begin{table}[H]
+\centering
+\caption{Istanze dei modelli biclasse generati per il dominio sorgente e i domini target ibridizzati.}
+\label{tab:biclass_models_summary}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{5.5cm} >{\raggedright\arraybackslash}X}
+\hline
+\textbf{Categoria e Dominio} & \textbf{Istanze Modello Biclasse} \\
+\hline
+\textbf{Modelli Sorgente} \newline (UNSW-NB15) & 
+\texttt{nb15\_dos} \newline
+\texttt{nb15\_exploits} \newline
+\texttt{nb15\_fuzzers} \newline
+\texttt{nb15\_generic} \newline
+\texttt{nb15\_reconnaissance} \\
+\hline
+\textbf{Modelli Ibridi Target} \newline (SAT20) & 
+\texttt{nb15\_sat20\_syn\_ddos} \newline
+\texttt{nb15\_sat20\_udp\_ddos} \\
+\hline
+\textbf{Modelli Ibridi Target} \newline (TER20) & 
+\texttt{nb15\_ter20\_botnet} \newline
+\texttt{nb15\_ter20\_ddos} \newline
+\texttt{nb15\_ter20\_syn\_ddos} \newline
+\texttt{nb15\_ter20\_udp\_ddos} \\
+\hline
+\end{tabularx}
+\end{table}
+
+L'integrazione di questa logica all'interno del codice sorgente sfrutta elevati livelli di automazione. 
+L'assegnazione della nomenclatura ai file serializzati e ai registri di metadati è gestita in maniera trasparente dalla subroutine \texttt{\_get\_standardized\_model\_name()} del modulo \texttt{models.py}. 
+La funzione elabora il vettore delle classi uniche del dataset in input: verificata l'esatta cardinalità binaria, estrae computazionalmente l'etichetta divergente dalla stringa \texttt{Normal} e la concatena in modo canonico alla tipologia del dataset (generando dinamicamente stringhe come \texttt{dataset\_attackname}). 
+Tale soluzione ingegneristica ha garantito la standardizzazione dei log per tutti i successivi processi di inferenza. Il Listato~\ref{lst:get_model_name} riporta il frammento di codice responsabile di tale elaborazione logica.
+
+\newpage
+
+\begin{lstlisting}[language=Python, caption={Estrazione procedurale dell'etichetta di attacco per la generazione dinamica della nomenclatura del modello.}, label={lst:get_model_name}, frame=single, basicstyle=\ttfamily\small, keywordstyle=\bfseries, breaklines=true]
+def _get_standardized_model_name(dataset_type, unique_classes):
+    classes = [
+        str(c).strip() for c in unique_classes if str(c).strip()
+    ]
+    
+    if len(classes) > 2:
+        return f"{dataset_type}_aggregate"
+    
+    attack_classes = [c for c in classes if c.lower() != 'normal']
+    attack_name = attack_classes[0].lower() \
+                    if attack_classes else "normal"
+    
+    return f"{dataset_type}_{attack_name}"
+\end{lstlisting}
 
 
 
@@ -650,25 +798,6 @@ L'archiviazione sistematica in \texttt{models\_metadata.csv} assicura la complet
 
 
 
-
-
-
-
-
-
-    \subsection{Istanziazione dei Modelli Aggregati}
-    \label{subsec:istanziazione_aggregati}
-    % Corrispondenza esplicita training-set concreto $\leftrightarrow$
-    % $\mathcal{M}_{\text{base}}, \mathcal{M}_S, \mathcal{M}_H^{(T)}$
-    % [rif. teorico: subsec:modelli_aggregati]; valore concreto del rapporto
-    % di sparsità per $\Delta\mathcal{D}_T^{(\text{train})}$.
-
-    \subsection{Istanziazione dei Modelli Biclasse}
-    \label{subsec:istanziazione_biclasse}
-    % Elenco concreto delle famiglie $a$ per cui vengono istanziati
-    % $\mathcal{M}_{S,a}$ e $\mathcal{M}_{H,T,a}$
-    % [rif. teorico: subsec:modelli_biclasse]; conteggio totale dei modelli
-    % effettivamente addestrati.
 
 
 
@@ -688,8 +817,6 @@ L'archiviazione sistematica in \texttt{models\_metadata.csv} assicura la complet
 \label{sec:protocollo_addestramento_valutazione}
 % Introduzione: istanziazione concreta del protocollo multi-seed e della
 % matrice di valutazione incrociata [rif. teorico: subsec:stabilita_stocastica].
-
-ciao
 
     \subsection{Orchestrazione del Ciclo di Addestramento Multi-Seed}
     \label{subsec:orchestrazione_training}
@@ -715,8 +842,6 @@ ciao
 % Introduzione: istanziazione concreta del framework analitico
 % [rif. teorico: sec:framework_analitico].
 
-ciao
-
     \subsection{Standardizzazione Diagnostica, PCA e KDE}
     \label{subsec:implementazione_pca_kde}
     % Libreria concreta (es. sklearn.decomposition.PCA,
@@ -741,5 +866,3 @@ ciao
 % Chiusura del capitolo: eventuale diagramma/tabella riepilogativa
 % end-to-end (dataset -> preprocessing -> training multi-seed -> analisi),
 % che funge da raccordo esplicito verso il Capitolo 5 (risultati).
-
-ciao
