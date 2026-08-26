@@ -271,28 +271,6 @@ Infine, a partire dai macro-dataset aggregati e scalati finora descritti, la pip
 Tramite un filtraggio a livello di etichetta secondaria $A=a$, le singole famiglie di minaccia (es. $a \in \mathcal{A}_S$ per \texttt{NB15} o $a \in \mathcal{A}_T$ per \texttt{STIN}) vengono isolate e combinate esclusivamente con la baseline nativa lecita $P_S(\mathbf{x} \mid Y = 0)$. 
 Questi dataset ristretti risultano indispensabili per l'addestramento dei rilevatori specialistici ($\mathcal{M}_{S,a}$ e $\mathcal{M}_{H,T,a}$), consentendo di valutare la sensibilità del sistema verso singole tipologie di attacco senza incorrere nelle distorsioni intrinseche generate dalla sovrapposizione di distribuzioni anomale eterogenee.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 \section{Allineamento delle Feature e Pipeline di Preprocessing}
 \label{sec:preprocessing_implementazione}
 
@@ -580,13 +558,103 @@ Tali trasformazioni diagnostiche sono state isolate all'interno delle routine di
 
 ciao
 
-    \subsection{Algoritmi di Base e Iperparametri}
-    \label{subsec:algoritmi_iperparametri}
-    % Libreria/classe concreta per ciascuna famiglia [rif. teorico:
-    % subsec:famiglie_classificatori]: Random Forest, Gradient Boosting
-    % (es. HistGradientBoostingClassifier/XGBoost/LightGBM); tabella degli
-    % iperparametri (n. stimatori $B$, learning rate $\nu$, profondità
-    % massima, criterio di split, ecc.) con eventuale strategia di tuning.
+
+
+
+
+
+
+
+
+
+\subsection{Algoritmi di Base e Iperparametri}
+\label{subsec:algoritmi_iperparametri}
+
+L'infrastruttura di classificazione del framework è stata sviluppata in ambiente Python basandosi sulla libreria open-source \texttt{scikit-learn} (versione 1.9.0). 
+Coerentemente con le premesse metodologiche discusse nella Sezione~\ref{subsec:famiglie_classificatori}, sono state selezionate tre famiglie di algoritmi di apprendimento supervisionato basati su alberi di decisione, caratterizzate da differenti livelli di complessità strutturale e capacità espressiva:
+
+\begin{itemize}
+    \item \textbf{Decision Tree (DT):} Classificatore a singolo albero di decisione, implementato tramite la classe \texttt{DecisionTreeClassifier}\footnote{\href{https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier}{Link alla documentazione del classificatore DT}}.
+    \item \textbf{Random Forest (RF):} Architettura d'insieme di tipo \textit{bagging}, implementata mediante la classe \texttt{RandomForestClassifier}\footnote{\href{https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier}{Link alla documentazione del classificatore RF}}.
+    \item \textbf{Histogram-based Gradient Boosting (HGB):} Algoritmo d'insieme di tipo \textit{boosting} ottimizzato per dataset di grandi dimensioni, implementato tramite la classe \newline \texttt{HistGradientBoostingClassifier}\footnote{\href{https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.HistGradientBoostingClassifier}{Link alla documentazione del classificatore HGB}}.
+\end{itemize}
+
+Al fine di valutare la capacità intrinseca di generalizzazione cross-dominio delle diverse famiglie di modelli ed evitare fenomeni di adattamento spurio (\textit{overfitting}) delle configurazioni alle specificità statistiche del solo dominio sorgente $\mathcal{D}_S$, non sono state applicate procedure di ricerca ed ottimizzazione automatica degli iperparametri (quali \textit{GridSearchCV} o \textit{RandomizedSearchCV}). 
+Tutti i modelli sono stati pertanto istanziati mantenendo i valori di iperparametri predefiniti (\textit{default}) forniti dall'API di \texttt{scikit-learn}. 
+
+L'unico parametro esplicitamente vincolato in fase di inizializzazione è il seme di determinismo numerico (\texttt{random\_state}), il quale viene impostato in modo dinamico iterando su un pool di seed predefiniti (es. \texttt{seed = 42}) per garantire la perfetta riproducibilità statistica degli esperimenti. 
+La Tabella~\ref{tab:hyperparameters_summary} sintetizza la corrispondenza tra le classi Python adottate e la configurazione degli iperparametri operativi associati.
+
+\begin{table}[H]
+\centering
+\caption{Configurazione degli iperparametri di default e classi \texttt{scikit-learn} utilizzate per ciascuna famiglia di classificatori.}
+\label{tab:hyperparameters_summary}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{7cm} >{\raggedright\arraybackslash}X}
+\hline
+\textbf{Algoritmo \newline - Classe \texttt{scikit-learn}} & \textbf{Iperparametri Principali (Valori di Default)} \\
+\hline
+Decision Tree (DT) \newline - \texttt{DecisionTreeClassifier} & 
+\texttt{criterion} = \textquotesingle gini\textquotesingle, \newline
+\texttt{max\_depth} = \texttt{None}, \newline
+\texttt{min\_samples\_split} = 2 \\
+\hline
+Random Forest (RF) \newline - \texttt{RandomForestClassifier} & 
+\texttt{n\_estimators} = 100, \newline
+\texttt{criterion} = \textquotesingle gini\textquotesingle, \newline
+\texttt{max\_depth} = \texttt{None}, \newline
+\texttt{max\_features} = \textquotesingle sqrt\textquotesingle, \newline
+\texttt{min\_samples\_split} = 2 \\
+\hline
+Hist. Gradient Boosting (HGB) \newline - \texttt{HistGradientBoostingClassifier} & 
+\texttt{learning\_rate} = 0.1, \newline
+\texttt{max\_iter} = 100, \newline
+\texttt{max\_depth} = \texttt{None}, \newline
+\texttt{max\_leaf\_nodes} = 31, \newline
+\texttt{l2\_regularization} = 0.0 \\
+\hline
+\end{tabularx}
+\end{table}
+
+Per garantire un tracciamento rigoroso del ciclo di vita dei modelli, l'istanziamento e l'addestramento non disperdono lo stato interno degli stimatori. 
+Al termine del fitting di ciascun classificatore su uno specifico dataset di addestramento (sorgente o ibrido) e per ogni seed di esecuzione, le informazioni di configurazione hardware/temporale, l'assetto completo degli iperparametri e le metriche di prestazione in-sample (\textit{training set}) vengono persistite in modo strutturato all'interno del file di registro \texttt{models\_metadata.csv}.
+
+Tale meccanismo di tracciamento memorizza per ogni modello un record identificativo univoco, la cui struttura logica e i relativi attributi sono riepilogati nella Tabella~\ref{tab:models_metadata_schema}.
+
+\begin{table}[H]
+\centering
+\caption{Struttura e campi del record di tracciamento persistito nel registro \texttt{models\_metadata.csv}.}
+\label{tab:models_metadata_schema}
+\begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X}
+\hline
+\textbf{Categoria Logica} & \textbf{Campi Registrati} \\
+\hline
+\textbf{Metadati di Identificazione} & \texttt{id}, \texttt{timestamp}, \texttt{model\_name}, \texttt{dataset\_type}, \texttt{random\_state} \\
+\hline
+\textbf{Proprietà Struttura Dati} & \texttt{samples}, \texttt{train\_split}, \texttt{n\_features\_in}, \texttt{n\_classes} \\
+\hline
+\textbf{Config. Iperparametrica} & \texttt{n\_estimators}, \texttt{max\_depth}, \texttt{max\_features}, \texttt{criterion}, \texttt{min\_samples\_split}, \texttt{learning\_rate}, \texttt{max\_iter} \\
+\hline
+\textbf{Valutazione In-Sample} & Matrice di confusione grezza (\texttt{TP}, \texttt{TN}, \texttt{FP}, \texttt{FN}) e metriche derivate di addestramento (\texttt{Accuracy}, \texttt{Precision}, \texttt{Recall}, \texttt{F1-Score}, \texttt{ROC-AUC}, \texttt{PR-AUC}, \texttt{TPR}, \texttt{FPR}) \\
+\hline
+\end{tabularx}
+\end{table}
+
+L'archiviazione sistematica in \texttt{models\_metadata.csv} assicura la completa uditabilità dell'infrastruttura di addestramento, fornendo la base informativa per le successive fasi di inferenza e valutazione cross-dominio sui dataset di test target.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     \subsection{Istanziazione dei Modelli Aggregati}
     \label{subsec:istanziazione_aggregati}
@@ -601,6 +669,20 @@ ciao
     % $\mathcal{M}_{S,a}$ e $\mathcal{M}_{H,T,a}$
     % [rif. teorico: subsec:modelli_biclasse]; conteggio totale dei modelli
     % effettivamente addestrati.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \section{Protocollo di Addestramento e Valutazione}
 \label{sec:protocollo_addestramento_valutazione}
