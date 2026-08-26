@@ -222,7 +222,7 @@ class PlotConfig:
         "(Syn_DDoS nb15_ter20)",
         "(UDP_DDoS nb15_ter20)",
 
-        # --- Prposal dataset ---
+        # --- Proposal dataset ---
         "(Aggregate injection)"
     ]
     

@@ -6,8 +6,6 @@
 % componenti tecnici, non risultati (rimandati esplicitamente al Cap.5).
 % Breve roadmap delle sezioni, sullo stesso modello dell'apertura del Cap.3.
 
-ciao
-
 \section{Ambiente Sperimentale e Riproducibilità}
 \label{sec:ambiente_sperimentale}
 
@@ -108,6 +106,7 @@ Tale vincolo assicura che la generazione dei metadati e il salvataggio dei dati 
 
 La campagna di addestramento e validazione si sviluppa invece su un insieme di $K=10$ semi stocastici distinti:
 \begin{equation}
+    \label{eq:random_seeds}
     \mathcal{S} = \{0, 1, 7, 42, 101, 123, 999, 1337, 2026, 12345\}
 \end{equation}
 
@@ -534,22 +533,6 @@ Si evidenzia che l'utilizzo di algoritmi di normalizzazione è stato rigorosamen
 In particolare, la classe \texttt{StandardScaler} del modulo \texttt{sklearn.preprocessing} è stata impiegata unicamente all'interno del modulo di supporto \texttt{plotting.py} per standardizzare le feature a media nulla e varianza unitaria prima dell'esecuzione dell'Analisi delle Componenti Principali (\textit{PCA}) e della stima della densità di kernel (\textit{KDE}). 
 Tali trasformazioni diagnostiche sono state isolate all'interno delle routine di visualizzazione e non sono mai state integrate nel grafo computazionale di addestramento e inferenza dei classificatori.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 \section{Implementazione dei Classificatori}
 \label{sec:implementazione_classificatori}
 
@@ -802,27 +785,163 @@ def _get_standardized_model_name(dataset_type, unique_classes):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 \section{Protocollo di Addestramento e Valutazione}
 \label{sec:protocollo_addestramento_valutazione}
 % Introduzione: istanziazione concreta del protocollo multi-seed e della
 % matrice di valutazione incrociata [rif. teorico: subsec:stabilita_stocastica].
 
-    \subsection{Orchestrazione del Ciclo di Addestramento Multi-Seed}
-    \label{subsec:orchestrazione_training}
-    % Flusso implementativo concreto: come vengono eseguiti $K$ run per
-    % ciascun modello, gestione della persistenza dei modelli congelati,
-    % eventuale parallelizzazione/tempi di calcolo.
+
+
+
+
+
+
+\subsection{Orchestrazione del Ciclo di Addestramento Multi-Seed}
+\label{subsec:orchestrazione_training}
+
+L'esecuzione della campagna di addestramento è stata strutturata secondo un'organizzazione gerarchica basata sulla tipologia di modello (\texttt{model\_type}) e sul seme stocastico (\texttt{seed}). 
+I dataset impiegati nel processo sono univoci e vengono istanziati una sola volta durante la fase di preprocessing, utilizzando il seme deterministico primario $s_0 = 127001$, come descritto nella Sezione~\ref{subsec:riproducibilita_seed}. 
+Le successive esecuzioni multi-seed operano pertanto sugli stessi dataset pre-processati, senza introdurre nuove istanziazioni o modifiche alla composizione dei benchmark.
+
+L'orchestrazione globale è demandata al punto di ingresso \texttt{main.py}, nel quale il ciclo di costruzione dei modelli viene realizzato iterando sul prodotto cartesiano tra l'insieme delle tipologie di classificatore e l'insieme dei seed definiti dal framework. 
+In termini procedurali, per ciascun \texttt{model\_type} vengono quindi eseguite in successione le dieci configurazioni associate ai semi dell'Equazione~\eqref{eq:random_seeds}.
+
+Il flusso operativo dell'infrastruttura di addestramento e la relativa logica di persistenza sono schematizzati nella Figura~\ref{fig:orchestrazione_training}.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    % Stili dei nodi
+    block/.style={
+        draw=blue!80!black, fill=blue!5, thick, rectangle, rounded corners=2pt, 
+        align=center, inner sep=5pt, minimum width=5cm
+    },
+    subproc/.style={
+        draw=teal!80!black, fill=teal!5, thick, rectangle, rounded corners=2pt, 
+        align=center, inner sep=5pt, minimum width=5cm
+    },
+    data/.style={
+        draw=orange!80!black, fill=orange!10, cylinder, shape border rotate=90, 
+        aspect=0.25, align=center, inner sep=5pt, minimum width=5cm
+    },
+    file/.style={
+        draw=purple!80!black, fill=purple!5, rectangle, 
+        dashed, align=center, inner sep=5pt, minimum width=5cm
+    },
+    arrow/.style={-Stealth, thick, draw=black},
+    labeltext/.style={font=\footnotesize, text=black}
+]
+
+    % Input Data e Seed
+    \node [data] (ds) at (0, 0) {
+        \\[-5pt]
+        Dataset Pre-processato\\
+        ($s_0 = 127001$)
+    };
+    \node [block, below=1cm of ds] (main) {
+        \texttt{main.py}\\
+        Prodotto Cartesiano\\
+        $\mathcal{M} \times \mathcal{S}$    
+    };
+    
+    % Core Logic (models.py)
+    \node [subproc, below=2cm of main] (proc) {
+        \texttt{models.py}\\
+        \texttt{model\_processing()}
+    };
+    \node [subproc, below=1cm of proc] (train) {
+        \texttt{\_train\_classifier()}\\
+        Split Train/Test \& Fitting\\($\text{random\_state} = s_k$)
+    };
+    
+    % Artefatti di Output
+    \node [file, right=4cm of proc] (meta) {
+        Registro Metadati\\
+        \texttt{models\_metadata.csv}
+    };
+    \node [file, right=4cm of train] (joblib) {
+        Modello Serializzato\\
+        \texttt{.joblib}
+    };
+
+    % Connessioni Principali
+    \draw [arrow] (ds) -- (main);
+    \draw [arrow] (main) -- node[right, pos=0.32, labeltext] {$(m, s_k)$} (proc);
+    \draw [arrow] (proc) -- node[right, labeltext] {Delega} (train);
+    
+    % Connessioni di Output
+    \draw [arrow] (proc.east) -- node[above, labeltext] {\texttt{file\_utils}} (meta.west);
+    \draw [arrow] (train.east) -- node[above, labeltext] {\texttt{\_save\_model()}} (joblib.west);
+
+    % Raggruppamenti Sfondo (Gradi di Isolamento Software)
+    \begin{scope}[on background layer]
+        \node [draw=gray!40, fill=gray!5, rectangle, rounded corners=5pt, fit=(proc) (train), inner sep=10pt, label={[color=teal!80!black]above:Modulo \texttt{models.py}}] (box_models) {};
+        \node [draw=purple!30, fill=purple!2, rectangle, rounded corners=5pt, fit=(meta) (joblib), inner sep=10pt, label={[color=purple!80!black]above:Persistenza (\texttt{runs/})}] (box_storage) {};
+    \end{scope}
+
+\end{tikzpicture}
+\caption{Flusso operativo dell'orchestrazione multi-seed e isolamento degli artefatti persistiti.}
+\label{fig:orchestrazione_training}
+\end{figure}
+
+Tale organizzazione garantisce che ogni combinazione $(m,s_k)$, con $m$ appartenente all'insieme delle tipologie di modello e $s_k \in \mathcal{S}$, costituisca un'esecuzione logicamente indipendente. 
+Il parametro \texttt{random\_state} viene trasferito esplicitamente all'istanziazione del classificatore, preservando il controllo della componente stocastica senza alterare i dataset di ingresso. 
+La distinzione tra le diverse configurazioni di algoritmo e seed è quindi mantenuta a livello di file system e di stato interno degli stimatori, in coerenza con il principio di isolamento già adottato nella gestione della riproducibilità.
+
+Dal punto di vista implementativo, la logica di addestramento è centralizzata nel modulo \texttt{models.py}. 
+La funzione pubblica \texttt{model\_processing()} costituisce il punto di ingresso della procedura e riceve il \textit{DataFrame} del benchmark, il relativo \texttt{dataset\_type}, la tipologia di classificatore e il seed corrente. 
+Tale funzione provvede alla predisposizione della struttura di persistenza associata all'esecuzione, delegando il fitting vero e proprio alla funzione interna \texttt{\_train\_classifier()}. 
+Quest'ultima separa il dataset nelle partizioni \texttt{train} e \texttt{test}, rimuove le colonne non destinate all'apprendimento e istanzia dinamicamente il classificatore richiesto. 
+La centralizzazione della pipeline consente di applicare la medesima procedura operativa alle diverse famiglie di modelli ultimate nel framework.
+
+L'istanziamento dell'algoritmo mantiene gli iperparametri ai valori predefiniti forniti da \newline \texttt{scikit-learn}, mentre il parametro \texttt{random\_state} viene vincolato al seed dell'esecuzione. 
+Per la \textit{Random Forest}, inoltre, il parametro \texttt{n\_jobs=-1} abilita l'impiego parallelo dei processori disponibili durante la costruzione dell'ensemble; per il \textit{Decision Tree} e l'\textit{Histogram-based Gradient Boosting} non viene invece specificata una configurazione equivalente nel codice applicativo. 
+La scelta mantiene separata la parallelizzazione interna dell'algoritmo dalla logica di orchestrazione, che continua a processare sequenzialmente le diverse combinazioni di \texttt{model\_type} e seed.
+
+Una volta completato il fitting, lo stato dello stimatore viene congelato mediante serializzazione su disco. 
+La funzione \texttt{\_save\_model()} utilizza la libreria \texttt{joblib} per esportare l'oggetto addestrato in formato binario \texttt{.joblib}, registrandone contestualmente il percorso nel registro dei modelli. 
+La struttura gerarchica adottata separa la tipologia di modello dal seed e dagli artefatti prodotti, secondo lo schema generale:
+\begin{center}
+    \texttt{runs/model\_type/seed/models/}
+\end{center}
+Un'istanza concreta è rappresentata dal percorso:
+\begin{center}
+    \texttt{runs/hybrid\_models/rf/42/models/injection\_aggregate.joblib}
+\end{center}
+nel quale \texttt{rf} identifica la famiglia del classificatore, \texttt{42} il seed dell'esecuzione e \newline \texttt{injection\_aggregate.joblib} il modello serializzato associato al benchmark considerato. 
+La nomenclatura dei modelli viene determinata automaticamente sulla base del \texttt{dataset\_type} e delle classi presenti nel dataset, così da mantenere una corrispondenza univoca tra configurazione sperimentale e artefatto persistito.
+
+Parallelamente alla serializzazione dello stimatore, per ogni configurazione vengono registrati i relativi metadati nel file \texttt{models\_metadata.csv}. 
+Il meccanismo di aggiornamento è implementato mediante la funzione \texttt{update\_or\_append\_csv()} del modulo \texttt{file\_utils.py}, la quale verifica preventivamente l'eventuale presenza di un record corrispondente alle chiavi di identificazione e, in assenza di una corrispondenza, genera un nuovo identificatore incrementale. 
+La funzione mantiene inoltre il campo \texttt{id} come prima colonna del file e allinea lo schema del nuovo record a quello già presente. 
+Per ciascun modello vengono quindi mantenute, oltre alle informazioni identificative, le principali proprietà strutturali e configurazionali dello stimatore, inclusi il valore di \texttt{random\_state}, il numero di feature in ingresso, il numero di classi e gli iperparametri specifici dell'algoritmo. 
+Il registro costituisce pertanto la traccia persistente dell'esecuzione e permette di associare ogni artefatto serializzato alla precisa configurazione che ne ha determinato la costruzione.
+
+La procedura adottata garantisce infine una netta separazione tra produzione e successivo utilizzo degli stimatori. 
+Una volta completato il ciclo di fitting e serializzazione per un determinato seed, il relativo modello non viene più modificato nelle fasi successive: la valutazione viene infatti eseguita caricando da disco l'artefatto precedentemente congelato. 
+In questo modo, la fase di classificazione successiva opera esclusivamente in modalità di inferenza sul modello già addestrato, evitando che le procedure di valutazione possano alterarne lo stato interno.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     \subsection{Calcolo delle Metriche e Costruzione della Matrice di Valutazione} % $H_k$
     \label{subsec:calcolo_metriche_hk}
@@ -836,6 +955,34 @@ def _get_standardized_model_name(dataset_type, unique_classes):
     % Libreria concreta (es. scipy.stats.ttest\_ind con equal\_var=False)
     % [rif. teorico: subsubsec:welch\_test], soglia $\alpha$ adottata,
     % modalità di reporting dei $p$-value.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \section{Strumenti di Analisi Diagnostica e Spiegabilità}
 \label{sec:strumenti_analisi_diagnostica}
