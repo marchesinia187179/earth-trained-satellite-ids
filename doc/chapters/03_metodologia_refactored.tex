@@ -1526,11 +1526,17 @@ Per rendere la valutazione indipendente dalla numerosità del campione di test, 
 
 cui corrispondono i rispettivi complementari
 
-\[
-    FNR(\tau)=1-TPR(\tau),
-    \qquad
-    TNR(\tau)=1-FPR(\tau).
-\]
+\begin{equation}
+\begin{aligned}
+    FNR(\tau) &= 1-TPR(\tau) \\
+              &= \frac{FN(\tau)}{TP(\tau)+FN(\tau)},
+\end{aligned}
+\qquad
+\begin{aligned}
+    TNR(\tau) &= 1-FPR(\tau) \\
+              &= \frac{TN(\tau)}{TN(\tau)+FP(\tau)}.
+\end{aligned}
+\end{equation}
 
 L'affidabilità delle segnalazioni generate dal classificatore è invece misurata dalla \textit{Precision}:
 

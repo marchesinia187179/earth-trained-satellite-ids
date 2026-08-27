@@ -943,13 +943,249 @@ In questo modo, la fase di classificazione successiva opera esclusivamente in mo
 
 
 
-    \subsection{Calcolo delle Metriche e Costruzione della Matrice di Valutazione} % $H_k$
-    \label{subsec:calcolo_metriche_hk}
-    % Implementazione concreta di TPR/TNR/Precision/F1
-    % [rif. teorico: subsubsec:metriche_aggregazione], libreria usata
-    % (es. scikit-learn.metrics), formato di persistenza della matrice
-    % (CSV/DataFrame), eventuale esportazione delle heatmap.
+\subsection{Calcolo delle Metriche e Costruzione della Matrice di Valutazione}
+\label{subsec:calcolo_metriche_hk}
 
+La valutazione dei classificatori è stata implementata mediante una procedura comune a tutte le configurazioni sperimentali, così da garantire uniformità nel calcolo delle metriche e nella successiva organizzazione dei risultati. La fase di classificazione opera esclusivamente sugli insiemi di collaudo, identificati tramite il campo \texttt{split\_type}, mentre le informazioni relative alle feature e alle etichette vengono separate prima dell'esecuzione dell'inferenza. 
+Per ciascun modello precedentemente serializzato, l'artefatto \texttt{.joblib} viene ricaricato da disco e utilizzato senza apportare modifiche al suo stato interno.
+
+La procedura è centralizzata nella funzione \texttt{classification\_processing()} del modulo \texttt{classification.py}, che delega il calcolo delle predizioni alla propria funzione interna \texttt{\_classification()}. 
+Una volta isolato il sottoinsieme associato a \texttt{split\_type = test}, vengono eliminate dalle feature le colonne \texttt{label}, \texttt{class} e \texttt{split\_type}, mentre la variabile \texttt{label} viene mantenuta separatamente come vettore delle classi reali. 
+L'inferenza viene quindi effettuata mediante i metodi \texttt{predict()} e \texttt{predict\_proba()}, utilizzando quest'ultimo per estrarre il punteggio associato alla classe positiva. 
+Non viene applicata una soglia decisionale personalizzata: le etichette predette sono pertanto quelle direttamente restituite dall'estimatore secondo il comportamento predefinito del classificatore.
+
+Il calcolo delle metriche è stato incapsulato nella funzione \texttt{calculate\_metrics()} del modulo \texttt{src/utils/metrics.py}, con l'impiego delle funzioni messe a disposizione da \texttt{sklearn.metrics}. 
+In particolare, vengono utilizzate le metriche descritte in Tabella~\ref{tab:evaluation_metrics}.
+
+\begin{table}[H]
+\centering
+\caption{Metriche di valutazione delle prestazioni utilizzate per la caratterizzazione dei modelli di apprendimento automatico.}
+\label{tab:evaluation_metrics}
+\begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X}
+\hline
+\textbf{Funzione Scikit-Learn} & \textbf{Descrizione Operativa} \\
+\hline
+\texttt{confusion\_matrix} & Matrice di confusione per il conteggio delle predizioni binarie. \\
+\texttt{accuracy\_score} & Proporzione complessiva di predizioni corrette rispetto al totale delle istanze. \\
+\texttt{precision\_score} & Frazione di istanze malevole identificate correttamente rispetto a tutte quelle classificate come tali. \\
+\texttt{recall\_score} & Sensibilità o tasso di veri positivi ($TPR$): frazione di anomalie rilevate rispetto al totale reale. \\
+\texttt{f1\_score} & Media armonica tra Precision e Recall, indicatore sintetico in presenza di sbilanciamento delle classi. \\
+\texttt{roc\_auc\_score} & Area sotto la curva ROC (True Positive Rate vs False Positive Rate) al variare della soglia decisionale. \\
+\texttt{average\_precision\_score} & Area sotto la curva Precision-Recall, pesata sull'incremento della Recall ad ogni soglia. \\
+\hline
+\end{tabularx}
+\end{table}
+
+La matrice di confusione viene esplicitamente calcolata imponendo l'ordine delle classi \texttt{[0, 1]} e successivamente scomposta nei quattro termini fondamentali:
+
+\begin{equation}
+\mathbf{C} =
+\begin{bmatrix}
+TN & FP \\
+FN & TP
+\end{bmatrix}.
+\label{eq:confusion_matrix_implementation}
+\end{equation}
+
+A partire da tali quantità vengono inoltre calcolati direttamente il \textit{True Positive Rate} (TPR), il \textit{False Negative Rate} (FNR), il \textit{True Negative Rate} (TNR) e il \textit{False Positive Rate} (FPR), secondo le relazioni riportate nella Sezione~\ref{subsubsec:metriche_derivate_formali}.
+
+Il \textit{Recall} restituito da \texttt{recall\_score()} coincide, nel caso binario adottato dal framework, con il TPR. 
+Le ulteriori metriche calcolate comprendono \textit{Accuracy}, \textit{Precision}, \textit{F1-Score}, \textit{ROC-AUC} e \textit{PR-AUC}. Le metriche \textit{Accuracy}, \textit{Precision}, \textit{Recall} e \textit{F1-Score} sono ottenute a partire dalle etichette predette \texttt{y\_pred}, mentre \textit{ROC-AUC} e \textit{PR-AUC} vengono determinate utilizzando i punteggi \texttt{y\_scores} associati alla classe positiva. 
+Tutti i valori numerici prodotti dalle funzioni di metrica vengono arrotondati al numero di cifre decimali stabilito nella configurazione globale \texttt{MLConstants.DECIMAL\_DIGITS}\footnote{Nella configurazione sperimentale corrente, il parametro \texttt{DECIMAL\_DIGITS} è impostato su 4 decimali per preservare la precisione numerica nei calcoli aggregati.}.
+
+Particolare attenzione è stata riservata ai casi nei quali il vettore delle etichette reali contiene una sola classe. 
+Prima del calcolo delle metriche viene pertanto verificata la presenza di almeno due classi distinte mediante il numero di valori univoci presenti in \texttt{y\_test}. 
+Qualora tale condizione non sia soddisfatta, le metriche \textit{Accuracy}, \textit{Precision}, \textit{Recall}, \textit{F1-Score}, \textit{ROC-AUC} e \textit{PR-AUC} vengono impostate a \texttt{None}. 
+I quattro elementi della matrice di confusione vengono invece sempre ricavati imponendo le classi \texttt{[0, 1]}, mentre TPR, FNR, TNR e FPR vengono calcolati separatamente e assumono valore \texttt{None} esclusivamente quando il denominatore della relativa espressione risulta nullo. 
+La struttura logica di tale gestione difensiva è sintetizzata nel Listing~\ref{lst:calculate_metrics_edge_cases}.
+
+\newpage
+
+\begin{lstlisting}[language=Python, caption={Gestione difensiva dei casi limite e calcolo delle metriche in \texttt{calculate\_metrics()}.}, label={lst:calculate_metrics_edge_cases}, frame=single, basicstyle=\ttfamily\small, keywordstyle=\bfseries, breaklines=true]
+unique_classes = np.unique(y_test)
+
+if len(unique_classes) < 2:
+    accuracy = precision = recall = f1 = roc_auc = pr_auc = None
+else:
+    accuracy = accuracy_score(y_test, y_pred)
+    precision = precision_score(y_test, y_pred, zero_division=0)
+    recall = recall_score(y_test, y_pred, zero_division=0)
+    f1 = f1_score(y_test, y_pred, zero_division=0)
+    roc_auc = roc_auc_score(y_test, y_scores)
+    pr_auc = average_precision_score(y_test, y_scores)
+
+cm = confusion_matrix(y_test, y_pred, labels=[0, 1])
+tn, fp, fn, tp = cm.ravel()
+\end{lstlisting}
+
+L'insieme completo dei risultati viene quindi organizzato all'interno del file \texttt{classifications.csv}, generato separatamente per ciascuna combinazione di \texttt{model\_type} e seed. 
+Ogni record contiene i metadati identificativi della classificazione, il tipo di dataset e la relativa composizione delle classi, oltre alle quantità della matrice di confusione e alle metriche derivate. 
+La struttura complessiva del record e la relativa suddivisione funzionale dei campi sono dettagliate nella Tabella~\ref{tab:record_structure}.
+
+\begin{table}[H]
+\centering
+\caption{Tassonomia e suddivisione concettuale dei campi costituenti il record di tracciamento delle prestazioni.}
+\label{tab:record_structure}
+\begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X}
+\hline
+\textbf{Campo} & \textbf{Descrizione Operativa} \\
+\hline
+\multicolumn{2}{c}{\textbf{Metadati ed Esecuzione Sperimentale}} \\
+\hline
+\texttt{id} & Identificatore univoco progressivo della singola esecuzione. \\
+\texttt{timestamp} & Marca temporale di completamento della valutazione. \\
+\texttt{model\_name} & Architettura o denominazione del modello di apprendimento valutato. \\
+\texttt{dataset\_type} & Tipologia di partizione o dominio di test utilizzato. \\
+\texttt{classes} & Cardinalità o identificativi delle classi analizzate. \\
+\texttt{samples} & Numero totale di campioni elaborati nella sessione. \\
+\hline
+\multicolumn{2}{c}{\textbf{Conteggi della Matrice di Confusione}} \\
+\hline
+\texttt{TP} & Conteggio dei Veri Positivi (\textit{True Positives}). \\
+\texttt{TN} & Conteggio dei Veri Negativi (\textit{True Negatives}). \\
+\texttt{FP} & Conteggio dei Falsi Positivi (\textit{False Positives}). \\
+\texttt{FN} & Conteggio dei Falsi Negativi (\textit{False Negatives}). \\
+\hline
+\multicolumn{2}{c}{\textbf{Metriche di Prestazione Sintetiche}} \\
+\hline
+\texttt{Accuracy} & Tasso di accuratezza globale sul totale dei campioni. \\
+\texttt{Precision} & Frazione di predizioni positive risultate corrette. \\
+\texttt{Recall} & Sensibilità o tasso di rilevamento delle anomalie. \\
+\texttt{F1-Score} & Media armonica bilanciata tra Precision e Recall. \\
+\texttt{ROC-AUC} & Area sotto la curva \textit{Receiver Operating Characteristic}. \\
+\texttt{PR-AUC} & Area sotto la curva \textit{Precision-Recall} (\textit{Average Precision}). \\
+\hline
+\multicolumn{2}{c}{\textbf{Tassi e Proporzioni Operative}} \\
+\hline
+\texttt{TPR} & \textit{True Positive Rate}, coincidente con la Recall. \\
+\texttt{FNR} & \textit{False Negative Rate}, o tasso di mancato allarme. \\
+\texttt{TNR} & \textit{True Negative Rate}, o specificità del sistema. \\
+\texttt{FPR} & \textit{False Positive Rate}, o tasso di falso allarme. \\
+\hline
+\end{tabularx}
+\end{table}
+
+La persistenza viene effettuata mediante \texttt{update\_or\_append\_csv()}, che individua un'eventuale voce preesistente sulla base delle chiavi di corrispondenza (\texttt{model\_name}, \texttt{dataset\_type} e \texttt{classes}) e, in caso contrario, assegna un identificatore al nuovo record. 
+
+A partire dai risultati persistiti viene costruita la matrice di valutazione definita teoricamente nel Capitolo~\ref{ch:metodologia}. 
+Per ciascun seed $s_k \in \mathcal{S}$, tale matrice può essere formalmente rappresentata come:
+
+\begin{equation}
+H_k = \left[ h_{ij}^{(k)} \right] \in \mathbb{R}^{M \times D},
+\label{eq:hk_implementation}
+\end{equation}
+
+dove $M$ identifica l'insieme dei modelli addestrati, $D$ l'insieme dei dataset di valutazione e ciascun elemento $h_{ij}^{(k)}$ rappresenta il valore della metrica considerata per la coppia costituita dal $i$-esimo modello e dal $j$-esimo dataset al seed $s_k$.
+
+Nell'implementazione concreta, la rappresentazione generale viene articolata in due matrici indipendenti, una relativa al \textit{True Positive Rate} e una relativa al \textit{True Negative Rate}:
+
+\begin{equation}
+H_k^{TPR} = \left[ TPR_{ij}^{(k)} \right], \qquad H_k^{TNR} = \left[ TNR_{ij}^{(k)} \right].
+\label{eq:hk_tpr_tnr}
+\end{equation}
+
+Le due matrici presentano la medesima organizzazione bidimensionale, con i modelli addestrati disposti sulle righe e i dataset di valutazione sulle colonne. 
+La suddivisione fisica viene invece effettuata a livello di gruppi di modelli: una matrice raccoglie le configurazioni aggregate del dominio sorgente, i modelli biclasse sorgente e il relativo modello \textit{INJECTION}, mentre l'altra raccoglie le configurazioni aggregate ibride, i modelli biclasse ibridi e il medesimo modello di riferimento \textit{INJECTION}.
+
+Per ciascuna matrice, la colonna finale è reserved al valore medio associato alla riga del modello, mentre il modello \textit{INJECTION} viene riportato in una sezione graficamente separata nella parte inferiore della rappresentazione. 
+Gli artefatti relativi alle singole esecuzioni sono salvati nella directory \texttt{runs/<model\_group>/<model\_type>/<seed>/results/plots/performance/} attraverso i file \texttt{TPR\_matrix.png} e \texttt{TNR\_matrix.png}.
+
+L'intero flusso operativo di valutazione e la successiva aggregazione statistica tra i diversi seed sono schematizzati nella Figura~\ref{fig:pipeline_metriche_aggregazione}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    node distance=0.8cm and 1.2cm,
+    font=\scriptsize,
+    block/.style={draw=blue!80!black, fill=blue!5, thick, rectangle, rounded corners=3pt, align=center, inner sep=5pt, minimum height=0.7cm},
+    proc/.style={draw=teal!80!black, fill=teal!5, thick, rectangle, rounded corners=2pt, align=center, inner sep=4pt},
+    file/.style={draw=purple!80!black, fill=purple!5, rectangle, dashed, align=center, inner sep=4pt},
+    arrow/.style={-Stealth, thick, draw=gray!80!black},
+    labeltext/.style={font=\tiny\itshape, text=gray!90!black}
+]
+
+    % --- STAGE 1: Per-Seed Evaluation ---
+    \node [block] (input) {Test Set \& Modello\\$(m, s_k)$};
+    \node [proc, right=of input] (infer) {\texttt{\_classification()}\\ Inferenza: \texttt{predict()}\\ \& \texttt{predict\_proba()}};
+    \node [proc, right=of infer] (metrics) {\texttt{calculate\_metrics()}\\ Matrice di Confusione\\ \& Metriche Sintetiche};
+    \node [file, right=of metrics] (csv_seed) {\texttt{classifications.csv}\\ Artefatti $H_k^{TPR}, H_k^{TNR}$\\ (Singolo Seed)};
+
+    \draw [arrow] (input) -- (infer);
+    \draw [arrow] (infer) -- (metrics);
+    \draw [arrow] (metrics) -- (csv_seed);
+
+    % --- STAGE 2: Multi-Seed Aggregation ---
+    \node [proc, below=1.2cm of metrics] (agg) {\texttt{\_aggregated\_heatmaps()}\\ Concatena $K$ Seed $\to$ Calcolo $\overline{h}_{ij}$ e $\sigma^2_{ij}$};
+    \node [file, right=of agg] (final_out) {Matrici Aggregate\\ \texttt{TPR\_mean\_matrix.csv}\\ \texttt{TPR\_var\_matrix.csv} \& PNG};
+
+    \draw [arrow] (csv_seed) |- (agg) node[near start, right, labeltext] {Iterazione su $s_1 \dots s_K$};
+    \draw [arrow] (agg) -- (final_out);
+
+    % Scope boxes
+    \begin{scope}[on background layer]
+        \node [draw=blue!30, fill=blue!2, rectangle, rounded corners=5pt, fit=(input) (infer) (metrics) (csv_seed), inner sep=6pt, label={[font=\tiny\bfseries, color=blue!70!black]above:Fase 1: Valutazione e Persistenza per Singolo Seed ($s_k$)}] (box1) {};
+        \node [draw=teal!30, fill=teal!2, rectangle, rounded corners=5pt, fit=(agg) (final_out), inner sep=6pt, label={[font=\tiny\bfseries, color=teal!70!black]below:Fase 2: Aggregazione Multi-Seed}] (box2) {};
+    \end{scope}
+
+\end{tikzpicture}
+\caption{Pipeline a due stadi per il calcolo delle metriche di classificazione, tracciamento su file system e aggregazione statistica multi-seed.}
+\label{fig:pipeline_metriche_aggregazione}
+\end{figure}
+
+Al termine dell'elaborazione dei singoli seed, viene eseguita una seconda fase di aggregazione che considera congiuntamente i risultati prodotti per tutti i valori di $s_k$. La routine \texttt{\_aggregated\_heatmaps()} legge i file \texttt{classifications.csv} presenti nelle directory associate ai diversi seed, li concatena in un unico \textit{DataFrame} e associa esplicitamente a ciascun record il seed di provenienza. 
+
+Per ciascuna coppia modello--dataset vengono successivamente determinate le statistiche aggregate della metrica considerata sui diversi seed. In particolare, per TPR e TNR viene prodotta un'unica matrice contenente due valori numerici distinti per ogni coppia modello--dataset: rispettivamente la media
+
+\begin{equation}
+\overline{h}_{ij} = \frac{1}{K} \sum_{k=1}^{K} h_{ij}^{(k)},
+\label{eq:metric_mean}
+\end{equation}
+
+e la varianza
+
+\begin{equation}
+\sigma_{ij}^{2} = \frac{1}{K} \sum_{k=1}^{K} \left( h_{ij}^{(k)}-\overline{h}_{ij} \right)^2.
+\label{eq:metric_variance}
+\end{equation}
+
+La rappresentazione aggregata combina quindi l'informazione relativa al valore medio e alla dispersione osservata tra i seed, senza sostituire i dati relativi alle singole esecuzioni. 
+Per ciascun tipo di classificatore, le matrici aggregate vengono memorizzate sotto la directory \texttt{runs/<model\_group>/<model\_type>/aggregated\_heatmaps/} con una sottocartella dedicata alla metrica considerata. Per ciascuna metrica vengono conservati sia i valori tabellari della media e della varianza in formato \texttt{CSV}, sia la rappresentazione grafica finale in formato \texttt{PNG} (\texttt{TPR\_mean\_matrix.csv} e \texttt{TPR\_var\_matrix.csv}).
+
+La separazione tra risultati per singolo seed e risultati aggregati consente pertanto di mantenere distinti due livelli di organizzazione implementativa: il primo conserva integralmente la configurazione associata a ciascuna realizzazione stocastica, mentre il secondo sintetizza le osservazioni relative alla stessa coppia modello--dataset lungo l'insieme dei seed. 
+Tale organizzazione costituisce la trasposizione operativa della matrice di valutazione $H_k$ definita nel modello teorico e produce gli artefatti persistenti utilizzati nelle successive procedure di analisi statistica.
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     \subsection{Implementazione del Test di Welch}
     \label{subsec:implementazione_welch}
     % Libreria concreta (es. scipy.stats.ttest\_ind con equal\_var=False)
