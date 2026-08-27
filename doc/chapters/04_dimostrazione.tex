@@ -1315,7 +1315,66 @@ L'artefatto viene persistito nella directory
 \end{center}
 
 con il nome \texttt{F1-Score\_means.csv}. 
-Tale file rappresenta esclusivamente la sintesi dei valori medi di \textit{F1-Score} per modello e seed e costituisce una rappresentazione intermedia necessaria alla successiva procedura statistica.
+Tale file rappresenta esclusivamente la sintesi dei valori medi di \textit{F1-Score} per modello e seed e costituisce una rappresentazione intermedia necessaria alla successiva procedura statistica. 
+L'intero flusso di aggregazione dei dati e la pipeline di calcolo del test statistico sono schematizzati nella Figura~\ref{fig:welch_pipeline}.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    file/.style={draw=purple!80!black, fill=purple!5, rectangle, dashed, align=center, inner sep=5pt},
+    proc/.style={draw=teal!80!black, fill=teal!5, thick, rectangle, rounded corners=3pt, align=center, inner sep=5pt},
+    arrow/.style={-Stealth, thick, draw=black}
+]
+
+    % Nodi del flusso
+    \node [file] at (0, 0) (in_csv) {
+        $K$ file\\ 
+        \footnotesize
+        \texttt{classifications.csv}\\
+        \footnotesize
+        (un file per seed $s_k$)
+    };
+    \node [proc, below=0.7cm of in_csv] (agg) {
+        Media sui Dataset\\ 
+        \footnotesize
+        \texttt{aggregate\_welch\_ttest\_feature\_scores\_by\_seed()}\\ 
+        \footnotesize
+        $\overline{F1}_{i}^{(k)}$
+    };
+    \node [proc, below=0.7cm of agg] (pivot) {
+        Operazione di Pivot\\ 
+        \footnotesize
+        Matrice Modelli $\times$ Seed
+    };
+    \node [file, right=0.7cm of pivot] (mid_csv) {
+        \texttt{F1-Score\_means.csv}\\
+        \footnotesize
+        (Dati Intermedi)
+    };
+    \node [proc, below=0.7cm of pivot] (test) {
+        Test $t$ di Welch\\ 
+        \footnotesize
+        \texttt{ttest\_ind()}\\ 
+        \footnotesize
+        (\textit{equal\_var=False})
+    };
+    \node [file, below=0.7cm of test] (out_csv) {
+        \texttt{welch\_ttest.csv}\\
+        \footnotesize
+        (Risultati Statistici)
+    };
+
+    % Connessioni
+    \draw [arrow] (in_csv) -- (agg);
+    \draw [arrow] (agg) -- (pivot);
+    \draw [arrow] (pivot) -- (mid_csv);
+    \draw [arrow] (pivot) -- (test);
+    \draw [arrow] (test) -- (out_csv);
+
+\end{tikzpicture}
+\caption{Pipeline di trasformazione dei dati per l'esecuzione del Test $t$ di Welch, dal recupero delle metriche sui singoli seed alla persistenza degli esiti statistici.}
+\label{fig:welch_pipeline}
+\end{figure}
 
 Il Welch test viene quindi eseguito dalla funzione \texttt{calculate\_welch\_ttest\_from\_summary()} del modulo \texttt{src/utils/metrics.py}, utilizzando la funzione \texttt{ttest\_ind()} del modulo \newline \texttt{scipy.stats}. 
 L'opzione \texttt{equal\_var=False} impone esplicitamente l'utilizzo della formulazione di Welch, nella quale non viene assunta l'uguaglianza delle varianze delle due popolazioni campionarie.
