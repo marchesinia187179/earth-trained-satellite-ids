@@ -801,28 +801,17 @@ def _get_standardized_model_name(dataset_type, unique_classes):
     return f"{dataset_type}_{attack_name}"
 \end{lstlisting}
 
-
-
-
-
-
-
-
-
-
-
-
-
 \section{Protocollo di Addestramento e Valutazione}
 \label{sec:protocollo_addestramento_valutazione}
-% Introduzione: istanziazione concreta del protocollo multi-seed e della
-% matrice di valutazione incrociata [rif. teorico: subsec:stabilita_stocastica].
 
+La presente sezione formalizza e declina in moduli operativi il protocollo sperimentale di addestramento, valutazione ed analisi inferenziale introdotto dal punto di vista teorico nel Capitolo~\ref{ch:metodologia}.
+A fronte dell'esigenza di garantire la stabilità stocastica dei modelli e la piena riproducibilità dei risultati, l'infrastruttura software è progettata per gestire in modo sistematico l'intero ciclo di vita degli stimatori: dalla fase di fitting strutturata su molteplici semi stocastici, all'inferenza rigorosa sugli insiemi di collaudo, fino alla validazione statistica delle prestazioni relative.
+L'obiettivo primario di questo modulo consiste nel definire una pipeline esecutiva automatizzata e rigorosa, capace di integrare la persistenza degli artefatti, la generazione delle matrici di valutazione e la verifica formale delle ipotesi di significatività.
 
-
-
-
-
+Nelle sottosezioni seguenti vengono dettagliate le componenti e le logiche procedurali che costituiscono l'architettura del protocollo.
+In primo luogo, la Sottosezione~\ref{subsec:orchestrazione_training} descrive l'orchestrazione gerarchica del ciclo di addestramento multi-seed, le modalità di serializzazione degli oggetti predittivi e i meccanismi di tracciamento dei metadati nei registri persistenti.
+Successivamente, la Sottosezione~\ref{subsec:calcolo_metriche_hk} illustra il flusso di classificazione e inferenza sugli insiemi di test, la gestione difensiva dei casi limite, la derivazione delle metriche di prestazione e la costruzione delle matrici di valutazione per singolo seed ed aggregate.
+Infine, la Sottosezione~\ref{subsec:implementazione_welch} analizza l'implementazione del test $t$ di Welch, dettagliando la procedura di aggregazione dei dati di \textit{F1-Score} e i criteri di decisione statistica adottati per il confronto tra le diverse configurazioni e il modello di riferimento.
 
 \subsection{Orchestrazione del Ciclo di Addestramento Multi-Seed}
 \label{subsec:orchestrazione_training}
@@ -836,7 +825,7 @@ In termini procedurali, per ciascun \texttt{model\_type} vengono quindi eseguite
 
 Il flusso operativo dell'infrastruttura di addestramento e la relativa logica di persistenza sono schematizzati nella Figura~\ref{fig:orchestrazione_training}.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \begin{tikzpicture}[
     % Stili dei nodi
@@ -1236,40 +1225,6 @@ con una sottocartella dedicata alla metrica considerata. Per ciascuna metrica ve
 La separazione tra risultati per singolo seed e risultati aggregati consente pertanto di mantenere distinti due livelli di organizzazione implementativa: il primo conserva integralmente la configurazione associata a ciascuna realizzazione stocastica, mentre il secondo sintetizza le osservazioni relative alla stessa coppia modello--dataset lungo l'insieme dei seed. 
 Tale organizzazione costituisce la trasposizione operativa della matrice di valutazione $H_k$ definita nel modello teorico e produce gli artefatti persistenti utilizzati nelle successive procedure di analisi statistica.
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-
-
 \subsection{Implementazione del Test di Welch}
 \label{subsec:implementazione_welch}
 
@@ -1318,7 +1273,7 @@ con il nome \texttt{F1-Score\_means.csv}.
 Tale file rappresenta esclusivamente la sintesi dei valori medi di \textit{F1-Score} per modello e seed e costituisce una rappresentazione intermedia necessaria alla successiva procedura statistica. 
 L'intero flusso di aggregazione dei dati e la pipeline di calcolo del test statistico sono schematizzati nella Figura~\ref{fig:welch_pipeline}.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \begin{tikzpicture}[
     file/.style={draw=purple!80!black, fill=purple!5, rectangle, dashed, align=center, inner sep=5pt},
@@ -1513,7 +1468,7 @@ I risultati vengono infine serializzati mediante la funzione \texttt{create\_csv
 
 La struttura complessiva del registro finale e la descrizione semantica dei singoli campi sono dettagliate nella Tabella~\ref{tab:welch_csv_structure}. Tale schematizzazione consente di associare univocamente ogni confronto alla configurazione di riferimento, al modello sottoposto a verifica e ai parametri descrittivi restituiti dal test.
 
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
 \caption{Struttura e descrizione semantica dei campi costituenti il file di registro statistico \texttt{welch\_ttest.csv}.}
 \label{tab:welch_csv_structure}
