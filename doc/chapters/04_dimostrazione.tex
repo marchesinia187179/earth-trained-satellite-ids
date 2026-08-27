@@ -1422,7 +1422,66 @@ H_1:
 \end{equation}
 
 dove $\mu_{\text{base}}$ e $\mu_m$ rappresentano i valori medi della \textit{F1-Score} delle rispettive popolazioni campionarie. 
-L'implementazione utilizza la configurazione predefinita del test a due code della funzione \texttt{scipy.stats.ttest\_ind()}, senza introdurre una direzione privilegiata per l'ipotesi alternativa.
+
+La traduzione di tale impianto teorico nella sua controparte implementativa è riportata nel Listing~\ref{lst:welch_implementation}, il quale illustra la procedura di estrazione dei campioni vettoriali dal \textit{DataFrame} matriciale e l'invocazione del modulo \texttt{scipy.stats}. 
+L'utilizzo del parametro \texttt{equal\_var=False} applica rigorosamente la formulazione di Welch e la valutazione viene eseguita a due code (configurazione predefinita), senza introdurre una direzione privilegiata per l'ipotesi alternativa.
+
+\newpage
+
+\begin{lstlisting}[
+    language=Python,
+    caption={Estrazione dei campioni ed esecuzione del Test $t$ di Welch.},
+    label={lst:welch_implementation},
+    frame=single,
+    rulecolor=\color{mygray},
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\footnotesize,
+    commentstyle=\color{mygreen},
+    keywordstyle=\color{purple}\bfseries,
+    stringstyle=\color{mymauve},
+    emph={[2]None,True,False},
+    emphstyle={[2]\color{mymauve}\bfseries},
+    breaklines=false,
+    keepspaces=true,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\tiny\color{mygray},
+    numbersep=8pt
+]
+# Extract target statistical scores for the reference model 
+# across all seed columns
+ref_row = data[data["model_name"] == reference_model]
+ref_scores = (
+    ref_row.drop(columns=["id", "model_name"]).values.flatten().astype(float)
+)
+
+results_list = []
+# Iterate through each model entry in the summary dataframe for cross-testing
+for _, row in data.iterrows():
+    current_model = row["model_name"]
+
+    if current_model == reference_model: continue
+
+    # Isolate numerical test values for the compared model
+    current_scores = row.drop(["id", "model_name"]).values.astype(float)
+
+    # Execute Welch's t-test (unequal variances assumed)
+    t_stat, p_value = stats.ttest_ind(
+        ref_scores, current_scores, equal_var=False
+    )
+
+    # Evaluate significance against target confidence threshold
+    is_significant = "YES" if p_value < alpha else "NO"
+
+    results_list.append({
+        "Reference_Model": reference_model,
+        "Compared_Model": current_model,
+        "t_statistic": t_stat,
+        "p_value": p_value,
+        "alpha": alpha,
+        "is_significant": is_significant
+    })
+\end{lstlisting}
 
 Il livello di significatività è fissato a
 
@@ -1441,26 +1500,38 @@ p < \alpha,
 \end{equation}
 
 mentre in caso contrario il confronto viene classificato come non significativo. 
-Non viene applicata alcuna procedura di correzione per confronti multipli ai \textit{p-value} ottenuti dai diversi confronti tra modelli.
+Non viene applicata alcuna procedura di correzione per confronti multipli ai \textit{p-value} ottenuti dai diversi confronti tra modelli\footnote{L'assenza di correzioni per test multipli (quali Bonferroni o Benjamini-Hochberg) è stata adottata in modo deliberato per preservare la sensibilità esplorativa dell'analisi. In tale contesto, ridurre la probabilità di errori di II tipo (falsi negativi) è stato ritenuto prioritario rispetto al controllo rigido del \textit{Family-Wise Error Rate} (FWER), evitando così di smorzare prematuramente deviazioni prestazionali potenzialmente rilevanti indotte dalle diverse configurazioni di addestramento.}.
 
 Il confronto del modello \textit{INJECTION} con sé stesso viene esplicitamente escluso dalla procedura, poiché non costituisce un confronto statistico tra configurazioni differenti. 
 Per ciascuno degli altri modelli vengono invece registrati il valore della statistica $t$, il relativo \textit{p-value}, il livello $\alpha$ adottato e l'esito della verifica mediante il campo \texttt{is\_significant}.
 
-I risultati vengono infine serializzati mediante la funzione \texttt{create\_csv\_from\_data()} nel file \texttt{welch\_ttest.csv}, collocato nella medesima directory dedicata all'analisi statistica:
+I risultati vengono infine serializzati mediante la funzione \texttt{create\_csv\_from\_data()} nel file \texttt{welch\_ttest.csv}, salvato nella sottocartella di analisi 
 
 \begin{center}
-    \texttt{runs/<model\_group>/<model\_type>/welch\_ttest/welch\_ttest.csv}
+    \texttt{runs/<model\_group>/<model\_type>/welch\_ttest/}
 \end{center}
 
-Il registro finale presenta la struttura
+La struttura complessiva del registro finale e la descrizione semantica dei singoli campi sono dettagliate nella Tabella~\ref{tab:welch_csv_structure}. Tale schematizzazione consente di associare univocamente ogni confronto alla configurazione di riferimento, al modello sottoposto a verifica e ai parametri descrittivi restituiti dal test.
 
-\begin{center}
-    \texttt{Reference\_Model, Compared\_Model, t\_statistic, p\_value, alpha, is\_significant}
-\end{center}
+\begin{table}[htbp]
+\centering
+\caption{Struttura e descrizione semantica dei campi costituenti il file di registro statistico \texttt{welch\_ttest.csv}.}
+\label{tab:welch_csv_structure}
+\begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X}
+\hline
+\textbf{Campo} & \textbf{Descrizione Operativa} \\
+\hline
+\texttt{Reference\_Model} & Denominazione del modello di riferimento assunto come baseline (variante \textit{INJECTION}). \\
+\texttt{Compared\_Model} & Denominazione del modello di confronto sottoposto a verifica statistica. \\
+\texttt{t\_statistic} & Valore numerico della statistica $t$ di Welch calcolato tra i campioni di \textit{F1-Score}. \\
+\texttt{p\_value} & Probabilità osservata di ottenere un valore uguale o più estremo sotto l'ipotesi nulla $H_0$. \\
+\texttt{alpha} & Livello di significatività stabilito a priori per la decisione statistica ($\alpha = 0.05$). \\
+\texttt{is\_significant} & Indicatore booleano dell'esito della verifica (\texttt{True} se $p < \alpha$, \texttt{False} altrimenti). \\
+\hline
+\end{tabularx}
+\end{table}
 
-e consente di associare ogni confronto alla configurazione di riferimento, al modello sottoposto a verifica e ai parametri restituiti dal test. 
-In tal modo, la pipeline mantiene separati il livello di aggregazione delle prestazioni sui seed, memorizzato in \texttt{F1-Score\_means.csv}, e il livello propriamente statistico, rappresentato da \texttt{welch\_ttest.csv}.
-
+In tal modo, la pipeline mantiene formalmente separati il livello di aggregazione delle prestazioni sui singoli seed, memorizzato in \texttt{F1-Score\_means.csv}, e il livello di diagnostica statistica inferenziale, rappresentato da \texttt{welch\_ttest.csv}.
 
 
 
