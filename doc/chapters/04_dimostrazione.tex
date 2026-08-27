@@ -599,7 +599,7 @@ Tale meccanismo di tracciamento memorizza per ogni modello un record identificat
 
 \begin{table}[H]
 \centering
-\caption{Struttura e campi del record di tracciamento persistito nel registro \texttt{models\_metadata.csv}.}
+\caption[Struttura e campi del record di tracciamento persistito nel registro models\_metadata.csv]{Struttura e campi del record di tracciamento persistito nel registro \\ \texttt{models\_metadata.csv}.}
 \label{tab:models_metadata_schema}
 \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X}
 \hline
@@ -949,7 +949,7 @@ In questo modo, la fase di classificazione successiva opera esclusivamente in mo
 La valutazione dei classificatori è stata implementata mediante una procedura comune a tutte le configurazioni sperimentali, così da garantire uniformità nel calcolo delle metriche e nella successiva organizzazione dei risultati. La fase di classificazione opera esclusivamente sugli insiemi di collaudo, identificati tramite il campo \texttt{split\_type}, mentre le informazioni relative alle feature e alle etichette vengono separate prima dell'esecuzione dell'inferenza. 
 Per ciascun modello precedentemente serializzato, l'artefatto \texttt{.joblib} viene ricaricato da disco e utilizzato senza apportare modifiche al suo stato interno.
 
-La procedura è centralizzata nella funzione \texttt{classification\_processing()} del modulo \texttt{classification.py}, che delega il calcolo delle predizioni alla propria funzione interna \texttt{\_classification()}. 
+La procedura è centralizzata nella funzione \texttt{classification\_processing()} del modulo \newline \texttt{classification.py}, che delega il calcolo delle predizioni alla propria funzione interna \newline \texttt{\_classification()}. 
 Una volta isolato il sottoinsieme associato a \texttt{split\_type = test}, vengono eliminate dalle feature le colonne \texttt{label}, \texttt{class} e \texttt{split\_type}, mentre la variabile \texttt{label} viene mantenuta separatamente come vettore delle classi reali. 
 L'inferenza viene quindi effettuata mediante i metodi \texttt{predict()} e \texttt{predict\_proba()}, utilizzando quest'ultimo per estrarre il punteggio associato alla classe positiva. 
 Non viene applicata una soglia decisionale personalizzata: le etichette predette sono pertanto quelle direttamente restituite dall'estimatore secondo il comportamento predefinito del classificatore.
@@ -1018,7 +1018,7 @@ cm = confusion_matrix(y_test, y_pred, labels=[0, 1])
 tn, fp, fn, tp = cm.ravel()
 \end{lstlisting}
 
-L'insieme completo dei risultati viene quindi organizzato all'interno del file \texttt{classifications.csv}, generato separatamente per ciascuna combinazione di \texttt{model\_type} e seed. 
+L'insieme completo dei risultati viene quindi organizzato all'interno del file nominato come \newline \texttt{classifications.csv}, generato separatamente per ciascuna combinazione di \texttt{model\_type} e seed. 
 Ogni record contiene i metadati identificativi della classificazione, il tipo di dataset e la relativa composizione delle classi, oltre alle quantità della matrice di confusione e alle metriche derivate. 
 La struttura complessiva del record e la relativa suddivisione funzionale dei campi sono dettagliate nella Tabella~\ref{tab:record_structure}.
 
@@ -1088,43 +1088,75 @@ Le due matrici presentano la medesima organizzazione bidimensionale, con i model
 La suddivisione fisica viene invece effettuata a livello di gruppi di modelli: una matrice raccoglie le configurazioni aggregate del dominio sorgente, i modelli biclasse sorgente e il relativo modello \textit{INJECTION}, mentre l'altra raccoglie le configurazioni aggregate ibride, i modelli biclasse ibridi e il medesimo modello di riferimento \textit{INJECTION}.
 
 Per ciascuna matrice, la colonna finale è reserved al valore medio associato alla riga del modello, mentre il modello \textit{INJECTION} viene riportato in una sezione graficamente separata nella parte inferiore della rappresentazione. 
-Gli artefatti relativi alle singole esecuzioni sono salvati nella directory \texttt{runs/<model\_group>/<model\_type>/<seed>/results/plots/performance/} attraverso i file \texttt{TPR\_matrix.png} e \texttt{TNR\_matrix.png}.
+Gli artefatti relativi alle singole esecuzioni sono salvati nella directory 
+\begin{center}
+    \texttt{runs/<model\_group>/<model\_type>/<seed>/results/plots/performance/}
+\end{center}
+attraverso i file \texttt{TPR\_matrix.png} e \texttt{TNR\_matrix.png}.
 
 L'intero flusso operativo di valutazione e la successiva aggregazione statistica tra i diversi seed sono schematizzati nella Figura~\ref{fig:pipeline_metriche_aggregazione}.
 
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}[
-    node distance=0.8cm and 1.2cm,
-    font=\scriptsize,
-    block/.style={draw=blue!80!black, fill=blue!5, thick, rectangle, rounded corners=3pt, align=center, inner sep=5pt, minimum height=0.7cm},
-    proc/.style={draw=teal!80!black, fill=teal!5, thick, rectangle, rounded corners=2pt, align=center, inner sep=4pt},
-    file/.style={draw=purple!80!black, fill=purple!5, rectangle, dashed, align=center, inner sep=4pt},
-    arrow/.style={-Stealth, thick, draw=gray!80!black},
-    labeltext/.style={font=\tiny\itshape, text=gray!90!black}
+    block/.style={draw=blue!80!black, fill=blue!5, thick, rectangle, rounded corners=3pt, align=center, inner sep=5pt},
+    proc/.style={draw=teal!80!black, fill=teal!5, thick, rectangle, rounded corners=2pt, align=center, inner sep=5pt},
+    file/.style={draw=purple!80!black, fill=purple!5, rectangle, dashed, align=center, inner sep=5pt},
+    arrow/.style={-Stealth, thick, draw=black},
+    labeltext/.style={font=\footnotesize, text=black}
 ]
 
     % --- STAGE 1: Per-Seed Evaluation ---
-    \node [block] (input) {Test Set \& Modello\\$(m, s_k)$};
-    \node [proc, right=of input] (infer) {\texttt{\_classification()}\\ Inferenza: \texttt{predict()}\\ \& \texttt{predict\_proba()}};
-    \node [proc, right=of infer] (metrics) {\texttt{calculate\_metrics()}\\ Matrice di Confusione\\ \& Metriche Sintetiche};
-    \node [file, right=of metrics] (csv_seed) {\texttt{classifications.csv}\\ Artefatti $H_k^{TPR}, H_k^{TNR}$\\ (Singolo Seed)};
+    \node [block] (input) {
+        Test Set \& Modello\\
+        \footnotesize
+        $(m, s_k)$
+    };
+    \node [proc, below=0.7cm of input] (infer) {
+        \texttt{\_classification()}\\
+        \footnotesize
+        Inferenza: \texttt{predict()} \& \texttt{predict\_proba()}
+    };
+    \node [proc, below=0.7cm of infer] (metrics) {
+        \texttt{calculate\_metrics()}\\
+        \footnotesize
+        Matrice di Confusione \& Metriche Sintetiche
+    };
+    \node [file, below=0.7cm of metrics] (csv_seed) {
+        \texttt{classifications.csv}\\
+        \footnotesize
+        Artefatti $H_k^{TPR}, H_k^{TNR}$\\
+        \footnotesize
+        (Singolo Seed)    
+    };
 
     \draw [arrow] (input) -- (infer);
     \draw [arrow] (infer) -- (metrics);
     \draw [arrow] (metrics) -- (csv_seed);
 
     % --- STAGE 2: Multi-Seed Aggregation ---
-    \node [proc, below=1.2cm of metrics] (agg) {\texttt{\_aggregated\_heatmaps()}\\ Concatena $K$ Seed $\to$ Calcolo $\overline{h}_{ij}$ e $\sigma^2_{ij}$};
-    \node [file, right=of agg] (final_out) {Matrici Aggregate\\ \texttt{TPR\_mean\_matrix.csv}\\ \texttt{TPR\_var\_matrix.csv} \& PNG};
+    \node [proc, below=1.4cm of csv_seed] (agg) {
+        \texttt{\_aggregated\_heatmaps()}\\
+        \footnotesize
+        Concatena $K$ Seed $\to$ Calcolo $\overline{h}_{ij}$ e $\sigma^2_{ij}$
+    };
+    \node [file, below=0.7cm of agg] (final_out) {
+        Matrici Aggregate\\
+        \footnotesize
+        \texttt{<metric>\_mean\_matrix.csv}\\[-5pt]
+        \footnotesize
+        \texttt{<metric>\_var\_matrix.csv}\\[-5pt]
+        \footnotesize
+        \texttt{<metric>\_aggregated\_matrix.png}
+    };
 
-    \draw [arrow] (csv_seed) |- (agg) node[near start, right, labeltext] {Iterazione su $s_1 \dots s_K$};
+    \draw [arrow] (csv_seed) -- node[midway, right, labeltext] {Iterazione su $s_1 \dots s_K$} (agg);
     \draw [arrow] (agg) -- (final_out);
 
     % Scope boxes
     \begin{scope}[on background layer]
-        \node [draw=blue!30, fill=blue!2, rectangle, rounded corners=5pt, fit=(input) (infer) (metrics) (csv_seed), inner sep=6pt, label={[font=\tiny\bfseries, color=blue!70!black]above:Fase 1: Valutazione e Persistenza per Singolo Seed ($s_k$)}] (box1) {};
-        \node [draw=teal!30, fill=teal!2, rectangle, rounded corners=5pt, fit=(agg) (final_out), inner sep=6pt, label={[font=\tiny\bfseries, color=teal!70!black]below:Fase 2: Aggregazione Multi-Seed}] (box2) {};
+        \node [draw=blue!30, fill=blue!2, rectangle, rounded corners=5pt, fit=(input) (infer) (metrics) (csv_seed), inner sep=10pt, label={[color=blue!70!black]above:Fase 1: Valutazione e Persistenza per Singolo Seed ($s_k$)}] (box1) {};
+        \node [draw=teal!30, fill=teal!2, rectangle, rounded corners=5pt, fit=(agg) (final_out), inner sep=10pt, label={[color=teal!70!black]below:Fase 2: Aggregazione Multi-Seed}] (box2) {};
     \end{scope}
 
 \end{tikzpicture}
@@ -1149,7 +1181,11 @@ e la varianza
 \end{equation}
 
 La rappresentazione aggregata combina quindi l'informazione relativa al valore medio e alla dispersione osservata tra i seed, senza sostituire i dati relativi alle singole esecuzioni. 
-Per ciascun tipo di classificatore, le matrici aggregate vengono memorizzate sotto la directory \texttt{runs/<model\_group>/<model\_type>/aggregated\_heatmaps/} con una sottocartella dedicata alla metrica considerata. Per ciascuna metrica vengono conservati sia i valori tabellari della media e della varianza in formato \texttt{CSV}, sia la rappresentazione grafica finale in formato \texttt{PNG} (\texttt{TPR\_mean\_matrix.csv} e \texttt{TPR\_var\_matrix.csv}).
+Per ciascun tipo di classificatore, le matrici aggregate vengono memorizzate sotto la directory
+\begin{center}
+    \texttt{runs/<model\_group>/<model\_type>/aggregated\_heatmaps/}
+\end{center}
+con una sottocartella dedicata alla metrica considerata. Per ciascuna metrica vengono conservati sia i valori tabellari della media e della varianza in formato \texttt{CSV}, sia la rappresentazione grafica finale in formato \texttt{PNG}.
 
 La separazione tra risultati per singolo seed e risultati aggregati consente pertanto di mantenere distinti due livelli di organizzazione implementativa: il primo conserva integralmente la configurazione associata a ciascuna realizzazione stocastica, mentre il secondo sintetizza le osservazioni relative alla stessa coppia modello--dataset lungo l'insieme dei seed. 
 Tale organizzazione costituisce la trasposizione operativa della matrice di valutazione $H_k$ definita nel modello teorico e produce gli artefatti persistenti utilizzati nelle successive procedure di analisi statistica.
