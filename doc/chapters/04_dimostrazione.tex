@@ -1273,13 +1273,20 @@ Tale organizzazione costituisce la trasposizione operativa della matrice di valu
 \subsection{Implementazione del Test di Welch}
 \label{subsec:implementazione_welch}
 
-La verifica statistica della variabilità associata alle diverse configurazioni di addestramento è stata implementata mediante il test $t$ di Welch, applicato separatamente a ciascuna tipologia di classificatore e al relativo gruppo di modelli. La procedura è stata progettata per confrontare le prestazioni del modello \textit{INJECTION}, assunto come configurazione di riferimento, con quelle dei restanti modelli generati durante la campagna multi-seed. L'analisi viene eseguita indipendentemente per i gruppi \texttt{nb15\_models} e \texttt{hybrid\_models}, mantenendo pertanto la distinzione architetturale già adottata nella struttura di persistenza dei risultati.
+La verifica statistica della variabilità associata alle diverse configurazioni di addestramento è stata implementata mediante il test $t$ di Welch, applicato separatamente a ciascuna tipologia di classificatore e al relativo gruppo di modelli. 
+La procedura è stata progettata per confrontare le prestazioni del modello \textit{INJECTION}, assunto come configurazione di riferimento, con quelle dei restanti modelli generati durante la campagna multi-seed. 
+L'analisi viene eseguita indipendentemente per i gruppi \texttt{nb15\_models} e \texttt{hybrid\_models}, mantenendo pertanto la distinzione architetturale già adottata nella struttura di persistenza dei risultati.
 
-L'esecuzione della procedura è orchestrata dalla funzione \texttt{\_welch\_ttest()} del punto di ingresso \texttt{main.py}. Per una specifica tipologia di classificatore, vengono innanzitutto raccolti i file \texttt{classifications.csv} prodotti dalle precedenti fasi di valutazione per tutti i seed appartenenti all'insieme $\mathcal{S}$. I risultati vengono quindi forniti alla funzione \texttt{aggregate\_welch\_ttest\_feature\_scores\_by\_seed()}, che costituisce il primo livello di aggregazione dei dati destinati all'analisi statistica.
+L'esecuzione della procedura è orchestrata dalla funzione \texttt{\_welch\_ttest()} del punto di ingresso \texttt{main.py}. 
+Per una specifica tipologia di classificatore, vengono innanzitutto raccolti i file \texttt{classifications.csv} prodotti dalle precedenti fasi di valutazione per tutti i seed appartenenti all'insieme $\mathcal{S}$. 
+I risultati vengono quindi forniti alla funzione \newline \texttt{aggregate\_welch\_ttest\_feature\_scores\_by\_seed()}, che costituisce il primo livello di aggregazione dei dati destinati all'analisi statistica.
 
-La funzione di aggregazione opera esclusivamente sulla metrica \textit{F1-Score}, il cui utilizzo è definito tramite il parametro di configurazione \texttt{MLConstants.WELCH\_TTEST\_FEATURE}. Per ciascun file di classificazione vengono selezionate le colonne \texttt{model\_name} e \texttt{F1-Score}, mentre il seed viene ricavato dalla directory che contiene il file \texttt{classifications.csv}. I dati provenienti dalle diverse esecuzioni vengono successivamente concatenati in un unico \textit{DataFrame}.
+La funzione di aggregazione opera esclusivamente sulla metrica \textit{F1-Score}, il cui utilizzo è definito tramite il parametro di configurazione \texttt{MLConstants.WELCH\_TTEST\_FEATURE}. 
+Per ciascun file di classificazione vengono selezionate le colonne \texttt{model\_name} e \texttt{F1-Score}, mentre il seed viene ricavato dalla directory che contiene il file \texttt{classifications.csv}. 
+I dati provenienti dalle diverse esecuzioni vengono successivamente concatenati in un unico \textit{DataFrame}.
 
-Poiché ciascun file di classificazione contiene più osservazioni relative a differenti dataset valutati dallo stesso modello, la procedura effettua un'ulteriore aggregazione mediante un raggruppamento per coppia \texttt{model\_name}--seed. Per ciascuna coppia viene calcolata la media della \textit{F1-Score} sui dataset disponibili. Indicando con $f_{ij}^{(k)}$ il valore della \textit{F1-Score} associato al modello $i$, al dataset $j$ e al seed $s_k$, il valore utilizzato nel successivo test statistico è pertanto
+Poiché ciascun file di classificazione contiene più osservazioni relative a differenti dataset valutati dallo stesso modello, la procedura effettua un'ulteriore aggregazione mediante un raggruppamento per coppia \texttt{model\_name}--seed. 
+Per ciascuna coppia viene calcolata la media della \textit{F1-Score} sui dataset disponibili. Indicando con $f_{ij}^{(k)}$ il valore della \textit{F1-Score} associato al modello $i$, al dataset $j$ e al seed $s_k$, il valore utilizzato nel successivo test statistico è pertanto
 
 \begin{equation}
 \overline{F1}_{i}^{(k)}
@@ -1290,25 +1297,32 @@ f_{ij}^{(k)},
 \label{eq:f1_seed_mean_welch}
 \end{equation}
 
-dove $D_i$ rappresenta il numero di dataset di valutazione considerati per il modello $i$ nella configurazione corrente. Ne consegue che ciascun modello è rappresentato da un campione costituito dai valori medi ottenuti sui $K=10$ seed, anziché dalla totalità delle singole osservazioni modello--dataset.
+dove $D_i$ rappresenta il numero di dataset di valutazione considerati per il modello $i$ nella configurazione corrente. 
+Ne consegue che ciascun modello è rappresentato da un campione costituito dai valori medi ottenuti sui $K=10$ seed, anziché dalla totalità delle singole osservazioni modello--dataset.
 
-Il risultato di tale aggregazione viene trasformato in una struttura matriciale mediante un'operazione di \textit{pivot}. I modelli costituiscono le righe, mentre ciascun seed viene trasformato in una colonna distinta. La struttura risultante presenta quindi una configurazione del tipo
+Il risultato di tale aggregazione viene trasformato in una struttura matriciale mediante un'operazione di \textit{pivot}. 
+I modelli costituiscono le righe, mentre ciascun seed viene trasformato in una colonna distinta. La struttura risultante presenta quindi una configurazione del tipo
 
-\begin{verbatim}
-id, model_name, seed_0, seed_1, ..., seed_12345
-\end{verbatim}
+\begin{center}
+    \texttt{id, model\_name, seed\_0, seed\_1, $\quad \ldots \quad$, seed\_12345}
+\end{center}
 
-e costituisce la matrice di input per il test statistico. L'artefatto viene persistito nella directory
+e costituisce la matrice di input per il test statistico. 
+L'artefatto viene persistito nella directory
 
-\begin{verbatim}
-runs/<model_group>/<model_type>/welch_ttest/
-\end{verbatim}
+\begin{center}
+    \texttt{runs/<model\_group>/<model\_type>/welch\_ttest/}
+\end{center}
 
-con il nome \texttt{F1-Score\_means.csv}. Tale file rappresenta esclusivamente la sintesi dei valori medi di \textit{F1-Score} per modello e seed e costituisce una rappresentazione intermedia necessaria alla successiva procedura statistica.
+con il nome \texttt{F1-Score\_means.csv}. 
+Tale file rappresenta esclusivamente la sintesi dei valori medi di \textit{F1-Score} per modello e seed e costituisce una rappresentazione intermedia necessaria alla successiva procedura statistica.
 
-Il test di Welch viene quindi eseguito dalla funzione \texttt{calculate\_welch\_ttest\_from\_summary()} del modulo \texttt{src/utils/metrics.py}, utilizzando la funzione \texttt{ttest\_ind()} del modulo \texttt{scipy.stats}. L'opzione \texttt{equal\_var=False} impone esplicitamente l'utilizzo della formulazione di Welch, nella quale non viene assunta l'uguaglianza delle varianze delle due popolazioni campionarie.
+Il Welch test viene quindi eseguito dalla funzione \texttt{calculate\_welch\_ttest\_from\_summary()} del modulo \texttt{src/utils/metrics.py}, utilizzando la funzione \texttt{ttest\_ind()} del modulo \newline \texttt{scipy.stats}. 
+L'opzione \texttt{equal\_var=False} impone esplicitamente l'utilizzo della formulazione di Welch, nella quale non viene assunta l'uguaglianza delle varianze delle due popolazioni campionarie.
 
-Per ogni gruppo di analisi viene individuato il modello di riferimento ricercando nel campo \texttt{model\_name} la configurazione contenente la stringa \texttt{INJECTION}. La struttura dei benchmark garantisce la presenza di una sola configurazione di questo tipo nel \textit{DataFrame} considerato; tale modello viene pertanto utilizzato come riferimento per tutti i successivi confronti. I valori corrispondenti ai dieci seed del modello di riferimento costituiscono il campione
+Per ogni gruppo di analisi viene individuato il modello di riferimento ricercando nel campo \texttt{model\_name} la configurazione contenente la stringa \texttt{INJECTION}. 
+La struttura dei benchmark garantisce la presenza di una sola configurazione di questo tipo nel \textit{DataFrame} considerato; tale modello viene pertanto utilizzato come riferimento per tutti i successivi confronti. 
+I valori corrispondenti ai dieci seed del modello di riferimento costituiscono il campione
 
 \begin{equation}
 \mathcal{F}_{\text{base}}
@@ -1336,7 +1350,8 @@ Per ciascun modello confrontato $m$, viene analogamente costruito il campione
 \label{eq:welch_model_sample}
 \end{equation}
 
-Il test viene applicato tra $\mathcal{F}_{\text{base}}$ e $\mathcal{F}_{m}$, assumendo varianze non necessariamente uguali. L'ipotesi nulla e l'ipotesi alternativa sono pertanto formulate, per ciascun confronto, come
+Il test viene applicato tra $\mathcal{F}_{\text{base}}$ e $\mathcal{F}_{m}$, assumendo varianze non necessariamente uguali. 
+L'ipotesi nulla e l'ipotesi alternativa sono pertanto formulate, per ciascun confronto, come
 
 \begin{equation}
 H_0:
@@ -1347,7 +1362,8 @@ H_1:
 \label{eq:welch_hypotheses}
 \end{equation}
 
-dove $\mu_{\text{base}}$ e $\mu_m$ rappresentano i valori medi della \textit{F1-Score} delle rispettive popolazioni campionarie. L'implementazione utilizza la configurazione predefinita del test a due code della funzione \texttt{scipy.stats.ttest\_ind()}, senza introdurre una direzione privilegiata per l'ipotesi alternativa.
+dove $\mu_{\text{base}}$ e $\mu_m$ rappresentano i valori medi della \textit{F1-Score} delle rispettive popolazioni campionarie. 
+L'implementazione utilizza la configurazione predefinita del test a due code della funzione \texttt{scipy.stats.ttest\_ind()}, senza introdurre una direzione privilegiata per l'ipotesi alternativa.
 
 Il livello di significatività è fissato a
 
@@ -1356,31 +1372,35 @@ Il livello di significatività è fissato a
 \label{eq:welch_alpha}
 \end{equation}
 
-e viene acquisito dalla costante \texttt{MLConstants.WELCH\_TTEST\_ALFA\_VALUE}. La decisione statistica viene determinata direttamente confrontando il \textit{p-value} restituito dal test con tale soglia. In particolare, la configurazione viene marcata come significativa quando
+e viene acquisito dalla costante \texttt{MLConstants.WELCH\_TTEST\_ALFA\_VALUE}. 
+La decisione statistica viene determinata direttamente confrontando il \textit{p-value} restituito dal test con tale soglia. 
+In particolare, la configurazione viene marcata come significativa quando
 
 \begin{equation}
 p < \alpha,
 \label{eq:welch_decision_rule}
 \end{equation}
 
-mentre in caso contrario il confronto viene classificato come non significativo. Non viene applicata alcuna procedura di correzione per confronti multipli ai \textit{p-value} ottenuti dai diversi confronti tra modelli.
+mentre in caso contrario il confronto viene classificato come non significativo. 
+Non viene applicata alcuna procedura di correzione per confronti multipli ai \textit{p-value} ottenuti dai diversi confronti tra modelli.
 
-Il confronto del modello \textit{INJECTION} con sé stesso viene esplicitamente escluso dalla procedura, poiché non costituisce un confronto statistico tra configurazioni differenti. Per ciascuno degli altri modelli vengono invece registrati il valore della statistica $t$, il relativo \textit{p-value}, il livello $\alpha$ adottato e l'esito della verifica mediante il campo \texttt{is\_significant}.
+Il confronto del modello \textit{INJECTION} con sé stesso viene esplicitamente escluso dalla procedura, poiché non costituisce un confronto statistico tra configurazioni differenti. 
+Per ciascuno degli altri modelli vengono invece registrati il valore della statistica $t$, il relativo \textit{p-value}, il livello $\alpha$ adottato e l'esito della verifica mediante il campo \texttt{is\_significant}.
 
 I risultati vengono infine serializzati mediante la funzione \texttt{create\_csv\_from\_data()} nel file \texttt{welch\_ttest.csv}, collocato nella medesima directory dedicata all'analisi statistica:
 
-\begin{verbatim}
-runs/<model_group>/<model_type>/welch_ttest/welch_ttest.csv
-\end{verbatim}
+\begin{center}
+    \texttt{runs/<model\_group>/<model\_type>/welch\_ttest/welch\_ttest.csv}
+\end{center}
 
 Il registro finale presenta la struttura
 
-\begin{verbatim}
-Reference_Model, Compared_Model, t_statistic, p_value,
-alpha, is_significant
-\end{verbatim}
+\begin{center}
+    \texttt{Reference\_Model, Compared\_Model, t\_statistic, p\_value, alpha, is\_significant}
+\end{center}
 
-e consente di associare ogni confronto alla configurazione di riferimento, al modello sottoposto a verifica e ai parametri restituiti dal test. In tal modo, la pipeline mantiene separati il livello di aggregazione delle prestazioni sui seed, memorizzato in \texttt{F1-Score\_means.csv}, e il livello propriamente statistico, rappresentato da \texttt{welch\_ttest.csv}.
+e consente di associare ogni confronto alla configurazione di riferimento, al modello sottoposto a verifica e ai parametri restituiti dal test. 
+In tal modo, la pipeline mantiene separati il livello di aggregazione delle prestazioni sui seed, memorizzato in \texttt{F1-Score\_means.csv}, e il livello propriamente statistico, rappresentato da \texttt{welch\_ttest.csv}.
 
 
 
