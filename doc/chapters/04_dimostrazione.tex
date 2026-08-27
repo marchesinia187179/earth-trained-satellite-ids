@@ -757,18 +757,46 @@ Tale soluzione ingegneristica ha garantito la standardizzazione dei log per tutt
 
 \newpage
 
-\begin{lstlisting}[language=Python, caption={Estrazione procedurale dell'etichetta di attacco per la generazione dinamica della nomenclatura del modello.}, label={lst:get_model_name}, frame=single, basicstyle=\ttfamily\small, keywordstyle=\bfseries, breaklines=true]
+\begin{lstlisting}[
+    language=Python,
+    caption={Estrazione procedurale dell'etichetta di attacco per la generazione dinamica della nomenclatura del modello.},
+    label={lst:get_model_name},
+    frame=single,
+    rulecolor=\color{mygray},
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\footnotesize,
+    commentstyle=\color{mygreen},
+    keywordstyle=\color{purple}\bfseries,
+    stringstyle=\color{mymauve},
+    emph={[2]None,True,False},
+    emphstyle={[2]\color{mymauve}\bfseries},
+    breaklines=false,
+    keepspaces=true,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\tiny\color{mygray},
+    numbersep=8pt
+]
 def _get_standardized_model_name(dataset_type, unique_classes):
-    classes = [
-        str(c).strip() for c in unique_classes if str(c).strip()
-    ]
-    
+    """
+    Generates a standardized model name 
+    based on the unique classes present in the dataset.
+    Supports RF, DT, and HGB models dynamically.
+
+    :param dataset_type: string describing the dataset type
+    :param unique_classes: list or array of unique class labels
+    :return: standardized model name as a string
+    """
+    # Strip whitespace and convert to lowercase for consistency
+    classes = [str(c).strip() for c in unique_classes if str(c).strip()]
+
+    # If there are more than two classes, return a generic name
     if len(classes) > 2:
         return f"{dataset_type}_aggregate"
     
+    # Identify the attack class (assuming 'normal' is the benign class)
     attack_classes = [c for c in classes if c.lower() != 'normal']
-    attack_name = attack_classes[0].lower() \
-                    if attack_classes else "normal"
+    attack_name = attack_classes[0].lower() if attack_classes else "normal"
     
     return f"{dataset_type}_{attack_name}"
 \end{lstlisting}
@@ -1001,21 +1029,61 @@ La struttura logica di tale gestione difensiva è sintetizzata nel Listing~\ref{
 
 \newpage
 
-\begin{lstlisting}[language=Python, caption={Gestione difensiva dei casi limite e calcolo delle metriche in \texttt{calculate\_metrics()}.}, label={lst:calculate_metrics_edge_cases}, frame=single, basicstyle=\ttfamily\small, keywordstyle=\bfseries, breaklines=true]
-unique_classes = np.unique(y_test)
+\begin{lstlisting}[
+    language=Python,
+    caption={Gestione difensiva dei casi limite e calcolo delle metriche in \texttt{calculate\_metrics()}.},
+    label={lst:calculate_metrics_edge_cases},
+    frame=single,
+    rulecolor=\color{mygray},
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\footnotesize, % Dimensione proporzionata che evita il wrap delle righe
+    commentstyle=\color{mygreen}, % Commenti in verde corsivo
+    keywordstyle=\color{purple}\bfseries, % Parole chiave (if, else, not) in viola
+    stringstyle=\color{mymauve}, % Stringhe in mauve/rosso
+    emph={[2]None,True,False}, % Evidenziazione valori booleani/nulli
+    emphstyle={[2]\color{mymauve}\bfseries},
+    breaklines=false, % Disattiva l'andata a capo automatica per mantenere la struttura originale
+    keepspaces=true, % Mantiene gli spazi e le rientranze corrette
+    showstringspaces=false,
+    numbers=left, % Opzionale: numeri di riga a sinistra
+    numberstyle=\tiny\color{mygray},
+    numbersep=8pt
+]
+# Security check for number of classes to avoid metric calculation error
+has_classes = len(np.unique(y_test)) > 1
 
-if len(unique_classes) < 2:
-    accuracy = precision = recall = f1 = roc_auc = pr_auc = None
+# [Warning message...]
+
+# Get metrics
+tn, fp, fn, tp = confusion_matrix(y_test, y_pred, labels=[0, 1]).ravel()
+
+if has_classes:
+    accuracy = round(accuracy_score(y_test, y_pred), 
+        MLConstants.DECIMAL_DIGITS)
+    precision = round(precision_score(y_test, y_pred), 
+        MLConstants.DECIMAL_DIGITS)
+    recall = round(recall_score(y_test, y_pred), 
+        MLConstants.DECIMAL_DIGITS)
+    f1 = round(f1_score(y_test, y_pred), 
+        MLConstants.DECIMAL_DIGITS)
+    roc = round(roc_auc_score(y_test, y_scores), 
+        MLConstants.DECIMAL_DIGITS)
+    pr = round(average_precision_score(y_test, y_scores), 
+        MLConstants.DECIMAL_DIGITS)
 else:
-    accuracy = accuracy_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred, zero_division=0)
-    recall = recall_score(y_test, y_pred, zero_division=0)
-    f1 = f1_score(y_test, y_pred, zero_division=0)
-    roc_auc = roc_auc_score(y_test, y_scores)
-    pr_auc = average_precision_score(y_test, y_scores)
+    accuracy = precision = recall = f1 = roc = pr = None
+    
+if (tp + fn) > 0:
+    tpr = round(tp / (tp + fn), MLConstants.DECIMAL_DIGITS)
+    fnr = round(fn / (tp + fn), MLConstants.DECIMAL_DIGITS)
+else:
+    tpr, fnr = None, None
 
-cm = confusion_matrix(y_test, y_pred, labels=[0, 1])
-tn, fp, fn, tp = cm.ravel()
+if (fp + tn) > 0: 
+    tnr = round(tn / (fp + tn), MLConstants.DECIMAL_DIGITS)
+    fpr = round(fp / (fp + tn), MLConstants.DECIMAL_DIGITS)
+else:
+    tnr, fpr = None, None
 \end{lstlisting}
 
 L'insieme completo dei risultati viene quindi organizzato all'interno del file nominato come \newline \texttt{classifications.csv}, generato separatamente per ciascuna combinazione di \texttt{model\_type} e seed. 
