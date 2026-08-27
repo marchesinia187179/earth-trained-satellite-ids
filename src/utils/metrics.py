@@ -31,20 +31,31 @@ def calculate_metrics(y_test, y_pred, y_scores):
         print("Warning: the test data contains only one class. Only some metrics will be calculated!")
 
     # Get metrics
-    tn, fp, fn, tp = confusion_matrix(y_test, y_pred, labels=[0, 1]).ravel()
-    
-    accuracy = round(accuracy_score(y_test, y_pred), MLConstants.DECIMAL_DIGITS) if has_classes else None
-    precision = round(precision_score(y_test, y_pred), MLConstants.DECIMAL_DIGITS) if has_classes else None
-    recall = round(recall_score(y_test, y_pred), MLConstants.DECIMAL_DIGITS) if has_classes else None
-    f1 = round(f1_score(y_test, y_pred), MLConstants.DECIMAL_DIGITS) if has_classes else None
-    roc = round(roc_auc_score(y_test, y_scores), MLConstants.DECIMAL_DIGITS) if has_classes else None
-    pr = round(average_precision_score(y_test, y_scores), MLConstants.DECIMAL_DIGITS) if has_classes else None
-    
-    # --- CORREZIONE: Spostato il costrutto 'if-else' all'esterno del round ---
-    tpr = round(tp / (tp + fn), MLConstants.DECIMAL_DIGITS) if (tp + fn) > 0 else None
-    fnr = round(fn / (tp + fn), MLConstants.DECIMAL_DIGITS) if (tp + fn) > 0 else None
-    tnr = round(tn / (fp + tn), MLConstants.DECIMAL_DIGITS) if (fp + tn) > 0 else None
-    fpr = round(fp / (fp + tn), MLConstants.DECIMAL_DIGITS) if (fp + tn) > 0 else None
+    cm = confusion_matrix(y_test, y_pred, labels=[0, 1])
+    tn, fp, fn, tp = cm.ravel()
+
+    if has_classes:
+        accuracy = round(accuracy_score(y_test, y_pred), MLConstants.DECIMAL_DIGITS)
+        precision = round(precision_score(y_test, y_pred), MLConstants.DECIMAL_DIGITS)
+        recall = round(recall_score(y_test, y_pred), MLConstants.DECIMAL_DIGITS)
+        f1 = round(f1_score(y_test, y_pred), MLConstants.DECIMAL_DIGITS)
+        roc = round(roc_auc_score(y_test, y_scores), MLConstants.DECIMAL_DIGITS)
+        pr = round(average_precision_score(y_test, y_scores), MLConstants.DECIMAL_DIGITS)
+    else:
+        accuracy = precision = recall = f1 = roc = pr = None
+
+    # Return None for TPR, FNR, TNR, FPR if no classes are present
+    if (tp + fn) > 0:
+        tpr = round(tp / (tp + fn), MLConstants.DECIMAL_DIGITS)
+        fnr = round(fn / (tp + fn), MLConstants.DECIMAL_DIGITS)
+    else:
+        tpr, fnr = None, None
+
+    if (fp + tn) > 0: 
+        tnr = round(tn / (fp + tn), MLConstants.DECIMAL_DIGITS)
+        fpr = round(fp / (fp + tn), MLConstants.DECIMAL_DIGITS)
+    else:
+        tnr = fpr = None
     
     return {
         "TP": int(tp),   # True Positives: Number of actual attacks correctly identified as attacks
