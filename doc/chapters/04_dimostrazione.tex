@@ -1891,12 +1891,72 @@ Pannelli affiancati di stime KDE riempite (\texttt{fill=True}) \\
 
 
 
-    \subsection{Implementazione di SHAP e TreeSHAP}
-    \label{subsec:implementazione_shap}
-    % Libreria concreta (\texttt{shap}), classe \texttt{TreeExplainer},
-    % dimensione concreta del campione stratificato
-    % $|\mathcal{D}_{\text{sample}}^{(\text{test})}|$
-    % [rif. teorico: subsubsec:treeshap], tempi/costo computazionale.
+\subsection{Implementazione di SHAP e TreeSHAP}
+\label{subsec:implementazione_shap}
+
+L'analisi di spiegabilità viene integrata nella pipeline di classificazione mediante la funzione \texttt{save\_shap\_plot()}, invocata da \texttt{classification\_processing()}. 
+La procedura riceve il modello precedentemente addestrato, la matrice delle caratteristiche del test set, le relative etichette e i metadati necessari alla generazione e alla persistenza della rappresentazione grafica. 
+L'analisi rimane pertanto confinata alla fase diagnostica e non modifica il modello precedentemente serializzato.
+
+Prima della costruzione delle spiegazioni viene effettuato un campionamento stratificato del test set, con l'obiettivo di limitare il costo computazionale dell'analisi e mantenere contemporaneamente la rappresentazione di entrambe le classi. 
+La dimensione massima del campione è fissata dalla costante \texttt{SHAP\_MAX\_SAMPLES=500}. 
+Le quote assegnate alle due classi sono calcolate mediante il parametro \texttt{NORMAL\_ANOMALY\_RATIO}, secondo:
+
+\begin{equation}
+N_{\mathrm{anom}} =
+\left\lfloor
+\frac{\texttt{SHAP\_MAX\_SAMPLES}}
+{\texttt{NORMAL\_ANOMALY\_RATIO}}
+\right\rfloor,
+\qquad
+N_{\mathrm{norm}} =
+\texttt{SHAP\_MAX\_SAMPLES}-N_{\mathrm{anom}}.
+\label{eq:shap_sample_quotas}
+\end{equation}
+
+Nel codice il valore effettivamente assegnato a \texttt{NORMAL\_ANOMALY\_RATIO} è pari a $10$ (corrispondente al rapporto di sbilanciamento $\rho = 10:1$), mentre il campionamento delle singole classi viene effettuato mediante \texttt{pandas.Series.sample()} con \texttt{random\_state=127001}. 
+Gli indici estratti per il traffico nominale e per quello anomalo vengono successivamente concatenati e utilizzati per selezionare le corrispondenti righe di \texttt{X\_test}. 
+Nel caso in cui non sia disponibile alcun campione valido, viene applicato un campionamento casuale del test set, anch'esso limitato a \texttt{SHAP\_MAX\_SAMPLES} e controllato dallo stesso seed.
+
+La costruzione dello spiegatore viene effettuata dinamicamente in funzione del classificatore ricevuto. 
+L'implementazione tenta inizialmente di utilizzare \texttt{shap.TreeExplainer}, configurato con \texttt{feature\_perturbation="tree\_path\_dependent"} e \texttt{model\_output="raw"}, opzioni orientate all'analisi di modelli ad albero quali \texttt{RandomForestClassifier} e \texttt{DecisionTreeClassifier}. 
+Nel caso in cui tale configurazione non sia compatibile con il modello, viene eseguito un secondo tentativo mediante \texttt{shap.TreeExplainer(model)}. 
+Qualora anche questa inizializzazione fallisca, viene utilizzato il costrutto generico \texttt{shap.Explainer(model, X\_test\_sampled)}.
+Tale meccanismo consente di mantenere un'unica interfaccia di generazione delle spiegazioni anche in presenza delle differenti modalità di supporto offerte dalla libreria SHAP ai classificatori considerati. 
+
+I valori di Shapley vengono quindi calcolati sul campione selezionato mediante il metodo \texttt{shap\_values()}. 
+L'implementazione disabilita esplicitamente il controllo di additività mediante \texttt{check\_additivity=False}, quando tale argomento è supportato dallo specifico explainer. 
+In caso contrario, viene eseguita una seconda chiamata senza tale parametro. La procedura prevede inoltre una normalizzazione della struttura restituita dalla libreria, necessaria a gestire le differenti rappresentazioni possibili dei valori SHAP. 
+In particolare, quando viene restituita una lista di matrici corrispondenti alle due classi, viene selezionata la componente relativa alla classe positiva, ossia \texttt{Attack/Anomaly}. 
+Analogamente, nel caso di un array tridimensionale, viene selezionata la componente associata all'indice di classe $1$, mentre una matrice già bidimensionale viene utilizzata direttamente.
+
+La spiegazione risultante è infine visualizzata mediante \texttt{shap.summary\_plot()} utilizzando la configurazione \texttt{plot\_type="dot"}. 
+Tale rappresentazione associa a ciascuna caratteristica i valori SHAP osservati sui campioni selezionati, permettendo di rappresentare simultaneamente l'ampiezza e il verso del contributo delle singole variabili alla predizione. 
+Il numero massimo di caratteristiche visualizzate viene impostato dinamicamente al numero di colonne della matrice \texttt{X\_test\_sampled}, mediante il parametro \texttt{max\_display=n\_features}. 
+La dimensione verticale della figura viene inoltre adattata al numero complessivo di feature, secondo una dimensione minima di $6$ pollici e un incremento proporzionale pari a $0.4$ pollici per caratteristica.
+
+Il grafico SHAP prodotto viene salvato con risoluzione pari a $300$ dpi nella directory \texttt{shap} e organizzata per modello. 
+Il nome del file png viene costruito combinando il tipo di dataset, il nome del dataset. 
+La procedura consente pertanto di mantenere separati gli artefatti di spiegabilità relativi ai diversi modelli e benchmark analizzati.
+
+Nel complesso, l'implementazione realizza una pipeline di spiegabilità indipendente dalla fase di addestramento: il modello già addestrato viene utilizzato come input per \texttt{TreeExplainer} o, quando necessario, per l'explainer generico di \texttt{shap}, mentre le spiegazioni vengono calcolate su un campione controllato del test set. 
+Questa separazione mantiene coerente l'analisi con il principio metodologico secondo cui SHAP viene utilizzato come strumento diagnostico post-hoc per analizzare il contributo delle caratteristiche alle decisioni dei classificatori ad albero.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     \subsection{Pipeline di Aggregazione SHAP--KDE}
     \label{subsec:pipeline_shap_kde}
