@@ -1519,12 +1519,416 @@ In tal modo, la pipeline mantiene formalmente separati il livello di aggregazion
 % Introduzione: istanziazione concreta del framework analitico
 % [rif. teorico: sec:framework_analitico].
 
-    \subsection{Standardizzazione Diagnostica, PCA e KDE}
-    \label{subsec:implementazione_pca_kde}
-    % Libreria concreta (es. sklearn.decomposition.PCA,
-    % scipy.stats.gaussian\_kde o seaborn), parametro di bandwidth
-    % effettivamente usato/selezionato per $h_{\text{KDE}}$
-    % [rif. teorico: subsubsec:kde\_features], formato dei grafici prodotti.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Standardizzazione Diagnostica, PCA e KDE}
+\label{subsec:implementazione_pca_kde}
+
+L'implementazione degli strumenti diagnostici descritti nella Sezione~\ref{subsec:proiezioni_densita} è centralizzata nel modulo \texttt{plotting.py}. 
+Le due procedure ricevono come input il file di configurazione contenente i percorsi dei benchmark e i relativi identificativi di dataset e producono automaticamente le rappresentazioni grafiche previste dal framework. 
+L'analisi è finalizzata esclusivamente all'ispezione diagnostica della distribuzione dei dati e della loro disposizione nello spazio delle caratteristiche, senza intervenire nel processo di addestramento o nella fase di classificazione.
+
+Per entrambe le procedure viene adottato il benchmark identificato dalla costante \newline \texttt{SOURCE\_IDENTIFIER}, impostata a \texttt{nb15\_aggr\_scaled}, come riferimento per la standardizzazione diagnostica. 
+Tale scelta implementa il principio teorico introdotto nella Sezione~\ref{subsubsec:zscore_sorgente}, secondo il quale le statistiche di riferimento devono essere mantenute fisse durante la trasformazione dei diversi benchmark, così da preservare nello spazio trasformato eventuali traslazioni distributive riconducibili al \textit{domain shift}.
+
+L'architettura logica di questo processo di trasformazione dipendente dal sorgente è schematizzata nella Figura~\ref{fig:source_dependent_standardization_flow}. 
+Come mostrato nel diagramma di flusso, la stima dei parametri di posizione e scala $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S)$, così come la matrice di proiettori vettoriali $\mathbf{W}_S$, viene effettuata in modo atomico durante la fase di \textit{fitting} sul solo benchmark sorgente. 
+Successivamente, tali parametri congelati vengono applicati per via diretta sia a $S$ sia a ciascun benchmark target $T_k$, garantendo l'invarianza del sistema di riferimento e scongiurando qualunque forma di \textit{data leakage}.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    auto,
+    node distance = 1.2cm and 1.8cm,
+    font=\small\sffamily,
+    % Definizione Stili Nodi
+    block_source/.style={
+        rectangle, draw=sourceblue, fill=sourcelight, thick,
+        text width=3.2cm, minimum height=1.1cm, align=center, rounded corners=4pt,
+        drop shadow={shadow xshift=0.15cm, shadow yshift=-0.15cm, opacity=0.15}
+    },
+    block_target/.style={
+        rectangle, draw=targetorange, fill=targetlight, thick,
+        text width=3.2cm, minimum height=1.1cm, align=center, rounded corners=4pt,
+        drop shadow={shadow xshift=0.15cm, shadow yshift=-0.15cm, opacity=0.15}
+    },
+    block_fit/.style={
+        rectangle, draw=paramgreen, fill=paramlight, thick,
+        text width=3.8cm, minimum height=1.2cm, align=center, rounded corners=4pt,
+        drop shadow={shadow xshift=0.15cm, shadow yshift=-0.15cm, opacity=0.15}
+    },
+    block_transform/.style={
+        rectangle, draw=processgrey, fill=white, thick,
+        text width=3.5cm, minimum height=1.1cm, align=center, rounded corners=4pt,
+        drop shadow={shadow xshift=0.15cm, shadow yshift=-0.15cm, opacity=0.15}
+    },
+    block_output/.style={
+        rectangle, draw=processgrey, fill=backgrey, thick, dashed,
+        text width=3.5cm, minimum height=1.1cm, align=center, rounded corners=4pt
+    },
+    % Definizione Stili Frecce (Corretti con Stealth)
+    line_source/.style={-{Stealth[scale=1.1]}, draw=sourceblue, very thick},
+    line_target/.style={-{Stealth[scale=1.1]}, draw=targetorange, very thick},
+    line_param/.style={-{Stealth[scale=1.1]}, draw=paramgreen, thick, dashed},
+    line_flow/.style={-{Stealth[scale=1.1]}, draw=processgrey, thick}
+]
+
+    % =========================================================================
+    % LIVELLO 1: INPUT DATASETS
+    % =========================================================================
+    \node [block_source] (source_data) {
+        \textbf{Benchmark Sorgente ($S$)}\\
+        \scriptsize\texttt{nb15\_aggr\_scaled}\\
+        $(\mathbf{X}_S, \mathbf{y}_S)$
+    };
+
+    \node [block_target, right=of source_data] (target_data) {
+        \textbf{Benchmark Target ($T_k$)}\\
+        \scriptsize\texttt{TON\_IoT, BoT-IoT, \dots}\\
+        $(\mathbf{X}_{T_k}, \mathbf{y}_{T_k})$
+    };
+
+    % =========================================================================
+    % LIVELLO 2: FITTING FASE (ESCLUSIVA SORGENTE)
+    % =========================================================================
+    \node [block_fit, below=of source_data] (fit_stage) {
+        \textbf{Ancoraggio Statistico}\\
+        \scriptsize
+        $\boldsymbol{\mu}_S = \operatorname{E}[\mathbf{X}_S], \; \boldsymbol{\sigma}_S = \operatorname{Std}[\mathbf{X}_S]$\\
+        $\mathbf{W}_S = \operatorname{PCA}(\mathbf{X}_{S,\mathrm{scaled}}, d=2)$
+    };
+
+    % =========================================================================
+    % LIVELLO 3: TRASFORMAZIONE ANCORATA
+    % =========================================================================
+    \node [block_transform, below=1.8cm of fit_stage] (transform_source) {
+        \textbf{Trasformazione Sorgente}\\
+        \scriptsize
+        $\mathbf{Z}_S = \frac{\mathbf{X}_S - \boldsymbol{\mu}_S}{\boldsymbol{\sigma}_S + \epsilon}$\\
+        $\mathbf{P}_S = \mathbf{Z}_S \mathbf{W}_S$
+    };
+
+    \node [block_transform, at=(transform_source -| target_data)] (transform_target) {
+        \textbf{Trasformazione Target}\\
+        \scriptsize
+        $\mathbf{Z}_{T_k} = \frac{\mathbf{X}_{T_k} - \boldsymbol{\mu}_S}{\boldsymbol{\sigma}_S + \epsilon}$\\
+        $\mathbf{P}_{T_k} = \mathbf{Z}_{T_k} \mathbf{W}_S$
+    };
+
+    % =========================================================================
+    % LIVELLO 4: OUTPUT DIAGNOSTICI
+    % =========================================================================
+    \node [block_output, below=of transform_source] (out_pca) {
+        \textbf{Proiezione PCA 2D}\\
+        \scriptsize Scatter Plot Bidimensionale\\
+        (PC1 vs PC2)
+    };
+
+    \node [block_output, below=of transform_target] (out_kde) {
+        \textbf{Stima Densità KDE}\\
+        \scriptsize Proiezione Univariata Top-3\\
+        (Scala \texttt{symlog})
+    };
+
+    % =========================================================================
+    % COLLEGAMENTI E FRECCE
+    % =========================================================================
+    \draw [line_source] (source_data) -- node[left, font=\tiny\bfseries] {Fit Only} (fit_stage);
+
+    \draw [line_param] (fit_stage) -- node[left, font=\tiny] {Parametri Congelati $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S, \mathbf{W}_S)$} (transform_source);
+    
+    % Corretto 'north west' con lo spazio
+    \path [line_param] (fit_stage.east) edge[out=0, in=110] node[above, font=\tiny, sloped] {Nessun Ricalcolo Locale} (transform_target.north west);
+
+    \draw [line_source] (source_data.west) -- ++(-0.6,0) |- node[near start, left, font=\tiny] {Dati Grezzi $S$} (transform_source.west);
+    \draw [line_target] (target_data) -- node[right, font=\tiny\bfseries] {Transform Only} (transform_target);
+
+    \draw [line_flow] (transform_source) -- (out_pca);
+    \draw [line_flow] (transform_target) -- (out_kde);
+    \draw [line_flow] (transform_source) -- (out_kde);
+    \draw [line_flow] (transform_target) -- (out_pca);
+
+    % =========================================================================
+    % BACKGROUND
+    % =========================================================================
+    \begin{scope}[on background layer]
+        \node [draw=paramgreen!50, fill=paramlight!30, thick, dotted, inner xsep=12pt, inner ysep=10pt, rounded corners=6pt,
+               fit=(fit_stage), label={[paramgreen, font=\bfseries\scriptsize]above:Fase di Stima Statistica (Zero Leakage)}] {};
+               
+        \node [draw=processgrey!40, fill=backgrey!50, dashed, inner xsep=15pt, inner ysep=12pt, rounded corners=6pt,
+               fit=(out_pca) (out_kde), label={[processgrey, font=\bfseries\scriptsize]below:Rappresentazione Grafica Diagnostica (Modulo \texttt{plotting.py})}] {};
+    \end{scope}
+
+\end{tikzpicture}
+\caption{Schema concettuale della Standardizzazione Diagnostica Dipendente dal Sorgente: le statistiche di centralità e variabilità $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S)$ e gli autovettori della PCA ($\mathbf{W}_S$) vengono stimati esclusivamente sul benchmark sorgente $S$ e congelati. La trasformazione dei benchmark target $T_k$ avviene per applicazione diretta di tali parametri, preservando lo scostamento distributivo reale (\textit{domain shift}).}
+\label{fig:source_dependent_standardization_flow}
+\end{figure}
+
+\paragraph{Proiezione PCA}
+
+La procedura \texttt{save\_all\_pca\_plots()} carica ciascun benchmark indicato nel file di configurazione ed estrae preliminarmente il sottoinsieme associato alla partizione \texttt{test}, identificata tramite la colonna \texttt{split\_type}. 
+Dalla matrice delle caratteristiche vengono rimosse le colonne \texttt{label}, \texttt{class} e \texttt{split\_type}, mentre la variabile \texttt{label} viene conservata separatamente per la successiva caratterizzazione delle classi nel grafico.
+
+Per realizzare la standardizzazione diagnostica viene istanziato uno \texttt{StandardScaler} di \newline \texttt{scikit-learn}. 
+Nel caso della PCA, il modello di scaling viene adattato esclusivamente al sottoinsieme \texttt{test} del benchmark sorgente. 
+Indicando con $\mathbf{X}_{S,\mathrm{test}}$ tale matrice, l'operazione è implementata mediante:
+
+\begin{lstlisting}[
+    language=Python,
+    caption={Standardizzazione e adattamento della PCA sul benchmark sorgente.},
+    label={lst:pca_source_scaling},
+    frame=single,
+    rulecolor=\color{mygray},
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\footnotesize,
+    commentstyle=\color{mygreen},
+    keywordstyle=\color{purple}\bfseries,
+    stringstyle=\color{mymauve},
+    emph={[2]None,True,False},
+    emphstyle={[2]\color{mymauve}\bfseries},
+    breaklines=false,
+    keepspaces=true,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\tiny\color{mygray},
+    numbersep=8pt
+]
+scaler = StandardScaler()
+pca = PCA(
+    n_components=MLConstants.PCA_COMPONENTS,
+    random_state=MLConstants.MAIN_SEED
+)
+
+X_source_scaled = scaler.fit_transform(X_source)
+pca.fit(X_source_scaled)
+\end{lstlisting}
+
+La configurazione \texttt{PCA\_COMPONENTS=2} vincola la trasformazione alla costruzione di un sottospazio bidimensionale, coerentemente con la finalità esclusivamente visuale dell'analisi. 
+Gli autovettori principali sono quindi determinati una sola volta sul riferimento sorgente e successivamente riutilizzati per tutti i benchmark. 
+Per ciascun dataset, la matrice delle caratteristiche viene trasformata mediante \texttt{scaler.transform()} e \texttt{pca.transform()}, evitando un nuovo adattamento locale:
+
+\begin{lstlisting}[
+    language=Python,
+    caption={Applicazione della trasformazione diagnostica ancorata al benchmark sorgente.},
+    label={lst:pca_transform},
+    frame=single,
+    rulecolor=\color{mygray},
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\footnotesize,
+    commentstyle=\color{mygreen},
+    keywordstyle=\color{purple}\bfseries,
+    stringstyle=\color{mymauve},
+    emph={[2]None,True,False},
+    emphstyle={[2]\color{mymauve}\bfseries},
+    breaklines=false,
+    keepspaces=true,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\tiny\color{mygray},
+    numbersep=8pt
+]
+X_scaled = scaler.transform(X_test)
+X_pca = pca.transform(X_scaled)
+\end{lstlisting}
+
+La procedura garantisce pertanto che tutti i benchmark siano rappresentati all'interno del medesimo sistema di riferimento statistico e geometrico. 
+Tale impostazione è coerente con la formulazione teorica della standardizzazione dipendente dal sorgente, nella quale le statistiche $(\boldsymbol{\mu}_S,\boldsymbol{\sigma}_S)$ vengono mantenute fisse per evitare che una standardizzazione locale annulli le traslazioni distributive che si intendono osservare.
+
+Per ogni benchmark viene infine generato uno scatter plot bidimensionale delle prime due componenti principali. 
+Le osservazioni sono differenziate in funzione dell'etichetta binaria, con la codifica \texttt{Normal Traffic} per la classe $0$ e \texttt{Attack/Anomaly} per la classe $1$. 
+Il titolo del grafico riporta inoltre la percentuale complessiva di varianza spiegata dalle due componenti, mentre gli assi riportano separatamente il contributo percentuale di \texttt{PC1} e \texttt{PC2}. 
+I grafici vengono salvati con risoluzione pari a $300$ dpi nella directory 
+\begin{center}
+    \texttt{data/preprocessed/metadata/plots/pca/}
+\end{center}
+in formato png.
+
+\paragraph{Stima KDE delle feature selezionate}
+
+La procedura \texttt{save\_all\_kde\_plots()} realizza invece l'analisi densometrica delle tre caratteristiche definite dalla costante \texttt{KDE\_TOP\_FEATURES}, pari a \texttt{pkts\_per\_sec}, \texttt{total\_bytes} e \texttt{dst\_win\_byt}. 
+La selezione coincide quindi con il sottoinsieme di caratteristiche individuato a livello metodologico mediante l'aggregazione dei valori SHAP, come previsto nella Sezione~\ref{subsubsec:kde_features}.
+
+A differenza della procedura PCA, nella funzione \texttt{save\_all\_kde\_plots()} non viene applicato un filtraggio esplicito sulla colonna \texttt{split\_type}: le caratteristiche selezionate vengono caricate direttamente dai file dei benchmark e utilizzate per la costruzione delle distribuzioni. 
+Il riferimento statistico è nuovamente individuato tramite \texttt{SOURCE\_IDENTIFIER}; uno \texttt{StandardScaler} viene adattato alle sole feature disponibili nel dataset sorgente:
+
+\begin{lstlisting}[
+    language=Python,
+    caption={Adattamento dello standardizzatore sulle feature utilizzate per la KDE.},
+    label={lst:kde_source_scaling},
+    frame=single,
+    rulecolor=\color{mygray},
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\footnotesize,
+    commentstyle=\color{mygreen},
+    keywordstyle=\color{purple}\bfseries,
+    stringstyle=\color{mymauve},
+    emph={[2]None,True,False},
+    emphstyle={[2]\color{mymauve}\bfseries},
+    breaklines=false,
+    keepspaces=true,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\tiny\color{mygray},
+    numbersep=8pt
+]
+scaler = StandardScaler()
+scaler.fit(df_source[valid_source_features])
+\end{lstlisting}
+
+Per ciascun benchmark, la trasformazione viene quindi applicata feature per feature utilizzando la media e il fattore di scala memorizzati nello scaler sorgente. 
+La procedura implementa operativamente l'ancoraggio a $(\boldsymbol{\mu}_S,\boldsymbol{\sigma}_S)$ previsto dall'Equazione~\eqref{eq:z_score_source}, mantenendo invariato il riferimento statistico anche per i benchmark target\footnote{Il vettore \texttt{scaler.scale\_} calcolato da \texttt{StandardScaler} contiene la deviazione standard per ciascuna caratteristica, comprensiva del fattore di tolleranza $\epsilon > 0$ introdotto automaticamente dalla libreria per garantire la stabilità numerica ed evitare divisioni per zero in presenza di varianza nulla.}.
+
+\newpage
+
+\begin{lstlisting}[
+    language=Python,
+    caption={Trasformazione diagnostica feature-per-feature ancorata ai parametri dello scaler sorgente.},
+    label={lst:kde_feature_transform},
+    frame=single,
+    rulecolor=\color{mygray},
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\footnotesize,
+    commentstyle=\color{mygreen},
+    keywordstyle=\color{purple}\bfseries,
+    stringstyle=\color{mymauve},
+    emph={[2]None,True,False},
+    emphstyle={[2]\color{mymauve}\bfseries},
+    breaklines=false,
+    keepspaces=true,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\tiny\color{mygray},
+    numbersep=8pt
+]
+for feature in valid_features:
+    if feature in scaler.feature_names_in_:
+        idx = list(scaler.feature_names_in_).index(feature)
+        mu_s = scaler.mean_[idx]
+        sigma_s = scaler.scale_[idx]
+        X_test_scaled[feature] = (X_test_raw[feature] - mu_s) / sigma_s
+\end{lstlisting}
+
+La stima della densità viene effettuata mediante \texttt{seaborn.kdeplot()}, con separazione delle curve sulla base della classe binaria e con normalizzazione indipendente delle densità \newline (\texttt{common\_norm=False}). 
+La regione sottostante le curve viene riempita mediante \texttt{fill=True}, mentre il parametro \texttt{cut=0} limita la rappresentazione all'intervallo definito dai dati osservati. Non viene specificato esplicitamente alcun parametro di \textit{bandwidth}: la larghezza del kernel è quindi determinata mediante il comportamento predefinito della procedura KDE utilizzata da \texttt{seaborn}.
+
+Poiché l'implementazione deve consentire l'ispezione di distribuzioni caratterizzate da scale molto differenti e da possibili forti sbilanciamenti nella densità, l'asse verticale dei grafici viene rappresentato mediante una scala \textit{symlog}, con parametro \texttt{linthresh=1e-5}\footnote{La scala \texttt{symlog} (Symmetric Logarithmic) applica una trasformazione logaritmica all'asse $y$ mantenendo un intervallo puramente lineare all'interno della soglia $[-\text{\texttt{linthresh}}, +\text{\texttt{linthresh}}]$. Ciò previene divergenze verso $-\infty$ per densità prossime o pari a zero.}. 
+Questa configurazione è distinta dalla formulazione teorica della proiezione logaritmica della densità riportata nella Sezione~\ref{subsubsec:log_scale_kde}: nel codice non viene calcolato esplicitamente $\log_{10}(\hat f_y+\epsilon)$, ma viene modificata direttamente la scala dell'asse mediante le funzionalità grafiche di Matplotlib.
+
+\newpage
+
+\begin{lstlisting}[
+    language=Python,
+    caption={Generazione delle stime KDE ed impostazione della scala logaritmica simmetrica su asse $y$.},
+    label={lst:kde_plotting_symlog},
+    frame=single,
+    rulecolor=\color{mygray},
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\footnotesize,
+    commentstyle=\color{mygreen},
+    keywordstyle=\color{purple}\bfseries,
+    stringstyle=\color{mymauve},
+    emph={[2]None,True,False},
+    emphstyle={[2]\color{mymauve}\bfseries},
+    breaklines=false,
+    keepspaces=true,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\tiny\color{mygray},
+    numbersep=8pt
+]
+sns.kdeplot(
+    data=X_test_scaled, x=feature, hue=labels, fill=True, alpha=0.3,
+    common_norm=False, linewidth=2,
+    palette={'Normal Traffic': '#1f77b4', 'Attack/Anomaly': '#ff7f0e'},
+    ax=ax, warn_singular=False, cut=0
+)
+
+ax.set_yscale('symlog', linthresh=1e-5)
+\end{lstlisting}
+
+Per ciascun benchmark viene prodotto un pannello contenente una KDE per ogni feature disponibile tra quelle richieste. 
+Le tre caratteristiche selezionate vengono pertanto visualizzate in forma affiancata, con asse orizzontale espresso in termini di \textit{Z-Score} e asse verticale etichettato come densità. 
+I grafici vengono salvati a $300$ dpi nella directory 
+\begin{center}
+    \texttt{data/preprocessed/metadata/plots/kde/}
+\end{center}
+con nomenclatura determinata dall'identificativo del benchmark e dal nome del dataset.
+
+Nel complesso, le due procedure costituiscono istanze distinte del medesimo principio di standardizzazione diagnostica dipendente dal sorgente: la PCA utilizza il riferimento sorgente per costruire una trasformazione geometrica comune a tutti i benchmark, mentre la KDE utilizza il medesimo riferimento per rendere confrontabili, su scala adimensionale, le distribuzioni delle tre caratteristiche selezionate. 
+La standardizzazione rimane in entrambi i casi confinata alla componente diagnostico-visiva del framework e non modifica i dati impiegati dall'addestramento dei classificatori, in accordo con la separazione metodologica stabilita nel Capitolo~3.
+
+A completamento dell'analisi implementativa, la Tabella~\ref{tab:confronto_pca_kde} riassume in modo sinottico le principali differenze operative e concettuali che intercorrono tra la procedura di proiezione PCA e la stima della densità KDE. 
+Sebbene entrambe le funzioni condividano la medesima filosofia di standardizzazione ancorata al benchmark sorgente $S$, esse operano su granularità differenti: la PCA offre una vista spazio-geometrica ad ampio spettro sull'intero set di caratteristiche, mentre la KDE consente un'ispezione analitica e mirata sul comportamento distributivo delle singole variabili a più alto impatto decisionale.
+
+\begin{table}[H]
+\centering
+\small
+\caption{Confronto sinottico tra le procedure diagnostiche di proiezione PCA e stima della densità KDE nel modulo \texttt{plotting.py}.}
+\label{tab:confronto_pca_kde}
+\begin{tabularx}{\textwidth}{l X X}
+\toprule
+\textbf{Dimensione di Confronto} & \textbf{Procedura \texttt{save\_all\_pca\_plots()}} & \textbf{Procedura \texttt{save\_all\_kde\_plots()}} \\
+\midrule
+\textbf{Obiettivo Diagnostico} & 
+Ispezione geometrica della separabilità globale e variabilità nello spazio 2D & 
+Analisi densometrica univariata del \textit{domain shift} sulle feature chiave \\
+\addlinespace
+\textbf{Partizione Input} & 
+Filtraggio esplicito della sola partizione di \texttt{test} & 
+Dataset completo senza filtraggio sulla colonna \texttt{split\_type} \\
+\addlinespace
+\textbf{Feature Considerate} & 
+Tutto lo spazio vettoriale (escluse colonne target e meta-dati) & 
+Sottoinsieme ridotto Top-3 SHAP (\texttt{pkts\_per\_sec}, \texttt{total\_bytes}, \texttt{dst\_win\_byt}) \\
+\addlinespace
+\textbf{Ancoraggio Statistico} & 
+Fit di \texttt{StandardScaler} e \texttt{PCA(n\_components=2)} su $\mathbf{X}_{S,\mathrm{test}}$ & 
+Fit di \texttt{StandardScaler} sulle sole 3 feature del sorgente $S$ \\
+\addlinespace
+\textbf{Trasformazione Target} & 
+Applica \texttt{scaler.transform()} e \texttt{pca.transform()} congelati & 
+Mappatura vettoriale ancorata: $Z_D = (X_D - \mu_S)/(\sigma_S + \epsilon)$ \\
+\addlinespace
+\textbf{Spazio di Rappresentazione} & 
+Spazio proiettato bidimensionale (PC1 vs PC2) con \% varianza spiegata & 
+Asse orizzontale in Z-Score adimensionale; asse verticale in scala \texttt{symlog} \\
+\addlinespace
+\textbf{Output Grafico} & 
+Scatter plot 2D con distinzione cromatica binaria per classe & 
+Pannelli affiancati di stime KDE riempite (\texttt{fill=True}) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     \subsection{Implementazione di SHAP e TreeSHAP}
     \label{subsec:implementazione_shap}
