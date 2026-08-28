@@ -1,0 +1,81 @@
+% =========================================================================
+% CONFIGURAZIONE CENTRALE STILI TIKZ - INGEGNERIA INFORMATICA
+% =========================================================================
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, calc, fit, backgrounds, shadows}
+\usepackage{xcolor}
+
+% -------------------------------------------------------------------------
+% 1. PALETTE CROMATICA
+% -------------------------------------------------------------------------
+\definecolor{mainblue}{HTML}{1F77B4}       % Blu Principale (Input / Primary)
+\definecolor{lightblue}{HTML}{E8F1F5}      % Blu Chiaro
+\definecolor{accentorange}{HTML}{FF7F0E}  % Arancio (Target / Highlights)
+\definecolor{lightorange}{HTML}{FDF0E6}   % Arancio Chiaro
+\definecolor{paramgreen}{HTML}{2E7D32}    % Verde (Processing / Fit / Valid)
+\definecolor{lightgreen}{HTML}{E8F5E9}    % Verde Chiaro
+\definecolor{neutralgrey}{HTML}{4A5568}   % Grigio Scuro (Trasformazioni / Flow)
+\definecolor{backgrey}{HTML}{F8FAFC}      % Grigio Chiaro (Output / Files)
+\definecolor{alertred}{HTML}{D32F2F}      % Rosso (Anomalie / Attacchi / Errori)
+\definecolor{lightred}{HTML}{FFEBEE}      % Rosso Chiaro
+
+% -------------------------------------------------------------------------
+% 2. DEFINIZIONE STILI GLOBALI TIKZ (NO RIGHE VUOTE INTERNE)
+% -------------------------------------------------------------------------
+\tikzset{
+    % Font globale e spaziatura interna dinamica
+    global_font/.style = {font=\small\sffamily, align=center, inner sep=6pt},
+    % --- NODI RETTANGOLARI STANDARD ---
+    node_primary/.style = {
+        global_font, rectangle, draw=mainblue, fill=lightblue, thick, rounded corners=4pt,
+        drop shadow={shadow xshift=0.12cm, shadow yshift=-0.12cm, opacity=0.12}
+    },
+    node_accent/.style = {
+        global_font, rectangle, draw=accentorange, fill=lightorange, thick, rounded corners=4pt,
+        drop shadow={shadow xshift=0.12cm, shadow yshift=-0.12cm, opacity=0.12}
+    },
+    node_process/.style = {
+        global_font, rectangle, draw=paramgreen, fill=lightgreen, thick, rounded corners=4pt,
+        drop shadow={shadow xshift=0.12cm, shadow yshift=-0.12cm, opacity=0.12}
+    },
+    node_transform/.style = {
+        global_font, rectangle, draw=neutralgrey, fill=white, thick, rounded corners=4pt,
+        drop shadow={shadow xshift=0.12cm, shadow yshift=-0.12cm, opacity=0.12}
+    },
+    node_output/.style = {
+        global_font, rectangle, draw=neutralgrey, fill=backgrey, thick, dashed, rounded corners=4pt
+    },
+    node_alert/.style = {
+        global_font, rectangle, draw=alertred, fill=lightred, thick, rounded corners=4pt,
+        drop shadow={shadow xshift=0.12cm, shadow yshift=-0.12cm, opacity=0.12}
+    },
+    % --- NODI SPECIALI PER INGEGNERIA INFORMATICA ---
+    node_decision/.style = {
+        global_font, diamond, aspect=2, draw=accentorange, fill=lightorange, thick,
+        inner sep=3pt, drop shadow={shadow xshift=0.12cm, shadow yshift=-0.12cm, opacity=0.12}
+    },
+    node_database/.style = {
+        global_font, cylinder, shape border rotate=90, aspect=0.25,
+        draw=mainblue, fill=lightblue, thick, inner xsep=8pt, inner ysep=4pt,
+        drop shadow={shadow xshift=0.12cm, shadow yshift=-0.12cm, opacity=0.12}
+    },
+    node_junction/.style = {
+        global_font, circle, draw=neutralgrey, fill=white, thick, inner sep=3pt
+    },
+    % --- RIQUADRI DI RAGGRUPPAMENTO (FIT) ---
+    group_box/.style = {
+        draw=neutralgrey!50, fill=backgrey!40, dashed, thick, rounded corners=6pt,
+        inner xsep=10pt, inner ysep=10pt
+    },
+    group_highlight/.style = {
+        draw=paramgreen!60, fill=lightgreen!30, dotted, thick, rounded corners=6pt,
+        inner xsep=10pt, inner ysep=10pt
+    },
+    % --- FRECCE E CONNETTORI ---
+    arrow_source/.style = {-{Stealth[scale=1.1]}, draw=mainblue, very thick},
+    arrow_target/.style = {-{Stealth[scale=1.1]}, draw=accentorange, very thick},
+    arrow_param/.style = {-{Stealth[scale=1.1]}, draw=paramgreen, thick, dashed},
+    arrow_flow/.style = {-{Stealth[scale=1.1]}, draw=neutralgrey, thick},
+    arrow_alert/.style = {-{Stealth[scale=1.1]}, draw=alertred, thick},
+    arrow_bidi/.style = {Stealth[scale=1.1]-Stealth[scale=1.1], draw=neutralgrey, thick}
+}

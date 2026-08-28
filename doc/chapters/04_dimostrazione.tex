@@ -774,7 +774,7 @@ Tale soluzione ingegneristica ha garantito la standardizzazione dei log per tutt
     keepspaces=true,
     showstringspaces=false,
     numbers=left,
-    numberstyle=\tiny\color{mygray},
+    numberstyle=\footnotesize\color{mygray},
     numbersep=8pt
 ]
 def _get_standardized_model_name(dataset_type, unique_classes):
@@ -828,72 +828,70 @@ Il flusso operativo dell'infrastruttura di addestramento e la relativa logica di
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}[
-    % Stili dei nodi
-    block/.style={
-        draw=blue!80!black, fill=blue!5, thick, rectangle, rounded corners=2pt, 
-        align=center, inner sep=5pt, minimum width=5cm
-    },
-    subproc/.style={
-        draw=teal!80!black, fill=teal!5, thick, rectangle, rounded corners=2pt, 
-        align=center, inner sep=5pt, minimum width=5cm
-    },
-    data/.style={
-        draw=orange!80!black, fill=orange!10, cylinder, shape border rotate=90, 
-        aspect=0.25, align=center, inner sep=5pt, minimum width=5cm
-    },
-    file/.style={
-        draw=purple!80!black, fill=purple!5, rectangle, 
-        dashed, align=center, inner sep=5pt, minimum width=5cm
-    },
-    arrow/.style={-Stealth, thick, draw=black},
-    labeltext/.style={font=\footnotesize, text=black}
+    auto,
+    node distance = 1.0cm and 3.2cm
 ]
 
-    % Input Data e Seed
-    \node [data] (ds) at (0, 0) {
-        \\[-5pt]
-        Dataset Pre-processato\\
-        ($s_0 = 127001$)
-    };
-    \node [block, below=1cm of ds] (main) {
-        \texttt{main.py}\\
-        Prodotto Cartesiano\\
-        $\mathcal{M} \times \mathcal{S}$    
-    };
-    
-    % Core Logic (models.py)
-    \node [subproc, below=2cm of main] (proc) {
-        \texttt{models.py}\\
-        \texttt{model\_processing()}
-    };
-    \node [subproc, below=1cm of proc] (train) {
-        \texttt{\_train\_classifier()}\\
-        Split Train/Test \& Fitting\\($\text{random\_state} = s_k$)
-    };
-    
-    % Artefatti di Output
-    \node [file, right=4cm of proc] (meta) {
-        Registro Metadati\\
-        \texttt{models\_metadata.csv}
-    };
-    \node [file, right=4cm of train] (joblib) {
-        Modello Serializzato\\
-        \texttt{.joblib}
+    % =========================================================================
+    % INPUT DATA E SEED
+    % =========================================================================
+    \node [node_database, minimum width=4.8cm] (ds) at (0, 0) {
+        \textbf{Dataset Pre-processato}\\
+        \small ($s_0 = 127001$)
     };
 
-    % Connessioni Principali
-    \draw [arrow] (ds) -- (main);
-    \draw [arrow] (main) -- node[right, pos=0.32, labeltext] {$(m, s_k)$} (proc);
-    \draw [arrow] (proc) -- node[right, labeltext] {Delega} (train);
+    \node [node_primary, minimum width=4.8cm, below=of ds] (main) {
+        \textbf{\texttt{main.py}}\\
+        \small Prodotto Cartesiano\\
+        \small $\mathcal{M} \times \mathcal{S}$
+    };
     
-    % Connessioni di Output
-    \draw [arrow] (proc.east) -- node[above, labeltext] {\texttt{file\_utils}} (meta.west);
-    \draw [arrow] (train.east) -- node[above, labeltext] {\texttt{\_save\_model()}} (joblib.west);
+    % =========================================================================
+    % CORE LOGIC (models.py)
+    % =========================================================================
+    \node [node_process, minimum width=4.8cm, below=1.6cm of main] (proc) {
+        \textbf{\texttt{models.py}}\\
+        \small \texttt{model\_processing()}
+    };
 
-    % Raggruppamenti Sfondo (Gradi di Isolamento Software)
+    \node [node_process, minimum width=4.8cm, below=of proc] (train) {
+        \textbf{\texttt{\_train\_classifier()}}\\
+        \small Split Train/Test \& Fitting\\
+        \small ($\text{random\_state} = s_k$)
+    };
+    
+    % =========================================================================
+    % ARTEFATTI DI OUTPUT
+    % =========================================================================
+    \node [node_output, minimum width=4.2cm, right=of proc] (meta) {
+        \textbf{Registro Metadati}\\
+        \small \texttt{models\_metadata.csv}
+    };
+
+    \node [node_output, minimum width=4.2cm, right=of train] (joblib) {
+        \textbf{Modello Serializzato}\\
+        \small \texttt{.joblib}
+    };
+
+    % =========================================================================
+    % COLLEGAMENTI E FRECCE
+    % =========================================================================
+    \draw [arrow_flow] (ds) -- (main);
+    \draw [arrow_flow] (main) -- node[right, pos=0.35, font=\footnotesize\bfseries, text=neutralgrey] {$(m, s_k)$} (proc);
+    \draw [arrow_flow] (proc) -- node[right, font=\footnotesize\bfseries, text=neutralgrey] {Delega} (train);
+    
+    \draw [arrow_flow] (proc.east) -- node[above, font=\footnotesize, text=neutralgrey] {\texttt{file\_utils}} (meta.west);
+    \draw [arrow_flow] (train.east) -- node[above, font=\footnotesize, text=neutralgrey] {\texttt{\_save\_model()}} (joblib.west);
+
+    % =========================================================================
+    % BACKGROUND (RIQUADRI DI RAGGRUPPAMENTO)
+    % =========================================================================
     \begin{scope}[on background layer]
-        \node [draw=gray!40, fill=gray!5, rectangle, rounded corners=5pt, fit=(proc) (train), inner sep=10pt, label={[color=teal!80!black]above:Modulo \texttt{models.py}}] (box_models) {};
-        \node [draw=purple!30, fill=purple!2, rectangle, rounded corners=5pt, fit=(meta) (joblib), inner sep=10pt, label={[color=purple!80!black]above:Persistenza (\texttt{runs/})}] (box_storage) {};
+        \node [group_highlight, fit={(proc) (train)},
+               label={[text=paramgreen, font=\bfseries\small]above:Modulo \texttt{models.py}}] (box_models) {};
+
+        \node [group_box, fit={(meta) (joblib)},
+               label={[text=neutralgrey, font=\bfseries\small]above:Persistenza (\texttt{runs/})}] (box_storage) {};
     \end{scope}
 
 \end{tikzpicture}
@@ -1013,7 +1011,7 @@ La struttura logica di tale gestione difensiva è sintetizzata nel Listing~\ref{
     keepspaces=true, % Mantiene gli spazi e le rientranze corrette
     showstringspaces=false,
     numbers=left, % Opzionale: numeri di riga a sinistra
-    numberstyle=\tiny\color{mygray},
+    numberstyle=\footnotesize\color{mygray},
     numbersep=8pt
 ]
 # Security check for number of classes to avoid metric calculation error
@@ -1134,64 +1132,67 @@ L'intero flusso operativo di valutazione e la successiva aggregazione statistica
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}[
-    block/.style={draw=blue!80!black, fill=blue!5, thick, rectangle, rounded corners=3pt, align=center, inner sep=5pt},
-    proc/.style={draw=teal!80!black, fill=teal!5, thick, rectangle, rounded corners=2pt, align=center, inner sep=5pt},
-    file/.style={draw=purple!80!black, fill=purple!5, rectangle, dashed, align=center, inner sep=5pt},
-    arrow/.style={-Stealth, thick, draw=black},
-    labeltext/.style={font=\footnotesize, text=black}
+    auto,
+    node distance = 0.7cm and 1.2cm
 ]
 
-    % --- STAGE 1: Per-Seed Evaluation ---
-    \node [block] (input) {
-        Test Set \& Modello\\
-        \footnotesize
-        $(m, s_k)$
-    };
-    \node [proc, below=0.7cm of input] (infer) {
-        \texttt{\_classification()}\\
-        \footnotesize
-        Inferenza: \texttt{predict()} \& \texttt{predict\_proba()}
-    };
-    \node [proc, below=0.7cm of infer] (metrics) {
-        \texttt{calculate\_metrics()}\\
-        \footnotesize
-        Matrice di Confusione \& Metriche Sintetiche
-    };
-    \node [file, below=0.7cm of metrics] (csv_seed) {
-        \texttt{classifications.csv}\\
-        \footnotesize
-        Artefatti $H_k^{TPR}, H_k^{TNR}$\\
-        \footnotesize
-        (Singolo Seed)    
+    % =========================================================================
+    % FASE 1: VALUTAZIONE E PERSISTENZA PER SINGOLO SEED
+    % =========================================================================
+    \node [node_primary] (input) {
+        \textbf{Test Set \& Modello}\\
+        \small $(m, s_k)$
     };
 
-    \draw [arrow] (input) -- (infer);
-    \draw [arrow] (infer) -- (metrics);
-    \draw [arrow] (metrics) -- (csv_seed);
-
-    % --- STAGE 2: Multi-Seed Aggregation ---
-    \node [proc, below=1.4cm of csv_seed] (agg) {
-        \texttt{\_aggregated\_heatmaps()}\\
-        \footnotesize
-        Concatena $K$ Seed $\to$ Calcolo $\overline{h}_{ij}$ e $\sigma^2_{ij}$
-    };
-    \node [file, below=0.7cm of agg] (final_out) {
-        Matrici Aggregate\\
-        \footnotesize
-        \texttt{<metric>\_mean\_matrix.csv}\\[-5pt]
-        \footnotesize
-        \texttt{<metric>\_var\_matrix.csv}\\[-5pt]
-        \footnotesize
-        \texttt{<metric>\_aggregated\_matrix.png}
+    \node [node_process, below=of input] (infer) {
+        \textbf{\texttt{\_classification()}}\\
+        \small Inferenza: \texttt{predict()} \& \texttt{predict\_proba()}
     };
 
-    \draw [arrow] (csv_seed) -- node[midway, right, labeltext] {Iterazione su $s_1 \dots s_K$} (agg);
-    \draw [arrow] (agg) -- (final_out);
+    \node [node_process, below=of infer] (metrics) {
+        \textbf{\texttt{calculate\_metrics()}}\\
+        \small Matrice di Confusione \& Metriche Sintetiche
+    };
 
-    % Scope boxes
+    \node [node_output, below=of metrics] (csv_seed) {
+        \textbf{\texttt{classifications.csv}}\\
+        \small Artefatti $H_k^{TPR}, H_k^{TNR}$\\
+        \small (Singolo Seed)
+    };
+
+    % =========================================================================
+    % FASE 2: AGGREGAZIONE MULTI-SEED
+    % =========================================================================
+    \node [node_process, below=1.2cm of csv_seed] (agg) {
+        \textbf{\texttt{\_aggregated\_heatmaps()}}\\
+        \small Concatena $K$ Seed $\to$ Calcolo $\overline{h}_{ij}$ e $\sigma^2_{ij}$
+    };
+
+    \node [node_output, below=of agg] (final_out) {
+        \textbf{Matrici Aggregate}\\
+        \small \texttt{<metric>\_mean\_matrix.csv}\\[-2pt]
+        \small \texttt{<metric>\_var\_matrix.csv}\\[-2pt]
+        \small \texttt{<metric>\_aggregated\_matrix.png}
+    };
+
+    % =========================================================================
+    % COLLEGAMENTI E FRECCE
+    % =========================================================================
+    \draw [arrow_flow] (input) -- (infer);
+    \draw [arrow_flow] (infer) -- (metrics);
+    \draw [arrow_flow] (metrics) -- (csv_seed);
+    \draw [arrow_flow] (csv_seed) -- node[midway, right, font=\footnotesize\bfseries, text=neutralgrey] {Iterazione su $s_1 \dots s_K$} (agg);
+    \draw [arrow_flow] (agg) -- (final_out);
+
+    % =========================================================================
+    % BACKGROUND (RIQUADRI DI RAGGRUPPAMENTO)
+    % =========================================================================
     \begin{scope}[on background layer]
-        \node [draw=blue!30, fill=blue!2, rectangle, rounded corners=5pt, fit=(input) (infer) (metrics) (csv_seed), inner sep=10pt, label={[color=blue!70!black]above:Fase 1: Valutazione e Persistenza per Singolo Seed ($s_k$)}] (box1) {};
-        \node [draw=teal!30, fill=teal!2, rectangle, rounded corners=5pt, fit=(agg) (final_out), inner sep=10pt, label={[color=teal!70!black]below:Fase 2: Aggregazione Multi-Seed}] (box2) {};
+        \node [group_box, fit={(input) (infer) (metrics) (csv_seed)},
+            label={[text=mainblue, font=\bfseries\small]above:Fase 1: Valutazione e Persistenza per Singolo Seed ($s_k$)}] (box1) {};
+
+        \node [group_highlight, fit={(agg) (final_out)},
+            label={[text=paramgreen, font=\bfseries\small]below:Fase 2: Aggregazione Multi-Seed}] (box2) {};
     \end{scope}
 
 \end{tikzpicture}
@@ -1276,55 +1277,50 @@ L'intero flusso di aggregazione dei dati e la pipeline di calcolo del test stati
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}[
-    file/.style={draw=purple!80!black, fill=purple!5, rectangle, dashed, align=center, inner sep=5pt},
-    proc/.style={draw=teal!80!black, fill=teal!5, thick, rectangle, rounded corners=3pt, align=center, inner sep=5pt},
-    arrow/.style={-Stealth, thick, draw=black}
+    auto,
+    node distance = 0.7cm and 0.8cm
 ]
 
     % Nodi del flusso
-    \node [file] at (0, 0) (in_csv) {
+    \node [node_output] (in_csv) {
         $K$ file\\ 
-        \footnotesize
-        \texttt{classifications.csv}\\
-        \footnotesize
-        (un file per seed $s_k$)
+        \footnotesize\texttt{classifications.csv}\\
+        \footnotesize(un file per seed $s_k$)
     };
-    \node [proc, below=0.7cm of in_csv] (agg) {
+    
+    \node [node_process, below=of in_csv] (agg) {
         Media sui Dataset\\ 
-        \footnotesize
-        \texttt{aggregate\_welch\_ttest\_feature\_scores\_by\_seed()}\\ 
-        \footnotesize
-        $\overline{F1}_{i}^{(k)}$
+        \footnotesize\texttt{aggregate\_welch\_ttest\_feature\_scores\_by\_seed()}\\ 
+        \footnotesize$\overline{F1}_{i}^{(k)}$
     };
-    \node [proc, below=0.7cm of agg] (pivot) {
+    
+    \node [node_process, below=of agg] (pivot) {
         Operazione di Pivot\\ 
-        \footnotesize
-        Matrice Modelli $\times$ Seed
+        \footnotesize Matrice Modelli $\times$ Seed
     };
-    \node [file, right=0.7cm of pivot] (mid_csv) {
+    
+    \node [node_output, right=of pivot] (mid_csv) {
         \texttt{F1-Score\_means.csv}\\
-        \footnotesize
-        (Dati Intermedi)
+        \footnotesize (Dati Intermedi)
     };
-    \node [proc, below=0.7cm of pivot] (test) {
+    
+    \node [node_process, below=of pivot] (test) {
         Test $t$ di Welch\\ 
-        \footnotesize
-        \texttt{ttest\_ind()}\\ 
-        \footnotesize
-        (\textit{equal\_var=False})
+        \footnotesize\texttt{ttest\_ind()}\\ 
+        \footnotesize(\textit{equal\_var=False})
     };
-    \node [file, below=0.7cm of test] (out_csv) {
+    
+    \node [node_output, below=of test] (out_csv) {
         \texttt{welch\_ttest.csv}\\
-        \footnotesize
-        (Risultati Statistici)
+        \footnotesize (Risultati Statistici)
     };
 
     % Connessioni
-    \draw [arrow] (in_csv) -- (agg);
-    \draw [arrow] (agg) -- (pivot);
-    \draw [arrow] (pivot) -- (mid_csv);
-    \draw [arrow] (pivot) -- (test);
-    \draw [arrow] (test) -- (out_csv);
+    \draw [arrow_flow] (in_csv) -- (agg);
+    \draw [arrow_flow] (agg) -- (pivot);
+    \draw [arrow_flow] (pivot) -- (mid_csv);
+    \draw [arrow_flow] (pivot) -- (test);
+    \draw [arrow_flow] (test) -- (out_csv);
 
 \end{tikzpicture}
 \caption{Pipeline di trasformazione dei dati per l'esecuzione del Test $t$ di Welch, dal recupero delle metriche sui singoli seed alla persistenza degli esiti statistici.}
@@ -1400,7 +1396,7 @@ L'utilizzo del parametro \texttt{equal\_var=False} applica rigorosamente la form
     keepspaces=true,
     showstringspaces=false,
     numbers=left,
-    numberstyle=\tiny\color{mygray},
+    numberstyle=\footnotesize\color{mygray},
     numbersep=8pt
 ]
 # Extract target statistical scores for the reference model 
@@ -1552,61 +1548,30 @@ Successivamente, tali parametri congelati vengono applicati per via diretta sia 
 \centering
 \begin{tikzpicture}[
     auto,
-    node distance = 1.2cm and 1.8cm,
-    font=\small\sffamily,
-    % Definizione Stili Nodi
-    block_source/.style={
-        rectangle, draw=sourceblue, fill=sourcelight, thick,
-        text width=3.2cm, minimum height=1.1cm, align=center, rounded corners=4pt,
-        drop shadow={shadow xshift=0.15cm, shadow yshift=-0.15cm, opacity=0.15}
-    },
-    block_target/.style={
-        rectangle, draw=targetorange, fill=targetlight, thick,
-        text width=3.2cm, minimum height=1.1cm, align=center, rounded corners=4pt,
-        drop shadow={shadow xshift=0.15cm, shadow yshift=-0.15cm, opacity=0.15}
-    },
-    block_fit/.style={
-        rectangle, draw=paramgreen, fill=paramlight, thick,
-        text width=3.8cm, minimum height=1.2cm, align=center, rounded corners=4pt,
-        drop shadow={shadow xshift=0.15cm, shadow yshift=-0.15cm, opacity=0.15}
-    },
-    block_transform/.style={
-        rectangle, draw=processgrey, fill=white, thick,
-        text width=3.5cm, minimum height=1.1cm, align=center, rounded corners=4pt,
-        drop shadow={shadow xshift=0.15cm, shadow yshift=-0.15cm, opacity=0.15}
-    },
-    block_output/.style={
-        rectangle, draw=processgrey, fill=backgrey, thick, dashed,
-        text width=3.5cm, minimum height=1.1cm, align=center, rounded corners=4pt
-    },
-    % Definizione Stili Frecce (Corretti con Stealth)
-    line_source/.style={-{Stealth[scale=1.1]}, draw=sourceblue, very thick},
-    line_target/.style={-{Stealth[scale=1.1]}, draw=targetorange, very thick},
-    line_param/.style={-{Stealth[scale=1.1]}, draw=paramgreen, thick, dashed},
-    line_flow/.style={-{Stealth[scale=1.1]}, draw=processgrey, thick}
+    node distance = 1.2cm and 1.8cm
 ]
 
     % =========================================================================
     % LIVELLO 1: INPUT DATASETS
     % =========================================================================
-    \node [block_source] (source_data) {
+    \node [node_primary] (source_data) {
         \textbf{Benchmark Sorgente ($S$)}\\
-        \scriptsize\texttt{nb15\_aggr\_scaled}\\
+        \small\texttt{nb15\_aggr\_scaled}\\
         $(\mathbf{X}_S, \mathbf{y}_S)$
     };
 
-    \node [block_target, right=of source_data] (target_data) {
+    \node [node_accent, right=of source_data] (target_data) {
         \textbf{Benchmark Target ($T_k$)}\\
-        \scriptsize\texttt{TON\_IoT, BoT-IoT, \dots}\\
+        \small\texttt{TON\_IoT, BoT-IoT, \dots}\\
         $(\mathbf{X}_{T_k}, \mathbf{y}_{T_k})$
     };
 
     % =========================================================================
     % LIVELLO 2: FITTING FASE (ESCLUSIVA SORGENTE)
     % =========================================================================
-    \node [block_fit, below=of source_data] (fit_stage) {
+    \node [node_process, below=1.8cm of source_data] (fit_stage) {
         \textbf{Ancoraggio Statistico}\\
-        \scriptsize
+        \small
         $\boldsymbol{\mu}_S = \operatorname{E}[\mathbf{X}_S], \; \boldsymbol{\sigma}_S = \operatorname{Std}[\mathbf{X}_S]$\\
         $\mathbf{W}_S = \operatorname{PCA}(\mathbf{X}_{S,\mathrm{scaled}}, d=2)$
     };
@@ -1614,16 +1579,16 @@ Successivamente, tali parametri congelati vengono applicati per via diretta sia 
     % =========================================================================
     % LIVELLO 3: TRASFORMAZIONE ANCORATA
     % =========================================================================
-    \node [block_transform, below=1.8cm of fit_stage] (transform_source) {
+    \node [node_transform, below=1.8cm of fit_stage] (transform_source) {
         \textbf{Trasformazione Sorgente}\\
-        \scriptsize
+        \small
         $\mathbf{Z}_S = \frac{\mathbf{X}_S - \boldsymbol{\mu}_S}{\boldsymbol{\sigma}_S + \epsilon}$\\
         $\mathbf{P}_S = \mathbf{Z}_S \mathbf{W}_S$
     };
 
-    \node [block_transform, at=(transform_source -| target_data)] (transform_target) {
+    \node [node_transform, at=(transform_source -| target_data)] (transform_target) {
         \textbf{Trasformazione Target}\\
-        \scriptsize
+        \small
         $\mathbf{Z}_{T_k} = \frac{\mathbf{X}_{T_k} - \boldsymbol{\mu}_S}{\boldsymbol{\sigma}_S + \epsilon}$\\
         $\mathbf{P}_{T_k} = \mathbf{Z}_{T_k} \mathbf{W}_S$
     };
@@ -1631,45 +1596,41 @@ Successivamente, tali parametri congelati vengono applicati per via diretta sia 
     % =========================================================================
     % LIVELLO 4: OUTPUT DIAGNOSTICI
     % =========================================================================
-    \node [block_output, below=of transform_source] (out_pca) {
+    \node [node_output, below=of transform_source] (out_pca) {
         \textbf{Proiezione PCA 2D}\\
-        \scriptsize Scatter Plot Bidimensionale\\
+        \small Scatter Plot Bidimensionale\\
         (PC1 vs PC2)
     };
 
-    \node [block_output, below=of transform_target] (out_kde) {
+    \node [node_output, below=of transform_target] (out_kde) {
         \textbf{Stima Densità KDE}\\
-        \scriptsize Proiezione Univariata Top-3\\
+        \small Proiezione Univariata Top-3\\
         (Scala \texttt{symlog})
     };
 
     % =========================================================================
     % COLLEGAMENTI E FRECCE
     % =========================================================================
-    \draw [line_source] (source_data) -- node[left, font=\tiny\bfseries] {Fit Only} (fit_stage);
+    \draw [arrow_source] (source_data) -- node[left, pos=0.3, font=\footnotesize\bfseries, text=mainblue] {Fit Only} (fit_stage);
 
-    \draw [line_param] (fit_stage) -- node[left, font=\tiny] {Parametri Congelati $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S, \mathbf{W}_S)$} (transform_source);
-    
-    % Corretto 'north west' con lo spazio
-    \path [line_param] (fit_stage.east) edge[out=0, in=110] node[above, font=\tiny, sloped] {Nessun Ricalcolo Locale} (transform_target.north west);
+    \draw [arrow_param] (fit_stage) -- node[left, pos=0.6, align=center, font=\footnotesize, text=paramgreen] {Parametri Congelati\\[-5pt] $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S, \mathbf{W}_S)$} (transform_source);    
+    \path [arrow_param] (fit_stage.south east) -- node[right, pos=0.2, xshift=0.5cm, align=center, font=\footnotesize, text=paramgreen] {Nessun\\[-5pt] Ricalcolo\\[-5pt] Locale} (transform_target.north west);
 
-    \draw [line_source] (source_data.west) -- ++(-0.6,0) |- node[near start, left, font=\tiny] {Dati Grezzi $S$} (transform_source.west);
-    \draw [line_target] (target_data) -- node[right, font=\tiny\bfseries] {Transform Only} (transform_target);
+    \draw [arrow_source] (source_data.west) -- ++(-1.2,0) |- node[near start, left, font=\footnotesize, text=mainblue] {Dati Grezzi $S$} (transform_source.west);
+    \draw [arrow_target] (target_data) -- node[right, font=\footnotesize\bfseries, text=accentorange] {Transform Only} (transform_target);
 
-    \draw [line_flow] (transform_source) -- (out_pca);
-    \draw [line_flow] (transform_target) -- (out_kde);
-    \draw [line_flow] (transform_source) -- (out_kde);
-    \draw [line_flow] (transform_target) -- (out_pca);
+    \draw [arrow_flow] (transform_source) -- (out_pca);
+    \draw [arrow_flow] (transform_target) -- (out_kde);
+    \draw [arrow_flow] (transform_source.south east) -- (out_kde.north west);
+    \draw [arrow_flow] (transform_target.south west) -- (out_pca.north east);
 
     % =========================================================================
-    % BACKGROUND
+    % BACKGROUND (RIQUADRI DI RAGGRUPPAMENTO)
     % =========================================================================
     \begin{scope}[on background layer]
-        \node [draw=paramgreen!50, fill=paramlight!30, thick, dotted, inner xsep=12pt, inner ysep=10pt, rounded corners=6pt,
-               fit=(fit_stage), label={[paramgreen, font=\bfseries\scriptsize]above:Fase di Stima Statistica (Zero Leakage)}] {};
+        \node [group_highlight, fit=(fit_stage), label={[paramgreen, font=\bfseries\small]above:Fase di Stima Statistica (Zero Leakage)}] {};
                
-        \node [draw=processgrey!40, fill=backgrey!50, dashed, inner xsep=15pt, inner ysep=12pt, rounded corners=6pt,
-               fit=(out_pca) (out_kde), label={[processgrey, font=\bfseries\scriptsize]below:Rappresentazione Grafica Diagnostica (Modulo \texttt{plotting.py})}] {};
+        \node [group_box, fit=(out_pca) (out_kde), label={[neutralgrey, font=\bfseries\small]below:Rappresentazione Grafica Diagnostica (Modulo \texttt{plotting.py})}] {};
     \end{scope}
 
 \end{tikzpicture}
@@ -1703,7 +1664,7 @@ Indicando con $\mathbf{X}_{S,\mathrm{test}}$ tale matrice, l'operazione è imple
     keepspaces=true,
     showstringspaces=false,
     numbers=left,
-    numberstyle=\tiny\color{mygray},
+    numberstyle=\footnotesize\color{mygray},
     numbersep=8pt
 ]
 scaler = StandardScaler()
@@ -1737,7 +1698,7 @@ Per ciascun dataset, la matrice delle caratteristiche viene trasformata mediante
     keepspaces=true,
     showstringspaces=false,
     numbers=left,
-    numberstyle=\tiny\color{mygray},
+    numberstyle=\footnotesize\color{mygray},
     numbersep=8pt
 ]
 X_scaled = scaler.transform(X_test)
@@ -1781,7 +1742,7 @@ Il riferimento statistico è nuovamente individuato tramite \texttt{SOURCE\_IDEN
     keepspaces=true,
     showstringspaces=false,
     numbers=left,
-    numberstyle=\tiny\color{mygray},
+    numberstyle=\footnotesize\color{mygray},
     numbersep=8pt
 ]
 scaler = StandardScaler()
@@ -1810,7 +1771,7 @@ La procedura implementa operativamente l'ancoraggio a $(\boldsymbol{\mu}_S,\bold
     keepspaces=true,
     showstringspaces=false,
     numbers=left,
-    numberstyle=\tiny\color{mygray},
+    numberstyle=\footnotesize\color{mygray},
     numbersep=8pt
 ]
 for feature in valid_features:
@@ -1846,7 +1807,7 @@ Questa configurazione è distinta dalla formulazione teorica della proiezione lo
     keepspaces=true,
     showstringspaces=false,
     numbers=left,
-    numberstyle=\tiny\color{mygray},
+    numberstyle=\footnotesize\color{mygray},
     numbersep=8pt
 ]
 sns.kdeplot(
