@@ -114,40 +114,73 @@ def save_feature_importances_plot(model, model_name, feature_names, dst_dir, X_t
     print(f"Feature importance plot successfully saved to: {dst_path}")
 
 
-def save_all_pca_plots(config_csv_path, label_column=MLConstants.Y_LABEL, drop_labels=MLConstants.X_DROP_LABELS):
+def save_all_pca_plots(config_csv_path, label_column=MLConstants.Y_LABEL, drop_labels=MLConstants.X_DROP_LABELS, source_identifier=MLConstants.SOURCE_IDENTIFIER):
     """
     Automated batch runner that reads a configuration CSV, loads each dataset,
     extracts the test split, applies PCA (2 components), and generates 2D scatter plots.
-    This function independently fits and transforms the data tailored to each dataset.
+    
+    [AGGIORNATO] Implementa la Standardizzazione Diagnostica Dipendente dal Sorgente:
+    Esegue il fitting di StandardScaler e PCA ESCLUSIVAMENTE sul dominio sorgente 
+    e applica la trasformazione (senza ricalcolare media/varianza) a tutti gli altri benchmark.
 
     :param config_csv_path: Path to the configuration CSV file containing 'path' and 'dataset_type'
     :param label_column: The name of the ground-truth target column
     :param drop_labels: List of columns (or features) to drop from the feature matrix before PCA
+    :param source_identifier: La stringa (case-insensitive) nella colonna 'dataset_type' che identifica il benchmark sorgente.
     """
     config_path = Path(config_csv_path)
     if not config_path.exists():
         print(f"[ERROR] Configuration CSV file not found at: {config_csv_path}")
         return
 
-    # Load the master configuration file
     try:
         df_config = pd.read_csv(config_path)
     except Exception as e:
         print(f"[ERROR] Failed to read configuration CSV: {e}")
         return
 
-    # Validate required columns in the configuration file
     if 'path' not in df_config.columns or 'dataset_type' not in df_config.columns:
         print("[ERROR] The configuration CSV must contain both 'path' and 'dataset_type' columns.")
         return
 
-    # Ensure the main output directory for PCA plots exists
     base_pca_dir = Path(ProjectPaths.PCA_PLOTS_DIR)
     base_pca_dir.mkdir(parents=True, exist_ok=True)
 
-    print("Starting automated batch PCA plotting...")
+    print("Starting automated batch PCA plotting with Source-Dependent Standardization...")
+
+    # =========================================================================
+    # FASE 1: Ricerca e Fitting sul Benchmark Sorgente (Source)
+    # =========================================================================
+    source_row = df_config[
+        df_config['path'].astype(str).apply(lambda p: Path(p).stem.lower()) == source_identifier.lower()
+    ]
+    if source_row.empty:
+        print(f"[ERROR] Nessun dataset sorgente trovato con dataset_type '{source_identifier}'. Impossibile calcolare le statistiche di ancoraggio.")
+        return
+        
+    source_path = Path(source_row.iloc[0]['path'])
+    print(f" -> Ancoraggio statistiche al dataset sorgente: {source_path.stem}")
     
-    # Iterate through each dataset defined in the config file
+    df_source = pd.read_csv(source_path)
+    test_source = df_source[df_source['split_type'] == 'test']
+    cols_to_drop_source = [col for col in drop_labels if col in test_source.columns]
+    X_source = test_source.drop(columns=cols_to_drop_source)
+    
+    # Inizializziamo il ridimensionamento. 
+    # (Nota: StandardScaler implementa internamente l'aggiunta di un piccolo epsilon alla 
+    # varianza per stabilità numerica contro le divisioni per zero).
+    scaler = StandardScaler()
+    pca = PCA(n_components=MLConstants.PCA_COMPONENTS, random_state=MLConstants.MAIN_SEED)
+    
+    # Fittiamo le distribuzioni SOLO sui dati sorgente per ottenere mu_S e sigma_S
+    X_source_scaled = scaler.fit_transform(X_source)
+    pca.fit(X_source_scaled)
+    
+    var = pca.explained_variance_ratio_ * 100
+
+    # =========================================================================
+    # FASE 2: Trasformazione e Plotting su tutti i Dataset (Sorgente + Target)
+    # =========================================================================
     for _, row in df_config.iterrows():
         dataset_path_str = row['path']
         dataset_type = row['dataset_type']
@@ -160,69 +193,53 @@ def save_all_pca_plots(config_csv_path, label_column=MLConstants.Y_LABEL, drop_l
             print(f" -> [WARNING] Dataset file not found, skipping: {file_path}")
             continue
 
-        # Automatically extract the dataset name from the file path
         dataset_name = file_path.stem
-
-        # Define the final plot filename and destination path
         pca_filename = f"{dataset_type.lower()}_{dataset_name}{Naming.PLOT_EXT}"
         dst_path = base_pca_dir / pca_filename
 
         try:
-            # Read the dataset
             df_data = pd.read_csv(file_path)
             
-            # Ensure 'split_type' exists to extract the test set
             if 'split_type' not in df_data.columns:
-                print(f" -> [SKIP] 'split_type' column not found in {dataset_name}. Cannot extract test set.")
+                print(f" -> [SKIP] 'split_type' non trovato in {dataset_name}.")
                 continue
                 
-            # Isolate the test data
             test_data = df_data[df_data['split_type'] == 'test']
             if test_data.empty:
-                print(f" -> [SKIP] No 'test' data found in {dataset_name}.")
+                print(f" -> [SKIP] Nessun dato di 'test' trovato in {dataset_name}.")
                 continue
 
-            # Safely drop non-feature columns
             cols_to_drop = [col for col in drop_labels if col in test_data.columns]
             X_test = test_data.drop(columns=cols_to_drop)
 
-            # Ensure the label column exists
             if label_column not in test_data.columns:
-                print(f" -> [SKIP] Label column '{label_column}' not found in {dataset_name}")
+                print(f" -> [SKIP] Colonna target '{label_column}' non trovata in {dataset_name}")
                 continue
                 
             y_test = test_data[label_column]
 
-            # Compute a brand new space tailored to this specific dataset (Fit + Transform)
-            scaler = StandardScaler()
-            pca = PCA(n_components=MLConstants.PCA_COMPONENTS, random_state=MLConstants.MAIN_SEED)
+            # APPLICAZIONE DELLA TRASFORMAZIONE ANCORATA
+            # Utilizziamo .transform() e non .fit_transform() per preservare il domain shift
+            X_scaled = scaler.transform(X_test)
+            X_pca = pca.transform(X_scaled)
             
-            X_scaled = scaler.fit_transform(X_test)
-            X_pca = pca.fit_transform(X_scaled)
-            
-            # Map class labels to human-readable strings for plotting
             labels = y_test.map({0: 'Normal Traffic', 1: 'Attack/Anomaly'}).fillna(y_test)
-            var = pca.explained_variance_ratio_ * 100
             
-            # Configure the scatter plot with appropriate aesthetics
             plt.figure(figsize=(10, 6))
             ax = sns.scatterplot(
                 x=X_pca[:, 0], y=X_pca[:, 1], hue=labels, alpha=0.5,
                 palette={'Normal Traffic': '#1f77b4', 'Attack/Anomaly': '#ff7f0e'}
             )
             
-            # Set plot titles, labels, and grid for better readability
-            plt.title(f"PCA 2D Projection ({dataset_type} - {dataset_name})\nTotal Variance Explained: {var.sum():.2f}%", fontsize=14, fontweight='bold', pad=15)
+            plt.title(f"PCA 2D Projection ({dataset_type} - {dataset_name})\nTotal Variance Explained (Source): {var.sum():.2f}%", fontsize=14, fontweight='bold', pad=15)
             plt.xlabel(f"PC1 ({var[0]:.2f}% Variance)", fontsize=12)
             plt.ylabel(f"PC2 ({var[1]:.2f}% Variance)", fontsize=12)
             plt.grid(True, linestyle=':', alpha=0.6)
 
-            # Add a legend with a title and customize its appearance
             legend = ax.legend(title='Target Traffic Class', loc='upper left', bbox_to_anchor=(1.02, 1.0), ncol=1, 
                                frameon=True, framealpha=0.9, facecolor='white', edgecolor='black', title_fontsize=11)
             legend.get_title().set_fontweight('bold')
             
-            # Save the PCA plot to the designated output folder
             plt.savefig(dst_path, dpi=300, bbox_inches='tight')
             plt.close()
 
@@ -231,7 +248,7 @@ def save_all_pca_plots(config_csv_path, label_column=MLConstants.Y_LABEL, drop_l
         except Exception as e:
             print(f" -> [ERROR] Failed to process {dataset_name}: {e}")
             
-    print("\n[COMPLETED] All PCA plots have been generated and saved directly to the target directory.")
+    print("\n[COMPLETED] All PCA plots have been generated using Source-Dependent Standardization.")
 
 
 def save_probability_plot(y_test, y_scores, model_name, dataset_type, dataset_name, dst_dir):
@@ -475,40 +492,72 @@ def save_threshold_metrics_plot(y_test, y_scores, model_name, dataset_type, data
     print(f"Threshold sensitivity plot successfully saved to: {dst_path}")
 
 
-def save_all_kde_plots(config_csv_path, features_to_plot, label_column=MLConstants.Y_LABEL):
+def save_all_kde_plots(config_csv_path, features_to_plot, label_column=MLConstants.Y_LABEL, source_identifier=MLConstants.SOURCE_IDENTIFIER):
     """
     Automated batch runner that reads a configuration CSV, loads each dataset,
     extracts metadata, and generates KDE plots to analyze feature distributions.
-    This analysis is model-agnostic and fully supports any workflow using RF, DT, or HGB.
+    
+    [AGGIORNATO] Implementa la Standardizzazione Diagnostica Dipendente dal Sorgente:
+    Ancora i valori di KDE a media e deviazione standard del dataset sorgente per 
+    preservare visivamente le traslazioni (domain shift) dell'equazione Z = (X - mu_s)/(sigma_s + eps).
 
     :param config_csv_path: Path to the configuration CSV file containing 'path' and 'dataset_type'
     :param features_to_plot: List of feature column names to analyze and plot
     :param label_column: The name of the ground-truth target column in your datasets
+    :param source_identifier: Lo stem (senza estensione) del file sorgente per ancorare le statistiche
     """
     config_path = Path(config_csv_path)
     if not config_path.exists():
         print(f"[ERROR] Configuration CSV file not found at: {config_csv_path}")
         return
 
-    # Load the master configuration file
     try:
         df_config = pd.read_csv(config_path)
     except Exception as e:
         print(f"[ERROR] Failed to read configuration CSV: {e}")
         return
 
-    # Validate required columns in the configuration file
     if 'path' not in df_config.columns or 'dataset_type' not in df_config.columns:
         print("[ERROR] The configuration CSV must contain both 'path' and 'dataset_type' columns.")
         return
 
-    # Ensure the main output directory for KDE plots exists
     base_kde_dir = Path(ProjectPaths.KDE_PLOTS_DIR)
     base_kde_dir.mkdir(parents=True, exist_ok=True)
 
-    print("Starting automated batch KDE plotting...")
+    print("Starting automated batch KDE plotting with Source-Dependent Standardization...")
+
+    # =========================================================================
+    # FASE 1: Ricerca e Fitting sul Benchmark Sorgente (Ancoraggio)
+    # =========================================================================
+    source_row = df_config[
+        df_config['path'].astype(str).apply(lambda p: Path(p).stem.lower()) == source_identifier.lower()
+    ]
     
-    # Iterate through each dataset defined in the config file
+    if source_row.empty:
+        print(f"[ERROR] Nessun dataset sorgente trovato con stem '{source_identifier}'.")
+        return
+        
+    source_path = Path(source_row.iloc[0]['path'])
+    print(f" -> Ancoraggio statistiche KDE al dataset sorgente: {source_path.stem}")
+    
+    # Verifichiamo quali features sono valide nel sorgente per calcolare mu_S e sigma_S
+    df_source_preview = pd.read_csv(source_path, nrows=1)
+    valid_source_features = [f for f in features_to_plot if f in df_source_preview.columns]
+    
+    if not valid_source_features:
+        print("[ERROR] Nessuna delle features richieste è presente nel dataset sorgente. Interruzione.")
+        return
+
+    # Carichiamo solo le feature necessarie dal sorgente
+    df_source = pd.read_csv(source_path, usecols=valid_source_features)
+    
+    # Calcoliamo mu_S e sigma_S. Lo StandardScaler gestisce automaticamente l'epsilon per le varianze nulle
+    scaler = StandardScaler()
+    scaler.fit(df_source[valid_source_features])
+
+    # =========================================================================
+    # FASE 2: Trasformazione Ancorata e Plotting su tutti i Dataset
+    # =========================================================================
     for _, row in df_config.iterrows():
         dataset_path_str = row['path']
         dataset_type = row['dataset_type']
@@ -521,15 +570,11 @@ def save_all_kde_plots(config_csv_path, features_to_plot, label_column=MLConstan
             print(f" -> [WARNING] Dataset file not found, skipping: {file_path}")
             continue
 
-        # Automatically extract the dataset name from the file path
         dataset_name = file_path.stem
-
-        # Define the final plot filename and destination path
         kde_filename = f"{dataset_type.lower()}_{dataset_name}{Naming.PLOT_EXT}"
         dst_path = base_kde_dir / kde_filename
 
         try:
-            # Preview columns first to optimize memory allocation
             df_preview = pd.read_csv(file_path, nrows=1)
             valid_features = [f for f in features_to_plot if f in df_preview.columns]
             
@@ -541,17 +586,29 @@ def save_all_kde_plots(config_csv_path, features_to_plot, label_column=MLConstan
                 print(f" -> [SKIP] Label column '{label_column}' not found in {dataset_name}")
                 continue
             
-            # Load ONLY the required features and the label column to keep RAM safe
             cols_to_load = valid_features + [label_column]
             df_data = pd.read_csv(file_path, usecols=cols_to_load)
             
-            X_test = df_data[valid_features]
+            X_test_raw = df_data[valid_features]
             y_test = df_data[label_column]
 
-            # Map numeric labels to descriptive strings for the legend
+            # APPLICAZIONE DELL'EQUAZIONE Z_D = (X_D - mu_S) / (sigma_S + epsilon)
+            # Eseguiamo un mapping manuale feature-per-feature per massima robustezza
+            # nel caso in cui un dataset target abbia features in ordine diverso o mancanti
+            X_test_scaled = pd.DataFrame(index=X_test_raw.index, columns=valid_features)
+            
+            for feature in valid_features:
+                if feature in scaler.feature_names_in_:
+                    idx = list(scaler.feature_names_in_).index(feature)
+                    mu_s = scaler.mean_[idx]
+                    sigma_s = scaler.scale_[idx] # scale_ contiene la radice della varianza + epsilon
+                    X_test_scaled[feature] = (X_test_raw[feature] - mu_s) / sigma_s
+                else:
+                    print(f" -> [WARNING] Feature '{feature}' non calcolata sul sorgente. Plot non standardizzato.")
+                    X_test_scaled[feature] = X_test_raw[feature]
+
             labels = pd.Series(y_test).map({0: 'Normal Traffic', 1: 'Attack/Anomaly'}).fillna(y_test)
             
-            # Determine dynamic grid layout
             n_features = len(valid_features)
             cols = min(2, n_features)
             rows = (n_features + 1) // cols
@@ -559,44 +616,38 @@ def save_all_kde_plots(config_csv_path, features_to_plot, label_column=MLConstan
             fig, axes = plt.subplots(rows, cols, figsize=(6 * cols, 5 * rows))
             axes = [axes] if n_features == 1 else axes.flatten()
 
-            # Cache handles and labels for the global figure legend
             global_handles, global_labels = [], []
 
-            # Plot each valid feature
+            # Plotting basato su X_test_scaled
             for i, feature in enumerate(valid_features):
                 ax = axes[i]
                 
                 sns.kdeplot(
-                    data=X_test, x=feature, hue=labels, fill=True, alpha=0.3, 
+                    data=X_test_scaled, x=feature, hue=labels, fill=True, alpha=0.3, 
                     common_norm=False, linewidth=2, palette={'Normal Traffic': '#1f77b4', 'Attack/Anomaly': '#ff7f0e'},
                     ax=ax, warn_singular=False, cut=0
                 )
                 
-                # Subplot styling
-                ax.set_title(f"Distribution of '{feature}'", fontsize=12, fontweight='bold')
-                ax.set_xlabel(feature, fontsize=10)
+                # Aggiungiamo un (Z-Score) al titolo per chiarire visivamente l'unità di misura
+                ax.set_title(f"Distribution of '{feature}' (Ancorata a S)", fontsize=12, fontweight='bold')
+                ax.set_xlabel(f"{feature} (Z-Score)", fontsize=10)
                 ax.set_ylabel("Density", fontsize=10)
                 ax.set_yscale('symlog', linthresh=1e-5)
                 ax.grid(True, linestyle=':', alpha=0.6)
                 
-                # Safely extract and cache the legend handles and labels from the first subplot
                 if i == 0 and ax.get_legend() is not None:
                     sb_legend = ax.get_legend()
                     global_handles = list(getattr(sb_legend, 'legend_handles', getattr(sb_legend, 'legendHandles', [])))
                     global_labels = [t.get_text() for t in sb_legend.get_texts()]
                 
-                # Remove subplot legend to prevent duplicate clutter on individual axes
                 if ax.get_legend() is not None:
                     ax.get_legend().remove()
 
-            # Clean up empty subplots if the grid has an odd number of features
             for j in range(i + 1, len(axes)):
                 fig.delaxes(axes[j])
 
-            # Global figure formatting
             fig.suptitle(f"Feature Distribution Analysis ({dataset_type} - {dataset_name})", fontsize=16, fontweight='bold', y=1.02)
             
-            # Create a single global external legend using the cached handles and labels
             if global_handles and global_labels:
                 legend = fig.legend(
                     global_handles, global_labels, title='Traffic Class', loc='upper left', bbox_to_anchor=(1.02, 1.0), ncol=1, 
@@ -604,17 +655,16 @@ def save_all_kde_plots(config_csv_path, features_to_plot, label_column=MLConstan
                 )
                 legend.get_title().set_fontweight('bold')
 
-            # Save the clean plot
             plt.tight_layout()
             plt.savefig(dst_path, dpi=300, bbox_inches='tight')
             plt.close()
 
-            print(f" -> [OK] Saved: {kde_filename}")
+            print(f" -> [OK] Saved KDE (Scaled): {kde_filename}")
 
         except Exception as e:
             print(f" -> [ERROR] Failed to process {dataset_name}: {e}")
             
-    print("\n[COMPLETED] All KDE plots have been generated and saved directly to the target directory.")
+    print("\n[COMPLETED] All KDE plots have been generated using Source-Dependent Standardization.")
 
 
 def save_shap_plot(model, X_test, y_test, model_name, dataset_type, dataset_name, dst_dir):

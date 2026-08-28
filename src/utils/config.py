@@ -30,6 +30,7 @@ class MLConstants:
     SHAP_MAX_SAMPLES = 500                                      # Maximum sample size used for SHAP explainer calculations
     PCA_COMPONENTS = 2                                          # Number of target dimensions for Principal Component Analysis
     KDE_TOP_FEATURES = ['pkts_per_sec', 'total_bytes', 'dst_win_byt']  # Top features selected for KDE distribution analysis
+    SOURCE_IDENTIFIER = 'nb15_aggr_scaled'                      # Identifier for source dataset in visualizations
 
     # --- Injection Parameters ---
     INJECTION_RATIO = 299       # Must be 1 digit less than the denominator that we want (e.g. 1/3 than INJ_RATIO = 2)
