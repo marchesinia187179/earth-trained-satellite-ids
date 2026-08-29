@@ -9,3 +9,4 @@
 \contentsline {lstlisting}{\numberline {4.9}{\ignorespaces Campionamento stratificato del test set per l'analisi SHAP.}}{120}{lstlisting.4.9}%
 \contentsline {lstlisting}{\numberline {4.10}{\ignorespaces Inizializzazione dinamica dello spiegatore SHAP con catena di fallback.}}{121}{lstlisting.4.10}%
 \contentsline {lstlisting}{\numberline {4.11}{\ignorespaces Calcolo, normalizzazione dimensionale e rendering dei valori SHAP.}}{124}{lstlisting.4.11}%
+\contentsline {lstlisting}{\numberline {4.12}{\ignorespaces Configurazione delle feature selezionate per l'analisi KDE.}}{128}{lstlisting.4.12}%

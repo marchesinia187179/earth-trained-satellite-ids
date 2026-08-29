@@ -2206,7 +2206,7 @@ La procedura consente pertanto di mantenere separati gli artefatti di spiegabili
 
 A completamento della descrizione implementativa, la Tabella \ref{tab:shap_config_parameters} sintetizza i parametri principali definiti all'interno del modulo, esplicitando le configurazioni adottate e le rispettive motivazioni ingegneristiche.
 
-\begin{table}[htbp]
+\begin{table}[H]
     \centering
     \small
     \caption{Sintesi dei parametri di configurazione e delle scelte ingegneristiche della pipeline SHAP.}
@@ -2243,15 +2243,135 @@ Questa separazione mantiene coerente l'analisi con il principio metodologico sec
 
 
 
-    \subsection{Pipeline di Aggregazione SHAP--KDE}
-    \label{subsec:pipeline_shap_kde}
-    % Implementazione concreta del contatore $C_j$ e della selezione
-    % delle tre feature finali [rif. teorico: subsubsec:aggregazione_shap_kde].
+\subsection{Pipeline di Aggregazione SHAP--KDE}
+\label{subsec:pipeline_shap_kde}
 
+Il raccordo tra l'analisi di spiegabilità SHAP e la successiva analisi densometrica KDE non è implementato mediante una procedura automatizzata all'interno del framework software\footnote{La scelta di non automatizzare tale raccordo previene la propagazione non controllata di rumore transitorio o di instabilità di \textit{ranking} tra i differenti \textit{seed} sperimentali, lasciando all'analista la verifica qualitativa della coerenza teorica delle caratteristiche prima dell'analisi densometrica.}. 
+La selezione delle caratteristiche destinate alla rappresentazione KDE viene infatti effettuata attraverso un passaggio di analisi manuale dei grafici SHAP prodotti dalla pipeline diagnostica.
 
+Al fine di formalizzare la natura ibrida di tale procedura, la Figura~\ref{fig:shap_kde_workflow} illustra l'architettura logica del raccordo \textit{Human-in-the-Loop}. Il diagramma evidenzia la scomposizione del flusso di lavoro in tre fasi sequenziali: una prima fase di automazione diagnostica, una fase intermedia di supervisione umana in cui avviene l'estrazione quantitativa del parametro empirico, e una successiva fase di esecuzione densometrica automatizzata.
 
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}[node distance=1.8cm and 1.5cm]
+        
+        % =====================================================================
+        % NODI DEL DIAGRAMMA
+        % =====================================================================
+        
+        % FASE 1: Automazione Diagnostica (Livello 1)
+        \node[node_primary] (shap_gen) {
+            Generazione Batch \\ \texttt{save\_shap\_plot()}
+        };
+        \node[node_output, below=of shap_gen] (shap_plots) {
+            Collezione Grafici SHAP \\ 
+            $(r = 1 \dots R)$
+        };
+        
+        % FASE 2: Intervento Supervisionato (Livello 2)
+        \node[node_accent, below=of shap_plots] (human_eval) {Ispezione Visiva dei rank $\mathcal{T}_r$ \\ e calcolo del contatore $C_j$};
+        \node[node_transform, right=of human_eval] (top_features) {Ordinamento Empirico \\ e Selezione Top-3};
+        \node[node_process, below=of top_features] (config_var) {Definizione Costante \\ \texttt{KDE\_TOP\_FEATURES}};
+        
+        % FASE 3: Automazione Densometrica (Livello 3)
+        \node[node_primary, below=of human_eval, yshift=-1.5cm] (kde_gen) {Pipeline Densometrica \\ \texttt{save\_all\_kde\_plots()}};
+        \node[node_output, below=of kde_gen] (kde_plots) {Esportazione Finale \\ Grafici KDE};
 
+        % =====================================================================
+        % FRECCE E CONNESSIONI
+        % =====================================================================
+        \draw[arrow_flow] (shap_gen) -- (shap_plots);
+        \draw[arrow_target] (shap_plots) -- (human_eval) node[midway, right, font=\footnotesize] {Output Analizzato};
+        \draw[arrow_flow] (human_eval) -- (top_features);
+        \draw[arrow_flow] (top_features) -- (config_var);
+        \draw[arrow_param] (config_var) |- (kde_gen) node[near start, below, font=\footnotesize] {Iniezione Parametro};
+        \draw[arrow_flow] (kde_gen) -- (kde_plots);
 
+        % =====================================================================
+        % BOX DI RAGGRUPPAMENTO (LAYER BACKGROUND)
+        % =====================================================================
+        \begin{scope}[on background layer]
+            % Box Fase 1
+            \node[group_box, fit=(shap_gen) (shap_plots), label={[anchor=north west, font=\small\sffamily\bfseries\color{neutralgrey}]north west:Fase 1: Automazione Diagnostica}] (box_l1) {};
+            
+            % Box Fase 2 (Human-in-the-Loop)
+            \node[group_highlight, fit=(human_eval) (top_features) (config_var), label={[anchor=north west, font=\small\sffamily\bfseries\color{paramgreen}]north west:Fase 2: Intervento Supervisionato}] (box_l2) {};
+            
+            % Box Fase 3
+            \node[group_box, fit=(kde_gen) (kde_plots), label={[anchor=north west, font=\small\sffamily\bfseries\color{neutralgrey}]north west:Fase 3: Automazione Densometrica}] (box_l3) {};
+        \end{scope}
+        
+    \end{tikzpicture}
+    \caption{Diagramma architetturale del raccordo \textit{Human-in-the-Loop} tra l'analisi diagnostica (SHAP) e la valutazione densometrica (KDE). L'intervento manuale (Fase 2) funge da disaccoppiamento metodologico tra le due pipeline automatizzate.}
+    \label{fig:shap_kde_workflow}
+\end{figure}
+
+Per ciascun grafico SHAP generato vengono considerate le prime tre caratteristiche riportate nel \texttt{summary\_plot}. 
+Poiché la rappresentazione \texttt{plot\_type="dot"} ordina le caratteristiche sulla base della loro rilevanza globale, le prime tre righe del grafico costituiscono il sottoinsieme di interesse per la procedura di conteggio. 
+L'analisi viene ripetuta considerando tutti i grafici SHAP prodotti per le combinazioni di modelli, benchmark e seed previste dal protocollo sperimentale.
+
+A partire da tale ispezione viene costruito manualmente un contatore per ciascuna caratteristica $j$, definito come:
+
+\begin{equation}
+C_j =
+\sum_{r=1}^{R}
+\mathbb{I}\left(j \in \mathcal{T}_r\right),
+\label{eq:shap_feature_counter}
+\end{equation}
+
+dove $R$ rappresenta il numero complessivo di grafici SHAP analizzati, $\mathcal{T}_r$ denota l'insieme delle tre caratteristiche collocate nelle prime posizioni del grafico $r$ e $\mathbb{I}(\cdot)$ è la funzione indicatrice. 
+Di conseguenza, $C_j$ esprime il numero di occorrenze con cui la caratteristica $j$ compare tra le prime tre posizioni nelle spiegazioni considerate.
+
+I risultati del conteggio empirico effettuato sulle spiegazioni diagnostiche sono sintetizzati nella Tabella~\ref{tab:shap_feature_frequencies}. 
+
+\begin{table}[H]
+    \centering
+    \small
+    \caption{Distribuzione delle frequenze di occorrenza $C_j$ delle caratteristiche registrate nelle prime tre posizioni dei grafici SHAP.}
+    \label{tab:shap_feature_frequencies}
+    \begin{tabular}{l c r}
+        \toprule
+        \textbf{Caratteristica ($j$)} & \textbf{Occorrenze ($C_j$)} & \textbf{Frequenza Relativa ($C_j / R$)} \\
+        \midrule
+        \texttt{pkts\_per\_sec}   & $C_1$ & $\sim 18.89\%$ \\
+        \texttt{total\_bytes}     & $C_2$ & $\sim 17.04\%$ \\
+        \texttt{dst\_win\_byt}    & $C_3$ & $\sim 11.67\%$ \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+La frequenza così ottenuta viene utilizzata come criterio empirico di selezione delle caratteristiche da sottoporre alla successiva stima KDE. 
+Le tre caratteristiche caratterizzate dai valori di $C_j$ più elevati sono risultate essere \texttt{pkts\_per\_sec}, \texttt{total\_bytes} e \texttt{dst\_win\_byt}. 
+La selezione viene quindi trasferita manualmente nella configurazione del framework mediante la costante:
+
+\begin{lstlisting}[
+    language=Python,
+    caption={Configurazione delle feature selezionate per l'analisi KDE.},
+    label={lst:kde_top_features},
+    frame=single,
+    rulecolor=\color{mygray},
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\footnotesize,
+    commentstyle=\color{mygreen},
+    keywordstyle=\color{purple}\bfseries,
+    stringstyle=\color{mymauve},
+    emph={[2]None,True,False},
+    emphstyle={[2]\color{mymauve}\bfseries},
+    breaklines=false,
+    keepspaces=true,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\footnotesize\color{mygray},
+    numbersep=8pt
+]
+KDE_TOP_FEATURES = ['pkts_per_sec', 'total_bytes', 'dst_win_byt']
+\end{lstlisting}
+
+La funzione \texttt{save\_all\_kde\_plots()} utilizza successivamente tale lista come insieme di caratteristiche da analizzare, senza ricalcolare automaticamente il conteggio $C_j$ né eseguire una nuova selezione sulla base dei grafici SHAP. 
+Il passaggio SHAP--KDE deve pertanto essere inteso come una procedura di selezione supervisionata manualmente dall'analista: SHAP fornisce il criterio diagnostico per individuare le caratteristiche più ricorrenti nelle posizioni di maggiore rilevanza, mentre la KDE costituisce lo strumento successivo per l'ispezione delle rispettive distribuzioni.
+
+Nel protocollo adottato non si è verificata alcuna situazione di parità tra caratteristiche nei valori del contatore $C_j$\footnote{In caso di parità nel contatore $C_j$, la regola formale di spareggio avrebbe previsto un ordinamento secondario decrescente basato sull'impatto medio assoluto di Shapley $\bar{|\phi_j|} = \frac{1}{R} \sum_{r=1}^{R} |\phi_{j,r}|$, calcolato esclusivamente sulle esecuzioni che hanno generato l'ex aequo.} tali da richiedere una regola di spareggio. 
+La lista finale \texttt{KDE\_TOP\_FEATURES} rappresenta pertanto la selezione conclusiva utilizzata nella fase di analisi densometrica descritta nella Sezione~\ref{subsec:implementazione_pca_kde}.
 
 
 
