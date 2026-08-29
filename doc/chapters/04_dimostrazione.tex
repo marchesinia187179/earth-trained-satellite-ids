@@ -1546,11 +1546,7 @@ Successivamente, tali parametri congelati vengono applicati per via diretta sia 
 
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[
-    auto,
-    node distance = 1.2cm and 1.8cm
-]
-
+\begin{tikzpicture}
     % =========================================================================
     % LIVELLO 1: INPUT DATASETS
     % =========================================================================
@@ -1560,7 +1556,7 @@ Successivamente, tali parametri congelati vengono applicati per via diretta sia 
         $(\mathbf{X}_S, \mathbf{y}_S)$
     };
 
-    \node [node_accent, right=of source_data] (target_data) {
+    \node [node_accent, right=1.5cm of source_data] (target_data) {
         \textbf{Benchmark Target ($T_k$)}\\
         \small\texttt{TON\_IoT, BoT-IoT, \dots}\\
         $(\mathbf{X}_{T_k}, \mathbf{y}_{T_k})$
@@ -1596,13 +1592,13 @@ Successivamente, tali parametri congelati vengono applicati per via diretta sia 
     % =========================================================================
     % LIVELLO 4: OUTPUT DIAGNOSTICI
     % =========================================================================
-    \node [node_output, below=of transform_source] (out_pca) {
+    \node [node_output, below=1cm of transform_source] (out_pca) {
         \textbf{Proiezione PCA 2D}\\
         \small Scatter Plot Bidimensionale\\
         (PC1 vs PC2)
     };
 
-    \node [node_output, below=of transform_target] (out_kde) {
+    \node [node_output, below=1cm of transform_target] (out_kde) {
         \textbf{Stima Densità KDE}\\
         \small Proiezione Univariata Top-3\\
         (Scala \texttt{symlog})
@@ -1918,11 +1914,215 @@ Nel codice il valore effettivamente assegnato a \texttt{NORMAL\_ANOMALY\_RATIO} 
 Gli indici estratti per il traffico nominale e per quello anomalo vengono successivamente concatenati e utilizzati per selezionare le corrispondenti righe di \texttt{X\_test}. 
 Nel caso in cui non sia disponibile alcun campione valido, viene applicato un campionamento casuale del test set, anch'esso limitato a \texttt{SHAP\_MAX\_SAMPLES} e controllato dallo stesso seed.
 
+Nel Listato \ref{lst:shap_sampling} è riportata la porzione di codice responsabile dell'estrazione stratificata, che bilancia i vincoli prestazionali con la necessità di mantenere una corretta rappresentatività di entrambe le classi.
+
+\begin{lstlisting}[
+    language=Python,
+    caption={Campionamento stratificato del test set per l'analisi SHAP.},
+    label={lst:shap_sampling},
+    frame=single,
+    rulecolor=\color{mygray},
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\footnotesize,
+    commentstyle=\color{mygreen},
+    keywordstyle=\color{purple}\bfseries,
+    stringstyle=\color{mymauve},
+    emph={[2]None,True,False},
+    emphstyle={[2]\color{mymauve}\bfseries},
+    breaklines=false,
+    keepspaces=true,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\footnotesize\color{mygray},
+    numbersep=8pt
+]
+# Stratified sampling: Align labels with features
+y_series = pd.Series(y_test, index=X_test.index if hasattr(X_test, 'index') else None)
+
+# Calculate class quotas: e.g., 10:1 ratio on maximum samples
+n_anomaly = MLConstants.SHAP_MAX_SAMPLES // MLConstants.NORMAL_ANOMALY_RATIO
+n_normal = MLConstants.SHAP_MAX_SAMPLES - n_anomaly
+
+# Extract sampled indices for both classes, capping at available instances
+idx_normal = pd.Index([])
+if sum(y_series == 0) > 0:
+    idx_normal = y_series[y_series == 0].sample(
+        n=min(n_normal, sum(y_series == 0)), 
+        random_state=MLConstants.MAIN_SEED
+    ).index
+    
+idx_anomaly = pd.Index([])
+if sum(y_series == 1) > 0:
+    idx_anomaly = y_series[y_series == 1].sample(
+        n=min(n_anomaly, sum(y_series == 1)), 
+        random_state=MLConstants.MAIN_SEED
+    ).index
+
+# Union of stratified indices
+sampled_idx = idx_normal.append(idx_anomaly)
+
+# Filter the original test set using the stratified indices (or fallback to standard random sampling)
+if not sampled_idx.empty:
+    X_test_sampled = X_test.loc[sampled_idx]
+else:
+    X_test_sampled = X_test.sample(
+        n=min(MLConstants.SHAP_MAX_SAMPLES, len(X_test)), 
+        random_state=MLConstants.MAIN_SEED
+    )
+\end{lstlisting}
+
 La costruzione dello spiegatore viene effettuata dinamicamente in funzione del classificatore ricevuto. 
 L'implementazione tenta inizialmente di utilizzare \texttt{shap.TreeExplainer}, configurato con \texttt{feature\_perturbation="tree\_path\_dependent"} e \texttt{model\_output="raw"}, opzioni orientate all'analisi di modelli ad albero quali \texttt{RandomForestClassifier} e \texttt{DecisionTreeClassifier}. 
 Nel caso in cui tale configurazione non sia compatibile con il modello, viene eseguito un secondo tentativo mediante \texttt{shap.TreeExplainer(model)}. 
 Qualora anche questa inizializzazione fallisca, viene utilizzato il costrutto generico \texttt{shap.Explainer(model, X\_test\_sampled)}.
-Tale meccanismo consente di mantenere un'unica interfaccia di generazione delle spiegazioni anche in presenza delle differenti modalità di supporto offerte dalla libreria SHAP ai classificatori considerati. 
+Tale meccanismo consente di mantenere un'unica interfaccia di generazione delle spiegazioni anche in presenza delle differenti modalità di supporto offerte dalla libreria SHAP ai classificatori considerati, come evidenziato dalla struttura condizionale \texttt{try-except} del Listato \ref{lst:shap_explainer}. 
+
+\begin{lstlisting}[
+    language=Python,
+    caption={Inizializzazione dinamica dello spiegatore SHAP con catena di fallback.},
+    label={lst:shap_explainer},
+    frame=single,
+    rulecolor=\color{mygray},
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\footnotesize,
+    commentstyle=\color{mygreen},
+    keywordstyle=\color{purple}\bfseries,
+    stringstyle=\color{mymauve},
+    emph={[2]None,True,False},
+    emphstyle={[2]\color{mymauve}\bfseries},
+    breaklines=false,
+    keepspaces=true,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\footnotesize\color{mygray},
+    numbersep=8pt
+]
+# Inizialize Explainer dynamically to support RF, DT, and HGB
+try:
+    # First attempt: standard TreeExplainer optimized for RF and DT
+    explainer = shap.TreeExplainer(
+        model, 
+        feature_perturbation="tree_path_dependent", 
+        model_output="raw"
+    )
+except Exception as explainer_err:
+    # Fallback attempt: generic Explainer or simplified TreeExplainer (crucial for HGB compatibility)
+    try:
+        explainer = shap.TreeExplainer(model)
+    except Exception:
+        explainer = shap.Explainer(model, X_test_sampled)
+\end{lstlisting}
+
+L'intera architettura della pipeline, articolata nelle sue quattro fasi di elaborazione (dal campionamento iniziale alla persistenza dell'artefatto), è schematizzata in Figura \ref{fig:shap_pipeline_architecture}.
+
+% --- INSERIRE QUI LA FIGURA TIKZ ---
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        % ==========================================
+        % FASE 1: CAMPIONAMENTO STRATIFICATO
+        % ==========================================
+        \node[node_database] (input) {
+            Dataset di Test\\
+            $X_{\mathrm{test}}, y_{\mathrm{test}}$
+        };
+        \node[node_process, right=1.5cm of input] (sampling) {
+            Campionamento\\[-5pt]
+            Stratificato
+        };
+        \node[node_transform, right=1.5cm of sampling] (sample_data) {
+            Campione\\
+            $X_{\mathrm{sampled}}$
+        };
+        
+        \draw[arrow_flow] (input) -- (sampling);
+        \draw[arrow_flow] (sampling) -- (sample_data);
+        
+        % ==========================================
+        % FASE 2: SELEZIONE EXPLAINER E FALLBACK
+        % ==========================================
+        \node[node_primary, below=2cm of input] (exp_tree) {
+            \texttt{TreeExplainer}\\
+            (\texttt{tree\_path})
+        };
+        \node[node_transform, right=1.5cm of exp_tree] (exp_gen) {
+            \texttt{TreeExplainer}\\
+            (Generico)
+        };
+        \node[node_accent, right=1.5cm of exp_gen] (exp_uni) {
+            \texttt{Explainer}\\
+            (Universale)
+        };
+        
+        % Connessione dalla Fase 1 (scende e va a sinistra)
+        \draw[arrow_flow] (sample_data.south) -- ++(0, -0.75) -| (exp_tree.north);
+
+        % Frecce di fallback (Eccezioni)
+        \draw[arrow_alert, dashed] (exp_tree) -- node[above, font=\footnotesize, color=alertred] {Fallback} (exp_gen);
+        \draw[arrow_alert, dashed] (exp_gen) -- node[above, font=\footnotesize, color=alertred] {Fallback} (exp_uni);
+        
+        % ==========================================
+        % FASE 3: CALCOLO E NORMALIZZAZIONE
+        % ==========================================
+        \node[node_process, below=2cm of exp_tree] (shap_calc) {
+            Calcolo Metriche\\
+            \texttt{shap\_values()}
+        };
+        \node[node_transform, right=2cm and 1.5cm of shap_calc] (norm) {
+            Estrazione Tensore\\
+            Classe 1 (Anomalie)
+        };
+
+        % 1. Linee che scendono e convergono nel punto di giunzione comune
+        \draw[arrow_flow] (exp_tree.south) -- ++(0, -0.75) -| (shap_calc.north);
+        \draw[arrow_flow, -] (exp_gen.south)  -- ++(0, -0.75) -| ($(exp_tree.south) + (0, -0.75)$);
+        \draw[arrow_flow, -] (exp_uni.south)  -- ++(0, -0.75) -| ($(exp_gen.south) + (0, -0.75)$);
+
+        % Connessione normalizzazione
+        \draw[arrow_flow] (shap_calc) -- (norm);
+        
+        % ==========================================
+        % FASE 4: RENDERING E PERSISTENZA
+        % ==========================================
+        \node[node_primary, below=2cm of shap_calc] (render) {
+            Rendering\\ 
+            \texttt{summary\_plot(dot)}
+        };
+        \node[node_output, right=1.5cm of render] (output) {
+            Salvataggio\\ 
+            PNG (300 dpi)
+        };
+
+        % Connessione dalla Fase 3 (scende e va a sinistra)
+        \draw[arrow_flow] (norm.south) -- ++(0, -0.75) -| (render.north);
+        \draw[arrow_flow] (render) -- (output);
+        
+        % ==========================================
+        % BACKGROUND E RAGGRUPPAMENTI
+        % ==========================================
+        \begin{scope}[on background layer]
+            % Box Fase 1
+            \node[group_box, fit=(input) (sampling) (sample_data)] (g1) {};
+            
+            % Box Fase 2
+            \node[group_highlight, fit=(exp_tree) (exp_gen) (exp_uni)] (g2) {};
+            
+            % Box Fase 3
+            \node[group_box, fit=(shap_calc) (norm)] (g3) {};
+            
+            % Box Fase 4
+            \node[group_box, fit=(render) (output)] (g4) {};
+        \end{scope}
+
+        \node[above right, font=\footnotesize\sffamily\bfseries, color=neutralgrey, fill=white] at (g1.north west) {Fase 1: Campionamento Controllato (Quota $\rho=10$)};
+        \node[above right, font=\footnotesize\sffamily\bfseries, color=paramgreen, fill=white] at (g2.north west) {Fase 2: Selezione Dinamica Explainer (Catena di Fallback)};
+        \node[above right, font=\footnotesize\sffamily\bfseries, color=neutralgrey, fill=white] at (g3.north west) {Fase 3: Computazione e Normalizzazione Dimensionale};
+        \node[above right, font=\footnotesize\sffamily\bfseries, color=neutralgrey, fill=white] at (g4.north west) {Fase 4: Rappresentazione Visiva e Persistenza};
+
+    \end{tikzpicture}
+    \caption{Architettura della pipeline di spiegabilità SHAP per i modelli di classificazione. Il diagramma illustra le quattro fasi sequenziali: campionamento stratificato per il contenimento computazionale, selezione con \textit{fallback} del motore di spiegazione, estrazione normalizzata della componente anomala e salvataggio degli artefatti visivi.}
+    \label{fig:shap_pipeline_architecture}
+\end{figure}
 
 I valori di Shapley vengono quindi calcolati sul campione selezionato mediante il metodo \texttt{shap\_values()}. 
 L'implementazione disabilita esplicitamente il controllo di additività mediante \texttt{check\_additivity=False}, quando tale argomento è supportato dallo specifico explainer. 
@@ -1934,6 +2134,62 @@ La spiegazione risultante è infine visualizzata mediante \texttt{shap.summary\_
 Tale rappresentazione associa a ciascuna caratteristica i valori SHAP osservati sui campioni selezionati, permettendo di rappresentare simultaneamente l'ampiezza e il verso del contributo delle singole variabili alla predizione. 
 Il numero massimo di caratteristiche visualizzate viene impostato dinamicamente al numero di colonne della matrice \texttt{X\_test\_sampled}, mediante il parametro \texttt{max\_display=n\_features}. 
 La dimensione verticale della figura viene inoltre adattata al numero complessivo di feature, secondo una dimensione minima di $6$ pollici e un incremento proporzionale pari a $0.4$ pollici per caratteristica.
+
+Il Listato \ref{lst:shap_rendering} illustra la sequenza logica che, partendo dall'estrazione tensoriale tramite l'oggetto \texttt{explainer}, normalizza la struttura dati e ne adatta il rendering in funzione della dimensione del \textit{feature space}.
+
+\begin{lstlisting}[
+    language=Python,
+    caption={Calcolo, normalizzazione dimensionale e rendering dei valori SHAP.},
+    label={lst:shap_rendering},
+    frame=single,
+    rulecolor=\color{mygray},
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\footnotesize,
+    commentstyle=\color{mygreen},
+    keywordstyle=\color{purple}\bfseries,
+    stringstyle=\color{mymauve},
+    emph={[2]None,True,False},
+    emphstyle={[2]\color{mymauve}\bfseries},
+    breaklines=false,
+    keepspaces=true,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\footnotesize\color{mygray},
+    numbersep=8pt
+]
+# Compute SHAP values with additivity check handling
+try:
+    shap_values = explainer.shap_values(X_test_sampled, check_additivity=False)
+except TypeError:
+    shap_values = explainer.shap_values(X_test_sampled)
+
+# Handle output disparities (e.g. Explainer objects vs raw ndarrays)
+if hasattr(shap_values, "values"):
+    shap_values_raw = shap_values.values
+else:
+    shap_values_raw = shap_values
+
+# Extract positive class ('Attack/Anomaly') values based on structural dimensions
+if isinstance(shap_values_raw, list) and len(shap_values_raw) == 2:
+    shap_values_raw = shap_values_raw[1]
+elif hasattr(shap_values_raw, 'shape') and len(shap_values_raw.shape) == 3:
+    shap_values_raw = shap_values_raw[:, :, 1]
+elif hasattr(shap_values_raw, 'shape') and len(shap_values_raw.shape) == 2:
+    pass
+
+# Generate and configure the dynamic plot
+n_features = X_test_sampled.shape[1]
+plt.figure(figsize=(8, max(6, n_features * 0.4)))
+
+# Force the "dot" view to show individual feature impacts
+shap.summary_plot(
+    shap_values_raw, 
+    X_test_sampled, 
+    show=False, 
+    max_display=n_features, 
+    plot_type="dot"
+)
+\end{lstlisting}
 
 Il grafico SHAP prodotto viene salvato con risoluzione pari a $300$ dpi nella directory \texttt{shap} e organizzata per modello. 
 Il nome del file png viene costruito combinando il tipo di dataset, il nome del dataset. 
