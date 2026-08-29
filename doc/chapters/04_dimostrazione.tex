@@ -1484,51 +1484,21 @@ La struttura complessiva del registro finale e la descrizione semantica dei sing
 
 In tal modo, la pipeline mantiene formalmente separati il livello di aggregazione delle prestazioni sui singoli seed, memorizzato in \texttt{F1-Score\_means.csv}, e il livello di diagnostica statistica inferenziale, rappresentato da \texttt{welch\_ttest.csv}.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 \section{Strumenti di Analisi Diagnostica e Spiegabilità}
 \label{sec:strumenti_analisi_diagnostica}
-% Introduzione: istanziazione concreta del framework analitico
-% [rif. teorico: sec:framework_analitico].
 
+La presente sezione formalizza l'implementazione degli strumenti di analisi diagnostica e di spiegabilità introdotti dal punto di vista metodologico nel Capitolo~\ref{ch:metodologia}.
+L'infrastruttura software integra procedure dedicate alla caratterizzazione geometrica e distributiva dei benchmark, mediante proiezioni \textit{Principal Component Analysis} (PCA) e stime di densità \textit{Kernel Density Estimation} (KDE), nonché strumenti di interpretabilità post-hoc basati sui valori di Shapley per l'analisi del contributo delle singole caratteristiche alle decisioni dei classificatori.
+Tali componenti sono concepiti esclusivamente come strumenti diagnostici e non intervengono né nella fase di addestramento né nella modifica degli stimatori precedentemente serializzati.
 
+Particolare attenzione viene dedicata alla coerenza del sistema di riferimento utilizzato nelle analisi diagnostiche.
+In accordo con il principio di standardizzazione dipendente dal sorgente introdotto nella Sezione~\ref{subsubsec:zscore_sorgente}, le statistiche di posizione e scala vengono ancorate al benchmark sorgente e successivamente riutilizzate per la trasformazione dei benchmark considerati, evitando il ricalcolo locale dei parametri di standardizzazione.
+La medesima impostazione viene applicata alle rappresentazioni PCA e KDE, con finalità rispettivamente orientate all'ispezione della disposizione dei dati nello spazio delle caratteristiche e all'analisi delle distribuzioni delle variabili selezionate.
 
-
-
-
-
-
-
-
-
-
-
-
-
+Nelle sottosezioni seguenti vengono descritte le componenti che costituiscono l'architettura diagnostica.
+In primo luogo, la Sottosezione~\ref{subsec:implementazione_pca_kde} illustra l'implementazione della standardizzazione diagnostica dipendente dal sorgente e delle procedure PCA e KDE, specificando le modalità di trasformazione dei benchmark e la configurazione delle rappresentazioni grafiche.
+Successivamente, la Sottosezione~\ref{subsec:implementazione_shap} descrive l'integrazione di SHAP nella pipeline di classificazione, il campionamento stratificato del test set e la gestione degli \textit{explainer} per i classificatori basati su alberi.
+Infine, la Sottosezione~\ref{subsec:pipeline_shap_kde} illustra il raccordo tra l'analisi SHAP e la successiva selezione delle caratteristiche per la rappresentazione KDE, evidenziando il carattere supervisionato della procedura e la definizione manuale della configurazione \texttt{KDE\_TOP\_FEATURES}.
 
 \subsection{Standardizzazione Diagnostica, PCA e KDE}
 \label{subsec:implementazione_pca_kde}
@@ -1870,23 +1840,6 @@ Pannelli affiancati di stime KDE riempite (\texttt{fill=True}) \\
 \end{tabularx}
 \end{table}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 \subsection{Implementazione di SHAP e TreeSHAP}
 \label{subsec:implementazione_shap}
 
@@ -2227,33 +2180,17 @@ A completamento della descrizione implementativa, la Tabella \ref{tab:shap_confi
 Nel complesso, l'implementazione realizza una pipeline di spiegabilità indipendente dalla fase di addestramento: il modello già addestrato viene utilizzato come input per \texttt{TreeExplainer} o, quando necessario, per l'explainer generico di \texttt{shap}, mentre le spiegazioni vengono calcolate su un campione controllato del test set. 
 Questa separazione mantiene coerente l'analisi con il principio metodologico secondo cui SHAP viene utilizzato come strumento diagnostico post-hoc per analizzare il contributo delle caratteristiche alle decisioni dei classificatori ad albero.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 \subsection{Pipeline di Aggregazione SHAP--KDE}
 \label{subsec:pipeline_shap_kde}
 
-Il raccordo tra l'analisi di spiegabilità SHAP e la successiva analisi densometrica KDE non è implementato mediante una procedura automatizzata all'interno del framework software\footnote{La scelta di non automatizzare tale raccordo previene la propagazione non controllata di rumore transitorio o di instabilità di \textit{ranking} tra i differenti \textit{seed} sperimentali, lasciando all'analista la verifica qualitativa della coerenza teorica delle caratteristiche prima dell'analisi densometrica.}. 
+Il raccordo tra l'analisi di spiegabilità SHAP e la successiva analisi densometrica KDE non è implementato mediante una procedura automatizzata all'interno del framework software\footnote{La scelta di non automatizzare tale raccordo previene la propagazione non controllata di rumore transitorio o di instabilità di \textit{ranking} tra i differenti \textit{seed} sperimentali.}. 
 La selezione delle caratteristiche destinate alla rappresentazione KDE viene infatti effettuata attraverso un passaggio di analisi manuale dei grafici SHAP prodotti dalla pipeline diagnostica.
 
 Al fine di formalizzare la natura ibrida di tale procedura, la Figura~\ref{fig:shap_kde_workflow} illustra l'architettura logica del raccordo \textit{Human-in-the-Loop}. Il diagramma evidenzia la scomposizione del flusso di lavoro in tre fasi sequenziali: una prima fase di automazione diagnostica, una fase intermedia di supervisione umana in cui avviene l'estrazione quantitativa del parametro empirico, e una successiva fase di esecuzione densometrica automatizzata.
 
 \begin{figure}[H]
     \centering
-    \begin{tikzpicture}[node distance=1.8cm and 1.5cm]
+    \begin{tikzpicture}[]
         
         % =====================================================================
         % NODI DEL DIAGRAMMA
@@ -2261,30 +2198,46 @@ Al fine di formalizzare la natura ibrida di tale procedura, la Figura~\ref{fig:s
         
         % FASE 1: Automazione Diagnostica (Livello 1)
         \node[node_primary] (shap_gen) {
-            Generazione Batch \\ \texttt{save\_shap\_plot()}
+            Generazione Batch \\ 
+            \texttt{save\_shap\_plot()}
         };
-        \node[node_output, below=of shap_gen] (shap_plots) {
+        \node[node_output, below=1cm of shap_gen] (shap_plots) {
             Collezione Grafici SHAP \\ 
             $(r = 1 \dots R)$
         };
         
         % FASE 2: Intervento Supervisionato (Livello 2)
-        \node[node_accent, below=of shap_plots] (human_eval) {Ispezione Visiva dei rank $\mathcal{T}_r$ \\ e calcolo del contatore $C_j$};
-        \node[node_transform, right=of human_eval] (top_features) {Ordinamento Empirico \\ e Selezione Top-3};
-        \node[node_process, below=of top_features] (config_var) {Definizione Costante \\ \texttt{KDE\_TOP\_FEATURES}};
+        \node[node_accent, below=2cm of shap_plots] (human_eval) {
+            Ispezione Visiva dei rank $\mathcal{T}_r$ \\ 
+            e calcolo del contatore $C_j$
+        };
+        \node[node_transform, right=1cm of human_eval] (top_features) {
+            Ordinamento Empirico \\ 
+            e Selezione Top-3
+        };
+        \node[node_process, below=1cm of top_features] (config_var) {
+            Definizione Costante \\ 
+            \texttt{KDE\_TOP\_FEATURES}
+        };
         
         % FASE 3: Automazione Densometrica (Livello 3)
-        \node[node_primary, below=of human_eval, yshift=-1.5cm] (kde_gen) {Pipeline Densometrica \\ \texttt{save\_all\_kde\_plots()}};
-        \node[node_output, below=of kde_gen] (kde_plots) {Esportazione Finale \\ Grafici KDE};
+        \node[node_primary, below left=2cm and 1.42cm of config_var] (kde_gen) {
+            Pipeline Densometrica \\ 
+            \texttt{save\_all\_kde\_plots()}
+        };
+        \node[node_output, below=1cm of kde_gen] (kde_plots) {
+            Esportazione Finale \\ 
+            Grafici KDE
+        };
 
         % =====================================================================
         % FRECCE E CONNESSIONI
         % =====================================================================
         \draw[arrow_flow] (shap_gen) -- (shap_plots);
-        \draw[arrow_target] (shap_plots) -- (human_eval) node[midway, right, font=\footnotesize] {Output Analizzato};
+        \draw[arrow_target] (shap_plots) -- (human_eval) node[midway, pos=0.4, right, font=\footnotesize] {Output Analizzato};
         \draw[arrow_flow] (human_eval) -- (top_features);
         \draw[arrow_flow] (top_features) -- (config_var);
-        \draw[arrow_param] (config_var) |- (kde_gen) node[near start, below, font=\footnotesize] {Iniezione Parametro};
+        \draw[arrow_param] (config_var) |- (kde_gen) node[near start, right, font=\footnotesize, align=center] {Iniezione\\[-5pt] Parametro};
         \draw[arrow_flow] (kde_gen) -- (kde_plots);
 
         % =====================================================================
@@ -2292,14 +2245,18 @@ Al fine di formalizzare la natura ibrida di tale procedura, la Figura~\ref{fig:s
         % =====================================================================
         \begin{scope}[on background layer]
             % Box Fase 1
-            \node[group_box, fit=(shap_gen) (shap_plots), label={[anchor=north west, font=\small\sffamily\bfseries\color{neutralgrey}]north west:Fase 1: Automazione Diagnostica}] (box_l1) {};
+            \node[group_box, fit=(shap_gen) (shap_plots)] (box_l1) {};
             
             % Box Fase 2 (Human-in-the-Loop)
-            \node[group_highlight, fit=(human_eval) (top_features) (config_var), label={[anchor=north west, font=\small\sffamily\bfseries\color{paramgreen}]north west:Fase 2: Intervento Supervisionato}] (box_l2) {};
-            
+            \node[group_highlight, fit=(human_eval) (top_features) (config_var)] (box_l2) {};
+
             % Box Fase 3
-            \node[group_box, fit=(kde_gen) (kde_plots), label={[anchor=north west, font=\small\sffamily\bfseries\color{neutralgrey}]north west:Fase 3: Automazione Densometrica}] (box_l3) {};
+            \node[group_box, fit=(kde_gen) (kde_plots)] (box_l3) {};
         \end{scope}
+
+        \node[above, font=\footnotesize\sffamily\bfseries, color=neutralgrey, fill=white] at (box_l1.north) {Fase 1: Automazione Diagnostica};
+        \node[above right, font=\footnotesize\sffamily\bfseries, color=paramgreen, fill=white] at (box_l2.north west) {Fase 2: Intervento Supervisionato};
+        \node[above, font=\footnotesize\sffamily\bfseries, color=neutralgrey, fill=white] at (box_l3.north) {Fase 3: Automazione Densometrica};
         
     \end{tikzpicture}
     \caption{Diagramma architetturale del raccordo \textit{Human-in-the-Loop} tra l'analisi diagnostica (SHAP) e la valutazione densometrica (KDE). L'intervento manuale (Fase 2) funge da disaccoppiamento metodologico tra le due pipeline automatizzate.}
@@ -2321,7 +2278,6 @@ C_j =
 
 dove $R$ rappresenta il numero complessivo di grafici SHAP analizzati, $\mathcal{T}_r$ denota l'insieme delle tre caratteristiche collocate nelle prime posizioni del grafico $r$ e $\mathbb{I}(\cdot)$ è la funzione indicatrice. 
 Di conseguenza, $C_j$ esprime il numero di occorrenze con cui la caratteristica $j$ compare tra le prime tre posizioni nelle spiegazioni considerate.
-
 I risultati del conteggio empirico effettuato sulle spiegazioni diagnostiche sono sintetizzati nella Tabella~\ref{tab:shap_feature_frequencies}. 
 
 \begin{table}[H]
@@ -2372,26 +2328,6 @@ Il passaggio SHAP--KDE deve pertanto essere inteso come una procedura di selezio
 
 Nel protocollo adottato non si è verificata alcuna situazione di parità tra caratteristiche nei valori del contatore $C_j$\footnote{In caso di parità nel contatore $C_j$, la regola formale di spareggio avrebbe previsto un ordinamento secondario decrescente basato sull'impatto medio assoluto di Shapley $\bar{|\phi_j|} = \frac{1}{R} \sum_{r=1}^{R} |\phi_{j,r}|$, calcolato esclusivamente sulle esecuzioni che hanno generato l'ex aequo.} tali da richiedere una regola di spareggio. 
 La lista finale \texttt{KDE\_TOP\_FEATURES} rappresenta pertanto la selezione conclusiva utilizzata nella fase di analisi densometrica descritta nella Sezione~\ref{subsec:implementazione_pca_kde}.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 \section{Sintesi della Pipeline Implementativa}
 \label{sec:sintesi_pipeline_implementativa}
