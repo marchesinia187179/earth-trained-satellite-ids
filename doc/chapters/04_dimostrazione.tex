@@ -1916,6 +1916,8 @@ Nel caso in cui non sia disponibile alcun campione valido, viene applicato un ca
 
 Nel Listato \ref{lst:shap_sampling} è riportata la porzione di codice responsabile dell'estrazione stratificata, che bilancia i vincoli prestazionali con la necessità di mantenere una corretta rappresentatività di entrambe le classi.
 
+\newpage
+
 \begin{lstlisting}[
     language=Python,
     caption={Campionamento stratificato del test set per l'analisi SHAP.},
@@ -1937,7 +1939,9 @@ Nel Listato \ref{lst:shap_sampling} è riportata la porzione di codice responsab
     numbersep=8pt
 ]
 # Stratified sampling: Align labels with features
-y_series = pd.Series(y_test, index=X_test.index if hasattr(X_test, 'index') else None)
+y_series = pd.Series(
+    y_test, index=X_test.index if hasattr(X_test, 'index') else None
+)
 
 # Calculate class quotas: e.g., 10:1 ratio on maximum samples
 n_anomaly = MLConstants.SHAP_MAX_SAMPLES // MLConstants.NORMAL_ANOMALY_RATIO
@@ -1950,7 +1954,6 @@ if sum(y_series == 0) > 0:
         n=min(n_normal, sum(y_series == 0)), 
         random_state=MLConstants.MAIN_SEED
     ).index
-    
 idx_anomaly = pd.Index([])
 if sum(y_series == 1) > 0:
     idx_anomaly = y_series[y_series == 1].sample(
@@ -1961,7 +1964,8 @@ if sum(y_series == 1) > 0:
 # Union of stratified indices
 sampled_idx = idx_normal.append(idx_anomaly)
 
-# Filter the original test set using the stratified indices (or fallback to standard random sampling)
+# Filter the original test set using the stratified indices 
+# (or fallback to standard random sampling)
 if not sampled_idx.empty:
     X_test_sampled = X_test.loc[sampled_idx]
 else:
@@ -1972,7 +1976,7 @@ else:
 \end{lstlisting}
 
 La costruzione dello spiegatore viene effettuata dinamicamente in funzione del classificatore ricevuto. 
-L'implementazione tenta inizialmente di utilizzare \texttt{shap.TreeExplainer}, configurato con \texttt{feature\_perturbation="tree\_path\_dependent"} e \texttt{model\_output="raw"}, opzioni orientate all'analisi di modelli ad albero quali \texttt{RandomForestClassifier} e \texttt{DecisionTreeClassifier}. 
+L'implementazione tenta inizialmente di utilizzare \texttt{shap.TreeExplainer}, configurato con \texttt{feature\_perturbation="tree\_path\_dependent"}\footnote{La modalità \texttt{tree\_path\_dependent} calcola le aspettative condizionali seguendo la struttura trasversale dei nodi degli alberi senza richiedere un dataset di \textit{background} esplicito (a differenza dell'approccio \textit{interventional}). Ciò riduce drasticamente il costo computazionale e gestisce la correlazione tra le variabili.} e \texttt{model\_output="raw"}, opzioni orientate all'analisi di modelli ad albero quali \texttt{RandomForestClassifier} e \texttt{DecisionTreeClassifier}. 
 Nel caso in cui tale configurazione non sia compatibile con il modello, viene eseguito un secondo tentativo mediante \texttt{shap.TreeExplainer(model)}. 
 Qualora anche questa inizializzazione fallisca, viene utilizzato il costrutto generico \texttt{shap.Explainer(model, X\_test\_sampled)}.
 Tale meccanismo consente di mantenere un'unica interfaccia di generazione delle spiegazioni anche in presenza delle differenti modalità di supporto offerte dalla libreria SHAP ai classificatori considerati, come evidenziato dalla struttura condizionale \texttt{try-except} del Listato \ref{lst:shap_explainer}. 
@@ -2006,7 +2010,8 @@ try:
         model_output="raw"
     )
 except Exception as explainer_err:
-    # Fallback attempt: generic Explainer or simplified TreeExplainer (crucial for HGB compatibility)
+    # Fallback attempt: generic Explainer 
+    # or simplified TreeExplainer (crucial for HGB compatibility)
     try:
         explainer = shap.TreeExplainer(model)
     except Exception:
@@ -2125,7 +2130,7 @@ L'intera architettura della pipeline, articolata nelle sue quattro fasi di elabo
 \end{figure}
 
 I valori di Shapley vengono quindi calcolati sul campione selezionato mediante il metodo \texttt{shap\_values()}. 
-L'implementazione disabilita esplicitamente il controllo di additività mediante \texttt{check\_additivity=False}, quando tale argomento è supportato dallo specifico explainer. 
+L'implementazione disabilita esplicitamente il controllo di additività mediante \texttt{check\_additivity=False}\footnote{La disabilitazione del controllo di additività previene l'interruzione improvvisa dell'esecuzione dovuta a microscopiche discrepanze numeriche dovute alla precisione in virgola mobile (\textit{floating-point precision}) tra la somma dei valori SHAP e l'output teorico in modelli ad albero complessi.}, quando tale argomento è supportato dallo specifico explainer. 
 In caso contrario, viene eseguita una seconda chiamata senza tale parametro. La procedura prevede inoltre una normalizzazione della struttura restituita dalla libreria, necessaria a gestire le differenti rappresentazioni possibili dei valori SHAP. 
 In particolare, quando viene restituita una lista di matrici corrispondenti alle due classi, viene selezionata la componente relativa alla classe positiva, ossia \texttt{Attack/Anomaly}. 
 Analogamente, nel caso di un array tridimensionale, viene selezionata la componente associata all'indice di classe $1$, mentre una matrice già bidimensionale viene utilizzata direttamente.
@@ -2136,6 +2141,8 @@ Il numero massimo di caratteristiche visualizzate viene impostato dinamicamente 
 La dimensione verticale della figura viene inoltre adattata al numero complessivo di feature, secondo una dimensione minima di $6$ pollici e un incremento proporzionale pari a $0.4$ pollici per caratteristica.
 
 Il Listato \ref{lst:shap_rendering} illustra la sequenza logica che, partendo dall'estrazione tensoriale tramite l'oggetto \texttt{explainer}, normalizza la struttura dati e ne adatta il rendering in funzione della dimensione del \textit{feature space}.
+
+\newpage
 
 \begin{lstlisting}[
     language=Python,
@@ -2159,7 +2166,9 @@ Il Listato \ref{lst:shap_rendering} illustra la sequenza logica che, partendo da
 ]
 # Compute SHAP values with additivity check handling
 try:
-    shap_values = explainer.shap_values(X_test_sampled, check_additivity=False)
+    shap_values = explainer.shap_values(
+        X_test_sampled, check_additivity=False
+    )
 except TypeError:
     shap_values = explainer.shap_values(X_test_sampled)
 
@@ -2169,7 +2178,7 @@ if hasattr(shap_values, "values"):
 else:
     shap_values_raw = shap_values
 
-# Extract positive class ('Attack/Anomaly') values based on structural dimensions
+# Extract positive class (Anomaly) values based on structural dimensions
 if isinstance(shap_values_raw, list) and len(shap_values_raw) == 2:
     shap_values_raw = shap_values_raw[1]
 elif hasattr(shap_values_raw, 'shape') and len(shap_values_raw.shape) == 3:
@@ -2194,6 +2203,26 @@ shap.summary_plot(
 Il grafico SHAP prodotto viene salvato con risoluzione pari a $300$ dpi nella directory \texttt{shap} e organizzata per modello. 
 Il nome del file png viene costruito combinando il tipo di dataset, il nome del dataset. 
 La procedura consente pertanto di mantenere separati gli artefatti di spiegabilità relativi ai diversi modelli e benchmark analizzati.
+
+A completamento della descrizione implementativa, la Tabella \ref{tab:shap_config_parameters} sintetizza i parametri principali definiti all'interno del modulo, esplicitando le configurazioni adottate e le rispettive motivazioni ingegneristiche.
+
+\begin{table}[htbp]
+    \centering
+    \small
+    \caption{Sintesi dei parametri di configurazione e delle scelte ingegneristiche della pipeline SHAP.}
+    \label{tab:shap_config_parameters}
+    \begin{tabularx}{\textwidth}{l l X}
+        \toprule
+        \textbf{Parametro / Metrica} & \textbf{Valore / Impostazione} & \textbf{Scopo Ingegneristico e Funzionale} \\
+        \midrule
+        \texttt{SHAP\_MAX\_SAMPLES} & $500$ & Contenimento del costo computazionale e della complessità temporale $O(N)$ nel calcolo dei valori SHAP. \\
+        \texttt{NORMAL\_ANOMALY\_RATIO} & $10$ ($10:1$) & Preservazione del rapporto di sbilanciamento nativo ($\rho = 10:1$) tra la classe nominale e quella anomala. \\
+        \texttt{feature\_perturbation} & \texttt{"tree\_path\_dependent"} & Calcolo rapido delle aspettative condizionali lungo i percorsi degli alberi senza dipendenza da un dataset di \textit{background} esplicito. \\
+        \texttt{plot\_type} & \texttt{"dot"} & Visualizzazione ad alta densità che mostra simultaneamente ampiezza, verso e dispersione dei contributi di ciascuna caratteristica. \\
+        \texttt{check\_additivity} & \texttt{False} & Prevenzione dell'interruzione della pipeline causata da microscopiche discrepanze numeriche di precisione in virgola mobile (\textit{floating-point}). \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
 
 Nel complesso, l'implementazione realizza una pipeline di spiegabilità indipendente dalla fase di addestramento: il modello già addestrato viene utilizzato come input per \texttt{TreeExplainer} o, quando necessario, per l'explainer generico di \texttt{shap}, mentre le spiegazioni vengono calcolate su un campione controllato del test set. 
 Questa separazione mantiene coerente l'analisi con il principio metodologico secondo cui SHAP viene utilizzato come strumento diagnostico post-hoc per analizzare il contributo delle caratteristiche alle decisioni dei classificatori ad albero.
