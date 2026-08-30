@@ -1,10 +1,20 @@
 \chapter{Implementazione del Framework Metodologico}
 \label{ch:implementazione}
 
-% Paragrafo introduttivo: richiama il Cap.3 (impalcatura teorica) e
-% dichiara che questo capitolo ne descrive l'istanziazione concreta —
-% componenti tecnici, non risultati (rimandati esplicitamente al Cap.5).
-% Breve roadmap delle sezioni, sullo stesso modello dell'apertura del Cap.3.
+Il presente capitolo traduce l'impalcatura teorica e il framework metodologico, definiti nel capitolo precedente, in una configurazione sperimentale concreta e riproducibile. 
+L'obiettivo primario risiede nel dettagliare l'istanziazione software, le scelte architetturali e i protocolli operativi impiegati per l'addestramento e la valutazione dei sistemi di \textit{Network Intrusion Detection} (NIDS), rimandando esplicitamente l'analisi dei risultati empirici e delle metriche prestazionali al Capitolo 5. 
+Questa trasposizione materiale garantisce la totale trasparenza tecnologica e fornisce gli strumenti implementativi necessari per quantificare oggettivamente i fenomeni di \textit{domain shift}.
+
+La trattazione si articola secondo una progressione logica suddivisa in sette sezioni principali:
+\begin{itemize}
+    \item La \textbf{Sezione~\ref{sec:ambiente_sperimentale}} descrive l'ambiente sperimentale, dettagliando l'organizzazione modulare della repository software, lo stack tecnologico adottato e i rigorosi meccanismi di isolamento per la gestione della riproducibilità stocastica.
+    \item La \textbf{Sezione~\ref{sec:dataset_caratterizzazione}} analizza le fonti di dati originarie, definendo la caratterizzazione del dominio sorgente e dei segmenti di destinazione, per poi formalizzare la parametrizzazione che guida la composizione fisica dei benchmark aggregati e ristretti.
+    \item La \textbf{Sezione~\ref{sec:preprocessing_implementazione}} illustra la pipeline di pre-elaborazione, declinando operativamente l'operatore di mappatura per l'allineamento degli spazi delle \textit{feature} e giustificando la scelta architetturale di omettere la scalatura esplicita globale.
+    \item La \textbf{Sezione~\ref{sec:implementazione_classificatori}} dettaglia l'infrastruttura di classificazione supervisionata, specificando gli algoritmi di base, la configurazione degli iperparametri e le logiche di istanziazione dei modelli aggregati e biclasse.
+    \item La \textbf{Sezione~\ref{sec:protocollo_addestramento_valutazione}} completa la descrizione del framework operativo definendo l'orchestrazione gerarchica del ciclo di addestramento \textit{multi-seed}, le procedure di inferenza sugli insiemi di collaudo e le logiche costruttive delle matrici di valutazione.
+    \item La \textbf{Sezione~\ref{sec:strumenti_analisi_diagnostica}} formalizza l'implementazione degli strumenti diagnostici e di spiegabilità, integrando le proiezioni PCA, le stime di densità KDE con ancoraggio al sorgente e l'infrastruttura TreeSHAP per l'interpretazione dei modelli ad albero.
+    \item Infine, la \textbf{Sezione~\ref{sec:sintesi_pipeline_implementativa}} fornisce la sintesi dell'architettura software end-to-end, illustrando la separazione funzionale tra il flusso computazionale principale di addestramento/valutazione e il ramo diagnostico.
+\end{itemize}
 
 \section{Ambiente Sperimentale e Riproducibilità}
 \label{sec:ambiente_sperimentale}
@@ -351,7 +361,7 @@ Nelle sottosezioni seguenti vengono analizzati nel dettaglio i singoli criteri d
     };
 
     \node [branch, below right=2cm and -1.5cm of final_data, align=center] (diag) {
-        Modulo Diagnostico Offline\\[-5pt]
+        Modulo Diagnostico\\[-5pt]
         \footnotesize 
         \texttt{StandardScaler} ($z$-score)\\[-5pt]
         \textit{PCA}, \textit{KDE}
@@ -529,7 +539,7 @@ Tale impostazione si giustifica formalmente sulla base di tre considerazioni teo
     In contesti di \textit{domain shift}, la proiezione di parametri di scala estratti da sorgenti eterogenee rischia di introdurre distorsioni o anomalie numeriche dovute a valori fuori scala (\textit{outliers}) non previsti.
 \end{enumerate}
 
-Si evidenzia che l'utilizzo di algoritmi di normalizzazione è stato rigorosamente limitato alle sole procedure di diagnostica offline ed esplorazione delle distribuzioni, analizzate sul piano teorico nel Capitolo~\ref{ch:metodologia}. 
+Si evidenzia che l'utilizzo di algoritmi di normalizzazione è stato rigorosamente limitato alle sole procedure di diagnostica ed esplorazione delle distribuzioni, analizzate sul piano teorico nel Capitolo~\ref{ch:metodologia}. 
 In particolare, la classe \texttt{StandardScaler} del modulo \texttt{sklearn.preprocessing} è stata impiegata unicamente all'interno del modulo di supporto \texttt{plotting.py} per standardizzare le feature a media nulla e varianza unitaria prima dell'esecuzione dell'Analisi delle Componenti Principali (\textit{PCA}) e della stima della densità di kernel (\textit{KDE}). 
 Tali trasformazioni diagnostiche sono state isolate all'interno delle routine di visualizzazione e non sono mai state integrate nel grafo computazionale di addestramento e inferenza dei classificatori.
 
@@ -2404,7 +2414,7 @@ La composizione complessiva degli stadi implementativi è sintetizzata nella Fig
 \draw[arrow_flow] (evaluation) -- (statistics);
 
 % =====================================================================
-% RAMO DIAGNOSTICO OFFLINE
+% RAMO DIAGNOSTICO
 % =====================================================================
 
 \node[node_accent, right=2cm of benchmarks] (diagnostic) {
