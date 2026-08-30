@@ -123,6 +123,7 @@ La campagna di addestramento e validazione si sviluppa invece su un insieme di $
 L'iniezione del controllo stocastico avviene tramite l'assegnazione esplicita del parametro \texttt{random\_state} nelle routine di \texttt{scikit-learn}. 
 Per evitare contaminazioni incrociate (\textit{cross-seed contamination}), il framework garantisce l'isolamento dei processi: ogni esecuzione riferita a un seme $s_k \in \mathcal{S}$ opera in maniera autonoma, leggendo le risorse e scrivendo i propri artefatti esclusivamente nella directory dedicata (es. \texttt{runs/hybrid\_models/rf/42/}).
 
+
 \section[Caratterizzazione dei Dataset e Composizione dei Benchmark]{Caratterizzazione dei Dataset e Composizione dei \\ Benchmark}
 \label{sec:dataset_caratterizzazione}
 
@@ -265,7 +266,8 @@ Grazie al vincolo imposto da $\rho$, i cinque benchmark aggregati presentano un'
 \resizebox{\textwidth}{!}{
 \begin{tabular}{lcccccc}
 \hline
-\textbf{Benchmark} & \textbf{Istanze \textit{Normal} ($Y=0$)} & \textbf{Istanze Anomale ($Y=1$)} & \textbf{Totale Istanze} & \textbf{Training Set (80\%)} & \textbf{Test Set (20\%)} \\
+\textbf{Benchmark} & \textbf{Istanze Normali} & \textbf{Istanze Anomale} & \textbf{Totale} & \textbf{Training Set} & \textbf{Test Set} \\[-5pt]
+                   & \textit{Normal $Y=0$}    & \textit{$Y=1$}           & \textbf{Istanze} & \textit{(80\%)}       & \textit{(20\%)} \\
 \hline
 \texttt{INJECTION} (Baseline) & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
 \texttt{NB15} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
@@ -280,6 +282,7 @@ Infine, a partire dai macro-dataset aggregati e scalati finora descritti, la pip
 Tramite un filtraggio a livello di etichetta secondaria $A=a$, le singole famiglie di minaccia (es. $a \in \mathcal{A}_S$ per \texttt{NB15} o $a \in \mathcal{A}_T$ per \texttt{STIN}) vengono isolate e combinate esclusivamente con la baseline nativa lecita $P_S(\mathbf{x} \mid Y = 0)$. 
 Questi dataset ristretti risultano indispensabili per l'addestramento dei rilevatori specialistici ($\mathcal{M}_{S,a}$ e $\mathcal{M}_{H,T,a}$), consentendo di valutare la sensibilità del sistema verso singole tipologie di attacco senza incorrere nelle distorsioni intrinseche generate dalla sovrapposizione di distribuzioni anomale eterogenee.
 
+
 \section{Allineamento delle Feature e Pipeline di Preprocessing}
 \label{sec:preprocessing_implementazione}
 
@@ -292,106 +295,69 @@ Nelle sottosezioni seguenti vengono analizzati nel dettaglio i singoli criteri d
 
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[
-    node distance=1.2cm and 1.8cm,
-    font=\sffamily\small,
-    % Stili dei blocchi IEEE
-    block/.style={
-        draw=black, fill=white, rectangle, rounded corners=2pt, 
-        align=center, inner sep=5pt, minimum width=5.5cm
-    },
-    process/.style={
-        block, fill=gray!10
-    },
-    dataset/.style={
-        block, fill=gray!20, rounded corners=0pt
-    },
-    branch/.style={
-        block, dashed, fill=gray!10
-    },
-    arrow/.style={draw=black, thick, ->},
-    dashedarrow/.style={draw=black, dashed, ->},
-    lblgray/.style={font=\footnotesize, fill=gray!5},
-    lblwhite/.style={font=\footnotesize, fill=white}
-]
-
-    % --- STADIO 4: DATASET ALINEATO FINALE ---
-    \node [dataset, fill=gray!30] (final_data) at (0, 0) {
-        Dataset Allineati Finali
-    };
-
-    \node [process, above=0.5cm of final_data] (tr_te_rho) {
-        Partizione train/test\\[-5pt]
-        e\\[-5pt]
-        Parametro di scalatura $\rho$\\[-5pt]
-        \footnotesize
-        (19 col., $d=16$)
-    };
-
-    % --- STADIO 3: OPERATORE DI MAPPATURA PSI ---
-    \node [process, above=1cm of tr_te_rho] (psi) {
-        Mappatura ${\psi}_k : \mathcal{X}_k \to \mathcal{X}_{\text{shared}}$
-    };
-
-    % --- STADIO 2: FILTRAGGIO E CRITERI ---
-    \node [process, above=1cm of psi] (filter) {
-        Filtraggio e Selezione Feature
-    };
+\begin{tikzpicture}[]
 
     % --- STADIO 1: INPUT DATASETS ---
-    \node [dataset, above left=1cm and -1.5cm of filter] (ds) {
-        Sorgente $\mathcal{D}_S$\\[-5pt]
-        \footnotesize
-        UNSW-NB15\\[-5pt]
-        (45 col., $d_S=42$)
-    };
-    \node [dataset, above right=1cm and -1.5cm of filter] (dt) {
-        Target $\mathcal{D}_T$\\[-5pt]
-        \footnotesize
-        STIN (TER20 / SAT20)\\[-5pt]
-        (32 col., $d_T=30$)
-    };
+    % Mappatura temporanea per coordinare il layout dall'alto verso il basso
+    \node [node_transform] (filter) {\textbf{Filtraggio e Selezione Feature}};
 
-    % --- STADIO 5: RAMO PRINCIPALE E DIAGNOSTICO ---
-    \node [process, below left=2cm and -1.5cm of final_data, align=center] (models) {
-        Pipeline di Training e Inferenza\\[-5pt]
-        \footnotesize
-        Nessuna Scalatura Applicata\\[-5pt]
-        \textit{DT}, \textit{RF}, \textit{HistGB}
+    \node [node_primary, above left=1.2cm and 0cm of filter] (ds) {
+        \textbf{Sorgente } $\boldsymbol{\mathcal{D}_S}$\\
+        UNSW-NB15\\
+        \small (45 col., $d_S=42$)
     };
-
-    \node [branch, below right=2cm and -1.5cm of final_data, align=center] (diag) {
-        Modulo Diagnostico\\[-5pt]
-        \footnotesize 
-        \texttt{StandardScaler} ($z$-score)\\[-5pt]
-        \textit{PCA}, \textit{KDE}
-    };
-
-    % --- FRECCE E CONGIUNZIONI ---
-    \draw [arrow] (ds) |- (filter) node[lblgray, pos=0.25] {$-33$ col.};
-    \draw [arrow] (dt) |- (filter) node[lblgray, pos=0.25] {$-21$ col.};
     
-    \draw [arrow] (filter) -- (psi) node[midway, lblgray] {9 Feature Base Condivise};
-    \draw [arrow] (psi) -- (tr_te_rho) node[midway, lblgray] {$16$ Feature Allineate};
+    \node [node_accent, above right=1.2cm and -0.4cm of filter] (dt) {
+        \textbf{Target } $\boldsymbol{\mathcal{D}_T}$\\
+        STIN (TER20 / SAT20)\\
+        \small (32 col., $d_T=30$)
+    };
 
-    \draw [arrow] (tr_te_rho) -- (final_data);
-    
-    \draw [arrow] (final_data.south) |- ++(0, -1) -| (models.north) node[pos=0.25, lblwhite] {Flusso Dati Principale};
-    \draw [dashedarrow] (final_data.south) |- ++(0, -1) -| (diag.north) node[pos=0.25, lblwhite] {Solo Diagnostica};
+    \draw [arrow_source] (ds) |- (filter) node[near start, right, font=\footnotesize] {$-33$ col.};
+    \draw [arrow_target] (dt) |- (filter) node[near start, right, font=\footnotesize] {$-21$ col.};
 
-    % --- BOX DI RAGGRUPPAMENTO DI SFONDO ---
+    % --- STADIO 3: OPERATORE DI MAPPATURA PSI ---
+    \node [node_transform, below=1.2cm of filter] (psi) {
+        \textbf{Mappatura delle Feature}\\
+        \footnotesize $\boldsymbol{\psi_k : \mathcal{X}_k \to \mathcal{X}_{\text{shared}}}$
+    };
+
+    % --- STADIO 4: PARTIZIONE E PARAMETRO RHO ---
+    \node [node_process, below=1.2cm of psi] (tr_te_rho) {
+        \textbf{Partizione Train/Test}\\
+        \textbf{Parametro di Scalatura } $\boldsymbol{\rho}$\\
+        \small (19 col., $d=16$)
+    };
+
+    % --- STADIO 5: DATASET ALINEATO FINALE ---
+    \node [node_output, below=1.0cm of tr_te_rho] (final_data) {
+        \textbf{Dataset Allineati Finali}
+    };
+
+    \draw [arrow_flow] (filter) -- (psi) node[midway, fill=white, font=\footnotesize] {9 Feature Base Condivise};
+    \draw [arrow_flow] (psi) -- (tr_te_rho) node[midway, fill=white, font=\footnotesize] {$16$ Feature Allineate};
+    \draw [arrow_flow] (tr_te_rho) -- (final_data);
+
+    % --- STADIO 6: RAMO PRINCIPALE E DIAGNOSTICO ---
+    \node [node_process, below=2cm of final_data] (models) {
+        \textbf{Pipeline di Training e Inferenza}\\
+        Nessuna Scalatura Applicata\\
+        \footnotesize \textit{DT}, \textit{RF}, \textit{HistGB}
+    };
+
+    \node [node_transform, right=3cm of final_data] (diag) {
+        \textbf{Modulo Diagnostico}\\
+        \texttt{StandardScaler} ($z$-score)\\
+        \footnotesize \textit{PCA}, \textit{KDE}
+    };
+
+    \draw [arrow_flow] (final_data) -- (models) node[midway, fill=white, font=\footnotesize, align=center] {Flusso Dati\\[-5pt] Principale};
+    \draw [arrow_param] (final_data) -- (diag) node[midway, fill=white, font=\footnotesize, align=center] {Solo\\[-5pt] Diagnostica};
+
+    % --- SFONDO DI RAGGRUPPAMENTO ---
     \begin{scope}[on background layer]
-        % Le graffe attorno al valore di fit impediscono a TikZ di interpretare la virgola di yshift come separatore
-        \node (bgbox) [
-            draw=gray!70, fill=gray!5, 
-            rectangle, rounded corners=5pt, dashed, thick, 
-            fit={(ds) (dt) (filter) (psi) (tr_te_rho) (final_data) ([yshift=15pt]ds.north)}, 
-            inner sep=12pt
-        ] {};
-        
-        % Titolo posizionato nell'angolo in alto a sinistra del box
-        \node [anchor=north west, text=black, xshift=6pt, yshift=-6pt] 
-            at (bgbox.north west) {Pipeline di Preprocessing e Armonizzazione};
+        \node [group_box, fit={(ds) (dt) (filter) (psi) (tr_te_rho) (final_data)}] (bgbox) {};
+        \node [above right, font=\footnotesize\sffamily\bfseries, text=neutralgrey] at (bgbox.north west) {Pipeline di Preprocessing e Armonizzazione};
     \end{scope}
 
 \end{tikzpicture}
@@ -455,7 +421,7 @@ La Tabella~\ref{tab:feature_filtering_summary} riassume il processo logico di ri
 \centering
 \caption{Sintesi del processo di selezione e allineamento dimensionale tra il dominio sorgente ($\mathcal{D}_S$) e i domini di destinazione ($\mathcal{D}_T$).}
 \label{tab:feature_filtering_summary}
-\begin{tabular}{lccc}
+\begin{tabularx}{\textwidth}{Xccc}
 \hline
 \textbf{Dominio / Sorgente} & \textbf{Colonne Totali} & \textbf{Feature Predittive Grezze} & \textbf{Feature Scartate} \\
 \hline
@@ -464,7 +430,7 @@ Target ($\mathcal{D}_T$) & 32 & $d_T = 30$ & 21 \\
 \hline
 \textbf{Spazio Allineato Finale} & \textbf{19} & $\mathbf{d = 16}$ & -- \\
 \hline
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 \subsection{Implementazione dell'Operatore di Mappatura}
@@ -543,6 +509,7 @@ Si evidenzia che l'utilizzo di algoritmi di normalizzazione è stato rigorosamen
 In particolare, la classe \texttt{StandardScaler} del modulo \texttt{sklearn.preprocessing} è stata impiegata unicamente all'interno del modulo di supporto \texttt{plotting.py} per standardizzare le feature a media nulla e varianza unitaria prima dell'esecuzione dell'Analisi delle Componenti Principali (\textit{PCA}) e della stima della densità di kernel (\textit{KDE}). 
 Tali trasformazioni diagnostiche sono state isolate all'interno delle routine di visualizzazione e non sono mai state integrate nel grafo computazionale di addestramento e inferenza dei classificatori.
 
+
 \section{Implementazione dei Classificatori}
 \label{sec:implementazione_classificatori}
 
@@ -576,30 +543,31 @@ La Tabella~\ref{tab:hyperparameters_summary} sintetizza la corrispondenza tra le
 \centering
 \caption{Configurazione degli iperparametri di default e classi \texttt{scikit-learn} utilizzate per ciascuna famiglia di classificatori.}
 \label{tab:hyperparameters_summary}
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{7cm} >{\raggedright\arraybackslash}X}
+\begin{tabular}{l}
 \hline
-\textbf{Algoritmo \newline - Classe \texttt{scikit-learn}} & \textbf{Iperparametri Principali (Valori di Default)} \\
+\textbf{Decision Tree (DT) - \texttt{DecisionTreeClassifier}} \\
 \hline
-Decision Tree (DT) \newline - \texttt{DecisionTreeClassifier} & 
-\texttt{criterion} = \textquotesingle gini\textquotesingle, \newline
-\texttt{max\_depth} = \texttt{None}, \newline
+\texttt{criterion} = \textquotesingle gini\textquotesingle, \quad
+\texttt{max\_depth} = \texttt{None}, \quad
 \texttt{min\_samples\_split} = 2 \\
 \hline
-Random Forest (RF) \newline - \texttt{RandomForestClassifier} & 
-\texttt{n\_estimators} = 100, \newline
-\texttt{criterion} = \textquotesingle gini\textquotesingle, \newline
-\texttt{max\_depth} = \texttt{None}, \newline
-\texttt{max\_features} = \textquotesingle sqrt\textquotesingle, \newline
+\textbf{Random Forest (RF) - \texttt{RandomForestClassifier}} \\
+\hline
+\texttt{n\_estimators} = 100, \quad
+\texttt{criterion} = \textquotesingle gini\textquotesingle, \quad
+\texttt{max\_depth} = \texttt{None}, \\
+\texttt{max\_features} = \textquotesingle sqrt\textquotesingle, \quad
 \texttt{min\_samples\_split} = 2 \\
 \hline
-Hist. Gradient Boosting (HGB) \newline - \texttt{HistGradientBoostingClassifier} & 
-\texttt{learning\_rate} = 0.1, \newline
-\texttt{max\_iter} = 100, \newline
-\texttt{max\_depth} = \texttt{None}, \newline
-\texttt{max\_leaf\_nodes} = 31, \newline
+\textbf{Hist. Gradient Boosting (HGB) - \texttt{HistGradientBoostingClassifier}} \\
+\hline 
+\texttt{learning\_rate} = 0.1, \quad
+\texttt{max\_iter} = 100, \quad
+\texttt{max\_depth} = \texttt{None}, \\
+\texttt{max\_leaf\_nodes} = 31, \quad
 \texttt{l2\_regularization} = 0.0 \\
 \hline
-\end{tabularx}
+\end{tabular}
 \end{table}
 
 Per garantire un tracciamento rigoroso del ciclo di vita dei modelli, l'istanziamento e l'addestramento non disperdono lo stato interno degli stimatori. 
@@ -659,54 +627,57 @@ La Figura~\ref{fig:aggregati_data_flow} schematizza visivamente il flusso di com
 
 \begin{figure}[H]
     \centering
-    \resizebox{\textwidth}{!}{
-    \begin{tikzpicture}[
-        >=latex,
-        dataset/.style={draw, rectangle, rounded corners, fill=gray!10, thick, minimum width=5cm, align=center, inner sep=5pt},
-        target/.style={draw, rectangle, rounded corners, fill=gray!10, thick, minimum width=5cm, align=center, inner sep=5pt},
-        model/.style={draw, rectangle, thick, fill=gray!30, minimum width=5cm, minimum height=3.5cm, align=center, inner sep=5pt},
-        arrow/.style={->, thick, draw=black},
-    ]
-
-    % Model Nodes
-    \node[model] (ms) at (0, 0) {
-        \textbf{Modello Sorgente} ($\mathcal{M}_S$) \\
-        $100\%$ Benigno $\mathcal{D}_S$ \\[-5pt]
-        $100\%$ Malevolo $\mathcal{D}_S$ \\[-5pt]
-        \\
-        \small $\rho = 10/1$
+    \begin{tikzpicture}
+    % =========================================================================
+    % DATABASES / DATASETS (LIVELLO SUPERIORE)
+    % =========================================================================
+    \node[node_database] (unsw) at (-3,0) {
+        \textbf{Dataset Sorgente $\bm{\mathcal{D}_S}$}
     };
-    \node[model, right=0.5cm of ms] (mbase) {
-        \textbf{Modello Base} ($\mathcal{M}_{\text{base}}$) \\
+
+    \node[node_database, draw=accentorange, fill=lightorange] (stin) at (3,0) {
+        \textbf{Dataset Target $\bm{\Delta\mathcal{D}_T}$}
+    };
+
+    % =========================================================================
+    % MODELLI (LIVELLO INFERIORE)
+    % =========================================================================
+    \node[node_transform] (mbase) at (0,4) {
+        \textbf{Modello Base ($\mathcal{M}_{\text{base}}$)} \\
         $100\%$ Benigno $\mathcal{D}_S$ \\[-5pt]
-        $99,\overline{66}\%$ Malevolo $\mathcal{D}_S$ \\[-5pt] 
+        $99,\overline{66}\%$ Malevolo $\mathcal{D}_S$ \\[-5pt]
         $0,\overline{33}\%$ Malevolo $\Delta\mathcal{D}_T$ \\
-        \small $\rho = 10/1$
+        $\rho = 10/1$
     };
-    \node[model, right=0.5cm of mbase] (mibrido) {
-        \textbf{Modello Ibrido} ($\mathcal{M}_H^{(T)}$) \\
+
+    \node[node_primary] (ms) at (-3,-3.5) {
+        \textbf{Modello Sorgente ($\mathcal{M}_S$)} \\
         $100\%$ Benigno $\mathcal{D}_S$ \\[-5pt]
-        $100\%$ Malevolo $\Delta\mathcal{D}_T$ \\[-5pt]
-        \\
-        \small $\rho = 10/1$
+        $100\%$ Malevolo $\mathcal{D}_S$ \\
+        $\rho = 10/1$
     };
 
-    % Dataset Nodes
-    \node[dataset, above right=2cm and -2.25cm of ms] (unsw) {\textbf{UNSW-NB15} \\ (Dominio Sorgente $\mathcal{D}_S$)};
-    \node[target, above right=2cm and -2.25cm of mbase] (stin) {\textbf{Target (STIN)} \\ (Dominio Target $\Delta\mathcal{D}_T$)};
+    \node[node_accent] (mibrido) at (3,-3.5) {
+        \textbf{Modello Ibrido ($\mathcal{M}_H^{(T)}$)} \\
+        $100\%$ Benigno $\mathcal{D}_S$ \\[-5pt]
+        $100\%$ Malevolo $\Delta\mathcal{D}_T$ \\
+        $\rho = 10/1$
+    };
 
-    % Arrows UNSW
-    \draw[arrow] (unsw.south) -- ++(0,-0.66) -| (ms.north);
-    \draw[arrow] (unsw.south) -- ++(0,-0.66) -| ([xshift=-1cm]mbase.north);
-    \draw[arrow] (unsw.south) -- ++(0,-0.66) -| ([xshift=-1cm]mibrido.north);
+    % =========================================================================
+    % CONNETTORI E FLUSSO DATI
+    % =========================================================================
+    % Frecce dal Dominio Sorgente (Blu)
+    \draw[arrow_source] (unsw.south) -- (ms.north);
+    \draw[arrow_source] (unsw.north) |- (mbase.west);
+    \draw[arrow_source] ([yshift=-0.6cm]unsw.south) -| ([xshift=-1cm]mibrido.north);
 
-    % Arrows STIN
-    \draw[arrow] (stin.south) -- ++(0,-1.32) -| ([xshift=1cm]mbase.north);
-    \draw[arrow] (stin.south) -- ++(0,-1.32) -| ([xshift=1cm]mibrido.north);
+    % Frecce dal Dominio Target (Arancio)
+    \draw[arrow_target] (stin.north) |- (mbase.east);
+    \draw[arrow_target] (stin.south) -- (mibrido.north);
 
     \end{tikzpicture}
-    }
-    \caption{Architettura del flusso dati per l'addestramento dei Modelli Aggregati. Le percentuali indicano l'origine logica dei pacchetti che compongono i \textit{training set}, forzati strutturalmente al vincolo $\rho_{ben/mal} = 10/1$.}
+    \caption{Architettura del flusso dati per l'addestramento dei Modelli Aggregati. Le percentuali indicano l'origine logica dei pacchetti che compongono i \textit{training set}, forzati strutturalmente al vincolo $\rho_{\text{ben/mal}} = 10/1$.}
     \label{fig:aggregati_data_flow}
 \end{figure}
 
@@ -736,28 +707,34 @@ In perfetta simmetria con la suddivisione concettuale tra dominio sorgente e dom
 \centering
 \caption{Istanze dei modelli biclasse generati per il dominio sorgente e i domini target ibridizzati.}
 \label{tab:biclass_models_summary}
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{5.5cm} >{\raggedright\arraybackslash}X}
+\begin{tabular}{l l}
 \hline
 \textbf{Categoria e Dominio} & \textbf{Istanze Modello Biclasse} \\
 \hline
-\textbf{Modelli Sorgente} \newline (UNSW-NB15) & 
-\texttt{nb15\_dos} \newline
-\texttt{nb15\_exploits} \newline
-\texttt{nb15\_fuzzers} \newline
-\texttt{nb15\_generic} \newline
-\texttt{nb15\_reconnaissance} \\
+\makecell[tl]{\textbf{Modelli Sorgente}} & 
+\makecell[tl]{%
+\texttt{nb15\_dos} \\
+\texttt{nb15\_exploits} \\
+\texttt{nb15\_fuzzers} \\
+\texttt{nb15\_generic} \\
+\texttt{nb15\_reconnaissance}%
+} \\
 \hline
-\textbf{Modelli Ibridi Target} \newline (SAT20) & 
-\texttt{nb15\_sat20\_syn\_ddos} \newline
-\texttt{nb15\_sat20\_udp\_ddos} \\
+\makecell[tl]{\textbf{Modelli Ibridi Target}} & 
+\makecell[tl]{%
+\texttt{nb15\_sat20\_syn\_ddos} \\
+\texttt{nb15\_sat20\_udp\_ddos}%
+} \\
 \hline
-\textbf{Modelli Ibridi Target} \newline (TER20) & 
-\texttt{nb15\_ter20\_botnet} \newline
-\texttt{nb15\_ter20\_ddos} \newline
-\texttt{nb15\_ter20\_syn\_ddos} \newline
-\texttt{nb15\_ter20\_udp\_ddos} \\
+\makecell[tl]{\textbf{Modelli Ibridi Target}} & 
+\makecell[tl]{%
+\texttt{nb15\_ter20\_botnet} \\
+\texttt{nb15\_ter20\_ddos} \\
+\texttt{nb15\_ter20\_syn\_ddos} \\
+\texttt{nb15\_ter20\_udp\_ddos}%
+} \\
 \hline
-\end{tabularx}
+\end{tabular}
 \end{table}
 
 L'integrazione di questa logica all'interno del codice sorgente sfrutta elevati livelli di automazione. 
@@ -811,6 +788,7 @@ def _get_standardized_model_name(dataset_type, unique_classes):
     return f"{dataset_type}_{attack_name}"
 \end{lstlisting}
 
+
 \section{Protocollo di Addestramento e Valutazione}
 \label{sec:protocollo_addestramento_valutazione}
 
@@ -837,61 +815,58 @@ Il flusso operativo dell'infrastruttura di addestramento e la relativa logica di
 
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[
-    auto,
-    node distance = 1.0cm and 3.2cm
-]
+\begin{tikzpicture}[]
 
     % =========================================================================
     % INPUT DATA E SEED
     % =========================================================================
-    \node [node_database, minimum width=4.8cm] (ds) at (0, 0) {
+    \node [node_database] (ds) at (0, 0) {
         \textbf{Dataset Pre-processato}\\
-        \small ($s_0 = 127001$)
+        ($s_0 = 127001$)
     };
 
-    \node [node_primary, minimum width=4.8cm, below=of ds] (main) {
+    \node [node_primary, below=1.5cm of ds] (main) {
         \textbf{\texttt{main.py}}\\
-        \small Prodotto Cartesiano\\
-        \small $\mathcal{M} \times \mathcal{S}$
+        Prodotto Cartesiano\\
+        $\mathcal{M} \times \mathcal{S}$
     };
     
     % =========================================================================
     % CORE LOGIC (models.py)
     % =========================================================================
-    \node [node_process, minimum width=4.8cm, below=1.6cm of main] (proc) {
+    \node [node_process, right=1.5cm of main] (proc) {
         \textbf{\texttt{models.py}}\\
         \small \texttt{model\_processing()}
     };
 
-    \node [node_process, minimum width=4.8cm, below=of proc] (train) {
+    \node [node_process, right=1.5cm of proc] (train) {
         \textbf{\texttt{\_train\_classifier()}}\\
-        \small Split Train/Test \& Fitting\\
-        \small ($\text{random\_state} = s_k$)
+        Split Train/Test \& Fitting\\
+        ($\text{random\_state} = s_k$)
     };
     
     % =========================================================================
     % ARTEFATTI DI OUTPUT
     % =========================================================================
-    \node [node_output, minimum width=4.2cm, right=of proc] (meta) {
+    \node [node_output, below=1.88cm of proc] (meta) {
         \textbf{Registro Metadati}\\
-        \small \texttt{models\_metadata.csv}
+        \texttt{models\_metadata.csv}
     };
 
-    \node [node_output, minimum width=4.2cm, right=of train] (joblib) {
+    \node [node_output, below=1.5cm of train] (joblib) {
         \textbf{Modello Serializzato}\\
-        \small \texttt{.joblib}
+        \texttt{.joblib}
     };
 
     % =========================================================================
     % COLLEGAMENTI E FRECCE
     % =========================================================================
     \draw [arrow_flow] (ds) -- (main);
-    \draw [arrow_flow] (main) -- node[right, pos=0.35, font=\footnotesize\bfseries, text=neutralgrey] {$(m, s_k)$} (proc);
-    \draw [arrow_flow] (proc) -- node[right, font=\footnotesize\bfseries, text=neutralgrey] {Delega} (train);
+    \draw [arrow_flow] (main) -- node[above, font=\footnotesize\bfseries, text=neutralgrey] {$(m, s_k)$} (proc);
+    \draw [arrow_flow] (proc) -- node[above, font=\footnotesize\bfseries, text=neutralgrey] {Delega} (train);
     
-    \draw [arrow_flow] (proc.east) -- node[above, font=\footnotesize, text=neutralgrey] {\texttt{file\_utils}} (meta.west);
-    \draw [arrow_flow] (train.east) -- node[above, font=\footnotesize, text=neutralgrey] {\texttt{\_save\_model()}} (joblib.west);
+    \draw [arrow_flow] (proc) -- node[right, pos=0.6, font=\footnotesize, text=neutralgrey] {\texttt{file\_utils}} (meta);
+    \draw [arrow_flow] (train) -- node[right, pos=0.51, font=\footnotesize, text=neutralgrey] {\texttt{\_save\_model()}} (joblib);
 
     % =========================================================================
     % BACKGROUND (RIQUADRI DI RAGGRUPPAMENTO)
@@ -901,7 +876,7 @@ Il flusso operativo dell'infrastruttura di addestramento e la relativa logica di
                label={[text=paramgreen, font=\bfseries\small]above:Modulo \texttt{models.py}}] (box_models) {};
 
         \node [group_box, fit={(meta) (joblib)},
-               label={[text=neutralgrey, font=\bfseries\small]above:Persistenza (\texttt{runs/})}] (box_storage) {};
+               label={[text=neutralgrey, font=\bfseries\small]below:Persistenza (\texttt{runs/})}] (box_storage) {};
     \end{scope}
 
 \end{tikzpicture}
@@ -1493,6 +1468,7 @@ La struttura complessiva del registro finale e la descrizione semantica dei sing
 \end{table}
 
 In tal modo, la pipeline mantiene formalmente separati il livello di aggregazione delle prestazioni sui singoli seed, memorizzato in \texttt{F1-Score\_means.csv}, e il livello di diagnostica statistica inferenziale, rappresentato da \texttt{welch\_ttest.csv}.
+
 
 \section{Strumenti di Analisi Diagnostica e Spiegabilità}
 \label{sec:strumenti_analisi_diagnostica}
@@ -2338,6 +2314,7 @@ Il passaggio SHAP--KDE deve pertanto essere inteso come una procedura di selezio
 
 Nel protocollo adottato non si è verificata alcuna situazione di parità tra caratteristiche nei valori del contatore $C_j$\footnote{In caso di parità nel contatore $C_j$, la regola formale di spareggio avrebbe previsto un ordinamento secondario decrescente basato sull'impatto medio assoluto di Shapley $\bar{|\phi_j|} = \frac{1}{R} \sum_{r=1}^{R} |\phi_{j,r}|$, calcolato esclusivamente sulle esecuzioni che hanno generato l'ex aequo.} tali da richiedere una regola di spareggio. 
 La lista finale \texttt{KDE\_TOP\_FEATURES} rappresenta pertanto la selezione conclusiva utilizzata nella fase di analisi densometrica descritta nella Sezione~\ref{subsec:implementazione_pca_kde}.
+
 
 \section{Sintesi della Pipeline Implementativa}
 \label{sec:sintesi_pipeline_implementativa}
