@@ -319,7 +319,7 @@ Nelle sottosezioni seguenti vengono analizzati nel dettaglio i singoli criteri d
     % --- STADIO 3: OPERATORE DI MAPPATURA PSI ---
     \node [node_transform, below=1.2cm of filter] (psi) {
         \textbf{Mappatura delle Feature}\\
-        \footnotesize $\boldsymbol{\psi_k : \mathcal{X}_k \to \mathcal{X}_{\text{shared}}}$
+        $\boldsymbol{\psi_k : \mathcal{X}_k \to \mathcal{X}_{\text{shared}}}$
     };
 
     % --- STADIO 4: PARTIZIONE E PARAMETRO RHO ---
@@ -342,13 +342,13 @@ Nelle sottosezioni seguenti vengono analizzati nel dettaglio i singoli criteri d
     \node [node_process, below=2cm of final_data] (models) {
         \textbf{Pipeline di Training e Inferenza}\\
         Nessuna Scalatura Applicata\\
-        \footnotesize \textit{DT}, \textit{RF}, \textit{HistGB}
+        \textit{DT}, \textit{RF}, \textit{HistGB}
     };
 
     \node [node_transform, right=3cm of final_data] (diag) {
         \textbf{Modulo Diagnostico}\\
         \texttt{StandardScaler} ($z$-score)\\
-        \footnotesize \textit{PCA}, \textit{KDE}
+        \textit{PCA}, \textit{KDE}
     };
 
     \draw [arrow_flow] (final_data) -- (models) node[midway, fill=white, font=\footnotesize, align=center] {Flusso Dati\\[-5pt] Principale};
@@ -357,7 +357,7 @@ Nelle sottosezioni seguenti vengono analizzati nel dettaglio i singoli criteri d
     % --- SFONDO DI RAGGRUPPAMENTO ---
     \begin{scope}[on background layer]
         \node [group_box, fit={(ds) (dt) (filter) (psi) (tr_te_rho) (final_data)}] (bgbox) {};
-        \node [above right, font=\footnotesize\sffamily\bfseries, text=neutralgrey] at (bgbox.north west) {Pipeline di Preprocessing e Armonizzazione};
+        \node [above right, font=\footnotesize\bfseries, text=neutralgrey] at (bgbox.north west) {Pipeline di Preprocessing e Armonizzazione};
     \end{scope}
 
 \end{tikzpicture}
@@ -480,7 +480,7 @@ Nel processo di mappatura emergono tre aspetti architetturali critici:
     \item \textbf{Stabilizzazione Numerica:} Durante il calcolo di indici razionali (come \texttt{down\_up\_ratio}, \texttt{byte\_ratio}, le densità di pacchetti e il \textit{packet rate}), è stata introdotta una costante di regolarizzazione $\epsilon = 10^{-6}$ ai denominatori. Questo accorgimento previene singolarità algebriche causate da divisioni per zero indotte da flussi anomali o malformati.
 \end{itemize}
 
-A completamento della trattazione teorica, le funzioni \texttt{\_align\_nb15} e \texttt{\_align\_stin}, implementate nel file \texttt{data\_preprocessing.py} del repository GitHub\footnote{\href{https://github.com/marchesinia187179/earth-trained-satellite-ids/blob/main/src/data_preprocessing.py}{Link al file \texttt{data\_preprocessing.py} su GitHub.}}, costituiscono la trasposizione operativa dell'operatore di mappatura in linguaggio Python.
+A completamento della trattazione teorica, le funzioni \texttt{\_align\_nb15} e \texttt{\_align\_stin}, implementate nel file \texttt{data\_preprocessing.py} del repository GitHub, costituiscono la trasposizione operativa dell'operatore di mappatura in linguaggio Python.
 L'implementazione sfrutta la libreria \texttt{pandas} per l'esecuzione vettorializzata delle operazioni sui \textit{DataFrame}, consentendo di elaborare in modo efficiente dataset di dimensioni considerevoli.
 
 \subsection{Verifica dell'Omissione della Scalatura Esplicita}
@@ -836,7 +836,7 @@ Il flusso operativo dell'infrastruttura di addestramento e la relativa logica di
     % =========================================================================
     \node [node_process, right=1.5cm of main] (proc) {
         \textbf{\texttt{models.py}}\\
-        \small \texttt{model\_processing()}
+        \texttt{model\_processing()}
     };
 
     \node [node_process, right=1.5cm of proc] (train) {
@@ -873,10 +873,10 @@ Il flusso operativo dell'infrastruttura di addestramento e la relativa logica di
     % =========================================================================
     \begin{scope}[on background layer]
         \node [group_highlight, fit={(proc) (train)},
-               label={[text=paramgreen, font=\bfseries\small]above:Modulo \texttt{models.py}}] (box_models) {};
+               label={[text=paramgreen, font=\bfseries\footnotesize]above:Modulo \texttt{models.py}}] (box_models) {};
 
         \node [group_box, fit={(meta) (joblib)},
-               label={[text=neutralgrey, font=\bfseries\small]below:Persistenza (\texttt{runs/})}] (box_storage) {};
+               label={[text=neutralgrey, font=\bfseries\footnotesize]below:Persistenza (\texttt{runs/})}] (box_storage) {};
     \end{scope}
 
 \end{tikzpicture}
@@ -1116,48 +1116,45 @@ L'intero flusso operativo di valutazione e la successiva aggregazione statistica
 
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[
-    auto,
-    node distance = 0.7cm and 1.2cm
-]
+\begin{tikzpicture}[]
 
     % =========================================================================
     % FASE 1: VALUTAZIONE E PERSISTENZA PER SINGOLO SEED
     % =========================================================================
     \node [node_primary] (input) {
         \textbf{Test Set \& Modello}\\
-        \small $(m, s_k)$
+        $(m, s_k)$
     };
 
-    \node [node_process, below=of input] (infer) {
+    \node [node_process, below=1cm of input] (infer) {
         \textbf{\texttt{\_classification()}}\\
-        \small Inferenza: \texttt{predict()} \& \texttt{predict\_proba()}
+        Inferenza: \texttt{predict()} \& \texttt{predict\_proba()}
     };
 
-    \node [node_process, below=of infer] (metrics) {
+    \node [node_process, below=1cm of infer] (metrics) {
         \textbf{\texttt{calculate\_metrics()}}\\
-        \small Matrice di Confusione \& Metriche Sintetiche
+        Matrice di Confusione \& Metriche Sintetiche
     };
 
-    \node [node_output, below=of metrics] (csv_seed) {
+    \node [node_output, below=1cm of metrics] (csv_seed) {
         \textbf{\texttt{classifications.csv}}\\
-        \small Artefatti $H_k^{TPR}, H_k^{TNR}$\\
-        \small (Singolo Seed)
+        Artefatti $H_k^{TPR}, H_k^{TNR}$\\
+        (Singolo Seed)
     };
 
     % =========================================================================
     % FASE 2: AGGREGAZIONE MULTI-SEED
     % =========================================================================
-    \node [node_process, below=1.2cm of csv_seed] (agg) {
+    \node [node_process, below=1.5cm of csv_seed] (agg) {
         \textbf{\texttt{\_aggregated\_heatmaps()}}\\
-        \small Concatena $K$ Seed $\to$ Calcolo $\overline{h}_{ij}$ e $\sigma^2_{ij}$
+        Concatena $K$ Seed $\to$ Calcolo $\overline{h}_{ij}$ e $\sigma^2_{ij}$
     };
 
-    \node [node_output, below=of agg] (final_out) {
+    \node [node_output, below=1cm of agg] (final_out) {
         \textbf{Matrici Aggregate}\\
-        \small \texttt{<metric>\_mean\_matrix.csv}\\[-2pt]
-        \small \texttt{<metric>\_var\_matrix.csv}\\[-2pt]
-        \small \texttt{<metric>\_aggregated\_matrix.png}
+        \texttt{<metric>\_mean\_matrix.csv}\\[-5pt]
+        \texttt{<metric>\_var\_matrix.csv}\\[-5pt]
+        \texttt{<metric>\_aggregated\_matrix.png}
     };
 
     % =========================================================================
@@ -1174,10 +1171,10 @@ L'intero flusso operativo di valutazione e la successiva aggregazione statistica
     % =========================================================================
     \begin{scope}[on background layer]
         \node [group_box, fit={(input) (infer) (metrics) (csv_seed)},
-            label={[text=mainblue, font=\bfseries\small]above:Fase 1: Valutazione e Persistenza per Singolo Seed ($s_k$)}] (box1) {};
+            label={[text=mainblue, font=\bfseries\footnotesize]above:Fase 1: Valutazione e Persistenza per Singolo Seed ($s_k$)}] (box1) {};
 
         \node [group_highlight, fit={(agg) (final_out)},
-            label={[text=paramgreen, font=\bfseries\small]below:Fase 2: Aggregazione Multi-Seed}] (box2) {};
+            label={[text=paramgreen, font=\bfseries\footnotesize]below:Fase 2: Aggregazione Multi-Seed}] (box2) {};
     \end{scope}
 
 \end{tikzpicture}
@@ -1261,43 +1258,40 @@ L'intero flusso di aggregazione dei dati e la pipeline di calcolo del test stati
 
 \begin{figure}[H]
 \centering
-\begin{tikzpicture}[
-    auto,
-    node distance = 0.7cm and 0.8cm
-]
+\begin{tikzpicture}[]
 
     % Nodi del flusso
     \node [node_output] (in_csv) {
         $K$ file\\ 
-        \footnotesize\texttt{classifications.csv}\\
-        \footnotesize(un file per seed $s_k$)
+        \texttt{classifications.csv}\\
+        (un file per seed $s_k$)
     };
     
-    \node [node_process, below=of in_csv] (agg) {
+    \node [node_process, below=1cm of in_csv] (agg) {
         Media sui Dataset\\ 
-        \footnotesize\texttt{aggregate\_welch\_ttest\_feature\_scores\_by\_seed()}\\ 
-        \footnotesize$\overline{F1}_{i}^{(k)}$
+        \texttt{aggregate\_welch\_ttest\_feature\_scores\_by\_seed()}\\ 
+        $\overline{F1}_{i}^{(k)}$
     };
     
-    \node [node_process, below=of agg] (pivot) {
+    \node [node_process, below=1cm of agg] (pivot) {
         Operazione di Pivot\\ 
-        \footnotesize Matrice Modelli $\times$ Seed
+        Matrice Modelli $\times$ Seed
     };
     
-    \node [node_output, right=of pivot] (mid_csv) {
+    \node [node_output, right=1cm of pivot] (mid_csv) {
         \texttt{F1-Score\_means.csv}\\
-        \footnotesize (Dati Intermedi)
+        (Dati Intermedi)
     };
     
-    \node [node_process, below=of pivot] (test) {
+    \node [node_process, below=1cm of pivot] (test) {
         Test $t$ di Welch\\ 
-        \footnotesize\texttt{ttest\_ind()}\\ 
-        \footnotesize(\textit{equal\_var=False})
+        \texttt{ttest\_ind()}\\ 
+        (\textit{equal\_var=False})
     };
     
-    \node [node_output, below=of test] (out_csv) {
+    \node [node_output, below=1cm of test] (out_csv) {
         \texttt{welch\_ttest.csv}\\
-        \footnotesize (Risultati Statistici)
+        (Risultati Statistici)
     };
 
     % Connessioni
@@ -1508,13 +1502,13 @@ Successivamente, tali parametri congelati vengono applicati per via diretta sia 
     % =========================================================================
     \node [node_primary] (source_data) {
         \textbf{Benchmark Sorgente ($S$)}\\
-        \small\texttt{nb15\_aggr\_scaled}\\
+        \texttt{nb15\_aggr\_scaled}\\
         $(\mathbf{X}_S, \mathbf{y}_S)$
     };
 
     \node [node_accent, right=1.5cm of source_data] (target_data) {
         \textbf{Benchmark Target ($T_k$)}\\
-        \small\texttt{TON\_IoT, BoT-IoT, \dots}\\
+        \texttt{TON\_IoT, BoT-IoT, \dots}\\
         $(\mathbf{X}_{T_k}, \mathbf{y}_{T_k})$
     };
 
@@ -1523,7 +1517,6 @@ Successivamente, tali parametri congelati vengono applicati per via diretta sia 
     % =========================================================================
     \node [node_process, below=1.8cm of source_data] (fit_stage) {
         \textbf{Ancoraggio Statistico}\\
-        \small
         $\boldsymbol{\mu}_S = \operatorname{E}[\mathbf{X}_S], \; \boldsymbol{\sigma}_S = \operatorname{Std}[\mathbf{X}_S]$\\
         $\mathbf{W}_S = \operatorname{PCA}(\mathbf{X}_{S,\mathrm{scaled}}, d=2)$
     };
@@ -1533,14 +1526,12 @@ Successivamente, tali parametri congelati vengono applicati per via diretta sia 
     % =========================================================================
     \node [node_transform, below=1.8cm of fit_stage] (transform_source) {
         \textbf{Trasformazione Sorgente}\\
-        \small
         $\mathbf{Z}_S = \frac{\mathbf{X}_S - \boldsymbol{\mu}_S}{\boldsymbol{\sigma}_S + \epsilon}$\\
         $\mathbf{P}_S = \mathbf{Z}_S \mathbf{W}_S$
     };
 
     \node [node_transform, at=(transform_source -| target_data)] (transform_target) {
         \textbf{Trasformazione Target}\\
-        \small
         $\mathbf{Z}_{T_k} = \frac{\mathbf{X}_{T_k} - \boldsymbol{\mu}_S}{\boldsymbol{\sigma}_S + \epsilon}$\\
         $\mathbf{P}_{T_k} = \mathbf{Z}_{T_k} \mathbf{W}_S$
     };
@@ -1550,13 +1541,13 @@ Successivamente, tali parametri congelati vengono applicati per via diretta sia 
     % =========================================================================
     \node [node_output, below=1cm of transform_source] (out_pca) {
         \textbf{Proiezione PCA 2D}\\
-        \small Scatter Plot Bidimensionale\\
+        Scatter Plot Bidimensionale\\
         (PC1 vs PC2)
     };
 
     \node [node_output, below=1cm of transform_target] (out_kde) {
         \textbf{Stima Densità KDE}\\
-        \small Proiezione Univariata Top-3\\
+        Proiezione Univariata Top-3\\
         (Scala \texttt{symlog})
     };
 
@@ -1580,10 +1571,12 @@ Successivamente, tali parametri congelati vengono applicati per via diretta sia 
     % BACKGROUND (RIQUADRI DI RAGGRUPPAMENTO)
     % =========================================================================
     \begin{scope}[on background layer]
-        \node [group_highlight, fit=(fit_stage), label={[paramgreen, font=\bfseries\small]above:Fase di Stima Statistica (Zero Leakage)}] {};
-               
-        \node [group_box, fit=(out_pca) (out_kde), label={[neutralgrey, font=\bfseries\small]below:Rappresentazione Grafica Diagnostica (Modulo \texttt{plotting.py})}] {};
+        \node [group_highlight, fit=(fit_stage)] (g1) {};  
+        \node [group_box, fit=(out_pca) (out_kde)] (g2) {};
     \end{scope}
+
+    \node[above, font=\footnotesize\bfseries, color=paramgreen, fill=white] at (g1.north) {Fase di Stima Statistica (Zero Leakage)};
+    \node[below, font=\footnotesize\bfseries, color=neutralgrey, fill=white] at (g2.south) {Rappresentazione Grafica Diagnostica (Modulo \texttt{plotting.py})};
 
 \end{tikzpicture}
 \caption{Schema concettuale della Standardizzazione Diagnostica Dipendente dal Sorgente: le statistiche di centralità e variabilità $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S)$ e gli autovettori della PCA ($\mathbf{W}_S$) vengono stimati esclusivamente sul benchmark sorgente $S$ e congelati. La trasformazione dei benchmark target $T_k$ avviene per applicazione diretta di tali parametri, preservando lo scostamento distributivo reale (\textit{domain shift}).}
@@ -1788,10 +1781,9 @@ Sebbene entrambe le funzioni condividano la medesima filosofia di standardizzazi
 
 \begin{table}[H]
 \centering
-\small
 \caption{Confronto sinottico tra le procedure diagnostiche di proiezione PCA e stima della densità KDE nel modulo \texttt{plotting.py}.}
 \label{tab:confronto_pca_kde}
-\begin{tabularx}{\textwidth}{l X X}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{4cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
 \toprule
 \textbf{Dimensione di Confronto} & \textbf{Procedura \texttt{save\_all\_pca\_plots()}} & \textbf{Procedura \texttt{save\_all\_kde\_plots()}} \\
 \midrule
@@ -1971,7 +1963,7 @@ L'intera architettura della pipeline, articolata nelle sue quattro fasi di elabo
             $X_{\mathrm{test}}, y_{\mathrm{test}}$
         };
         \node[node_process, right=1.5cm of input] (sampling) {
-            Campionamento\\[-5pt]
+            Campionamento\\
             Stratificato
         };
         \node[node_transform, right=1.5cm of sampling] (sample_data) {
@@ -2058,10 +2050,10 @@ L'intera architettura della pipeline, articolata nelle sue quattro fasi di elabo
             \node[group_box, fit=(render) (output)] (g4) {};
         \end{scope}
 
-        \node[above right, font=\footnotesize\sffamily\bfseries, color=neutralgrey, fill=white] at (g1.north west) {Fase 1: Campionamento Controllato (Quota $\rho=10$)};
-        \node[above right, font=\footnotesize\sffamily\bfseries, color=paramgreen, fill=white] at (g2.north west) {Fase 2: Selezione Dinamica Explainer (Catena di Fallback)};
-        \node[above right, font=\footnotesize\sffamily\bfseries, color=neutralgrey, fill=white] at (g3.north west) {Fase 3: Computazione e Normalizzazione Dimensionale};
-        \node[above right, font=\footnotesize\sffamily\bfseries, color=neutralgrey, fill=white] at (g4.north west) {Fase 4: Rappresentazione Visiva e Persistenza};
+        \node[above right, font=\footnotesize\bfseries, color=neutralgrey, fill=white] at (g1.north west) {Fase 1: Campionamento Controllato (Quota $\rho=10$)};
+        \node[above right, font=\footnotesize\bfseries, color=paramgreen, fill=white] at (g2.north west) {Fase 2: Selezione Dinamica Explainer (Catena di Fallback)};
+        \node[above right, font=\footnotesize\bfseries, color=neutralgrey, fill=white] at (g3.north west) {Fase 3: Computazione e Normalizzazione Dimensionale};
+        \node[above right, font=\footnotesize\bfseries, color=neutralgrey, fill=white] at (g4.north west) {Fase 4: Rappresentazione Visiva e Persistenza};
 
     \end{tikzpicture}
     \caption{Architettura della pipeline di spiegabilità SHAP per i modelli di classificazione. Il diagramma illustra le quattro fasi sequenziali: campionamento stratificato per il contenimento computazionale, selezione con \textit{fallback} del motore di spiegazione, estrazione normalizzata della componente anomala e salvataggio degli artefatti visivi.}
@@ -2147,7 +2139,6 @@ A completamento della descrizione implementativa, la Tabella \ref{tab:shap_confi
 
 \begin{table}[H]
     \centering
-    \small
     \caption{Sintesi dei parametri di configurazione e delle scelte ingegneristiche della pipeline SHAP.}
     \label{tab:shap_config_parameters}
     \begin{tabularx}{\textwidth}{l l X}
@@ -2240,9 +2231,9 @@ Al fine di formalizzare la natura ibrida di tale procedura, la Figura~\ref{fig:s
             \node[group_box, fit=(kde_gen) (kde_plots)] (box_l3) {};
         \end{scope}
 
-        \node[above, font=\footnotesize\sffamily\bfseries, color=neutralgrey, fill=white] at (box_l1.north) {Fase 1: Automazione Diagnostica};
-        \node[above right, font=\footnotesize\sffamily\bfseries, color=paramgreen, fill=white] at (box_l2.north west) {Fase 2: Intervento Supervisionato};
-        \node[above, font=\footnotesize\sffamily\bfseries, color=neutralgrey, fill=white] at (box_l3.north) {Fase 3: Automazione Densometrica};
+        \node[above, font=\footnotesize\bfseries, color=neutralgrey, fill=white] at (box_l1.north) {Fase 1: Automazione Diagnostica};
+        \node[above right, font=\footnotesize\bfseries, color=paramgreen, fill=white] at (box_l2.north west) {Fase 2: Intervento Supervisionato};
+        \node[above, font=\footnotesize\bfseries, color=neutralgrey, fill=white] at (box_l3.north) {Fase 3: Automazione Densometrica};
         
     \end{tikzpicture}
     \caption{Diagramma architetturale del raccordo \textit{Human-in-the-Loop} tra l'analisi diagnostica (SHAP) e la valutazione densometrica (KDE). L'intervento manuale (Fase 2) funge da disaccoppiamento metodologico tra le due pipeline automatizzate.}
@@ -2268,7 +2259,6 @@ I risultati del conteggio empirico effettuato sulle spiegazioni diagnostiche son
 
 \begin{table}[H]
     \centering
-    \small
     \caption{Distribuzione delle frequenze di occorrenza $C_j$ delle caratteristiche registrate nelle prime tre posizioni dei grafici SHAP.}
     \label{tab:shap_feature_frequencies}
     \begin{tabular}{l c r}
@@ -2445,9 +2435,9 @@ La composizione complessiva degli stadi implementativi è sintetizzata nella Fig
     \node[group_box, fit=(artifacts)] (artifact_pipeline) {};
 \end{scope}
 
-\node[above, font=\footnotesize\sffamily\bfseries, color=neutralgrey, fill=white] at (main_pipeline.north) {Flusso principale di Training, Inferenza e Valutazione};
-\node[above, font=\footnotesize\sffamily\bfseries, color=paramgreen, fill=white] at (diagnostic_pipeline.north) {Modulo Diagnostico};
-\node[above, font=\footnotesize\sffamily\bfseries, color=neutralgrey, fill=white] at (artifact_pipeline.north) {Persistenza};
+\node[above, font=\footnotesize\bfseries, color=neutralgrey, fill=white] at (main_pipeline.north) {Flusso principale di Training, Inferenza e Valutazione};
+\node[above, font=\footnotesize\bfseries, color=paramgreen, fill=white] at (diagnostic_pipeline.north) {Modulo Diagnostico};
+\node[above, font=\footnotesize\bfseries, color=neutralgrey, fill=white] at (artifact_pipeline.north) {Persistenza};
 
 \end{tikzpicture}
 \caption{Sintesi end-to-end della pipeline implementativa. Il flusso principale attraversa le fasi di preprocessing, costruzione dei benchmark, addestramento multi-seed, inferenza, valutazione e analisi statistica; in parallelo, il modulo diagnostico realizza le procedure PCA e KDE. Gli artefatti prodotti vengono persistiti e costituiscono l'input documentale per la successiva analisi dei risultati.}
