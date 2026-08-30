@@ -2331,6 +2331,145 @@ La lista finale \texttt{KDE\_TOP\_FEATURES} rappresenta pertanto la selezione co
 
 \section{Sintesi della Pipeline Implementativa}
 \label{sec:sintesi_pipeline_implementativa}
-% Chiusura del capitolo: eventuale diagramma/tabella riepilogativa
-% end-to-end (dataset -> preprocessing -> training multi-seed -> analisi),
-% che funge da raccordo esplicito verso il Capitolo 5 (risultati).
+
+La pipeline implementativa descritta nel presente capitolo costituisce la traduzione operativa del framework metodologico definito nel Capitolo~\ref{ch:metodologia}.
+L'architettura è organizzata in moduli logicamente distinti, corrispondenti alle principali fasi del ciclo di elaborazione: acquisizione e armonizzazione dei dati, costruzione dei benchmark, addestramento multi-seed, inferenza, valutazione e analisi diagnostica.
+Tale decomposizione consente di mantenere separati il flusso computazionale principale e le procedure di analisi, preservando la modularità dell'infrastruttura software e la riproducibilità delle singole fasi.
+
+Il processo ha origine dai domini sorgente e target, i cui dati vengono sottoposti alle procedure di filtraggio e allineamento descritte nella Sezione~\ref{sec:preprocessing_implementazione}.
+L'operatore $\boldsymbol{\psi}_k$ riconduce le rappresentazioni eterogenee a uno spazio condiviso di caratteristiche, sul quale vengono successivamente applicati i criteri di composizione e partizionamento necessari alla costruzione dei benchmark sperimentali.
+I dataset risultanti costituiscono l'input del modulo di classificazione, senza introdurre alcuna ulteriore scalatura esplicita nel flusso principale, in accordo con quanto discusso nella Sezione~\ref{subsec:verifica_no_scaling}.
+
+La fase di apprendimento viene quindi eseguita mediante l'istanziazione dei classificatori \textit{Decision Tree}, \textit{Random Forest} e \textit{Histogram-based Gradient Boosting}, ripetuta sui semi stocastici definiti dal protocollo.
+Per ogni combinazione tra algoritmo, benchmark e seme vengono prodotti gli artefatti relativi al modello e ai relativi metadati, mantenendo l'isolamento delle diverse esecuzioni nella struttura gerarchica della directory \texttt{runs/}.
+
+I modelli così ottenuti vengono successivamente utilizzati nella fase di inferenza sugli insiemi di test, generando predizioni e punteggi di probabilità \texttt{SHAP}.
+Le predizioni e i relativi punteggi alimentano il calcolo delle metriche e la costruzione delle matrici di valutazione, mentre l'aggregazione delle osservazioni sui diversi semi fornisce gli ingressi per la successiva procedura di confronto statistico.
+Gli artefatti prodotti lungo tale percorso vengono persistiti secondo la struttura organizzativa descritta nella Sezione~\ref{subsec:repository}, mantenendo distinti modelli, risultati e prodotti delle analisi.
+
+Parallelamente al flusso principale opera il modulo diagnostico.
+La standardizzazione utilizzata per PCA e KDE viene mantenuta separata dal grafo computazionale di training e inferenza.
+Le caratteristiche individuate mediante l'ispezione dei grafici SHAP vengono quindi utilizzate per configurare l'analisi KDE, secondo la procedura supervisionata descritta nella Sezione~\ref{subsec:pipeline_shap_kde}.
+
+La composizione complessiva degli stadi implementativi è sintetizzata nella Figura~\ref{fig:implementative_pipeline_summary}, che evidenzia il flusso principale della pipeline e il relativo ramo diagnostico.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[]
+
+% =====================================================================
+% FLUSSO PRINCIPALE
+% =====================================================================
+
+\node[node_database] (input_data) {
+    Dataset Sorgente e Target\\
+    $\mathcal{D}_S,\mathcal{D}_T$
+};
+
+\node[node_process, below=0.7cm of input_data] (preprocessing) {
+    Preprocessing e Armonizzazione\\
+    $\boldsymbol{\psi}_k$
+};
+
+\node[node_transform, below=0.7cm of preprocessing] (benchmarks) {
+    Costruzione dei Benchmark\\
+    Partizionamento train/test
+};
+
+\node[node_primary, below=0.7cm of benchmarks] (training) {
+    Addestramento Multi-Seed\\
+    DT / RF / HGB
+};
+
+\node[node_process, below=0.7cm of training] (inference) {
+    Inferenza sul Test Set\\
+    Predizioni e punteggi
+};
+
+\node[node_transform, below=0.7cm of inference] (evaluation) {
+    Valutazione Metriche, Matrici\\
+    e SHAP / TreeSHAP
+};
+
+\node[node_output, below=0.7cm of evaluation] (statistics) {
+    Analisi Statistica\\
+    Aggregazione e test di Welch
+};
+
+\draw[arrow_source] (input_data) -- (preprocessing);
+\draw[arrow_flow] (preprocessing) -- (benchmarks);
+\draw[arrow_flow] (benchmarks) -- (training);
+\draw[arrow_flow] (training) -- (inference);
+\draw[arrow_flow] (inference) -- (evaluation);
+\draw[arrow_flow] (evaluation) -- (statistics);
+
+% =====================================================================
+% RAMO DIAGNOSTICO OFFLINE
+% =====================================================================
+
+\node[node_accent, right=2cm of benchmarks] (diagnostic) {
+    Analisi Diagnostica\\
+    Standardizzazione dipendente da $S$
+};
+
+\node[node_transform, below=0.7cm of diagnostic] (pca) {
+    PCA 2D\\
+    Proiezione dei benchmark
+};
+
+\node[node_output, below=0.7cm of pca] (kde) {
+    KDE\\
+    Feature selezionate
+};
+
+\draw[arrow_param, dashed] (benchmarks.east) -- (diagnostic.west);
+\draw[arrow_flow] (diagnostic) -- (pca);
+\draw[arrow_flow] (pca) -- (kde);
+
+% =====================================================================
+% PERSISTENZA
+% =====================================================================
+
+\node[node_database, below right=-2.05cm and 3.27cm of statistics] (artifacts) {
+    Persistenza degli Artefatti\\
+    Modelli, CSV e grafici
+};
+
+\draw[arrow_param] (evaluation.east) -| ++(1.5,0) |- ([yshift=0.34cm]artifacts.west);
+
+% =====================================================================
+% RACCORDO VERSO CAPITOLO 5
+% =====================================================================
+
+\node[node_output, below=0.7cm of statistics] (chapter5) {
+    Capitolo 5\\
+    Analisi dei risultati
+};
+
+\draw[arrow_flow] (statistics) -- (chapter5);
+
+% =====================================================================
+% RAGGRUPPAMENTI
+% =====================================================================
+
+\begin{scope}[on background layer]
+    \node[group_box, fit=(input_data) (preprocessing) (benchmarks) (training) (inference) (evaluation) (statistics)] (main_pipeline) {};
+    \node[group_highlight, fit=(diagnostic) (pca) (kde)] (diagnostic_pipeline) {};
+    \node[group_box, fit=(artifacts)] (artifact_pipeline) {};
+\end{scope}
+
+\node[above, font=\footnotesize\sffamily\bfseries, color=neutralgrey, fill=white] at (main_pipeline.north) {Flusso principale di Training, Inferenza e Valutazione};
+\node[above, font=\footnotesize\sffamily\bfseries, color=paramgreen, fill=white] at (diagnostic_pipeline.north) {Modulo Diagnostico};
+\node[above, font=\footnotesize\sffamily\bfseries, color=neutralgrey, fill=white] at (artifact_pipeline.north) {Persistenza};
+
+\end{tikzpicture}
+\caption{Sintesi end-to-end della pipeline implementativa. Il flusso principale attraversa le fasi di preprocessing, costruzione dei benchmark, addestramento multi-seed, inferenza, valutazione e analisi statistica; in parallelo, il modulo diagnostico realizza le procedure PCA e KDE. Gli artefatti prodotti vengono persistiti e costituiscono l'input documentale per la successiva analisi dei risultati.}
+\label{fig:implementative_pipeline_summary}
+
+\end{figure}
+
+La Figura~\ref{fig:implementative_pipeline_summary} evidenzia pertanto la separazione funzionale tra il percorso principale, destinato alla costruzione e alla valutazione degli stimatori, e il ramo diagnostico, dedicato alla caratterizzazione geometrica, distributiva e interpretativa dei dati e dei modelli.
+La persistenza degli artefatti costituisce il punto comune tra le diverse fasi, consentendo di mantenere disponibili modelli, metriche, matrici e rappresentazioni grafiche secondo una struttura riproducibile.
+
+La descrizione implementativa si conclude con la definizione di tale catena end-to-end.
+Gli output generati dalla pipeline costituiscono quindi la base documentale e quantitativa sulla quale viene sviluppata, nel Capitolo~5, l'analisi dei risultati sperimentali.
