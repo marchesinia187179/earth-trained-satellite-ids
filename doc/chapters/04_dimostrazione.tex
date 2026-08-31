@@ -313,8 +313,8 @@ Nelle sottosezioni seguenti vengono analizzati nel dettaglio i singoli criteri d
         \small (32 col., $d_T=30$)
     };
 
-    \draw [arrow_source] (ds) |- (filter) node[near start, right, font=\footnotesize] {$-33$ col.};
-    \draw [arrow_target] (dt) |- (filter) node[near start, right, font=\footnotesize] {$-21$ col.};
+    \draw [arrow_source] (ds) |- (filter) node[near start, fill=white, font=\footnotesize] {$-33$ col.};
+    \draw [arrow_target] (dt) |- (filter) node[near start, fill=white, font=\footnotesize] {$-21$ col.};
 
     % --- STADIO 3: OPERATORE DI MAPPATURA PSI ---
     \node [node_transform, below=1.2cm of filter] (psi) {
@@ -1570,7 +1570,7 @@ Successivamente, tali parametri congelati vengono applicati per via diretta sia 
     \end{scope}
 
     \node[above, font=\footnotesize\bfseries, color=paramgreen, fill=white] at (g1.north) {Fase di Stima Statistica (Zero Leakage)};
-    \node[below, font=\footnotesize\bfseries, color=neutralgrey, fill=white] at (g2.south) {Rappresentazione Grafica Diagnostica (Modulo \texttt{plotting.py})};
+    \node[below, font=\footnotesize\bfseries, color=neutralgrey] at (g2.south) {Rappresentazione Grafica Diagnostica (Modulo \texttt{plotting.py})};
 
 \end{tikzpicture}
 \caption{Schema concettuale della Standardizzazione Diagnostica Dipendente dal Sorgente: le statistiche di centralità e variabilità $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S)$ e gli autovettori della PCA ($\mathbf{W}_S$) vengono stimati esclusivamente sul benchmark sorgente $S$ e congelati. La trasformazione dei benchmark target $T_k$ avviene per applicazione diretta di tali parametri, preservando lo scostamento distributivo reale (\textit{domain shift}).}
@@ -1953,15 +1953,15 @@ L'intera architettura della pipeline, articolata nelle sue quattro fasi di elabo
         % ==========================================
         % FASE 1: CAMPIONAMENTO STRATIFICATO
         % ==========================================
-        \node[node_database] (input) {
+        \node[node_database] (input) at (0,0) {
             \textbf{Dataset di Test}\\
             $X_{\mathrm{test}}, y_{\mathrm{test}}$
         };
-        \node[node_process, right=1.5cm of input] (sampling) {
+        \node[node_process, below=1cm of input] (sampling) {
             \textbf{Campionamento}\\[-5pt]
             \textbf{Stratificato}
         };
-        \node[node_transform, right=1.5cm of sampling] (sample_data) {
+        \node[node_transform, below=1cm of sampling] (sample_data) {
             \textbf{Campione}\\
             $X_{\mathrm{sampled}}$
         };
@@ -1972,15 +1972,15 @@ L'intera architettura della pipeline, articolata nelle sue quattro fasi di elabo
         % ==========================================
         % FASE 2: SELEZIONE EXPLAINER E FALLBACK
         % ==========================================
-        \node[node_primary, below=2cm of input] (exp_tree) {
+        \node[node_primary, right=2cm of input] (exp_tree) {
             \textbf{\texttt{TreeExplainer}}\\
             (\texttt{tree\_path})
         };
-        \node[node_transform, right=1.5cm of exp_tree] (exp_gen) {
+        \node[node_transform, below=1cm of exp_tree] (exp_gen) {
             \textbf{\texttt{TreeExplainer}}\\
             (Generico)
         };
-        \node[node_accent, right=1.5cm of exp_gen] (exp_uni) {
+        \node[node_accent, below=1cm of exp_gen] (exp_uni) {
             \textbf{\texttt{Explainer}}\\
             (Universale)
         };
@@ -1995,11 +1995,11 @@ L'intera architettura della pipeline, articolata nelle sue quattro fasi di elabo
         % ==========================================
         % FASE 3: CALCOLO E NORMALIZZAZIONE
         % ==========================================
-        \node[node_process, below=2cm of exp_tree] (shap_calc) {
+        \node[node_process, right=2cm of exp_tree] (shap_calc) {
             \textbf{Calcolo Metriche}\\
             \texttt{shap\_values()}
         };
-        \node[node_transform, right=2cm and 1.5cm of shap_calc] (norm) {
+        \node[node_transform, below=1cm of shap_calc] (norm) {
             \textbf{Estrazione Tensore}\\
             Classe 1 (Anomalie)
         };
@@ -2015,11 +2015,11 @@ L'intera architettura della pipeline, articolata nelle sue quattro fasi di elabo
         % ==========================================
         % FASE 4: RENDERING E PERSISTENZA
         % ==========================================
-        \node[node_primary, below=2cm of shap_calc] (render) {
+        \node[node_primary, right=2cm of shap_calc] (render) {
             \textbf{Rendering}\\ 
             \texttt{summary\_plot(dot)}
         };
-        \node[node_output, right=1.5cm of render] (output) {
+        \node[node_output, below=1cm of render] (output) {
             \textbf{Salvataggio}\\ 
             PNG (300 dpi)
         };
@@ -2045,7 +2045,7 @@ L'intera architettura della pipeline, articolata nelle sue quattro fasi di elabo
             \node[group_box, fit=(render) (output)] (g4) {};
         \end{scope}
 
-        \node[above right, font=\footnotesize\bfseries, color=neutralgrey, fill=white] at (g1.north west) {Fase 1: Campionamento Controllato (Quota $\rho=10$)};
+        \node[above, rotate=90, font=\footnotesize\bfseries, color=neutralgrey, fill=white] at (g1.west) {Fase 1: Campionamento Controllato (Quota $\rho=10$)};
         \node[above right, font=\footnotesize\bfseries, color=paramgreen, fill=white] at (g2.north west) {Fase 2: Selezione Dinamica Explainer (Catena di Fallback)};
         \node[above right, font=\footnotesize\bfseries, color=neutralgrey, fill=white] at (g3.north west) {Fase 3: Computazione e Normalizzazione Dimensionale};
         \node[above right, font=\footnotesize\bfseries, color=neutralgrey, fill=white] at (g4.north west) {Fase 4: Rappresentazione Visiva e Persistenza};
@@ -2142,16 +2142,12 @@ A completamento della descrizione implementativa, la Tabella \ref{tab:shap_confi
 \midrule
 \texttt{SHAP\_MAX\_SAMPLES = 500} & 
 Contenimento del costo computazionale e della complessità temporale $O(N)$ nel calcolo dei valori SHAP. \\
-\addlinespace
-\texttt{NORMAL\_ANOMALY\_RATIO = 10} ($10:1$) & 
+\texttt{NORMAL\_ANOMALY\_RATIO = 10} & 
 Preservazione del rapporto di sbilanciamento nativo ($\rho = 10:1$) tra la classe nominale e quella anomala. \\
-\addlinespace
 \texttt{feature\_perturbation = "tree\_path\_dependent"} & 
 Calcolo rapido delle aspettative condizionali lungo i percorsi degli alberi senza dipendenza da un dataset di \textit{background} esplicito. \\
-\addlinespace
 \texttt{plot\_type = "dot"} & 
 Visualizzazione ad alta densità che mostra simultaneamente ampiezza, verso e dispersione dei contributi di ciascuna caratteristica. \\
-\addlinespace
 \texttt{check\_additivity = False} & 
 Prevenzione dell'interruzione della pipeline causata da microscopiche discrepanze numeriche di precisione in virgola mobile (\textit{floating-point}). \\
 \bottomrule
@@ -2193,16 +2189,17 @@ Al fine di formalizzare la natura ibrida di tale procedura, la Figura~\ref{fig:s
             e calcolo del contatore $C_j$
         };
         \node[node_transform, right=1cm of human_eval] (top_features) {
-            \textbf{Ordinamento Empirico} \\[-5pt]
+            \textbf{Ordinamento} \\[-5pt]
+            \textbf{Empirico} \\[-5pt]
             \textbf{e Selezione Top-3}
         };
-        \node[node_process, below=1cm of top_features] (config_var) {
+        \node[node_process, right=1cm of top_features] (config_var) {
             \textbf{Definizione Costante} \\ 
             \texttt{KDE\_TOP\_FEATURES}
         };
         
         % FASE 3: Automazione Densometrica (Livello 3)
-        \node[node_primary, below left=2cm and 1.42cm of config_var] (kde_gen) {
+        \node[node_primary, below=2cm of config_var] (kde_gen) {
             \textbf{Pipeline Densometrica} \\ 
             \texttt{save\_all\_kde\_plots()}
         };
@@ -2218,7 +2215,7 @@ Al fine di formalizzare la natura ibrida di tale procedura, la Figura~\ref{fig:s
         \draw[arrow_target] (shap_plots) -- (human_eval) node[midway, left, font=\footnotesize] {Output Analizzato};
         \draw[arrow_flow] (human_eval) -- (top_features);
         \draw[arrow_flow] (top_features) -- (config_var);
-        \draw[arrow_param] (config_var) |- (kde_gen) node[near start, right, font=\footnotesize, align=center] {Iniezione\\[-5pt] Parametro};
+        \draw[arrow_param] (config_var) -- (kde_gen) node[midway, left, font=\footnotesize, align=center] {Iniezione Parametro};
         \draw[arrow_flow] (kde_gen) -- (kde_plots);
 
         % =====================================================================
@@ -2235,9 +2232,9 @@ Al fine di formalizzare la natura ibrida di tale procedura, la Figura~\ref{fig:s
             \node[group_box, fit=(kde_gen) (kde_plots)] (box_l3) {};
         \end{scope}
 
-        \node[above, font=\footnotesize\bfseries, color=neutralgrey, fill=white] at (box_l1.north) {Fase 1: Automazione Diagnostica};
+        \node[above, font=\footnotesize\bfseries, color=neutralgrey] at (box_l1.north) {Fase 1: Automazione Diagnostica};
         \node[above, font=\footnotesize\bfseries, color=paramgreen] at (box_l2.north) {Fase 2: Intervento Supervisionato};
-        \node[above, font=\footnotesize\bfseries, color=neutralgrey, fill=white] at (box_l3.north) {Fase 3: Automazione Densometrica};
+        \node[below, font=\footnotesize\bfseries, color=neutralgrey] at (box_l3.south) {Fase 3: Automazione Densometrica};
         
     \end{tikzpicture}
     \caption{Diagramma architetturale del raccordo \textit{Human-in-the-Loop} tra l'analisi diagnostica (SHAP) e la valutazione densometrica (KDE). L'intervento manuale (Fase 2) funge da disaccoppiamento metodologico tra le due pipeline automatizzate.}
