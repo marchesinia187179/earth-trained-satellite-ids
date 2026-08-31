@@ -87,7 +87,7 @@ Le librerie e i pacchetti impiegati per la manipolazione dati, l'addestramento d
 \label{tab:stack_tecnologico}
 \begin{tabular}{lll}
 \hline
-\textbf{Libreria / Tool} & \textbf{Versione} & \textbf{Scopo Applicativo} \\
+\textbf{Libreria} & \textbf{Versione} & \textbf{Scopo Applicativo} \\
 \hline
 \texttt{Python}\tablefootnote{\url{https://www.python.org/}} & \texttt{3.14.4} & Ambiente di esecuzione e interprete base \\
 \texttt{pandas}\tablefootnote{\url{https://pandas.pydata.org/}} & \texttt{3.0.3} & Manipolazione ed elaborazione di strutture dati tabulari \\
@@ -267,7 +267,7 @@ Grazie al vincolo imposto da $\rho$, i cinque benchmark aggregati presentano un'
 \begin{tabular}{lcccccc}
 \hline
 \textbf{Benchmark} & \textbf{Istanze Normali} & \textbf{Istanze Anomale} & \textbf{Totale} & \textbf{Training Set} & \textbf{Test Set} \\[-5pt]
-                   & \textit{Normal $Y=0$}    & \textit{$Y=1$}           & \textbf{Istanze} & \textit{(80\%)}       & \textit{(20\%)} \\
+                   & \textbf{\textit{Normal $Y=0$}} & \textbf{\textit{$Y=1$}} & \textbf{Istanze} & \textbf{\textit{(80\%)}} & \textbf{\textit{(20\%)}} \\
 \hline
 \texttt{INJECTION} (Baseline) & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
 \texttt{NB15} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
@@ -397,7 +397,7 @@ Per garantire l'interoperabilità e la generalizzabilità dei modelli di apprend
     & TTL e Perdita Pacchetti & \texttt{sttl}, \texttt{dttl}, \texttt{sloss}, \texttt{dloss}, \texttt{is\_sm\_ips\_ports} \\
     & Jitter, TCP e Metriche & \texttt{sjit}, \texttt{djit}, \texttt{sinpkt}, \texttt{dinpkt}, \texttt{tcprtt}, \texttt{synack}, \texttt{ackdat}, \texttt{stcpb}, \texttt{dtcpb} \\
     & Metriche Ridondanti & \texttt{smean}, \texttt{dmean}, \texttt{rate} \\
-    \hline
+    \addlinespace
     Target ($\mathcal{D}_T$) 
     & Statistiche Lunghezza & \texttt{pkt\_len\_min}, \texttt{pkt\_len\_max}, \texttt{pkt\_len\_std}, \texttt{fw\_hdr\_len} \\
     & Flag TCP & \texttt{bw\_psh\_flag}, \texttt{fw\_urg\_flag}, \texttt{bw\_urg\_flag}, \texttt{fin\_cnt}, \texttt{syn\_cnt}, \texttt{psh\_cnt}, \texttt{urg\_cnt}, \texttt{ece\_cnt} \\
@@ -448,7 +448,7 @@ La Tabella~\ref{tab:mapping_operator} formalizza le trasformazioni scalari $\psi
 \resizebox{\textwidth}{!}{
 \begin{tabular}{lllc}
 \hline
-\textbf{Feature Coordinata ($x_j$)} & \textbf{Dominio Sorgente ($\psi_{S,j}$)} & \textbf{Dominio Target ($\psi_{T,j}$)} & \textbf{Unità di Misura} \\
+\textbf{Feature Coordinata ($\bf{x_j}$)} & \textbf{Dominio Sorgente ($\bf{\psi_{S,j}}$)} & \textbf{Dominio Target ($\bf{\psi_{T,j}}$)} & \textbf{Unità di Misura} \\
 \hline
 \texttt{duration} & $\texttt{dur} \cdot 10^6$ & \texttt{fl\_dur} & $\mu$s \\
 \texttt{src\_bytes} & \texttt{sbytes} & \texttt{l\_fw\_pkt} & Byte \\
@@ -543,31 +543,30 @@ La Tabella~\ref{tab:hyperparameters_summary} sintetizza la corrispondenza tra le
 \centering
 \caption{Configurazione degli iperparametri di default e classi \texttt{scikit-learn} utilizzate per ciascuna famiglia di classificatori.}
 \label{tab:hyperparameters_summary}
-\begin{tabular}{l}
-\hline
-\textbf{Decision Tree (DT) - \texttt{DecisionTreeClassifier}} \\
-\hline
-\texttt{criterion} = \textquotesingle gini\textquotesingle, \quad
-\texttt{max\_depth} = \texttt{None}, \quad
-\texttt{min\_samples\_split} = 2 \\
-\hline
-\textbf{Random Forest (RF) - \texttt{RandomForestClassifier}} \\
-\hline
-\texttt{n\_estimators} = 100, \quad
-\texttt{criterion} = \textquotesingle gini\textquotesingle, \quad
-\texttt{max\_depth} = \texttt{None}, \\
-\texttt{max\_features} = \textquotesingle sqrt\textquotesingle, \quad
-\texttt{min\_samples\_split} = 2 \\
-\hline
-\textbf{Hist. Gradient Boosting (HGB) - \texttt{HistGradientBoostingClassifier}} \\
-\hline 
-\texttt{learning\_rate} = 0.1, \quad
-\texttt{max\_iter} = 100, \quad
-\texttt{max\_depth} = \texttt{None}, \\
-\texttt{max\_leaf\_nodes} = 31, \quad
-\texttt{l2\_regularization} = 0.0 \\
-\hline
-\end{tabular}
+\begin{tabularx}{\textwidth}{l >{\ttfamily}l >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Algoritmo} & \textbf{\textrm{Classe} \texttt{scikit-learn}} & \textbf{Iperparametri di Default} \\
+\midrule
+Decision Tree (DT) & DecisionTreeClassifier & 
+\texttt{criterion='gini'}, 
+\texttt{max\_depth=None}, 
+\texttt{min\_samples\_split=2} \\
+\addlinespace
+Random Forest (RF) & RandomForestClassifier & 
+\texttt{n\_estimators=100}, 
+\texttt{criterion='gini'}, 
+\texttt{max\_depth=None}, 
+\texttt{max\_features='sqrt'}, 
+\texttt{min\_samples\_split=2} \\
+\addlinespace
+Hist. Gradient Boosting & HistGradientBoostingClassifier & 
+\texttt{learning\_rate=0.1}, 
+\texttt{max\_iter=100}, 
+\texttt{max\_depth=None}, 
+\texttt{max\_leaf\_nodes=31}, 
+\texttt{l2\_regularization=0.0} \\
+\bottomrule
+\end{tabularx}
 \end{table}
 
 Per garantire un tracciamento rigoroso del ciclo di vita dei modelli, l'istanziamento e l'addestramento non disperdono lo stato interno degli stimatori. 
@@ -579,18 +578,19 @@ Tale meccanismo di tracciamento memorizza per ogni modello un record identificat
 \centering
 \caption[Struttura e campi del record di tracciamento persistito nel registro models\_metadata.csv]{Struttura e campi del record di tracciamento persistito nel registro \\ \texttt{models\_metadata.csv}.}
 \label{tab:models_metadata_schema}
-\begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X}
-\hline
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{5cm} >{\raggedright\arraybackslash}X}
+\toprule
 \textbf{Categoria Logica} & \textbf{Campi Registrati} \\
-\hline
-\textbf{Metadati di Identificazione} & \texttt{id}, \texttt{timestamp}, \texttt{model\_name}, \texttt{dataset\_type}, \texttt{random\_state} \\
-\hline
-\textbf{Proprietà Struttura Dati} & \texttt{samples}, \texttt{train\_split}, \texttt{n\_features\_in}, \texttt{n\_classes} \\
-\hline
-\textbf{Config. Iperparametrica} & \texttt{n\_estimators}, \texttt{max\_depth}, \texttt{max\_features}, \texttt{criterion}, \texttt{min\_samples\_split}, \texttt{learning\_rate}, \texttt{max\_iter} \\
-\hline
-\textbf{Valutazione In-Sample} & Matrice di confusione grezza (\texttt{TP}, \texttt{TN}, \texttt{FP}, \texttt{FN}) e metriche derivate di addestramento (\texttt{Accuracy}, \texttt{Precision}, \texttt{Recall}, \texttt{F1-Score}, \texttt{ROC-AUC}, \texttt{PR-AUC}, \texttt{TPR}, \texttt{FPR}) \\
-\hline
+\midrule
+Metadati di Identificazione & 
+\texttt{id}, \texttt{timestamp}, \texttt{model\_name}, \texttt{dataset\_type}, \texttt{random\_state} \\
+Proprietà Struttura Dati & 
+\texttt{samples}, \texttt{train\_split}, \texttt{n\_features\_in}, \texttt{n\_classes} \\
+Config. Iperparametrica & 
+\texttt{n\_estimators}, \texttt{max\_depth}, \texttt{max\_features}, \texttt{criterion}, \texttt{min\_samples\_split}, \texttt{learning\_rate}, \texttt{max\_iter} \\
+Valutazione In-Sample & 
+Matrice di confusione grezza (\texttt{TP}, \texttt{TN}, \texttt{FP}, \texttt{FN}) e metriche derivate di addestramento (\texttt{Accuracy}, \texttt{Precision}, \texttt{Recall}, \texttt{F1-Score}, \texttt{ROC-AUC}, \texttt{PR-AUC}, \texttt{TPR}, \texttt{FPR}) \\
+\bottomrule
 \end{tabularx}
 \end{table}
 
@@ -707,34 +707,28 @@ In perfetta simmetria con la suddivisione concettuale tra dominio sorgente e dom
 \centering
 \caption{Istanze dei modelli biclasse generati per il dominio sorgente e i domini target ibridizzati.}
 \label{tab:biclass_models_summary}
-\begin{tabular}{l l}
-\hline
-\textbf{Categoria e Dominio} & \textbf{Istanze Modello Biclasse} \\
-\hline
-\makecell[tl]{\textbf{Modelli Sorgente}} & 
-\makecell[tl]{%
-\texttt{nb15\_dos} \\
-\texttt{nb15\_exploits} \\
-\texttt{nb15\_fuzzers} \\
-\texttt{nb15\_generic} \\
-\texttt{nb15\_reconnaissance}%
-} \\
-\hline
-\makecell[tl]{\textbf{Modelli Ibridi Target}} & 
-\makecell[tl]{%
-\texttt{nb15\_sat20\_syn\_ddos} \\
-\texttt{nb15\_sat20\_udp\_ddos}%
-} \\
-\hline
-\makecell[tl]{\textbf{Modelli Ibridi Target}} & 
-\makecell[tl]{%
-\texttt{nb15\_ter20\_botnet} \\
-\texttt{nb15\_ter20\_ddos} \\
-\texttt{nb15\_ter20\_syn\_ddos} \\
-\texttt{nb15\_ter20\_udp\_ddos}%
-} \\
-\hline
-\end{tabular}
+\begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Categoria} & \textbf{Dominio} & \textbf{Istanze Modello Biclasse} \\
+\midrule
+Modelli Sorgente & UNSW-NB15 & 
+\texttt{nb15\_dos} \newline
+\texttt{nb15\_exploits} \newline
+\texttt{nb15\_fuzzers} \newline
+\texttt{nb15\_generic} \newline
+\texttt{nb15\_reconnaissance} \\
+\addlinespace
+Modelli Ibridi Target & SAT20 & 
+\texttt{nb15\_sat20\_syn\_ddos} \newline
+\texttt{nb15\_sat20\_udp\_ddos} \\
+\addlinespace
+Modelli Ibridi Target & TER20 & 
+\texttt{nb15\_ter20\_botnet} \newline
+\texttt{nb15\_ter20\_ddos} \newline
+\texttt{nb15\_ter20\_syn\_ddos} \newline
+\texttt{nb15\_ter20\_udp\_ddos} \\
+\bottomrule
+\end{tabularx}
 \end{table}
 
 L'integrazione di questa logica all'interno del codice sorgente sfrutta elevati livelli di automazione. 
@@ -1262,35 +1256,35 @@ L'intero flusso di aggregazione dei dati e la pipeline di calcolo del test stati
 
     % Nodi del flusso
     \node [node_output] (in_csv) {
-        $K$ file\\ 
+        \textbf{$K$ file}\\ 
         \texttt{classifications.csv}\\
         (un file per seed $s_k$)
     };
     
     \node [node_process, below=1cm of in_csv] (agg) {
-        Media sui Dataset\\ 
+        \textbf{Media sui Dataset}\\ 
         \texttt{aggregate\_welch\_ttest\_feature\_scores\_by\_seed()}\\ 
         $\overline{F1}_{i}^{(k)}$
     };
     
     \node [node_process, below=1cm of agg] (pivot) {
-        Operazione di Pivot\\ 
+        \textbf{Operazione di Pivot}\\ 
         Matrice Modelli $\times$ Seed
     };
     
     \node [node_output, right=1cm of pivot] (mid_csv) {
-        \texttt{F1-Score\_means.csv}\\
+        \textbf{\texttt{F1-Score\_means.csv}}\\
         (Dati Intermedi)
     };
     
     \node [node_process, below=1cm of pivot] (test) {
-        Test $t$ di Welch\\ 
+        \textbf{Test $t$ di Welch}\\ 
         \texttt{ttest\_ind()}\\ 
         (\textit{equal\_var=False})
     };
     
     \node [node_output, below=1cm of test] (out_csv) {
-        \texttt{welch\_ttest.csv}\\
+        \textbf{\texttt{welch\_ttest.csv}}\\
         (Risultati Statistici)
     };
 
@@ -1785,33 +1779,34 @@ Sebbene entrambe le funzioni condividano la medesima filosofia di standardizzazi
 \label{tab:confronto_pca_kde}
 \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{4cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
 \toprule
-\textbf{Dimensione di Confronto} & \textbf{Procedura \texttt{save\_all\_pca\_plots()}} & \textbf{Procedura \texttt{save\_all\_kde\_plots()}} \\
+\textbf{Dimensione di} & \textbf{Procedura} & \textbf{Procedura} \\[-5pt]
+\textbf{Confronto} & \textbf{\texttt{save\_all\_pca\_plots()}} & \textbf{\texttt{save\_all\_kde\_plots()}} \\
 \midrule
-\textbf{Obiettivo Diagnostico} & 
+Obiettivo Diagnostico & 
 Ispezione geometrica della separabilità globale e variabilità nello spazio 2D & 
 Analisi densometrica univariata del \textit{domain shift} sulle feature chiave \\
 \addlinespace
-\textbf{Partizione Input} & 
+Partizione Input & 
 Filtraggio esplicito della sola partizione di \texttt{test} & 
 Dataset completo senza filtraggio sulla colonna \texttt{split\_type} \\
 \addlinespace
-\textbf{Feature Considerate} & 
+Feature Considerate & 
 Tutto lo spazio vettoriale (escluse colonne target e meta-dati) & 
 Sottoinsieme ridotto Top-3 SHAP (\texttt{pkts\_per\_sec}, \texttt{total\_bytes}, \texttt{dst\_win\_byt}) \\
 \addlinespace
-\textbf{Ancoraggio Statistico} & 
+Ancoraggio Statistico & 
 Fit di \texttt{StandardScaler} e \texttt{PCA(n\_components=2)} su $\mathbf{X}_{S,\mathrm{test}}$ & 
 Fit di \texttt{StandardScaler} sulle sole 3 feature del sorgente $S$ \\
 \addlinespace
-\textbf{Trasformazione Target} & 
+Trasformazione Target & 
 Applica \texttt{scaler.transform()} e \texttt{pca.transform()} congelati & 
 Mappatura vettoriale ancorata: $Z_D = (X_D - \mu_S)/(\sigma_S + \epsilon)$ \\
 \addlinespace
-\textbf{Spazio di Rappresentazione} & 
+Spazio di Rappresentazione & 
 Spazio proiettato bidimensionale (PC1 vs PC2) con \% varianza spiegata & 
 Asse orizzontale in Z-Score adimensionale; asse verticale in scala \texttt{symlog} \\
 \addlinespace
-\textbf{Output Grafico} & 
+Output Grafico & 
 Scatter plot 2D con distinzione cromatica binaria per classe & 
 Pannelli affiancati di stime KDE riempite (\texttt{fill=True}) \\
 \bottomrule
@@ -1959,15 +1954,15 @@ L'intera architettura della pipeline, articolata nelle sue quattro fasi di elabo
         % FASE 1: CAMPIONAMENTO STRATIFICATO
         % ==========================================
         \node[node_database] (input) {
-            Dataset di Test\\
+            \textbf{Dataset di Test}\\
             $X_{\mathrm{test}}, y_{\mathrm{test}}$
         };
         \node[node_process, right=1.5cm of input] (sampling) {
-            Campionamento\\
-            Stratificato
+            \textbf{Campionamento}\\[-5pt]
+            \textbf{Stratificato}
         };
         \node[node_transform, right=1.5cm of sampling] (sample_data) {
-            Campione\\
+            \textbf{Campione}\\
             $X_{\mathrm{sampled}}$
         };
         
@@ -1978,15 +1973,15 @@ L'intera architettura della pipeline, articolata nelle sue quattro fasi di elabo
         % FASE 2: SELEZIONE EXPLAINER E FALLBACK
         % ==========================================
         \node[node_primary, below=2cm of input] (exp_tree) {
-            \texttt{TreeExplainer}\\
+            \textbf{\texttt{TreeExplainer}}\\
             (\texttt{tree\_path})
         };
         \node[node_transform, right=1.5cm of exp_tree] (exp_gen) {
-            \texttt{TreeExplainer}\\
+            \textbf{\texttt{TreeExplainer}}\\
             (Generico)
         };
         \node[node_accent, right=1.5cm of exp_gen] (exp_uni) {
-            \texttt{Explainer}\\
+            \textbf{\texttt{Explainer}}\\
             (Universale)
         };
         
@@ -2001,11 +1996,11 @@ L'intera architettura della pipeline, articolata nelle sue quattro fasi di elabo
         % FASE 3: CALCOLO E NORMALIZZAZIONE
         % ==========================================
         \node[node_process, below=2cm of exp_tree] (shap_calc) {
-            Calcolo Metriche\\
+            \textbf{Calcolo Metriche}\\
             \texttt{shap\_values()}
         };
         \node[node_transform, right=2cm and 1.5cm of shap_calc] (norm) {
-            Estrazione Tensore\\
+            \textbf{Estrazione Tensore}\\
             Classe 1 (Anomalie)
         };
 
@@ -2021,11 +2016,11 @@ L'intera architettura della pipeline, articolata nelle sue quattro fasi di elabo
         % FASE 4: RENDERING E PERSISTENZA
         % ==========================================
         \node[node_primary, below=2cm of shap_calc] (render) {
-            Rendering\\ 
+            \textbf{Rendering}\\ 
             \texttt{summary\_plot(dot)}
         };
         \node[node_output, right=1.5cm of render] (output) {
-            Salvataggio\\ 
+            \textbf{Salvataggio}\\ 
             PNG (300 dpi)
         };
 
@@ -2138,20 +2133,29 @@ La procedura consente pertanto di mantenere separati gli artefatti di spiegabili
 A completamento della descrizione implementativa, la Tabella \ref{tab:shap_config_parameters} sintetizza i parametri principali definiti all'interno del modulo, esplicitando le configurazioni adottate e le rispettive motivazioni ingegneristiche.
 
 \begin{table}[H]
-    \centering
-    \caption{Sintesi dei parametri di configurazione e delle scelte ingegneristiche della pipeline SHAP.}
-    \label{tab:shap_config_parameters}
-    \begin{tabularx}{\textwidth}{l l X}
-        \toprule
-        \textbf{Parametro / Metrica} & \textbf{Valore / Impostazione} & \textbf{Scopo Ingegneristico e Funzionale} \\
-        \midrule
-        \texttt{SHAP\_MAX\_SAMPLES} & $500$ & Contenimento del costo computazionale e della complessità temporale $O(N)$ nel calcolo dei valori SHAP. \\
-        \texttt{NORMAL\_ANOMALY\_RATIO} & $10$ ($10:1$) & Preservazione del rapporto di sbilanciamento nativo ($\rho = 10:1$) tra la classe nominale e quella anomala. \\
-        \texttt{feature\_perturbation} & \texttt{"tree\_path\_dependent"} & Calcolo rapido delle aspettative condizionali lungo i percorsi degli alberi senza dipendenza da un dataset di \textit{background} esplicito. \\
-        \texttt{plot\_type} & \texttt{"dot"} & Visualizzazione ad alta densità che mostra simultaneamente ampiezza, verso e dispersione dei contributi di ciascuna caratteristica. \\
-        \texttt{check\_additivity} & \texttt{False} & Prevenzione dell'interruzione della pipeline causata da microscopiche discrepanze numeriche di precisione in virgola mobile (\textit{floating-point}). \\
-        \bottomrule
-    \end{tabularx}
+\centering
+\caption{Sintesi dei parametri di configurazione e delle scelte ingegneristiche della pipeline SHAP.}
+\label{tab:shap_config_parameters}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{6cm} >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Parametro = Impostazione} & \textbf{Scopo Ingegneristico e Funzionale} \\
+\midrule
+\texttt{SHAP\_MAX\_SAMPLES = 500} & 
+Contenimento del costo computazionale e della complessità temporale $O(N)$ nel calcolo dei valori SHAP. \\
+\addlinespace
+\texttt{NORMAL\_ANOMALY\_RATIO = 10} ($10:1$) & 
+Preservazione del rapporto di sbilanciamento nativo ($\rho = 10:1$) tra la classe nominale e quella anomala. \\
+\addlinespace
+\texttt{feature\_perturbation = "tree\_path\_dependent"} & 
+Calcolo rapido delle aspettative condizionali lungo i percorsi degli alberi senza dipendenza da un dataset di \textit{background} esplicito. \\
+\addlinespace
+\texttt{plot\_type = "dot"} & 
+Visualizzazione ad alta densità che mostra simultaneamente ampiezza, verso e dispersione dei contributi di ciascuna caratteristica. \\
+\addlinespace
+\texttt{check\_additivity = False} & 
+Prevenzione dell'interruzione della pipeline causata da microscopiche discrepanze numeriche di precisione in virgola mobile (\textit{floating-point}). \\
+\bottomrule
+\end{tabularx}
 \end{table}
 
 Nel complesso, l'implementazione realizza una pipeline di spiegabilità indipendente dalla fase di addestramento: il modello già addestrato viene utilizzato come input per \texttt{TreeExplainer} o, quando necessario, per l'explainer generico di \texttt{shap}, mentre le spiegazioni vengono calcolate su un campione controllato del test set. 
@@ -2175,35 +2179,35 @@ Al fine di formalizzare la natura ibrida di tale procedura, la Figura~\ref{fig:s
         
         % FASE 1: Automazione Diagnostica (Livello 1)
         \node[node_primary] (shap_gen) {
-            Generazione Batch \\ 
+            \textbf{Generazione Batch} \\ 
             \texttt{save\_shap\_plot()}
         };
         \node[node_output, below=1cm of shap_gen] (shap_plots) {
-            Collezione Grafici SHAP \\ 
+            \textbf{Collezione Grafici SHAP} \\ 
             $(r = 1 \dots R)$
         };
         
         % FASE 2: Intervento Supervisionato (Livello 2)
         \node[node_accent, below=2cm of shap_plots] (human_eval) {
-            Ispezione Visiva dei rank $\mathcal{T}_r$ \\ 
+            \textbf{Ispezione Visiva dei rank $\bf{\mathcal{T}_r}$} \\ 
             e calcolo del contatore $C_j$
         };
         \node[node_transform, right=1cm of human_eval] (top_features) {
-            Ordinamento Empirico \\ 
-            e Selezione Top-3
+            \textbf{Ordinamento Empirico} \\[-5pt]
+            \textbf{e Selezione Top-3}
         };
         \node[node_process, below=1cm of top_features] (config_var) {
-            Definizione Costante \\ 
+            \textbf{Definizione Costante} \\ 
             \texttt{KDE\_TOP\_FEATURES}
         };
         
         % FASE 3: Automazione Densometrica (Livello 3)
         \node[node_primary, below left=2cm and 1.42cm of config_var] (kde_gen) {
-            Pipeline Densometrica \\ 
+            \textbf{Pipeline Densometrica} \\ 
             \texttt{save\_all\_kde\_plots()}
         };
         \node[node_output, below=1cm of kde_gen] (kde_plots) {
-            Esportazione Finale \\ 
+            \textbf{Esportazione Finale} \\ 
             Grafici KDE
         };
 
@@ -2211,7 +2215,7 @@ Al fine di formalizzare la natura ibrida di tale procedura, la Figura~\ref{fig:s
         % FRECCE E CONNESSIONI
         % =====================================================================
         \draw[arrow_flow] (shap_gen) -- (shap_plots);
-        \draw[arrow_target] (shap_plots) -- (human_eval) node[midway, pos=0.4, right, font=\footnotesize] {Output Analizzato};
+        \draw[arrow_target] (shap_plots) -- (human_eval) node[midway, left, font=\footnotesize] {Output Analizzato};
         \draw[arrow_flow] (human_eval) -- (top_features);
         \draw[arrow_flow] (top_features) -- (config_var);
         \draw[arrow_param] (config_var) |- (kde_gen) node[near start, right, font=\footnotesize, align=center] {Iniezione\\[-5pt] Parametro};
@@ -2232,7 +2236,7 @@ Al fine di formalizzare la natura ibrida di tale procedura, la Figura~\ref{fig:s
         \end{scope}
 
         \node[above, font=\footnotesize\bfseries, color=neutralgrey, fill=white] at (box_l1.north) {Fase 1: Automazione Diagnostica};
-        \node[above right, font=\footnotesize\bfseries, color=paramgreen, fill=white] at (box_l2.north west) {Fase 2: Intervento Supervisionato};
+        \node[above, font=\footnotesize\bfseries, color=paramgreen] at (box_l2.north) {Fase 2: Intervento Supervisionato};
         \node[above, font=\footnotesize\bfseries, color=neutralgrey, fill=white] at (box_l3.north) {Fase 3: Automazione Densometrica};
         
     \end{tikzpicture}
@@ -2339,37 +2343,36 @@ La composizione complessiva degli stadi implementativi è sintetizzata nella Fig
 % =====================================================================
 
 \node[node_database] (input_data) {
-    Dataset Sorgente e Target\\
+    \textbf{Dataset Sorgente e Target}\\
     $\mathcal{D}_S,\mathcal{D}_T$
 };
 
 \node[node_process, below=0.7cm of input_data] (preprocessing) {
-    Preprocessing e Armonizzazione\\
-    $\boldsymbol{\psi}_k$
+    \textbf{Preprocessing e Armonizzazione}
 };
 
 \node[node_transform, below=0.7cm of preprocessing] (benchmarks) {
-    Costruzione dei Benchmark\\
-    Partizionamento train/test
+    \textbf{Costruzione dei Benchmark}\\[-5pt]
+    \textbf{Partizionamento train/test}
 };
 
 \node[node_primary, below=0.7cm of benchmarks] (training) {
-    Addestramento Multi-Seed\\
+    \textbf{Addestramento Multi-Seed}\\
     DT / RF / HGB
 };
 
 \node[node_process, below=0.7cm of training] (inference) {
-    Inferenza sul Test Set\\
+    \textbf{Inferenza sul Test Set}\\
     Predizioni e punteggi
 };
 
 \node[node_transform, below=0.7cm of inference] (evaluation) {
-    Valutazione Metriche, Matrici\\
-    e SHAP / TreeSHAP
+    \textbf{Valutazione Metriche, Matrici}\\[-5pt]
+    \textbf{e SHAP / TreeSHAP}
 };
 
 \node[node_output, below=0.7cm of evaluation] (statistics) {
-    Analisi Statistica\\
+    \textbf{Analisi Statistica}\\
     Aggregazione e test di Welch
 };
 
@@ -2385,17 +2388,17 @@ La composizione complessiva degli stadi implementativi è sintetizzata nella Fig
 % =====================================================================
 
 \node[node_accent, right=2cm of benchmarks] (diagnostic) {
-    Analisi Diagnostica\\
+    \textbf{Analisi Diagnostica}\\
     Standardizzazione dipendente da $S$
 };
 
 \node[node_transform, below=0.7cm of diagnostic] (pca) {
-    PCA 2D\\
+    \textbf{PCA 2D}\\
     Proiezione dei benchmark
 };
 
 \node[node_output, below=0.7cm of pca] (kde) {
-    KDE\\
+    \textbf{KDE}\\
     Feature selezionate
 };
 
@@ -2408,7 +2411,7 @@ La composizione complessiva degli stadi implementativi è sintetizzata nella Fig
 % =====================================================================
 
 \node[node_database, below right=-2.05cm and 3.27cm of statistics] (artifacts) {
-    Persistenza degli Artefatti\\
+    \textbf{Persistenza degli Artefatti}\\
     Modelli, CSV e grafici
 };
 
@@ -2419,7 +2422,7 @@ La composizione complessiva degli stadi implementativi è sintetizzata nella Fig
 % =====================================================================
 
 \node[node_output, below=0.7cm of statistics] (chapter5) {
-    Capitolo 5\\
+    \textbf{Capitolo 5}\\
     Analisi dei risultati
 };
 
@@ -2435,9 +2438,9 @@ La composizione complessiva degli stadi implementativi è sintetizzata nella Fig
     \node[group_box, fit=(artifacts)] (artifact_pipeline) {};
 \end{scope}
 
-\node[above, font=\footnotesize\bfseries, color=neutralgrey, fill=white] at (main_pipeline.north) {Flusso principale di Training, Inferenza e Valutazione};
-\node[above, font=\footnotesize\bfseries, color=paramgreen, fill=white] at (diagnostic_pipeline.north) {Modulo Diagnostico};
-\node[above, font=\footnotesize\bfseries, color=neutralgrey, fill=white] at (artifact_pipeline.north) {Persistenza};
+\node[above, font=\footnotesize\bfseries, color=neutralgrey] at (main_pipeline.north) {Flusso principale di Training, Inferenza e Valutazione};
+\node[above, font=\footnotesize\bfseries, color=paramgreen] at (diagnostic_pipeline.north) {Modulo Diagnostico};
+\node[above, font=\footnotesize\bfseries, color=neutralgrey] at (artifact_pipeline.north) {Persistenza};
 
 \end{tikzpicture}
 \caption{Sintesi end-to-end della pipeline implementativa. Il flusso principale attraversa le fasi di preprocessing, costruzione dei benchmark, addestramento multi-seed, inferenza, valutazione e analisi statistica; in parallelo, il modulo diagnostico realizza le procedure PCA e KDE. Gli artefatti prodotti vengono persistiti e costituiscono l'input documentale per la successiva analisi dei risultati.}
