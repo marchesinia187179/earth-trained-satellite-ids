@@ -1946,22 +1946,22 @@ except Exception as explainer_err:
 
 L'intera architettura della pipeline, articolata nelle sue quattro fasi di elaborazione (dal campionamento iniziale alla persistenza dell'artefatto), è schematizzata in Figura \ref{fig:shap_pipeline_architecture}.
 
-% --- INSERIRE QUI LA FIGURA TIKZ ---
 \begin{figure}[H]
     \centering
-    \begin{tikzpicture}
+    \begin{tikzpicture}[]
+
         % ==========================================
-        % FASE 1: CAMPIONAMENTO STRATIFICATO
+        % FASE 1: CAMPIONAMENTO STRATIFICATO (Livello 1)
         % ==========================================
-        \node[node_database] (input) at (0,0) {
-            \textbf{Dataset di Test}\\
-            $X_{\mathrm{test}}, y_{\mathrm{test}}$
-        };
-        \node[node_process, below=1cm of input] (sampling) {
+        \node[node_process] (sampling) at (0,0) {
             \textbf{Campionamento}\\[-5pt]
             \textbf{Stratificato}
         };
-        \node[node_transform, below=1cm of sampling] (sample_data) {
+        \node[node_database, left=1.5cm of sampling] (input) {
+            \textbf{Dataset di Test}\\
+            $X_{\mathrm{test}}, y_{\mathrm{test}}$
+        };
+        \node[node_transform, right=1.5cm of sampling] (sample_data) {
             \textbf{Campione}\\
             $X_{\mathrm{sampled}}$
         };
@@ -1970,88 +1970,112 @@ L'intera architettura della pipeline, articolata nelle sue quattro fasi di elabo
         \draw[arrow_flow] (sampling) -- (sample_data);
         
         % ==========================================
-        % FASE 2: SELEZIONE EXPLAINER E FALLBACK
+        % FASE 2: SELEZIONE EXPLAINER E FALLBACK (Livello 2)
         % ==========================================
-        \node[node_primary, right=2cm of input] (exp_tree) {
-            \textbf{\texttt{TreeExplainer}}\\
-            (\texttt{tree\_path})
-        };
-        \node[node_transform, below=1cm of exp_tree] (exp_gen) {
+        \node[node_transform, below=2cm of sampling] (exp_gen) {
             \textbf{\texttt{TreeExplainer}}\\
             (Generico)
         };
-        \node[node_accent, below=1cm of exp_gen] (exp_uni) {
+        \node[node_primary, left=1.5cm of exp_gen] (exp_tree) {
+            \textbf{\texttt{TreeExplainer}}\\
+            (\texttt{tree\_path})
+        };
+        \node[node_accent, right=1.5cm of exp_gen] (exp_uni) {
             \textbf{\texttt{Explainer}}\\
             (Universale)
         };
         
-        % Connessione dalla Fase 1 (scende e va a sinistra)
-        \draw[arrow_flow] (sample_data.south) -- ++(0, -0.75) -| (exp_tree.north);
-
-        % Frecce di fallback (Eccezioni)
-        \draw[arrow_alert, dashed] (exp_tree) -- node[above, font=\footnotesize, color=alertred] {Fallback} (exp_gen);
-        \draw[arrow_alert, dashed] (exp_gen) -- node[above, font=\footnotesize, color=alertred] {Fallback} (exp_uni);
+        % Frecce di fallback (Eccezioni interne alla Fase 2)
+        \draw[arrow_alert, dashed] (exp_tree) -- node[above, font=\footnotesize\bfseries, color=alertred] {Fallback} (exp_gen);
+        \draw[arrow_alert, dashed] (exp_gen) -- node[above, font=\footnotesize\bfseries, color=alertred] {Fallback} (exp_uni);
         
         % ==========================================
-        % FASE 3: CALCOLO E NORMALIZZAZIONE
+        % FASE 3: CALCOLO E NORMALIZZAZIONE (Livello 3)
         % ==========================================
-        \node[node_process, right=2cm of exp_tree] (shap_calc) {
+        \coordinate (c3) at ($(sampling |- exp_gen) + (0, -0.8cm)$);
+        \node[node_process, below left=2cm and 0.75cm of c3] (shap_calc) {
             \textbf{Calcolo Metriche}\\
             \texttt{shap\_values()}
         };
-        \node[node_transform, below=1cm of shap_calc] (norm) {
+        \node[node_transform, below right=2cm and 0.75cm of c3] (norm) {
             \textbf{Estrazione Tensore}\\
             Classe 1 (Anomalie)
         };
 
-        % 1. Linee che scendono e convergono nel punto di giunzione comune
-        \draw[arrow_flow] (exp_tree.south) -- ++(0, -0.75) -| (shap_calc.north);
-        \draw[arrow_flow, -] (exp_gen.south)  -- ++(0, -0.75) -| ($(exp_tree.south) + (0, -0.75)$);
-        \draw[arrow_flow, -] (exp_uni.south)  -- ++(0, -0.75) -| ($(exp_gen.south) + (0, -0.75)$);
-
-        % Connessione normalizzazione
         \draw[arrow_flow] (shap_calc) -- (norm);
         
         % ==========================================
-        % FASE 4: RENDERING E PERSISTENZA
+        % FASE 4: RENDERING E PERSISTENZA (Livello 4)
         % ==========================================
-        \node[node_primary, right=2cm of shap_calc] (render) {
+        \coordinate (c4) at ($(c3) + (0, -3.4cm)$);
+        \node[node_primary, below left=2cm and 0.75cm of c4] (render) {
             \textbf{Rendering}\\ 
             \texttt{summary\_plot(dot)}
         };
-        \node[node_output, below=1cm of render] (output) {
+        \node[node_output, below right=2cm and 0.75cm of c4] (output) {
             \textbf{Salvataggio}\\ 
-            PNG (300 dpi)
+            PNG
         };
 
-        % Connessione dalla Fase 3 (scende e va a sinistra)
-        \draw[arrow_flow] (norm.south) -- ++(0, -0.75) -| (render.north);
         \draw[arrow_flow] (render) -- (output);
         
+        % ==========================================
+        % COORDINATE DI RIFERIMENTO PER MARGINI UNIFORMI
+        % ==========================================
+        \coordinate (L_ref) at ($(exp_tree.west) - (12pt, 0)$);
+        \coordinate (R_ref) at ($(exp_uni.east) + (12pt, 0)$);
+
+        % ==========================================
+        % CONNETTORI PACMAN (TRANSIZIONI TRA LE FASI)
+        % ==========================================
+
+        % --- Transizione Fase 1 -> Fase 2 ---
+        % Uscita verso destra da Fase 1
+        \draw[neutralgrey, thick] (sample_data.east) -- (sample_data.east -| R_ref) [dashed] -- ++(1cm, 0);
+        % Ingresso da sinistra in Fase 2
+        \draw[neutralgrey, thick, dashed] ($(exp_tree.west -| L_ref) - (1cm, 0)$) -- (exp_tree.west -| L_ref) [solid, -{Stealth[scale=1.1]}] -- (exp_tree.west);
+
+        % --- Transizione Fase 2 -> Fase 3 ---
+        % Bus di convergenza della Fase 2 che esce a destra
+        \coordinate (bus_y) at ($(exp_gen.south) + (0, -0.8cm)$);
+        \draw[neutralgrey, thick] (exp_tree.south) -- (exp_tree.south |- bus_y);
+        \draw[neutralgrey, thick] (exp_gen.south)  -- (exp_gen.south |- bus_y);
+        \draw[neutralgrey, thick] (exp_uni.south)  -- (exp_uni.south |- bus_y);
+        \draw[neutralgrey, thick] (exp_tree.south |- bus_y) -- (bus_y -| R_ref) [dashed] -- ++(1cm, 0);
+        % Ingresso da sinistra in Fase 3
+        \draw[neutralgrey, thick, dashed] ($(shap_calc.west -| L_ref) - (1cm, 0)$) -- (shap_calc.west -| L_ref) [solid, -{Stealth[scale=1.1]}] -- (shap_calc.west);
+
+        % --- Transizione Fase 3 -> Fase 4 ---
+        % Uscita verso destra da Fase 3
+        \draw[neutralgrey, thick] (norm.east) -- (norm.east -| R_ref) [dashed] -- ++(1cm, 0);
+        % Ingresso da sinistra in Fase 4
+        \draw[neutralgrey, thick, dashed] ($(render.west -| L_ref) - (1cm, 0)$) -- (render.west -| L_ref) [solid, -{Stealth[scale=1.1]}] -- (render.west);
+
         % ==========================================
         % BACKGROUND E RAGGRUPPAMENTI
         % ==========================================
         \begin{scope}[on background layer]
             % Box Fase 1
-            \node[group_box, fit=(input) (sampling) (sample_data)] (g1) {};
+            \node[group_box, fit=(input) (sample_data) (L_ref |- input) (R_ref |- sample_data)] (g1) {};
             
-            % Box Fase 2
-            \node[group_highlight, fit=(exp_tree) (exp_gen) (exp_uni)] (g2) {};
+            % Box Fase 2 (Evidenziato)
+            \node[group_highlight, fit=(exp_tree) (exp_uni) (L_ref |- exp_tree) (R_ref |- exp_uni)] (g2) {};
             
             % Box Fase 3
-            \node[group_box, fit=(shap_calc) (norm)] (g3) {};
+            \node[group_box, fit=(shap_calc) (norm) (L_ref |- shap_calc) (R_ref |- norm)] (g3) {};
             
             % Box Fase 4
-            \node[group_box, fit=(render) (output)] (g4) {};
+            \node[group_box, fit=(render) (output) (L_ref |- render) (R_ref |- output)] (g4) {};
         \end{scope}
 
-        \node[above, rotate=90, font=\footnotesize\bfseries, color=neutralgrey, fill=white] at (g1.west) {Fase 1: Campionamento Controllato (Quota $\rho=10$)};
-        \node[above right, font=\footnotesize\bfseries, color=paramgreen, fill=white] at (g2.north west) {Fase 2: Selezione Dinamica Explainer (Catena di Fallback)};
-        \node[above right, font=\footnotesize\bfseries, color=neutralgrey, fill=white] at (g3.north west) {Fase 3: Computazione e Normalizzazione Dimensionale};
-        \node[above right, font=\footnotesize\bfseries, color=neutralgrey, fill=white] at (g4.north west) {Fase 4: Rappresentazione Visiva e Persistenza};
+        % Titoli ancorati ai riquadri
+        \node[above, font=\footnotesize\bfseries, color=neutralgrey] at (g1.north) {Fase 1: Campionamento Controllato};
+        \node[above, font=\footnotesize\bfseries, color=paramgreen] at (g2.north) {Fase 2: Selezione Dinamica Explainer (Catena di Fallback)};
+        \node[above, font=\footnotesize\bfseries, color=neutralgrey] at (g3.north) {Fase 3: Computazione e Normalizzazione};
+        \node[above, font=\footnotesize\bfseries, color=neutralgrey] at (g4.north) {Fase 4: Rappresentazione e Persistenza};
 
     \end{tikzpicture}
-    \caption{Architettura della pipeline di spiegabilità SHAP per i modelli di classificazione. Il diagramma illustra le quattro fasi sequenziali: campionamento stratificato per il contenimento computazionale, selezione con \textit{fallback} del motore di spiegazione, estrazione normalizzata della componente anomala e salvataggio degli artefatti visivi.}
+    \caption{Architettura della pipeline di spiegabilità SHAP per i modelli di classificazione. Il diagramma illustra le quattro fasi sequenziali disposte in blocchi verticalmente allineati con connessioni di flusso circolare (effetto Pacman) sul margine destro/sinistro tra le diverse fasi.}
     \label{fig:shap_pipeline_architecture}
 \end{figure}
 
@@ -2215,7 +2239,7 @@ Al fine di formalizzare la natura ibrida di tale procedura, la Figura~\ref{fig:s
         \draw[arrow_target] (shap_plots) -- (human_eval) node[midway, left, font=\footnotesize] {Output Analizzato};
         \draw[arrow_flow] (human_eval) -- (top_features);
         \draw[arrow_flow] (top_features) -- (config_var);
-        \draw[arrow_param] (config_var) -- (kde_gen) node[midway, left, font=\footnotesize, align=center] {Iniezione Parametro};
+        \draw[arrow_param] (config_var) -- (kde_gen) node[midway, pos=0.55, left, font=\footnotesize] {Iniezione Parametro};
         \draw[arrow_flow] (kde_gen) -- (kde_plots);
 
         % =====================================================================
