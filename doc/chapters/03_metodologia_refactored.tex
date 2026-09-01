@@ -732,7 +732,7 @@ Target addestramento per $f_b$ & Etichette originali su campionamenti bootstrap 
         \node [node_primary, right=2cm of d_boot2] (d_bootB) {
             $\mathcal{D}_B^*$
         };
-        \node [right=0.6cm of d_boot2] (dots_data) {\dots};
+        \node [right=0.65cm of d_boot2] (dots1) {\dots};
 
         % Stimatori base (Trees)
         \node [node_process, below=1cm of d_boot1] (tree1) {
@@ -744,6 +744,7 @@ Target addestramento per $f_b$ & Etichette originali su campionamenti bootstrap 
         \node [node_process, below=1cm of d_bootB] (treeB) {
             $f_B(\mathbf{x})$
         };
+        \node [right=0.5cm of tree2] (dots2) {\dots};
 
         % Aggregazione finale
         \node [node_output, below=1cm of tree2, xshift=0.5cm] (agg_bagging) {
@@ -764,29 +765,27 @@ Target addestramento per $f_b$ & Etichette originali su campionamenti bootstrap 
         \draw [arrow_flow] (merge_bagging) -- (agg_bagging.north);
 
         % --- BOOSTING (Right side) ---
-        \node (boosting_title) at (4,8.5) {\textbf{Gradient Boosting (Sequenziale)}};
-
         % Modello Iniziale
-        \node [node_primary, below=0.5cm of boosting_title] (f0) {
+        \node [node_primary, right=3.5cm of d_bootB] (f0) {
             $F_0(\mathbf{x})$
         };
 
         % Stimatori base in cascata
-        \node [node_process, below=0.7cm of f0] (tree_b1) {
+        \node [node_process, below=1cm of f0] (tree_b1) {
             $f_1(\mathbf{x})$ addestrato su $r_{i,1}$
         };
-        \node [node_process, below=0.7cm of tree_b1] (tree_b2) {
+        \node [node_process, below=1cm of tree_b1] (tree_b2) {
             $f_2(\mathbf{x})$ addestrato su $r_{i,2}$
         };
-        \node [below=0.4cm of tree_b2] (dots_boost) {
+        \node [below=0.5cm of tree_b2] (dots_boost) {
             \vdots\rule[-0.227cm]{0cm}{0cm}
         };
-        \node [node_process, below=0.4cm of dots_boost] (tree_bB) {
+        \node [node_process, below=2cm of tree_b2] (tree_bB) {
             $f_B(\mathbf{x})$ addestrato su $r_{i,B}$
         };
 
         % Aggregazione finale
-        \node [node_output, below=0.7cm of tree_bB] (agg_boosting) {
+        \node [node_output, below=1cm of tree_bB] (agg_boosting) {
             Somma: $F_B = F_0 + \nu \sum f_b(\mathbf{x})$
         };
 
@@ -797,17 +796,14 @@ Target addestramento per $f_b$ & Etichette originali su campionamenti bootstrap 
         \draw [arrow_flow] (dots_boost) -- (tree_bB);
         \draw [arrow_flow] (tree_bB) -- (agg_boosting) node[midway, right, font=\footnotesize] {+ $\nu \cdot f_B$};
 
-        % Separatore visivo verticale
-        \draw [dashed, neutralgrey!70] (0,0.5) -- (0,8);
-
-
+        % Box
         \begin{scope}[on background layer]
-            % Box Fase 1
-            \node[group_box, fit=(d_boot1) (d_boot2) (dots_data) (d_bootB) (tree1) (tree2) (treeB) (agg_bagging)] (g1) {};
+            \node[group_box, fit=(d_boot1) (d_boot2) (dots1) (dots2) (d_bootB) (tree1) (tree2) (treeB) (agg_bagging)] (g1) {};
+            \node[group_box, fit=(f0) (agg_boosting)] (g2) {};        
         \end{scope}
 
         \node[above, font=\footnotesize\bfseries, color=neutralgrey] at (g1.north) {Bagging (Parallelo)};
-        
+        \node[above, font=\footnotesize\bfseries, color=neutralgrey] at (g2.north) {Gradient Boosting (Sequenziale)};        
 
     \end{tikzpicture}
     \caption{Confronto logico-procedurale tra gli schemi di aggregazione. A sinistra, il paradigma \textit{Bagging} esegue un addestramento parallelo su campionamenti bootstrap indipendenti. A destra, il paradigma \textit{Gradient Boosting} adotta un approccio sequenziale in cui ciascun albero mira a correggere i residui iterativi generati dall'insieme precedente.}
@@ -831,9 +827,7 @@ Per agevolare la consultazione delle metriche e dei parametri statistici discuss
     \centering
     \caption{Sintesi della notazione relativa al framework di valutazione e alla stabilità statistica.}
     \label{tab:notazione_valutazione}
-    \small
-    
-    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{4cm} >{\raggedright\arraybackslash}X }
+    \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X }
     \toprule
     \textbf{Simbolo} & \textbf{Descrizione e Significato Concettuale} \\
     \midrule
@@ -879,77 +873,92 @@ Per isolare la stocasticità algoritmica dei classificatori da qualsivoglia vari
 
 \begin{figure}[H]
     \centering
-    \begin{tikzpicture}[
-        font=\small,
-        >=stealth,
-        data_block/.style={
-            rectangle, draw=black, fill=white, text centered,
-            dashed, rounded corners=2pt, inner sep=5pt
-        },
-        proc_block/.style={
-            rectangle, draw=black, fill=gray!10, text centered,
-            rounded corners=2pt, inner sep=5pt
-        },
-        seed_node/.style={
-            rectangle, fill=black!70, text=white, text centered,
-            rounded corners=2pt, inner sep=5pt
-        },
-        arrow/.style={->, thick, black}
-    ]
+    \begin{tikzpicture}[]
 
-    % Livello 1: Dati Iniziali
-    \node[data_block, text width=3cm] (raw_data) at (0, 0) {Traffico Raw};
-    
-    % Nodo Seed deterministico
-    \node[seed_node, text width=5cm, below=0.5cm of raw_data] (seed0) {Seed Deterministico: $s_0$};
-    
-    % Livello 2: Split e Benchmark Fissi
-    \node[proc_block, text width=5cm, below=0.5cm of seed0] (benchmarks) {Partizionamento invariante e Generazione dei Benchmark $\mathcal{B}$};
-    
-    \draw[arrow] (raw_data) -- (seed0);
-    \draw[arrow] (seed0) -- (benchmarks);
+        % Livello 1: Dati Iniziali
+        \node [node_primary] (raw_data) {Traffico Raw};
+        
+        % Nodo Seed deterministico
+        \node [node_accent, below=1cm of raw_data] (seed0) {
+            Seed Deterministico: $s_0$
+        };
+        
+        % Livello 2: Split e Benchmark Fissi
+        \node [node_process, below=1cm of seed0] (benchmarks) {
+            Partizionamento invariante\\[-5pt] 
+            e Generazione dei Benchmark $\mathcal{B}$
+        };
+        
+        \draw [arrow_flow] (raw_data) -- (seed0);
+        \draw [arrow_flow] (seed0) -- (benchmarks);
 
-    % Livello 3: Nodi Multi-seed e Addestramenti Paralleli
-    \node[seed_node, below left=1cm and 0cm of benchmarks] (seed1) {Seed Stocastico: $s_1$};
-    \node[seed_node, below=1cm of benchmarks] (seed2) {Seed Stocastico: $s_2$};
-    \node[right=0.14cm of seed2] {\dots};
-    \node[seed_node, below right=1cm and 0cm of benchmarks] (seedK) {Seed Stocastico: $s_K$};
+        % Livello 3: Nodi Multi-seed e Addestramenti Paralleli
+        \node [node_accent, below=1cm of benchmarks] (seed2) {
+            Seed Stocastico: $s_2$
+        };
+        \node [node_accent, left=2cm of seed2] (seed1) {
+            Seed Stocastico: $s_1$
+        };
+        \node [right=0.65cm of seed2] (dots1) {\dots};
+        \node [node_accent, right=2cm of seed2] (seedK) {
+            Seed Stocastico: $s_K$
+        };
 
-    \node[proc_block, text width=3cm, below=0.5cm of seed1] (train1) {Addestramento Modello $M$};
-    \node[proc_block, text width=3cm, below=0.5cm of seed2] (train2) {Addestramento Modello $M$};
-    \node[right=0.14cm of train2] {\dots};
-    \node[proc_block, text width=3cm, below=0.5cm of seedK] (trainK) {Addestramento Modello $M$};
+        \node [node_process, below=1cm of seed1] (train1) {
+            Addestramento\\[-5pt]
+            Modello $M$
+        };
+        \node [node_process, below=1cm of seed2] (train2) {
+            Addestramento\\[-5pt]
+            Modello $M$
+        };
+        \node [right=1cm of train2] (dots2) {\dots};
+        \node [node_process, below=1cm of seedK] (trainK) {
+            Addestramento\\[-5pt]
+            Modello $M$
+        };
 
-    % Frecce dal blocco Benchmark ai percorsi paralleli
-    \draw[arrow] (benchmarks.south) |- ++(-4, -0.5) -| (seed1);
-    \draw[arrow] (benchmarks.south) -- (seed2);
-    \draw[arrow] (benchmarks.south) |- ++(4, -0.5) -| (seedK);
+        % Frecce dal blocco Benchmark ai percorsi paralleli
+        \draw [arrow_flow] (benchmarks.south) |- ++(-4, -0.5) -| (seed1);
+        \draw [arrow_flow] (benchmarks.south) -- (seed2);
+        \draw [arrow_flow] (benchmarks.south) |- ++(4, -0.5) -| (seedK);
 
-    \draw[arrow] (seed1) -- (train1);
-    \draw[arrow] (seed2) -- (train2);
-    \draw[arrow] (seedK) -- (trainK);
+        \draw [arrow_flow] (seed1) -- (train1);
+        \draw [arrow_flow] (seed2) -- (train2);
+        \draw [arrow_flow] (seedK) -- (trainK);
 
-    % Livello 4: Valutazione
-    \node[data_block, text width=3cm, below=0.5cm of train1] (eval1) {Matrice $H_1$};
-    \node[data_block, text width=3cm, below=0.5cm of train2] (eval2) {Matrice $H_2$};
-    \node[right=0.14cm of eval2] {\dots};            
-    \node[data_block, text width=3cm, below=0.5cm of trainK] (evalK) {Matrice $H_K$};
+        % Livello 4: Valutazione
+        \node [node_output, below=1cm of train1] (eval1) {
+            Matrice $H_1$
+        };
+        \node [node_output, below=1cm of train2] (eval2) {
+            Matrice $H_2$
+        };
+        \node [right=1.24cm of eval2] (dots3) {\dots};            
+        \node [node_output, below=1cm of trainK] (evalK) {
+            Matrice $H_K$
+        };
 
-    \draw[arrow] (train1) -- (eval1);
-    \draw[arrow] (train2) -- (eval2);
-    \draw[arrow] (trainK) -- (evalK);
+        \draw [arrow_flow] (train1) -- (eval1);
+        \draw [arrow_flow] (train2) -- (eval2);
+        \draw [arrow_flow] (trainK) -- (evalK);
 
-    % Livello 5: Aggregazione Statistica
-    \node[proc_block, fill=gray!30, text width=5cm, below=1cm of eval2] (agg) {Calcolo Stime Campionarie\\ $\hat{\mu}(M, D)$ e $\hat{\sigma}^2(M, D)$};
-    
-    \draw[arrow] (eval1.south) |- ++(0, -0.5) -| (agg.north);
-    \draw[arrow] (eval2) -- (agg);
-    \draw[arrow] (evalK.south) |- ++(0,-0.5) -| (agg.north);
+        % Livello 5: Aggregazione Statistica
+        \node [node_process, below=1cm of eval2] (agg) {
+            Calcolo Stime Campionarie\\ 
+            $\hat{\mu}(M, D)$ e $\hat{\sigma}^2(M, D)$
+        };
+        
+        \draw [arrow_flow] (eval1.south) |- ++(0, -0.5) -| (agg.north);
+        \draw [arrow_flow] (eval2) -- (agg);
+        \draw [arrow_flow] (evalK.south) |- ++(0,-0.5) -| (agg.north);
 
-    % Livello 6: Test
-    \node[data_block, fill=gray!20, text width=5cm, below=0.5cm of agg] (welch) {Test $t$ di Welch ($p$-value)};
-    
-    \draw[arrow] (agg) -- (welch);
+        % Livello 6: Test
+        \node [node_output, below=1cm of agg] (welch) {
+            Test $t$ di Welch ($p$-value)
+        };
+        
+        \draw [arrow_flow] (agg) -- (welch);
 
     \end{tikzpicture}
     \caption{Diagramma di flusso del protocollo di isolamento e valutazione stocastica. La stabilità della partizione dei dati è forzata top-down dall'unico seed deterministico $s_0$, delegando la totalità della varianza osservata tra le matrici $H_k$ all'inizializzazione stocastica dettata dall'insieme dei seed $\mathcal{S}$ interni agli stimatori.}
@@ -972,65 +981,24 @@ Per ciascun seed $s_k$, i valori $\text{TPR}_k(M,D)$ e $\text{TNR}_k(M,D)$ vengo
     \label{eq:row_mean}
 \end{equation}
 
-L'impianto metodologico fin qui descritto culmina nella definizione della matrice $H_k$, che concretizza l'operazione di proiezione incrociata di \textit{tutte} le architetture formulate (siano esse aggregati multiclasse o specialisti biclasse) sull'intera estensione dei domini di test disponibili. Come illustrato nella Figura~\ref{fig:matrice_incrociata}, lo spazio delle valutazioni si articola in una griglia strutturata che elimina ogni barriera valutativa tra le categorie di classificazione e quelle di benchmark, rendendo esplicita l'universalità dell'insieme di test $\mathcal{B}$.
+L'impianto metodologico fin qui descritto culmina nella definizione della matrice $H_k$, che concretizza l'operazione di proiezione incrociata di \textit{tutte} le architetture formulate (siano esse aggregati multiclasse o specialisti biclasse) sull'intera estensione dei domini di test disponibili. Come illustrato nella Tabella~\ref{tab:matrice_incrociata}, lo spazio delle valutazioni si articola in una griglia strutturata che elimina ogni barriera valutativa tra le categorie di classificazione e quelle di benchmark, rendendo esplicita l'universalità dell'insieme di test $\mathcal{B}$.
 
-\begin{figure}[H]
+\begin{table}[H]
     \centering
-    \begin{tikzpicture}[
-        font=\small,
-        >=stealth,
-        cell/.style={
-            rectangle, draw=black, thick, text centered,
-            minimum width=3.5cm, minimum height=1.5cm, inner sep=5pt
-        },
-        header/.style={
-            rectangle, draw=black, thick, fill=gray!10, text centered,
-            minimum width=3.5cm, minimum height=1.5cm, inner sep=5pt, font=\bfseries
-        }
-    ]
-
-    % Intestazione angolo in alto a sx
-    \node[draw=none, minimum width=3.5cm, minimum height=1.5cm, inner sep=5pt, text centered, font=\bfseries] (corner) at (0, 5.5) {$H_k \in \mathbb{R}^{|\mathcal{M}| \times |\mathcal{B}|}$};
-
-    % Intestazioni di Colonna (Benchmark in \mathcal{B})
-    \node[header, align=center, right=0.2 of corner] (col1) {$\mathcal{D}^{(\text{test})}$\\[-5pt] {\footnotesize (Aggregati)}};
-    \node[header, align=center, right=0.2 of col1] (col2) {$\mathcal{D}_a^{(\text{test})}$\\[-5pt] {\footnotesize (Biclasse In-Domain)}};
-    \node[header, align=center, right=0.2 of col2] (col3) {$\mathcal{D}_{b\neq a}^{(\text{test})}$\\[-5pt] {\footnotesize (Biclasse Cross)}};
-    
-    % Riga 1: \mathcal{M}_{base}
-    \node[header, below=0.2 of corner] (row1) {$\mathcal{M}_{\text{base}}$};
-    \node[cell, below=0.2 of col1] (r1c1) {\checkmark};
-    \node[cell, below=0.2 of col2] (r1c2) {\checkmark};
-    \node[cell, below=0.2 of col3] (r1c3) {\checkmark};
-
-    % Riga 2: \mathcal{M}_S
-    \node[header, below=0.2 of row1] (row2) {$\mathcal{M}_S$};
-    \node[cell, below=0.2 of r1c1] (r2c1) {\checkmark};
-    \node[cell, below=0.2 of r1c2] (r2c2) {\checkmark};
-    \node[cell, below=0.2 of r1c3] (r2c3) {\checkmark};
-
-    % Riga 3: \mathcal{M}_H^{(T)}
-    \node[header, below=0.2 of row2] (row3) {$\mathcal{M}_H^{(T)}$};
-    \node[cell, below=0.2 of r2c1] (r3c1) {\checkmark};
-    \node[cell, below=0.2 of r2c2] (r3c2) {\checkmark};
-    \node[cell, below=0.2 of r2c3] (r3c3) {\checkmark};
-
-    % Riga 4: \mathcal{M}_{S,a}
-    \node[header, below=0.2 of row3] (row4) {$\mathcal{M}_{S,a}$};
-    \node[cell, below=0.2 of r3c1] (r4c1) {\checkmark};
-    \node[cell, below=0.2 of r3c2] (r4c2) {\checkmark};
-    \node[cell, below=0.2 of r3c3] (r4c3) {\checkmark};
-
-    % Riga 5: \mathcal{M}_{H,T,a}
-    \node[header, below=0.2 of row4] (row5) {$\mathcal{M}_{H,T,a}$};
-    \node[cell, below=0.2 of r4c1] (r5c1) {\checkmark};
-    \node[cell, below=0.2 of r4c2] (r5c2) {\checkmark};
-    \node[cell, below=0.2 of r4c3] (r5c3) {\checkmark};
-
-    \end{tikzpicture}
-    \caption{Rappresentazione concettuale della matrice di valutazione incrociata $H_k \in \mathbb{R}^{|\mathcal{M}| \times |\mathcal{B}|}$. Ogni riga corrisponde a una famiglia di modelli $\mathcal{M}$ (aggregati e biclasse) e ogni colonna a una macro-categoria dell'insieme universale dei benchmark $\mathcal{B}$. Le spunte (\checkmark) evidenziano l'esecuzione sistematica della proiezione di ciascun modello su tutte le partizioni di test, indipendentemente dalla loro natura nativa, coprendo così sia gli scenari in-domain che di cross-evaluation.}
-    \label{fig:matrice_incrociata}
-\end{figure}
+    \caption{Rappresentazione concettuale della matrice di valutazione incrociata $H_k \in \mathbb{R}^{|\mathcal{M}| \times |\mathcal{B}|}$. Ogni riga corrisponde a una famiglia di modelli $\mathcal{M}$ (aggregati e biclasse) e ogni colonna a una macro-categoria dell'insieme universale dei benchmark $\mathcal{B}$. Le spunte ($\checkmark$) evidenziano l'esecuzione sistematica della proiezione di ciascun modello su tutte le partizioni di test, indipendentemente dalla loro natura nativa, coprendo così sia gli scenari in-domain che di cross-evaluation.}
+    \label{tab:matrice_incrociata}
+    \begin{tabular}{l c c c}
+    \toprule
+    $\bf{H_k \in \mathbb{R}^{|\mathcal{M}| \times |\mathcal{B}|}}$ & $\bf{\mathcal{D}^{(\text{\bfseries test})}}$ & $\bf{\mathcal{D}_a^{(\text{\bfseries test})}}$ & $\bf{\mathcal{D}_{b\neq a}^{(\text{\bfseries test})}}$ \\[-5pt]
+    & \textbf{(Aggregati)} & \textbf{(Biclasse In-Domain)} & \textbf{(Biclasse Cross)} \\\midrule
+    $\mathcal{M}_{\text{base}}$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+    $\mathcal{M}_S$            & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+    $\mathcal{M}_H^{(T)}$      & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+    $\mathcal{M}_{S,a}$        & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+    $\mathcal{M}_{H,T,a}$      & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+    \bottomrule
+    \end{tabular}
+\end{table}
 
 La stima puntuale del valore atteso e della dispersione prestazionale per la coppia $(M,D)$, marginalizzata sulle $K$ repliche stocastiche, è data dalla media e dalla varianza campionarie:
 \begin{equation}
@@ -1098,41 +1066,56 @@ Al contrario, un modello aggregato, essendo vincolato a costruire una regione $R
 
 \begin{figure}[H]
     \centering
-    \begin{tikzpicture}[
-        font=\small,
-        >=stealth,
-        attack/.style={draw=black, fill=gray!30, ellipse, inner sep=5},
-        shifted/.style={draw=black, fill=gray!10, ellipse, inner sep=5, dashed},
-        bnd_agg/.style={draw=black, ultra thick, rounded corners=20pt},
-        bnd_bic/.style={draw=black, thick, rounded corners=10pt, dotted},
-        axis/.style={->, thick, black}
-    ]
+    \begin{tikzpicture}[global_font]
+
+    % ==========================================
+    % Stili locali coerenti con il Layout globale
+    % ==========================================
+    \tikzset{
+        bnd_agg/.style={
+            draw=paramgreen,
+            fill=lightgreen!20,
+            very thick,
+            rounded corners=6pt
+        },
+        bnd_bic/.style={
+            draw=accentorange,
+            fill=lightorange!25,
+            thick,
+            rounded corners=4pt,
+            dotted
+        }
+    }
 
     % ==========================================
     % Riquadro A: Modello Aggregato (Multiclasse)
     % ==========================================
     \begin{scope}[shift={(0,0)}]
-        \node[anchor=south] at (3, 6.2) {\textbf{(a) Modello Aggregato ($\Gamma > 1$)}};
+        \node[anchor=south, font=\footnotesize\bfseries] at (3, 6.2) {\textbf{(a) Modello Aggregato ($\Gamma > 1$)}};
         
         % Assi spazio delle caratteristiche X
-        \draw[axis] (0, 0) -- (6, 0) node[right] {$x_1$};
-        \draw[axis] (0, 0) -- (0, 6) node[above] {$x_2$};
+        \draw[arrow_flow] (0, 0) -- (6, 0) node[right] {$x_1$};
+        \draw[arrow_flow] (0, 0) -- (0, 6) node[above] {$x_2$};
         
         % Regione decisionale ampia R_1(M_S)
-        \draw[bnd_agg, fill=gray!5] (0.5, 0.5) rectangle (5.5, 5.5);
-        \node[text=black] at (3, 5.9) {$R_1(\mathcal{M}_S)$};
+        \draw[bnd_agg] (0.5, 0.5) rectangle (5.5, 5.5);
+        \node[font=\footnotesize, align=center] at (3, 5.9) {$R_1(\mathcal{M}_S)$};
 
         % Manifold delle distribuzioni
-        \node[attack] (a1) at (1.55, 3.75) {$a_1$};
-        \node[attack] (a2) at (2.25, 1.75) {$a_2$};
-        \node[attack] (a3) at (3.75, 3.25) {$a_3$};
+        \node[node_alert, circle] (a1) at (1.55, 3.75) {$a_1$};
+        \node[node_alert, circle] (a2) at (2.25, 1.75) {$a_2$};
+        \node[node_alert, circle] (a3) at (3.75, 3.25) {$a_3$};
 
         % Perturbazione (Domain Shift) di a1
-        \node[shifted] (a1_shift) at (3.25, 4.55) {$\tilde{a}_1$};
-        \draw[->, thick, black] (a1) -- (a1_shift) node[midway, above left] {$\boldsymbol{\eta}$};
+        \node[node_transform, circle] (a1_shift) at (3.25, 4.55) {$\tilde{a}_1$};
+        \draw[arrow_alert] (a1) -- (a1_shift) node[midway, above left] {$\boldsymbol{\eta}$};
         
         % Didascalia concettuale
-        \node[text width=5cm, align=center, text=black, font=\footnotesize] at (3, -1) {
+        \node[
+            text width=5cm,
+            align=center,
+            font=\footnotesize
+        ] at (3, -1) {
             La regione copre l'unione dei supporti. Lo shift $\boldsymbol{\eta}$ viene assorbito dall'ampio margine.
         };
     \end{scope}
@@ -1141,33 +1124,37 @@ Al contrario, un modello aggregato, essendo vincolato a costruire una regione $R
     % Riquadro B: Modello Biclasse (Specifico)
     % ==========================================
     \begin{scope}[shift={(8,0)}]
-        \node[anchor=south] at (3, 6.2) {\textbf{(b) Modello Biclasse ($\Gamma = 1$)}};
+        \node[anchor=south, font=\footnotesize\bfseries] at (3, 6.2) {\textbf{(b) Modello Biclasse ($\Gamma = 1$)}};
         
         % Assi spazio delle caratteristiche X
-        \draw[axis] (0,0) -- (6,0) node[right] {$x_1$};
-        \draw[axis] (0,0) -- (0,6) node[above] {$x_2$};
+        \draw[arrow_flow] (0,0) -- (6,0) node[right] {$x_1$};
+        \draw[arrow_flow] (0,0) -- (0,6) node[above] {$x_2$};
         
         % Regione decisionale specifica e ristretta R_1(M_{S,a})
-        \draw[bnd_bic, fill=gray!5] (1, 3) rectangle (2.5, 4.5);
-        \node[text=black] at (1.75, 4.9) {$R_1(\mathcal{M}_{S,a_1})$};
+        \draw[bnd_bic] (0.8, 3) rectangle (2.3, 4.5);
+        \node[font=\footnotesize, align=center] at (1.55, 4.9) {$R_1(\mathcal{M}_{S,a_1})$};
 
         % Manifold della distribuzione
-        \node[attack] (b1) at (1.75, 3.75) {$a_1$};
+        \node[node_alert, circle] (b1) at (1.55, 3.75) {$a_1$};
 
         % Perturbazione (Domain Shift) di a1
-        \node[shifted] (b1_shift) at (3.25, 4.55) {$\tilde{a}_1$};
-        \draw[->, thick, black] (b1) -- (b1_shift) node[midway, above left] {$\boldsymbol{\eta}$};
+        \node[node_transform, circle] (b1_shift) at (3.25, 4.55) {$\tilde{a}_1$};
+        \draw[arrow_alert] (b1) -- (b1_shift) node[midway, above left] {$\boldsymbol{\eta}$};
         
         % Didascalia concettuale
-        \node[text width=5cm, align=center, text=black, font=\footnotesize] at (3,-1) {
+        \node[
+            text width=5cm,
+            align=center,
+            font=\footnotesize
+        ] at (3,-1) {
             La regione calza strettamente il singolo supporto. Lo shift $\boldsymbol{\eta}$ elude il confine decisionale.
         };
     \end{scope}
-
     \end{tikzpicture}
     \caption{Rappresentazione bidimensionale nello spazio delle caratteristiche $\mathcal{X}$ dell'impatto del \textit{domain shift} (vettore di traslazione $\boldsymbol{\eta}$) a seconda della granularità del modello. A sinistra, la maggiore ampiezza spaziale del modello aggregato garantisce tolleranza generalista; a destra, l'ottimizzazione specialistica sul singolo supporto malevolo determina rigidità sotto perturbazione.}
     \label{fig:domain_shift_granularity}
 \end{figure}
+
 
 \subsubsection{Il Modello Baseline come Punto di Riferimento Intermedio}
 \label{subsubsec:baseline_riferimento_granularita}
@@ -1185,9 +1172,7 @@ Per agevolare la consultazione della trattazione, i simboli matematici, i costru
     \centering
     \caption{Sintesi della notazione relativa al framework analitico, all'interpretabilità e alla valutazione statistica.}
     \label{tab:notazione_framework}
-    \small
-    
-    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3cm} >{\raggedright\arraybackslash}X }
+    \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X }
     \toprule
     \textbf{Simbolo} & \textbf{Descrizione e Significato Concettuale} \\
     \midrule
@@ -1292,28 +1277,27 @@ dove $\epsilon > 0$ è una costante infinitesima di stabilizzazione numerica. La
 Il ruolo e l'impatto della standardizzazione dipendente dal sorgente sulle diverse componenti diagnostiche del framework sono sintetizzati nella Tabella~\ref{tab:confronto_scaling_pca_kde}.
 
 \begin{table}[H]
-    \centering
-    \caption{Sintesi del ruolo e dell'impatto della standardizzazione dipendente dal sorgente $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S)$ sulle componenti diagnostiche del framework.}
-    \label{tab:confronto_scaling_pca_kde}
-    \small
-    
-    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3cm} >{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}X }
-    \toprule
-    \textbf{Strumento} & \textbf{Natura del Requisito} & \textbf{Impatto Tecnico e Motivazione Metodologica} \\
-    \midrule
-    \textbf{Classificatori (Tree-Based)} &
-    Nessuno (Nessuna Trasformazione) &
-    Invarianza Monotonica: gli algoritmi basati su albero operano su ordinamenti relativi dei dati. Nessun impatto sulle metriche di accuratezza. \\
-    \midrule
-    \textbf{Proiezioni Latenti (PCA)} &
-    Matematicamente Indispensabile &
-    Prevenzione della Dominanza delle Scale: la matrice di covarianza $\boldsymbol{\Sigma}_D$ richiede unità adimensionali; in caso contrario, le componenti principali catturano solo la scala numerica grezza più ampia. \\
-    \midrule
-    \textbf{Stima di Densità (KDE 1D)} &
-    Metodologico e Visivo &
-    Preservazione del Shift e Omogeneità: non altera la forma intrinseca della stima 1D, ma rende visibile lo spostamento di media dal sorgente $z=0$, rende i grafici affiancati comparabili e stabilizza la \textit{bandwidth} $h_{\text{KDE}}$. \\
-    \bottomrule
-    \end{tabularx}
+\centering
+\caption{Sintesi del ruolo e dell'impatto della standardizzazione dipendente dal sorgente $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S)$ sulle componenti diagnostiche del framework.}
+\label{tab:confronto_scaling_pca_kde}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X }
+\toprule
+\textbf{Strumento}  & \textbf{Natura del Requisito} & \textbf{Impatto Tecnico e Motivazione} \\[-5pt]
+                    &                               & \textbf{Metodologica} \\
+\midrule
+Classificatori (Tree-Based) &
+Nessuno (Nessuna Trasformazione) &
+Invarianza Monotonica: gli algoritmi basati su albero operano su ordinamenti relativi dei dati. Nessun impatto sulle metriche di accuratezza. \\
+\addlinespace
+Proiezioni Latenti (PCA) &
+Matematicamente Indispensabile &
+Prevenzione della Dominanza delle Scale: la matrice di covarianza $\boldsymbol{\Sigma}_D$ richiede unità adimensionali; in caso contrario, le componenti principali catturano solo la scala numerica grezza più ampia. \\
+\addlinespace
+Stima di Densità (KDE) &
+Metodologico e Visivo &
+Preservazione del Shift e Omogeneità: non altera la forma intrinseca della stima 1D, ma rende visibile lo spostamento di media dal sorgente $z=0$, rende i grafici affiancati comparabili e stabilizza la \textit{bandwidth} $h_{\text{KDE}}$. \\
+\bottomrule
+\end{tabularx}
 \end{table}
 
 \subsection{Spiegabilità e Attribuzione delle Feature}
@@ -1389,22 +1373,59 @@ Le quattro quantità rappresentano rispettivamente il numero di veri positivi, f
     \centering
     \caption{Struttura della Matrice di Confusione parametrizzata rispetto alla soglia decisionale $\tau$.}
     \label{tab:matrice_confusione}
-    \small
-    
-    \begin{tabular}{cc|cc}
-        \multicolumn{2}{c}{} & \multicolumn{2}{c}{\textbf{Classe Reale ($y$)}} \\
-        \multicolumn{2}{c}{} & \textbf{Positivo ($y=1$)} & \textbf{Negativo ($y=0$)} \\
+
+    \newlength{\confusionwidth}
+    \newlength{\confusionheight}
+    \setlength{\confusionwidth}{3cm}
+    \setlength{\confusionheight}{2cm}
+
+    \begin{tabular}{c|c c}
+        \multicolumn{1}{c|}{%
+            \makecell[c]{%
+                \textbf{Classe Predetta ($\hat{y}(\tau)$)}\\[-5pt]
+                $\times$\\[-5pt]
+                \textbf{Classe Reale ($y$)}
+            }
+        }
+        & \textbf{Positivo ($y=1$)}
+        & \textbf{Negativo ($y=0$)} \\
         \hline
-        \multirow{2}{*}{\textbf{Classe Predetta ($\hat{y}(\tau)$)}} 
-        & \textbf{Positivo ($\hat{y}=1$)} & True Positive ($TP(\tau)$) & False Positive ($FP(\tau)$) \\
-        & \textbf{Negativo ($\hat{y}=0$)} & False Negative ($FN(\tau)$) & True Negative ($TN(\tau)$) \\
-        \hline
+        \parbox[c][\confusionheight][c]{\confusionwidth}{%
+            \centering
+            \textbf{Positivo ($\hat{y}=1$)}
+        }
+        &
+        \parbox[c][\confusionheight][c]{\confusionwidth}{%
+            \centering
+            True Positive ($TP(\tau)$)
+        }
+        &
+        \parbox[c][\confusionheight][c]{\confusionwidth}{%
+            \centering
+            False Positive ($FP(\tau)$)
+        }
+        \\
+        \parbox[c][\confusionheight][c]{\confusionwidth}{%
+            \centering
+            \textbf{Negativo ($\hat{y}=0$)}
+        }
+        &
+        \parbox[c][\confusionheight][c]{\confusionwidth}{%
+            \centering
+            False Negative ($FN(\tau)$)
+        }
+        &
+        \parbox[c][\confusionheight][c]{\confusionwidth}{%
+            \centering
+            True Negative ($TN(\tau)$)
+        }
+        \\
     \end{tabular}
 \end{table}
 
 \begin{figure}[H]
     \centering
-    \begin{tikzpicture}[scale=0.9, every node/.style={transform shape}]
+    \begin{tikzpicture}[]
         % Assi cartesiani
         \draw[->, thick] (0,0) -- (10,0) node[right] {\small $f(\mathbf{x}) \in [0,1]$};
         \draw[->, thick] (0,0) -- (0,5) node[above] {\small $p(f(\mathbf{x}) \mid y)$};
@@ -1429,8 +1450,8 @@ Le quattro quantità rappresentano rispettivamente il numero di veri positivi, f
         \fill (4.14,0) circle (2pt) node[below] {$\tau$};
 
         % Regioni decisionali
-        \draw[<->, thick, shorten >=2pt, shorten <=2pt] (0, -0.6) -- (4.14, -0.6) node[midway, below] {\footnotesize Decisione: $\hat{y}(\tau)=0$};
-        \draw[<->, thick, shorten >=2pt, shorten <=2pt] (4.14, -0.6) -- (9, -0.6) node[midway, below] {\footnotesize Decisione: $\hat{y}(\tau)=1$};
+        \draw[<->, thick, shorten >=2pt, shorten <=2pt] (0, -0.6) -- (4.14, -0.6) node[midway, below] {\small Decisione: $\hat{y}(\tau)=0$};
+        \draw[<->, thick, shorten >=2pt, shorten <=2pt] (4.14, -0.6) -- (9, -0.6) node[midway, below] {\small Decisione: $\hat{y}(\tau)=1$};
     \end{tikzpicture}
     \caption{Mappatura della probabilità a posteriori $f(\mathbf{x})$ sulla regola decisionale binaria $\hat{y}(\tau)$ in funzione della soglia $\tau$.}
     \label{fig:soglia_decisionale}
@@ -1496,57 +1517,57 @@ A tale scopo si impiegano le curve \textit{Receiver Operating Characteristic} (R
 
 \begin{figure}[H]
     \centering
-    \begin{tikzpicture}
+    \begin{tikzpicture}[global_font]
         % --- Sottofigura (a): Curva ROC ---
         \begin{scope}[shift={(0,0)}]
             % Assi
-            \draw[->, thick] (0,0) -- (5.5,0) node[right] {\footnotesize $FPR$};
-            \draw[->, thick] (0,0) -- (0,5.5) node[above] {\footnotesize $TPR$};
+            \draw[arrow_flow] (0,0) -- (5.5,0) node[right, text=neutralgrey] {\footnotesize $FPR$};
+            \draw[arrow_flow] (0,0) -- (0,5.5) node[above, text=neutralgrey] {\footnotesize $TPR$};
 
             % Griglia di riferimento
-            \draw[gray!30, thin] (0,4.5) -- (4.5,4.5) -- (4.5,0);
-            \node[below left] at (0,0) {\small $0$};
-            \node[below] at (4.5,0) {\small $1$};
-            \node[left] at (0,4.5) {\small $1$};
+            \draw[neutralgrey!30, thin] (0,4.5) -- (4.5,4.5) -- (4.5,0);
+            \node[below left, text=neutralgrey] at (0,0) {\small $0$};
+            \node[below, text=neutralgrey] at (4.5,0) {\small $1$};
+            \node[left, text=neutralgrey] at (0,4.5) {\small $1$};
 
-            % Area sottesa (AUC) in toni di grigio
-            \fill[gray!20] (0,0) -- plot[smooth, domain=0:4.5] (\x, {4.5*sqrt(\x/4.5)}) -- (4.5,0) -- cycle;
+            % Area sottesa (AUC)
+            \fill[lightblue] (0,0) -- plot[smooth, domain=0:4.5] (\x, {4.5*sqrt(\x/4.5)}) -- (4.5,0) -- cycle;
 
             % Baseline casuale (diagonale)
-            \draw[dashed, gray!80] (0,0) -- (4.5,4.5);
+            \draw[dashed, accentorange, thick] (0,0) -- (4.5,4.5);
 
             % Curva ROC
-            \draw[thick, black, smooth, domain=0:4.5] plot (\x, {4.5*sqrt(\x/4.5)});
+            \draw[very thick, mainblue, smooth, domain=0:4.5] plot (\x, {4.5*sqrt(\x/4.5)});
 
             % Etichette
-            \node at (2.3, 1.2) {\footnotesize $AUC_{ROC}$};
-            \node[above] at (2.75, 5.5) {\textbf{(a) Curva ROC}};
+            \node[text=mainblue, font=\footnotesize\bfseries] at (2.3, 1.2) {$AUC_{ROC}$};
+            \node[above, text=neutralgrey] at (2.75, 5.5) {\textbf{(a) Curva ROC}};
         \end{scope}
 
         % --- Sottofigura (b): Curva Precision-Recall ---
         \begin{scope}[shift={(7.5,0)}]
             % Assi
-            \draw[->, thick] (0,0) -- (5.5,0) node[right] {\footnotesize $Recall\ (TPR)$};
-            \draw[->, thick] (0,0) -- (0,5.5) node[above] {\footnotesize $Precision$};
+            \draw[arrow_flow] (0,0) -- (5.5,0) node[right, text=neutralgrey] {\footnotesize $Recall\ (TPR)$};
+            \draw[arrow_flow] (0,0) -- (0,5.5) node[above, text=neutralgrey] {\footnotesize $Precision$};
 
             % Griglia di riferimento
-            \draw[gray!30, thin] (0,4.5) -- (4.5,4.5) -- (4.5,0);
-            \node[below left] at (0,0) {\small $0$};
-            \node[below] at (4.5,0) {\small $1$};
-            \node[left] at (0,4.5) {\small $1$};
+            \draw[neutralgrey!30, thin] (0,4.5) -- (4.5,4.5) -- (4.5,0);
+            \node[below left, text=neutralgrey] at (0,0) {\small $0$};
+            \node[below, text=neutralgrey] at (4.5,0) {\small $1$};
+            \node[left, text=neutralgrey] at (0,4.5) {\small $1$};
 
-            % Area sottesa (AUC) in toni di grigio
-            \fill[gray!20] (0,0) -- plot[smooth, domain=0:4.5] (\x, {4.5 - 2*(\x/4.5)^2}) -- (4.5,0) -- cycle;
+            % Area sottesa (AUC)
+            \fill[lightblue] (0,0) -- plot[smooth, domain=0:4.5] (\x, {4.5 - 2*(\x/4.5)^2}) -- (4.5,0) -- cycle;
             
             % Baseline prevalenza (linea orizzontale)
-            \draw[dashed, gray!80] (0,0.8) -- (4.5,0.8) node[right] {\small $\pi$};
+            \draw[dashed, accentorange, thick] (0,0.8) -- (4.5,0.8) node[right, text=accentorange] {\small $\pi$};
 
             % Curva PR
-            \draw[thick, black, smooth, domain=0:4.5] plot (\x, {4.5 - 2*(\x/4.5)^2});
+            \draw[very thick, mainblue, smooth, domain=0:4.5] plot (\x, {4.5 - 2*(\x/4.5)^2});
 
             % Etichette
-            \node at (1.2, 1.2) {\footnotesize $AUC_{PR}$};
-            \node[above] at (2.75, 5.5) {\textbf{(b) Curva PR}};
+            \node[text=mainblue, font=\footnotesize\bfseries] at (1.2, 1.2) {$AUC_{PR}$};
+            \node[above, text=neutralgrey] at (2.75, 5.5) {\textbf{(b) Curva PR}};
         \end{scope}
     \end{tikzpicture}
     \caption{Rappresentazione schematica dell'Area Sottesa alla Curva (AUC) per le analisi grafiche ROC (a) e Precision-Recall (b).}
