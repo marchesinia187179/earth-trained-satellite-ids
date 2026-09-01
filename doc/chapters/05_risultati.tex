@@ -1,0 +1,138 @@
+% =========================================================================
+% CAPITOLO 5 - RISULTATI SPERIMENTALI
+% =========================================================================
+
+\chapter{Risultati Sperimentali e Analisi}
+\label{ch:risultati}
+
+Il presente capitolo illustra e analizza i risultati sperimentali ottenuti
+mediante il framework metodologico e la pipeline implementativa descritti
+nei capitoli precedenti. L'analisi considera le prestazioni dei
+classificatori sui differenti benchmark, la variabilità introdotta dalla
+componente stocastica, la significatività statistica delle differenze
+osservate e le evidenze diagnostiche ottenute mediante PCA, SHAP e KDE.
+
+
+% =========================================================================
+% 5.1
+% =========================================================================
+
+\section{Organizzazione dell'Analisi dei Risultati}
+\label{sec:organizzazione_risultati}
+
+\subsection{Criteri di Presentazione e Confronto}
+\label{subsec:criteri_confronto}
+
+\subsection{Configurazioni Sperimentali e Criteri di Aggregazione}
+\label{subsec:configurazioni_aggregazione}
+
+
+% =========================================================================
+% 5.2
+% =========================================================================
+
+\section{Risultati dei Modelli Aggregati}
+\label{sec:risultati_modelli_aggregati}
+
+\subsection{Prestazioni del Modello Nativo Sorgente}
+\label{subsec:prestazioni_nb15}
+
+\subsection{Degradazione delle Prestazioni in Presenza di Domain Shift}
+\label{subsec:degradazione_domain_shift}
+
+\subsection{Prestazioni dei Modelli Ibridi Aggregati}
+\label{subsec:prestazioni_ibridi_aggregati}
+
+\subsection{Confronto tra Baseline \texttt{INJECTION}, Modello Sorgente e Oracle}
+\label{subsec:confronto_baseline_oracle}
+
+
+% =========================================================================
+% 5.3
+% =========================================================================
+
+\section{Risultati dei Modelli Biclasse}
+\label{sec:risultati_modelli_biclasse}
+
+\subsection{Rilevazione delle Singole Famiglie di Attacco nel Dominio Sorgente}
+\label{subsec:biclasse_sorgente}
+
+\subsection{Rilevazione delle Singole Famiglie di Attacco nei Domini Target}
+\label{subsec:biclasse_target}
+
+\subsection{Confronto tra Modelli Specialistici Sorgente e Ibridi}
+\label{subsec:confronto_modelli_biclasse}
+
+
+% =========================================================================
+% 5.4
+% =========================================================================
+
+\section{Analisi della Variabilità Multi-Seed}
+\label{sec:variabilita_multi_seed}
+
+\subsection{Distribuzione delle Prestazioni sui Seed}
+\label{subsec:distribuzione_seed}
+
+\subsection{Media e Varianza delle Metriche di Prestazione}
+\label{subsec:media_varianza_metriche}
+
+\subsection{Stabilità delle Prestazioni tra le Configurazioni}
+\label{subsec:stabilita_configurazioni}
+
+
+% =========================================================================
+% 5.5
+% =========================================================================
+
+\section{Analisi della Significatività Statistica}
+\label{sec:significativita_statistica}
+
+\subsection{Confronto della \textit{F1-Score} con la Baseline \texttt{INJECTION}}
+\label{subsec:welch_f1}
+
+\subsection{Risultati del Test $t$ di Welch}
+\label{subsec:risultati_welch}
+
+\subsection{Interpretazione dei Confronti Significativi}
+\label{subsec:interpretazione_significativita}
+
+
+% =========================================================================
+% 5.6
+% =========================================================================
+
+\section{Analisi Diagnostica del Domain Shift}
+\label{sec:analisi_diagnostica_domain_shift}
+
+\subsection{Distribuzione Geometrica dei Benchmark mediante PCA}
+\label{subsec:risultati_pca}
+
+\subsection{Interpretazione delle Feature mediante SHAP}
+\label{subsec:risultati_shap}
+
+\subsection{Analisi Densometrica delle Feature Selezionate}
+\label{subsec:risultati_kde}
+
+\subsection{Raccordo tra Evidenze SHAP e Distribuzioni KDE}
+\label{subsec:raccordo_shap_kde}
+
+
+% =========================================================================
+% 5.7
+% =========================================================================
+
+\section{Sintesi Comparativa dei Risultati}
+\label{sec:sintesi_risultati}
+
+\subsection{Confronto Complessivo tra le Configurazioni}
+\label{subsec:confronto_complessivo}
+
+\subsection{Evidenze Sperimentali sul Domain Shift}
+\label{subsec:evidenze_domain_shift}
+
+\subsection{Evidenze Sperimentali sull'Efficacia dell'Iniezione Few-Shot}
+\label{subsec:evidenze_few_shot}
+
+\subsection{Sintesi delle Evidenze Quantitative e Diagnostiche}
+\label{subsec:sintesi_evidenze}
