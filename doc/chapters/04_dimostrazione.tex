@@ -102,7 +102,7 @@ Le librerie e i pacchetti impiegati per la manipolazione dati, l'addestramento d
 \end{tabular}
 \end{table}
 
-La suite sperimentale è stata eseguita su un calcolatore Apple MacBook Air 2020 (modello A2179), equipaggiato con un processore quad-core Intel Core i5. 
+La suite sperimentale è stata eseguita su un calcolatore Apple MacBook Air 2020 (modello A2179), equipaggiato con un processore quad-core Intel Core i5, una GPU Intel Iris Plus Graphics e con 8\,GB di memoria RAM unificata\footnote{Tale configurazione impone un vincolo operativo sull'impronta mnemonica (\textit{memory footprint}) dell'ambiente di calcolo, richiedendo un'ottimizzazione accurata delle strutture dati \texttt{pandas.DataFrame} e la profilazione dei vettori \texttt{numpy} durante la fase di allineamento e trasformazione delle feature.}.
 Per azzerare l'overhead della virtualizzazione e garantire un controllo diretto sulle risorse hardware, l'esecuzione è avvenuta in ambiente nativo \textit{dual-boot} sotto distribuzione Linux Xubuntu.
 
 \subsection{Gestione della Riproducibilità Stocastica}
@@ -176,7 +176,7 @@ Il successivo campionamento e la scalatura in funzione del parametro $\rho$ veng
 \label{subsec:dataset_target}
 
 I domini di destinazione $\mathcal{D}_T$ sono stati formalizzati a partire dal dataset \texttt{STIN} (\textit{Satellite-Terrestrial Integrated Network})~\cite{stin}\footnote{\url{https://github.com/kun9717/STIN-data-set/}}, focalizzato sull'identificazione di minacce informatiche in architetture di rete e infrastrutture spaziali integrate. 
-Acquisiti nella formulazione tabulare in formato CSV, a differenza del dominio sorgente $\mathcal{D}_S$, i dataset target considerati contengono esclusivamente traffico malevolo, con una totale assenza di campioni appartenenti alla classe di traffico lecito (\textit{Normal}).
+Acquisiti nella formulazione tabulare in formato CSV, a differenza del dominio sorgente $\mathcal{D}_S$, i dataset target considerati contengono esclusivamente traffico malevolo, con una totale assenza di campioni appartenenti alla classe di traffico lecito (\textit{Normal})\footnote{La composizione asimmetrica dei dataset STIN è determinata dalla struttura del testbed di cattura originario, progettato unicamente per isolare ed etichettare flussi di attacco in scenari operativi reali. Di conseguenza, per la costruzione dei benchmark di valutazione biclasse cross-dominio, la componente di traffico benigno ($Y=0$) viene estratta in modo coerente dal dominio sorgente UNSW-NB15, garantendo l'omogeneità del traffico lecito e preservando il rapporto di sbilanciamento prefissato ($\rho = 10$).}.
 
 La caratterizzazione del target si articola su due segmenti operativi distinti:
 \begin{itemize}
@@ -247,12 +247,133 @@ Il processo di istanziazione opera mediante un campionamento stratificato senza 
 Poiché l'operatore di cardinalità applicato alla componente benevola del dominio sorgente restituisce $N(\mathbf{x} \in \mathcal{D}_S \mid Y=0) = 93.000$ record, l'algoritmo vincola l'estrazione della componente anomala a esattamente $9.300$ istanze complessive per ciascun benchmark. 
 La partizione dei domini in insiemi di addestramento e collaudo ($\mathcal{D}_k^{(train)}$ e $\mathcal{D}_k^{(test)}$) è mantenuta costante attraverso uno \textit{split} dell'80\% per il training e del 20\% per il test.
 
+La realizzazione pratica del vincolo di bilanciamento $\rho = 10$ e del campionamento senza reinserimento è affidata alle routine ausiliarie implementate nel modulo \texttt{file\_preprocessing.py}. 
+
+In particolare, la funzione \texttt{\_get\_correct\_normal\_and\_anomaly\_data\_samples} valuta le cardinalità relative delle componenti lecite e anomale, determinando dinamicamente il volume di campioni da estrarre per rispettare la costante \texttt{MLConstants.NORMAL\_ANOMALY\_RATIO}. 
+Successivamente, la funzione \texttt{\_safe\_stratified\_sample} garantisce che il campionamento mantenga inalterata la proporzione originaria tra le partizioni di addestramento e collaudo (\texttt{split\_type}), prevenendo fenomeni di sbilanciamento tra i sotto-insiemi \textit{train} e \textit{test}.
+
+\begin{lstlisting}[
+    language=Python,
+    caption={Routine di campionamento per l'istanziazione dei benchmark.},
+    label={lst:correct_normal_anomaly_sampling},
+    frame=single,
+    rulecolor=\color{mygray},
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\footnotesize,
+    commentstyle=\color{mygreen},
+    keywordstyle=\color{purple}\bfseries,
+    stringstyle=\color{mymauve},
+    emph={[2]None,True,False},
+    emphstyle={[2]\color{mymauve}\bfseries},
+    breaklines=false,
+    keepspaces=true,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\footnotesize\color{mygray},
+    numbersep=8pt
+]
+def _get_correct_normal_and_anomaly_data_samples(normal_data, anomaly_data, 
+                                            normal_samples, anomaly_samples):
+    # Calcola il corretto numero di campioni da estrarre dalle distribuzioni
+    if normal_samples < anomaly_samples * MLConstants.NORMAL_ANOMALY_RATIO:
+        n_anomaly_target = int(
+            normal_samples / MLConstants.NORMAL_ANOMALY_RATIO
+        )
+        anomaly_data_sample = _safe_stratified_sample(
+            anomaly_data, n_anomaly_target
+        )
+        normal_data_sample = normal_data
+    else:
+        n_normal_target = int(
+            anomaly_samples * MLConstants.NORMAL_ANOMALY_RATIO
+        )
+        normal_data_sample = _safe_stratified_sample(
+            normal_data, n_normal_target
+        )
+        anomaly_data_sample = anomaly_data
+
+    return normal_data_sample, anomaly_data_sample
+\end{lstlisting}
+
+\newpage
+
+\begin{lstlisting}[
+    language=Python,
+    caption={Routine di bilanciamento stratificato per l'istanziazione dei benchmark.},
+    label={lst:stratified_sampling},
+    frame=single,
+    rulecolor=\color{mygray},
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\footnotesize,
+    commentstyle=\color{mygreen},
+    keywordstyle=\color{purple}\bfseries,
+    stringstyle=\color{mymauve},
+    emph={[2]None,True,False},
+    emphstyle={[2]\color{mymauve}\bfseries},
+    breaklines=false,
+    keepspaces=true,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\footnotesize\color{mygray},
+    numbersep=8pt
+]
+def _safe_stratified_sample(data, n_samples):
+    # Se la colonna 'split_type' non è presente, 
+    #esegue un campionamento casuale semplice
+    if 'split_type' not in data.columns:
+        return data.sample(n=n_samples, random_state=MLConstants.MAIN_SEED)
+    
+    # Suddivide il dataset in partizioni di train e test
+    data_train = data[data['split_type'] == 'train']
+    data_test = data[data['split_type'] == 'test']
+    
+    # Calcola la lunghezza totale del dataset
+    total_len = len(data)
+    if total_len == 0 or n_samples == 0:
+        return pd.DataFrame(columns=data.columns)
+    
+    train_ratio = len(data_train) / total_len
+    n_train = round(n_samples * train_ratio)
+    n_test = n_samples - n_train
+    
+    # Gestione difensiva dei limiti di capienza delle partizioni
+    if n_test > len(data_test):
+        diff = n_test - len(data_test)
+        n_test = len(data_test)
+        n_train += diff
+    elif n_train > len(data_train):
+        diff = n_train - len(data_train)
+        n_train = len(data_train)
+        n_test += diff
+    
+    # Campionamento stratificato senza reinserimento
+    sampled_parts = []
+    if n_train > 0 and not data_train.empty:
+        sampled_parts.append(data_train.sample(
+            n=n_train, random_state=MLConstants.MAIN_SEED
+            ))
+    if n_test > 0 and not data_test.empty:
+        sampled_parts.append(data_test.sample(
+            n=n_test, random_state=MLConstants.MAIN_SEED
+            ))
+        
+    if not sampled_parts:
+        return pd.DataFrame(columns=data.columns)
+        
+    return concat_and_shuffle(sampled_parts)
+\end{lstlisting}
+
 L'applicazione di questa logica ha permesso di istanziare i dataset aggregati previsti dal framework teorico. 
 In tutte le configurazioni, la componente benevola corrisponde invariabilmente alle distribuzioni stazionarie originarie del dominio sorgente, $P_S(\mathbf{x} \mid Y = 0)$. 
 La differenziazione degli scenari avviene modulando la componente malevola ($Y=1$) in funzione della famiglia di attacco esplorata ($A \in \mathcal{A}_S$ oppure $A \in \mathcal{A}_T$):
 
 \begin{enumerate}
-    \item \textbf{Set di Iniezione di Riferimento (\texttt{INJECTION}):} Costituisce la baseline proposta dall'architettura ($\mathcal{M}_{base}$). Progettato per fornire un'ancora di prestazione basata su \textit{few-shot learning}, questo set combina le minacce sorgente $P_S(\mathbf{x} \mid Y = 1, A \in \mathcal{A}_S)$ (pari a $9.271$ istanze) con l'infusione controllata di una porzione altamente sparsa di traffico target $\Delta\mathcal{D}_T$ (pari a $29$ istanze, corrispondente allo $0{,}3\%$ delle anomalie totali).
+    \item \textbf{Set di Iniezione di Riferimento (\texttt{INJECTION}):} Costituisce la baseline proposta dall'architettura ($\mathcal{M}_{base}$). Progettato per fornire un'ancora di prestazione basata su \textit{few-shot learning}, questo set combina le minacce sorgente $P_S(\mathbf{x} \mid Y = 1, A \in \mathcal{A}_S)$ (pari a $9.271$ istanze) con l'infusione controllata di una porzione altamente sparsa di traffico target $\Delta\mathcal{D}_T$. La cardinalità di tale quota di iniezione è determinata formalmente dalla relazione:
+    \begin{equation}
+        |\Delta\mathcal{D}_T| = \left\lceil N_{\text{mal}, T} \times \eta_{\text{inj}} \right\rceil = \left\lceil 9.300 \times 0{,}003 \right\rceil = 29 \text{ campioni}
+        \label{eq:target_injection_size}
+    \end{equation}
+    dove $N_{\text{mal}, T} = 9.300$ rappresenta la popolazione anomala totale e $\eta_{\text{inj}} = 0{,}3\%$ la percentuale di iniezione prescritta. L'operatore d'arrotondamento per eccesso ($\lceil \cdot \rceil$) garantisce il rispetto della soglia minima teorica.
     \item \textbf{Set Nativo Sorgente (\texttt{NB15}):} Rappresenta il NIDS tradizionale ($\mathcal{M}_S$). La componente anomala ammonta a $9.300$ istanze appartenenti esclusivamente alla tassonomia nativa sorgente $\mathcal{A}_S$. È impiegato per misurare analiticamente la degradazione prestazionale causata dal \textit{domain shift} in totale assenza di adattamento al target.
     \item \textbf{Set Ibridi Aggregati (\texttt{NB15\_SAT20}, \texttt{NB15\_TER20}, \texttt{NB15\_STIN}):} Formulati per addestrare i modelli aggregati ibridi ($\mathcal{M}_H^{(T)}$), questi dataset istituiscono il limite teorico di rilevamento (\textit{upper bound}, paradigma Oracle). La componente anomala di $9.300$ record è interamente governata dalle distribuzioni a priori del dominio target $P_T(\mathbf{x} \mid Y = 1, A \in \mathcal{A}_T)$, prelevate rispettivamente dal segmento spaziale (\texttt{SAT20}), terrestre (\texttt{TER20}) o dall'ecosistema olistico congiunto (\texttt{STIN}).
 \end{enumerate}
@@ -281,6 +402,114 @@ Grazie al vincolo imposto da $\rho$, i cinque benchmark aggregati presentano un'
 Infine, a partire dai macro-dataset aggregati e scalati finora descritti, la pipeline di pre-elaborazione procede alla derivazione sistematica dei Set Nativi Sorgente Biclasse e dei Set Ibridi Biclasse. 
 Tramite un filtraggio a livello di etichetta secondaria $A=a$, le singole famiglie di minaccia (es. $a \in \mathcal{A}_S$ per \texttt{NB15} o $a \in \mathcal{A}_T$ per \texttt{STIN}) vengono isolate e combinate esclusivamente con la baseline nativa lecita $P_S(\mathbf{x} \mid Y = 0)$. 
 Questi dataset ristretti risultano indispensabili per l'addestramento dei rilevatori specialistici ($\mathcal{M}_{S,a}$ e $\mathcal{M}_{H,T,a}$), consentendo di valutare la sensibilità del sistema verso singole tipologie di attacco senza incorrere nelle distorsioni intrinseche generate dalla sovrapposizione di distribuzioni anomale eterogenee.
+
+La struttura dettagliata degli $11$ benchmark biclasse così generati — $5$ per il dominio sorgente \texttt{NB15}, $4$ per il segmento terrestre \texttt{TER20} e $2$ per il segmento satellitare \texttt{SAT20} — è sintetizzata nella Tabella~\ref{tab:biclass_benchmark_cardinality}. 
+Come si evince dai dati di partizionamento, l'applicazione rigorosa del rapporto $\rho = 10$ garantisce che ciascun rilevatore specialistico ($\mathcal{M}_{S,a}$ o $\mathcal{M}_{H,T,a}$) venga addestrato su una distribuzione uniforme composta da esattamente $93.000$ campioni leciti ($Y=0$) e $9.300$ campioni malevoli ($Y=1$) dedicati alla singola famiglia d'attacco $a$, mantenendo costante lo \textit{split} 80/20 tra training ($81.840$ record) e test set ($20.460$ record).
+
+\begin{table}[H]
+\centering
+\caption{Prospetto sintetico della cardinalità e del partizionamento per i Set Nativi Sorgente Biclasse e Ibridi Biclasse ($\rho=10$).}
+\label{tab:biclass_benchmark_cardinality}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{llccccc}
+\hline
+\textbf{Dominio} & \textbf{Nome Dataset Biclasse} & \textbf{Istanze Normali} & \textbf{Istanze Attacco} & \textbf{Totale} & \textbf{Train Set} & \textbf{Test Set} \\[-5pt]
+ & \textbf{\textit{(File CSV)}} & \textbf{\textit{Normal ($\bf{Y=0}$)}} & \textbf{\textit{Classe $\bf{a}$ ($\bf{Y=1}$)}} & \textbf{Istanze} & \textbf{\textit{(80\%)}} & \textbf{\textit{(20\%)}} \\
+\hline
+\multicolumn{7}{c}{\textbf{\textit{Set Nativi Sorgente Biclasse}}} \\
+\hline
+\texttt{NB15} & \texttt{Normal\_Generic.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+\texttt{NB15} & \texttt{Normal\_Exploits.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+\texttt{NB15} & \texttt{Normal\_Fuzzers.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+\texttt{NB15} & \texttt{Normal\_DoS.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+\texttt{NB15} & \texttt{Normal\_Reconnaissance.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+\hline
+\multicolumn{7}{c}{\textbf{\textit{Set Ibridi Biclasse Terrestri}}} \\
+\hline
+\texttt{TER20} & \texttt{Normal\_DDoS.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+\texttt{TER20} & \texttt{Normal\_Botnet.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+\texttt{TER20} & \texttt{Normal\_Syn\_DDoS.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+\texttt{TER20} & \texttt{Normal\_UDP\_DDoS.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+\hline
+\multicolumn{7}{c}{\textbf{\textit{Set Ibridi Biclasse Satellitari}}} \\
+\hline
+\texttt{SAT20} & \texttt{Normal\_UDP\_DDoS.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+\texttt{SAT20} & \texttt{Normal\_Syn\_DDoS.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+\hline
+\end{tabular}}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[]
+    % LIVELLO 3: VINCOLO \rho E CAMPIONAMENTO
+    \node [node_transform] (rho) {
+        \textbf{Vincolo Bilanciamento $\rho=10$}\\
+        Campionamento Stratificato\\
+        Without-Replacement\\
+        (\texttt{\_safe\_stratified\_sample})
+    };
+
+    % LIVELLO 2: FILTRAGGIO E TASSONOMIA
+    \node [node_process, above left=1cm and -0.5cm of rho] (p_unsw) {
+        \textbf{Minority Removal}\\
+        Eliminazione 4 classi\\
+        $\rightarrow 250.982$ record
+    };
+
+    \node [node_process, above right=1cm and -0.5cm of rho] (p_stin) {
+        \textbf{Minority Merge}\\
+        Accorpamento classi\\
+        $\rightarrow 209.564$ record
+    };
+
+    % LIVELLO 1: INPUT DATASET GREZZI
+    \node [node_primary, above=1cm of p_unsw] (unsw) {
+        \textbf{UNSW-NB15}\\
+        ($D_S$ Sorgente)\\
+        257.673 record
+    };
+
+    \node [node_accent, above=1cm of p_stin] (stin) {
+        \textbf{STIN (TER20/SAT20)}\\
+        ($D_T$ Target Malevolo)\\
+        209.564 record
+    };
+
+    % LIVELLO 4: PARTIZIONAMENTO 80/20
+    \node [node_process, below=1cm of rho] (split) {
+        \textbf{Partizionamento 80/20}\\
+        Train Set: $81.840$ (80\%)\\
+        Test Set: $20.460$ (20\%)
+    };
+
+    % LIVELLO 5: OUTPUT BENCHMARK
+    \node [node_output, below left=1cm and -0.5cm of split] (bench_aggr) {
+        \textbf{Benchmark Aggregati}\\
+        (5 Dataset - $102.300$ rec)
+    };
+
+    \node [node_output, below right=1cm and -0.5cm of split] (bench_biclass) {
+        \textbf{Benchmark Biclasse}\\
+        (11 Dataset - $102.300$ rec)
+    };
+
+    % CONNESSIONI
+    \path [arrow_source] (unsw) -- (p_unsw);
+    \path [arrow_target] (stin) -- (p_stin);
+
+    \path [arrow_flow] (p_unsw) |- (rho);
+    \path [arrow_flow] (p_stin) |- (rho);
+
+    \path [arrow_param] (rho) -- (split);
+
+    \path [arrow_flow] (split.west) -| (bench_aggr.north);
+    \path [arrow_flow] (split.east) -| (bench_biclass.north);
+
+\end{tikzpicture}
+\caption{Diagramma di flusso del processo di estrazione, pulizia, campionamento vincolato ($\rho=10$) e partizionamento stratificato 80/20 per la generazione dei benchmark fisici aggregati e biclasse.}
+\label{fig:benchmark_generation_pipeline}
+\end{figure}
 
 
 \section{Allineamento delle Feature e Pipeline di Preprocessing}
@@ -447,7 +676,7 @@ La Tabella~\ref{tab:mapping_operator} formalizza le trasformazioni scalari $\psi
 \label{tab:mapping_operator}
 \resizebox{\textwidth}{!}{
 \begin{tabular}{lllc}
-\hline
+\toprule
 \textbf{Feature Coordinata ($\bf{x_j}$)} & \textbf{Dominio Sorgente ($\bf{\psi_{S,j}}$)} & \textbf{Dominio Target ($\bf{\psi_{T,j}}$)} & \textbf{Unità di Misura} \\
 \hline
 \texttt{duration} & $\texttt{dur} \cdot 10^6$ & \texttt{fl\_dur} & $\mu$s \\
@@ -468,10 +697,40 @@ La Tabella~\ref{tab:mapping_operator} formalizza le trasformazioni scalari $\psi
 \texttt{byte\_ratio} & \multicolumn{2}{c}{$\texttt{dst\_bytes} / (\texttt{src\_bytes} + \epsilon)$} & Adimensionale \\
 \hline
 \texttt{pkts\_per\_sec} & $\texttt{total\_pkts} / (\texttt{dur} + \epsilon)$ & $[\texttt{total\_pkts} / (\texttt{duration} + \epsilon)] \cdot 10^6$ & 1/s \\
-\hline
+\bottomrule
 \end{tabular}
 }
 \end{table}
+
+\begin{table}[H]
+\centering
+\caption{Descrizione semantica delle feature coordinate.}
+\label{tab:feature_descriptions}
+\begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Feature Coordinata ($\mathbf{x_j}$)} & \textbf{Descrizione} \\
+\midrule
+\texttt{duration} & Durata di esecuzione \\
+\texttt{src\_bytes} & Lunghezza totale dei pacchetti in direzione forward \\
+\texttt{dst\_bytes} & Lunghezza totale dei pacchetti in direzione backward \\
+\texttt{src\_pkts} & Numero totale di pacchetti in direzione forward \\
+\texttt{dst\_pkts} & Numero totale di pacchetti in direzione backward \\
+\texttt{src\_win\_byt} & Lunghezza finestra iniziale in direzione forward \\
+\texttt{dst\_win\_byt} & Lunghezza finestra iniziale in direzione backward \\
+\texttt{load\_s} & Throughput totale \\
+\texttt{down\_up\_ratio} & Asimmetria dei pacchetti \\
+\texttt{total\_bytes} & Bytes totali \\
+\texttt{total\_pkts} & Pacchetti totali \\
+\texttt{src\_mean\_pkt\_size} & Dimensione media dei pacchetti in direzione forward \\
+\texttt{dst\_mean\_pkt\_size} & Dimensione media dei pacchetti in direzione backward \\
+\texttt{win\_diff} & Differenza di finestra \\
+\texttt{byte\_ratio} & Rapporto di byte \\
+\texttt{pkts\_per\_sec} & Tasso di pacchetti per secondo \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\newpage
 
 Nel processo di mappatura emergono tre aspetti architetturali critici:
 \begin{itemize}
@@ -480,8 +739,118 @@ Nel processo di mappatura emergono tre aspetti architetturali critici:
     \item \textbf{Stabilizzazione Numerica:} Durante il calcolo di indici razionali (come \texttt{down\_up\_ratio}, \texttt{byte\_ratio}, le densità di pacchetti e il \textit{packet rate}), è stata introdotta una costante di regolarizzazione $\epsilon = 10^{-6}$ ai denominatori. Questo accorgimento previene singolarità algebriche causate da divisioni per zero indotte da flussi anomali o malformati.
 \end{itemize}
 
-A completamento della trattazione teorica, le funzioni \texttt{\_align\_nb15} e \texttt{\_align\_stin}, implementate nel file \texttt{data\_preprocessing.py} del repository GitHub, costituiscono la trasposizione operativa dell'operatore di mappatura in linguaggio Python.
-L'implementazione sfrutta la libreria \texttt{pandas} per l'esecuzione vettorializzata delle operazioni sui \textit{DataFrame}, consentendo di elaborare in modo efficiente dataset di dimensioni considerevoli.
+A completamento della trattazione teorica, i Listati~\ref{lst:align_nb15} e ~\ref{lst:align_stin} riportano l'implementazione in linguaggio Python delle funzioni \texttt{\_align\_nb15} e \texttt{\_align\_stin}. 
+Tali funzioni costituiscono la trasposizione operativa diretta degli operatori $\boldsymbol{\psi}_S$ e $\boldsymbol{\psi}_T$, sfruttando l'esecuzione vettorializzata su strutture dati \textit{DataFrame} della libreria \texttt{pandas} per massimizzare le prestazioni computazionali su dataset ad alta dimensionalità.
+
+\newpage
+
+\begin{lstlisting}[
+    language=Python,
+    caption={Trasposizione operativa dell'operatore di mappatura $\boldsymbol{\psi}_k$ tramite vettorializzazione \texttt{pandas} per il dominio UNSW-NB15.},
+    label={lst:align_nb15},
+    frame=single,
+    rulecolor=\color{mygray},
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\footnotesize,
+    commentstyle=\color{mygreen},
+    keywordstyle=\color{purple}\bfseries,
+    stringstyle=\color{mymauve},
+    emph={[2]None,True,False},
+    emphstyle={[2]\color{mymauve}\bfseries},
+    breaklines=false,
+    keepspaces=true,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\footnotesize\color{mygray},
+    numbersep=8pt
+]
+def _align_nb15(data):
+    required_columns = ['dur', 'sbytes', 'dbytes', 'spkts', 'dpkts', 'swin', 
+    'dwin', 'sload', 'dload', 'sinpkt', 'dinpkt', 'attack_cat', 'label']
+    # [Controllo di sicurezza per le required_columns...]
+
+    new_df = pd.DataFrame()
+
+    # Trasposizione operativa dell'operatore di mappatura
+    new_df['duration'] = data['dur'] * 1000000
+    new_df['src_bytes'] = data['sbytes']
+    new_df['dst_bytes'] = data['dbytes']
+    new_df['src_pkts'] = data['spkts']
+    new_df['dst_pkts'] = data['dpkts']
+    new_df['src_win_byt'] = data['swin']
+    new_df['dst_win_byt'] = data['dwin']
+    new_df['load_s'] = ((data['sload'] + data['dload']) / 8)
+    new_df['down_up_ratio'] = data['dpkts'] / (data['spkts'] + 1e-6)
+    new_df['total_bytes'] = new_df['src_bytes'] + new_df['dst_bytes']
+    new_df['total_pkts'] = new_df['src_pkts'] + new_df['dst_pkts']
+    new_df['src_mean_pkt_size'] = \
+        new_df['src_bytes'] / (new_df['src_pkts'] + 1e-6)
+    new_df['dst_mean_pkt_size'] = \
+        new_df['dst_bytes'] / (new_df['dst_pkts'] + 1e-6)
+    new_df['pkts_per_sec'] = \ 
+        (new_df['src_pkts'] + new_df['dst_pkts']) / (data['dur'] + 1e-6)
+    new_df['win_diff'] = new_df['src_win_byt'] - new_df['dst_win_byt']
+    new_df['byte_ratio'] = new_df['dst_bytes'] / (new_df['src_bytes'] + 1e-6)
+    new_df['class'] = data['attack_cat']
+    new_df['label'] = data['label']
+
+    return new_df
+\end{lstlisting}
+
+\begin{lstlisting}[
+    language=Python,
+    caption={Trasposizione operativa dell'operatore di mappatura $\boldsymbol{\psi}_k$ tramite vettorializzazione \texttt{pandas} per il dominio STIN.},
+    label={lst:align_stin},
+    frame=single,
+    rulecolor=\color{mygray},
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\footnotesize,
+    commentstyle=\color{mygreen},
+    keywordstyle=\color{purple}\bfseries,
+    stringstyle=\color{mymauve},
+    emph={[2]None,True,False},
+    emphstyle={[2]\color{mymauve}\bfseries},
+    breaklines=false,
+    keepspaces=true,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\footnotesize\color{mygray},
+    numbersep=8pt
+]
+def _align_stin(data):
+    required_columns = ['fl_dur', 'l_fw_pkt', 'l_bw_pkt', 'fw_pk', 
+    'bw_pkt_s', 'fw_win_byt', 'bw_win_byt', 'fl_byt_s', 
+    'fl_iat_min', 'down_up_ratio', 'label']
+    # [Controllo di sicurezza per le required_columns...]
+
+    new_df = pd.DataFrame()
+
+    # Trasposizione operativa dell'operatore di mappatura
+    new_df['duration'] = data['fl_dur']
+    new_df['src_bytes'] = data['l_fw_pkt']
+    new_df['dst_bytes'] = data['l_bw_pkt']
+    new_df['src_pkts'] = data['fw_pk']
+    new_df['dst_pkts'] = data['bw_pkt_s'] * data['fl_dur'] / 1000000
+    new_df['src_win_byt'] = data['fw_win_byt']
+    new_df['dst_win_byt'] = data['bw_win_byt']
+    new_df['load_s'] = data['fl_byt_s']
+    new_df['down_up_ratio'] = data['down_up_ratio']
+    new_df['total_bytes'] = new_df['src_bytes'] + new_df['dst_bytes']
+    new_df['total_pkts'] = new_df['src_pkts'] + new_df['dst_pkts']
+    new_df['src_mean_pkt_size'] = \
+        new_df['src_bytes'] / (new_df['src_pkts'] + 1e-6)
+    new_df['dst_mean_pkt_size'] = \
+        new_df['dst_bytes'] / (new_df['dst_pkts'] + 1e-6)
+    new_df['pkts_per_sec'] = ((new_df['src_pkts'] + new_df['dst_pkts']) \
+        / (new_df['duration'] + 1e-6)) * 1000000
+    new_df['win_diff'] = new_df['src_win_byt'] - new_df['dst_win_byt']
+    new_df['byte_ratio'] = new_df['dst_bytes'] / (new_df['src_bytes'] + 1e-6)
+    new_df['class'] = data['label']
+    new_df['label'] = 1
+
+    return new_df
+\end{lstlisting}
+
 
 \subsection{Verifica dell'Omissione della Scalatura Esplicita}
 \label{subsec:verifica_no_scaling}
@@ -968,7 +1337,7 @@ Tutti i valori numerici prodotti dalle funzioni di metrica vengono arrotondati a
 Particolare attenzione è stata riservata ai casi nei quali il vettore delle etichette reali contiene una sola classe. 
 Prima del calcolo delle metriche viene pertanto verificata la presenza di almeno due classi distinte mediante il numero di valori univoci presenti in \texttt{y\_test}. 
 Qualora tale condizione non sia soddisfatta, le metriche \textit{Accuracy}, \textit{Precision}, \textit{Recall}, \textit{F1-Score}, \textit{ROC-AUC} e \textit{PR-AUC} vengono impostate a \texttt{None}. 
-I quattro elementi della matrice di confusione vengono invece sempre ricavati imponendo le classi \texttt{[0, 1]}, mentre TPR, FNR, TNR e FPR vengono calcolati separatamente e assumono valore \texttt{None} esclusivamente quando il denominatore della relativa espressione risulta nullo. 
+I quattro elementi della matrice di confusione vengono invece sempre ricavati imponendo le classi \texttt{[0, 1]}, mentre TPR, FNR, TNR e FPR vengono calcolati separatamente e assumono valore \texttt{None} esclusivamente quando il denominatore della relativa espressione risulta nullo\footnote{Questa guardia condizionale esplicita sui denominatori ($(TP + FN) > 0$ e $(FP + TN) > 0$) e sul conteggio delle classi univoche previene eccezioni di divisione per zero e avvisi a runtime (\textit{RuntimeWarning}/\textit{UndefinedMetricWarning}), garantendo la continuità dell'esecuzione e la tracciabilità dei casi degeneri nei report salvati.}. 
 La struttura logica di tale gestione difensiva è sintetizzata nel Listing~\ref{lst:calculate_metrics_edge_cases}.
 
 \newpage
@@ -993,12 +1362,10 @@ La struttura logica di tale gestione difensiva è sintetizzata nel Listing~\ref{
     numberstyle=\footnotesize\color{mygray},
     numbersep=8pt
 ]
-# Security check for number of classes to avoid metric calculation error
 has_classes = len(np.unique(y_test)) > 1
+# [Controllo di sicurezza sul numero di classi...]
 
-# [Warning message...]
-
-# Get metrics
+# Calcolo delle metriche
 tn, fp, fn, tp = confusion_matrix(y_test, y_pred, labels=[0, 1]).ravel()
 
 if has_classes:
@@ -1199,6 +1566,31 @@ Per ciascun tipo di classificatore, le matrici aggregate vengono memorizzate sot
 \end{center}
 con una sottocartella dedicata alla metrica considerata. Per ciascuna metrica vengono conservati sia i valori tabellari della media e della varianza in formato \texttt{CSV}, sia la rappresentazione grafica finale in formato \texttt{PNG}.
 
+La struttura organizzativa e la composizione tabellare dei file CSV generati per rappresentare le matrici aggregate di media ($\overline{h}_{ij}$) e varianza ($\sigma^2_{ij}$) sono descritte nella Tabella~\ref{tab:aggregated_metrics_csv_structure}.
+
+\begin{table}[H]
+\centering
+\caption{Struttura e descrizione dei campi costituenti i file CSV per le matrici delle metriche individuali e aggregate ($M \times D$).}
+\label{tab:aggregated_metrics_csv_structure}
+\begin{tabularx}{\textwidth}{l l >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Colonna} & \textbf{Tipo Dati} & \textbf{Descrizione Operativa} \\
+\hline
+\texttt{model\_label} & Stringa & Architettura o denominazione del modello valutato ($i$-esima riga della matrice). \\
+\addlinespace
+\texttt{<dataset\_1>} & Float & Valore (puntuale, medio $\overline{h}_{ij}$ o varianza $\sigma^2_{ij}$) della metrica sul primo dataset. \\
+\addlinespace
+\texttt{<dataset\_2>} & Float & Valore (puntuale, medio $\overline{h}_{ij}$ o varianza $\sigma^2_{ij}$) della metrica sul secondo dataset. \\
+\addlinespace
+\dots & \dots & Valori associati ai restanti dataset di valutazione di test $j \in \{1, \dots, D\}$. \\
+\addlinespace
+\texttt{<dataset\_D>} & Float & Valore (puntuale, medio $\overline{h}_{ij}$ o varianza $\sigma^2_{ij}$) della metrica sull'ultimo dataset. \\
+\addlinespace
+\texttt{Average} & Float & Media complessiva della metrica calcolata per la riga del modello su tutti i $D$ dataset. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
 La separazione tra risultati per singolo seed e risultati aggregati consente pertanto di mantenere distinti due livelli di organizzazione implementativa: il primo conserva integralmente la configurazione associata a ciascuna realizzazione stocastica, mentre il secondo sintetizza le osservazioni relative alla stessa coppia modello--dataset lungo l'insieme dei seed. 
 Tale organizzazione costituisce la trasposizione operativa della matrice di valutazione $H_k$ definita nel modello teorico e produce gli artefatti persistenti utilizzati nelle successive procedure di analisi statistica.
     
@@ -1333,8 +1725,7 @@ Per ciascun modello confrontato $m$, viene analogamente costruito il campione
 \label{eq:welch_model_sample}
 \end{equation}
 
-Il test viene applicato tra $\mathcal{F}_{\text{base}}$ e $\mathcal{F}_{m}$, assumendo varianze non necessariamente uguali. 
-L'ipotesi nulla e l'ipotesi alternativa sono pertanto formulate, per ciascun confronto, come
+Il test inferenziale viene condotto assumendo l'indipendenza statistica delle osservazioni generate dalle diverse iterazioni con seed sintetici distinti ($s_k \in \mathcal{S}$) e senza vincoli sulla varianza delle due popolazioni. L'ipotesi nulla e l'ipotesi alternativa sono pertanto formulate, per ciascun confronto diretto tra $\mathcal{F}_{\text{base}}$ e $\mathcal{F}_{m}$, come
 
 \begin{equation}
 H_0:
@@ -1345,10 +1736,10 @@ H_1:
 \label{eq:welch_hypotheses}
 \end{equation}
 
-dove $\mu_{\text{base}}$ e $\mu_m$ rappresentano i valori medi della \textit{F1-Score} delle rispettive popolazioni campionarie. 
+dove $\mu_{\text{base}}$ e $\mu_m$ rappresentano i valori medi teorici della \textit{F1-Score} delle rispettive popolazioni campionarie. 
 
 La traduzione di tale impianto teorico nella sua controparte implementativa è riportata nel Listing~\ref{lst:welch_implementation}, il quale illustra la procedura di estrazione dei campioni vettoriali dal \textit{DataFrame} matriciale e l'invocazione del modulo \texttt{scipy.stats}. 
-L'utilizzo del parametro \texttt{equal\_var=False} applica rigorosamente la formulazione di Welch e la valutazione viene eseguita a due code (configurazione predefinita), senza introdurre una direzione privilegiata per l'ipotesi alternativa.
+L'utilizzo del parametro \texttt{equal\_var=False} applica rigorosamente la formulazione di Welch e la valutazione viene eseguita a due code (configurazione predefinita), senza introdurre una direzione privileged per l'ipotesi alternativa.
 
 \newpage
 
@@ -1407,16 +1798,16 @@ for _, row in data.iterrows():
     })
 \end{lstlisting}
 
-Il livello di significatività è fissato a
+Il livello di significatività è stabilito \textit{a priori} al valore di primo tipo
 
 \begin{equation}
-\alpha = 0.05,
+\alpha = 0{,}05,
 \label{eq:welch_alpha}
 \end{equation}
 
-e viene acquisito dalla costante \texttt{MLConstants.WELCH\_TTEST\_ALFA\_VALUE}. 
-La decisione statistica viene determinata direttamente confrontando il \textit{p-value} restituito dal test con tale soglia. 
-In particolare, la configurazione viene marcata come significativa quando
+acquisito dal parametro di configurazione \texttt{MLConstants.WELCH\_TTEST\_ALFA\_VALUE}. 
+La decisione statistica viene determinata direttamente confrontando il \textit{p-value} restituito dal test con tale soglia prefissata. 
+In particolare, la differenza prestazionale tra il modello in esame e la baseline viene marcata come statisticamente significativa quando
 
 \begin{equation}
 p < \alpha,
@@ -1449,7 +1840,7 @@ La struttura complessiva del registro finale e la descrizione semantica dei sing
 \texttt{Compared\_Model} & Denominazione del modello di confronto sottoposto a verifica statistica. \\
 \texttt{t\_statistic} & Valore numerico della statistica $t$ di Welch calcolato tra i campioni di \textit{F1-Score}. \\
 \texttt{p\_value} & Probabilità osservata di ottenere un valore uguale o più estremo sotto l'ipotesi nulla $H_0$. \\
-\texttt{alpha} & Livello di significatività stabilito a priori per la decisione statistica ($\alpha = 0.05$). \\
+\texttt{alpha} & Livello di significatività stabilito \textit{a priori} per la decisione statistica ($\alpha = 0{,}05$). \\
 \texttt{is\_significant} & Indicatore booleano dell'esito della verifica (\texttt{True} se $p < \alpha$, \texttt{False} altrimenti). \\
 \hline
 \end{tabularx}
@@ -1473,6 +1864,26 @@ Nelle sottosezioni seguenti vengono descritte le componenti che costituiscono l'
 In primo luogo, la Sottosezione~\ref{subsec:implementazione_pca_kde} illustra l'implementazione della standardizzazione diagnostica dipendente dal sorgente e delle procedure PCA e KDE, specificando le modalità di trasformazione dei benchmark e la configurazione delle rappresentazioni grafiche.
 Successivamente, la Sottosezione~\ref{subsec:implementazione_shap} descrive l'integrazione di SHAP nella pipeline di classificazione, il campionamento stratificato del test set e la gestione degli \textit{explainer} per i classificatori basati su alberi.
 Infine, la Sottosezione~\ref{subsec:pipeline_shap_kde} illustra il raccordo tra l'analisi SHAP e la successiva selezione delle caratteristiche per la rappresentazione KDE, evidenziando il carattere supervisionato della procedura e la definizione manuale della configurazione \texttt{KDE\_TOP\_FEATURES}.
+
+La Tabella~\ref{tab:confronto_strumenti_diagnostici} sintetizza le caratteristiche operative, lo spazio di input e i moduli software associati a ciascuno degli strumenti considerati.
+
+\begin{table}[H]
+\centering
+\caption{Confronto sinottico tra gli strumenti diagnostici (PCA, KDE) e di spiegabilità (TreeSHAP) integrati nell'architettura software.}
+\label{tab:confronto_strumenti_diagnostici}
+\begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Strumento} & \textbf{Obiettivo} & \textbf{Spazio Input} & \textbf{Interpretabilità} \\
+\midrule
+PCA & Ispezione geometrica della separabilità globale e variabilità nello spazio 2D & Scalato (Z-Score ancorato al benchmark sorgente $S$) & Globale (riduzione dimensionale per componenti principali) \\
+\addlinespace
+KDE & Analisi densometrica univariata del \textit{domain shift} sulle feature chiave & Scalato (Z-Score ancorato sulle Top-3 feature di $S$) & Distribuzionale (stima della densità per classe in scala \texttt{symlog}) \\
+\addlinespace
+TreeSHAP & Spiegabilità post-hoc del contributo delle feature alle predizioni dei classificatori & Originale (matrice delle caratteristiche del test set $X_{\mathrm{test}}$) & Locale e Aggregata (valori di Shapley e \textit{summary plot}) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
 
 \subsection{Standardizzazione Diagnostica, PCA e KDE}
 \label{subsec:implementazione_pca_kde}
@@ -1820,8 +2231,8 @@ L'analisi di spiegabilità viene integrata nella pipeline di classificazione med
 La procedura riceve il modello precedentemente addestrato, la matrice delle caratteristiche del test set, le relative etichette e i metadati necessari alla generazione e alla persistenza della rappresentazione grafica. 
 L'analisi rimane pertanto confinata alla fase diagnostica e non modifica il modello precedentemente serializzato.
 
-Prima della costruzione delle spiegazioni viene effettuato un campionamento stratificato del test set, con l'obiettivo di limitare il costo computazionale dell'analisi e mantenere contemporaneamente la rappresentazione di entrambe le classi. 
-La dimensione massima del campione è fissata dalla costante \texttt{SHAP\_MAX\_SAMPLES=500}. 
+Prima della costruzione delle spiegazioni viene effettuato un campionamento stratificato e deterministico del test set (ancorato al seed di esecuzione), utilizzato per definire il dataset di background dell'algoritmo TreeSHAP. 
+La dimensione massima del campione è fissata dalla costante \texttt{SHAP\_MAX\_SAMPLES=500}\footnote{Il sotto-campionamento deterministico del dataset di background costituisce una misura essenziale per contenere la complessità computazionale del calcolo dei valori di Shapley. Riducendo la cardinalità del campione di riferimento a una quota rappresentativa, si previene un incremento insostenibile dei tempi di esecuzione e dell'occupazione di memoria durante l'algoritmo TreeSHAP, preservando al contempo la convergenza stocastica delle stime empiriche e la stabilità delle spiegazioni rese.}. 
 Le quote assegnate alle due classi sono calcolate mediante il parametro \texttt{NORMAL\_ANOMALY\_RATIO}, secondo:
 
 \begin{equation}
@@ -2333,144 +2744,195 @@ La lista finale \texttt{KDE\_TOP\_FEATURES} rappresenta pertanto la selezione co
 
 \section{Sintesi della Pipeline Implementativa}
 \label{sec:sintesi_pipeline_implementativa}
-
+ 
 La pipeline implementativa descritta nel presente capitolo costituisce la traduzione operativa del framework metodologico definito nel Capitolo~\ref{ch:metodologia}.
 L'architettura è organizzata in moduli logicamente distinti, corrispondenti alle principali fasi del ciclo di elaborazione: acquisizione e armonizzazione dei dati, costruzione dei benchmark, addestramento multi-seed, inferenza, valutazione e analisi diagnostica.
 Tale decomposizione consente di mantenere separati il flusso computazionale principale e le procedure di analisi, preservando la modularità dell'infrastruttura software e la riproducibilità delle singole fasi.
-
+Inoltre, la struttura disaccoppiata garantisce un'elevata estensibilità dell'architettura software: l'integrazione di nuovi dataset target o l'inclusione di ulteriori algoritmi di classificazione può essere effettuata in modo trasparente, agendo unicamente sulle definizioni contenute nel file di configurazione centralizzato (\texttt{config.py}), senza dover modificare la logica di elaborazione dei singoli moduli computazionali.
+ 
+La Tabella~\ref{tab:architettura_software_e2e} riassume la mappa dei moduli Python sviluppati, i rispettivi file sorgente, le responsabilità primarie e i flussi di Input/Output che attraversano l'architettura software.
+ 
+\newpage
+ 
+\begin{table}[H]
+\centering
+\caption{Riepilogo dell'architettura software end-to-end: moduli Python, file sorgente, responsabilità e flussi di Input/Output.}
+\label{tab:architettura_software_e2e}
+\resizebox{\textwidth}{!}{
+\begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{File Sorgente} & \textbf{Responsabilità Principale} & \textbf{Input / Output} \\
+\midrule
+\multicolumn{3}{c}{\textbf{Punto di Ingresso}} \\
+\hline
+main.py & Gestione CLI interattiva e orchestrazione del ciclo esecutivo multi-seed ($s_0$ e $\mathcal{S}$). & \textbf{In:} Comandi CLI, parametri \newline \textbf{Out:} Trigger pipeline esecutive \\
+\hline
+\multicolumn{3}{c}{\textbf{Allineamento Feature}} \\
+\hline
+src/data\_preprocessing.py & Mappatura $\boldsymbol{\psi}_k$, derivazione metriche e allineamento allo spazio coordinato ($d=16$). & \textbf{In:} Dataframe parziali \newline \textbf{Out:} Dataframe coordinati (16 feature) \\
+\hline
+\multicolumn{3}{c}{\textbf{Core Preprocessing}} \\
+\hline
+src/file\_preprocessing.py & Pulizia, campionamento stratificato ($\rho=10$), bilanciamento e split 80/20 train/test. & \textbf{In:} Dataframe coordinati \newline \textbf{Out:} Benchmark (\texttt{data/preprocessed/}) \\
+\hline
+\multicolumn{3}{c}{\textbf{Gestione Modelli}} \\
+\hline
+src/models.py & Istanziazione, fitting dei classificatori (DT, RF, HGB), naming e serializzazione pesi. & \textbf{In:} Dataset pre-processati \newline \textbf{Out:} Pesi \texttt{.joblib}, update \texttt{models\_metadata.csv} \\
+\hline
+\multicolumn{3}{c}{\textbf{Inferenza \& Valutazione}} \\
+\hline
+src/classification.py & Inferenza sui test set, generazione matrici di confusione e calcolo metriche. & \textbf{In:} Modelli \texttt{.joblib} e test set \newline \textbf{Out:} CSV risultati in \texttt{runs/.../results/} \\
+\end{tabularx}
+}
+\end{table}
+ 
+\newpage
+ 
+\begin{table}[H]
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+\hline
+\multicolumn{3}{c}{\textbf{Diagnostica \& Visualizzazione}} \\
+\hline
+src/plotting.py & Mappe di calore, diagnostica spaziale (PCA, KDE con \texttt{StandardScaler}) e XAI (TreeSHAP). & \textbf{In:} Matrici, log e dataset \newline \textbf{Out:} Grafici e diagrammi (PNG/PDF) \\
+\hline
+\multicolumn{3}{c}{\textbf{Configurazione}} \\
+\hline
+src/utils/config.py & Centralizzazione costanti (\texttt{MLConstants}, $\rho=10$, semi stocastici, path). & \textbf{In:} N.D. \newline \textbf{Out:} Parametri globali di runtime \\
+\hline
+\multicolumn{3}{c}{\textbf{I/O \& Persistenza}} \\
+\hline
+src/utils/file\_utils.py & Gestione I/O su disco, salvataggio/caricamento sicuro di artefatti e registri CSV. & \textbf{In:} Oggetti Python, file dati \newline \textbf{Out:} Persistenza strutturata su disco \\
+\hline
+\multicolumn{3}{c}{\textbf{Metriche Spiegabili}} \\
+\hline
+src/utils/metrics.py & Formalizzazione e calcolo sintetico delle metriche (Accuracy, F1, ROC-AUC, ecc.). & \textbf{In:} Vettori etichette $y$ e $\hat{y}$ \newline \textbf{Out:} Dizionari/Dataframe di metriche \\
+\bottomrule
+\end{tabularx}
+}
+\end{table}
+ 
 Il processo ha origine dai domini sorgente e target, i cui dati vengono sottoposti alle procedure di filtraggio e allineamento descritte nella Sezione~\ref{sec:preprocessing_implementazione}.
 L'operatore $\boldsymbol{\psi}_k$ riconduce le rappresentazioni eterogenee a uno spazio condiviso di caratteristiche, sul quale vengono successivamente applicati i criteri di composizione e partizionamento necessari alla costruzione dei benchmark sperimentali.
 I dataset risultanti costituiscono l'input del modulo di classificazione, senza introdurre alcuna ulteriore scalatura esplicita nel flusso principale, in accordo con quanto discusso nella Sezione~\ref{subsec:verifica_no_scaling}.
-
+ 
 La fase di apprendimento viene quindi eseguita mediante l'istanziazione dei classificatori \textit{Decision Tree}, \textit{Random Forest} e \textit{Histogram-based Gradient Boosting}, ripetuta sui semi stocastici definiti dal protocollo.
 Per ogni combinazione tra algoritmo, benchmark e seme vengono prodotti gli artefatti relativi al modello e ai relativi metadati, mantenendo l'isolamento delle diverse esecuzioni nella struttura gerarchica della directory \texttt{runs/}.
-
+ 
 I modelli così ottenuti vengono successivamente utilizzati nella fase di inferenza sugli insiemi di test, generando predizioni e punteggi di probabilità \texttt{SHAP}.
 Le predizioni e i relativi punteggi alimentano il calcolo delle metriche e la costruzione delle matrici di valutazione, mentre l'aggregazione delle osservazioni sui diversi semi fornisce gli ingressi per la successiva procedura di confronto statistico.
 Gli artefatti prodotti lungo tale percorso vengono persistiti secondo la struttura organizzativa descritta nella Sezione~\ref{subsec:repository}, mantenendo distinti modelli, risultati e prodotti delle analisi.
-
+ 
 Parallelamente al flusso principale opera il modulo diagnostico.
 La standardizzazione utilizzata per PCA e KDE viene mantenuta separata dal grafo computazionale di training e inferenza.
 Le caratteristiche individuate mediante l'ispezione dei grafici SHAP vengono quindi utilizzate per configurare l'analisi KDE, secondo la procedura supervisionata descritta nella Sezione~\ref{subsec:pipeline_shap_kde}.
-
-La composizione complessiva degli stadi implementativi è sintetizzata nella Figura~\ref{fig:implementative_pipeline_summary}, che evidenzia il flusso principale della pipeline e il relativo ramo diagnostico.
-
+ 
+La composizione complessiva degli stadi implementativi è sintetizzata nella Figura~\ref{fig:architettura_software_end_to_end}, che evidenzia, con il relativo dettaglio parametrico, il flusso principale della pipeline e il relativo ramo diagnostico.
+ 
 \begin{figure}[H]
 \centering
+\resizebox{\textwidth}{!}{
 \begin{tikzpicture}[]
+    % --- FASE 2: PREPROCESSING E ALLINEAMENTO ---
+    \node [node_transform] (align) {
+        \textbf{Operatore di Mappatura $\boldsymbol{\psi}_k$ e Pulizia}\\
+        Minority Removal / Merge $\rightarrow$ Allineamento Feature ($d=16$)\\
+        Stabilizzazione $\epsilon = 10^{-6}$ | Conversioni Temporali/Volumetriche
+    };
+ 
+    % --- FASE 1: INGESTIONE E DATASET GREZZI ---
+    \node [node_database, above left=1cm and -3cm of align] (unsw) {
+        \textbf{UNSW-NB15} ($\mathcal{D}_S$)\\
+        \small 257.673 record | 45 col.
+    };
+ 
+    \node [node_database, draw=accentorange, fill=lightorange, above right=1cm and -3cm of align] (stin) {
+        \textbf{STIN} ($\mathcal{D}_T$: TER20 / SAT20)\\
+        \small 209.564 record | 32 col.
+    };
+ 
+    \node [node_transform, below=1cm of align] (sampling) {
+        \textbf{Campionamento Stratificato e Partizionamento}\\
+        Vincolo Bilanciamento $\rho = 10$ ($10:1$) | Split 80\% Train / 20\% Test\\
+        Generazione 5 Benchmark Aggregati + 11 Benchmark Biclasse
+    };
+ 
+    % --- FASE 3: CORE COMPUTAZIONALE & TRAINING MULTI-SEED ---
+    \node [node_process, below=2cm of sampling] (loop) {
+        \textbf{Orchestrazione Multi-Seed (\texttt{main.py})}\\
+        Iterazione su Modelli ($m \in \{\text{DT, RF, HGB}\}$) e Semi ($\mathcal{S} = \{0, 1, \dots, 12345\}$)\\
+        Nessuna Scalatura Applicata (Invarianza Monotonica)
+    };
+ 
+    \node [node_output, left=1cm of loop] (persist) {
+        \textbf{Persistenza Artefatti}\\
+        Modelli \texttt{.joblib}\\
+        \texttt{models\_metadata.csv}
+    };
+ 
+    % --- BIFORCAZIONE: RAMO INFERENZIALE E RAMO DIAGNOSTICO ---
+    % Ramo Inferenziale (A sinistra)
+    \node [node_accent, below left=3cm and -3cm of loop] (infer_eval) {
+        \textbf{Flusso Inferenziale Principale}\\
+        Classificazione su Test Set Cross-Dominio\\
+        Calcolo Matrici di Confusione ($TP, TN, FP, FN$)
+    };
+ 
+    \node [node_accent, below=1cm of infer_eval] (infer_stats) {
+        \textbf{Validazione e Aggregazione Statistica}\\
+        Calcolo Metriche ($F_1$-Score, ROC-AUC, PR-AUC, Recall)\\
+        Test $t$ di Welch per Significatività Statistica vs Baseline
+    };
+ 
+    % Ramo Diagnostico (A destra)
+    \node [node_process, below right=3cm and -3cm of loop] (diag_scaler) {
+        \textbf{Ramo Diagnostico e Spiegabilità}\\
+        Applicazione Isolata di \texttt{StandardScaler} ($z$-score)
+    };
+ 
+    \node [node_process, below=1cm of diag_scaler] (diag_tools) {
+        \textbf{Strumenti Diagnostici Avanzati}\\
+        Proiezioni PCA (2D/3D) | Stima Densità KDE con Ancoraggio\\
+        XAI: TreeSHAP (Valori Shapley \& Feature Importance)
+    };
+ 
+    % --- CONNETTORI ---
+    \draw [arrow_source] (unsw.south) -- ($(align.north west) + (2,0)$);
+    \draw [arrow_target] (stin) -- (align);
+    \draw [arrow_flow] (align) -- (sampling);
+    \draw [arrow_flow] (sampling) -- (loop);
+    \draw [arrow_flow] (loop) -- (persist);
+ 
+    % Biforcazione Flussi
+    \draw [arrow_target] (loop.west) -- (infer_eval.north) node[near end, fill=white, font=\footnotesize\bfseries, text=accentorange] {Esecuzione Valutativa};
+    \draw [arrow_target] (infer_eval) -- (infer_stats);
+ 
+    \draw [arrow_param] (loop.east) -- (diag_scaler.north) node[near end, fill=white, font=\footnotesize\bfseries, text=paramgreen] {Analisi Post-Hoc};
+    \draw [arrow_param] (diag_scaler) -- (diag_tools);
+ 
+    % --- SFONDI E RAGGRUPPAMENTI ---
+    \begin{scope}[on background layer]
+        \node [group_box, fit={(unsw) (stin) (align) (sampling)}] (g_prep) {}; % Gruppo Input & Preprocessing
+        \node [group_box, fit={(loop) (persist)}] (g_train) {}; % Gruppo Training
+        \node [group_box, draw=accentorange!50, fill=lightorange!20, fit={(infer_eval) (infer_stats)}] (g_infer) {}; % Gruppo Biforcazione Inferenziale
+        \node [group_highlight, fit={(diag_scaler) (diag_tools)}] (g_diag) {}; % Gruppo Biforcazione Diagnostica
+    \end{scope}
 
-% =====================================================================
-% FLUSSO PRINCIPALE
-% =====================================================================
+    \node [above, font=\bfseries\footnotesize, text=neutralgrey, fill=white] at (g_prep.north) {1. Ingestione, Armonizzazione \& Costruzione Benchmark};
+    \node [above, font=\bfseries\footnotesize, text=neutralgrey, fill=white] at (g_train.north) {2. Core Computazionale \& Training Multi-Seed};
+    \node [above, font=\bfseries\footnotesize, text=accentorange, fill=white] at (g_infer.north) {3a. Ramo Inferenziale (Valutazione)};
+    \node [above, font=\bfseries\footnotesize, text=paramgreen, fill=white] at (g_diag.north) {3b. Ramo Diagnostico (XAI \& Proiezioni)};
 
-\node[node_database] (input_data) {
-    \textbf{Dataset Sorgente e Target}\\
-    $\mathcal{D}_S,\mathcal{D}_T$
-};
-
-\node[node_process, below=0.7cm of input_data] (preprocessing) {
-    \textbf{Preprocessing e Armonizzazione}
-};
-
-\node[node_transform, below=0.7cm of preprocessing] (benchmarks) {
-    \textbf{Costruzione dei Benchmark}\\[-5pt]
-    \textbf{Partizionamento train/test}
-};
-
-\node[node_primary, below=0.7cm of benchmarks] (training) {
-    \textbf{Addestramento Multi-Seed}\\
-    DT / RF / HGB
-};
-
-\node[node_process, below=0.7cm of training] (inference) {
-    \textbf{Inferenza sul Test Set}\\
-    Predizioni e punteggi
-};
-
-\node[node_transform, below=0.7cm of inference] (evaluation) {
-    \textbf{Valutazione Metriche, Matrici}\\[-5pt]
-    \textbf{e SHAP / TreeSHAP}
-};
-
-\node[node_output, below=0.7cm of evaluation] (statistics) {
-    \textbf{Analisi Statistica}\\
-    Aggregazione e test di Welch
-};
-
-\draw[arrow_source] (input_data) -- (preprocessing);
-\draw[arrow_flow] (preprocessing) -- (benchmarks);
-\draw[arrow_flow] (benchmarks) -- (training);
-\draw[arrow_flow] (training) -- (inference);
-\draw[arrow_flow] (inference) -- (evaluation);
-\draw[arrow_flow] (evaluation) -- (statistics);
-
-% =====================================================================
-% RAMO DIAGNOSTICO
-% =====================================================================
-
-\node[node_accent, right=2cm of benchmarks] (diagnostic) {
-    \textbf{Analisi Diagnostica}\\
-    Standardizzazione dipendente da $S$
-};
-
-\node[node_transform, below=0.7cm of diagnostic] (pca) {
-    \textbf{PCA 2D}\\
-    Proiezione dei benchmark
-};
-
-\node[node_output, below=0.7cm of pca] (kde) {
-    \textbf{KDE}\\
-    Feature selezionate
-};
-
-\draw[arrow_param, dashed] (benchmarks.east) -- (diagnostic.west);
-\draw[arrow_flow] (diagnostic) -- (pca);
-\draw[arrow_flow] (pca) -- (kde);
-
-% =====================================================================
-% PERSISTENZA
-% =====================================================================
-
-\node[node_database, below right=-2.05cm and 3.27cm of statistics] (artifacts) {
-    \textbf{Persistenza degli Artefatti}\\
-    Modelli, CSV e grafici
-};
-
-\draw[arrow_param] (evaluation.east) -| ++(1.5,0) |- ([yshift=0.34cm]artifacts.west);
-
-% =====================================================================
-% RACCORDO VERSO CAPITOLO 5
-% =====================================================================
-
-\node[node_output, below=0.7cm of statistics] (chapter5) {
-    \textbf{Capitolo 5}\\
-    Analisi dei risultati
-};
-
-\draw[arrow_flow] (statistics) -- (chapter5);
-
-% =====================================================================
-% RAGGRUPPAMENTI
-% =====================================================================
-
-\begin{scope}[on background layer]
-    \node[group_box, fit=(input_data) (preprocessing) (benchmarks) (training) (inference) (evaluation) (statistics)] (main_pipeline) {};
-    \node[group_highlight, fit=(diagnostic) (pca) (kde)] (diagnostic_pipeline) {};
-    \node[group_box, fit=(artifacts)] (artifact_pipeline) {};
-\end{scope}
-
-\node[above, font=\footnotesize\bfseries, color=neutralgrey] at (main_pipeline.north) {Flusso principale di Training, Inferenza e Valutazione};
-\node[above, font=\footnotesize\bfseries, color=paramgreen] at (diagnostic_pipeline.north) {Modulo Diagnostico};
-\node[above, font=\footnotesize\bfseries, color=neutralgrey] at (artifact_pipeline.north) {Persistenza};
-
+ 
 \end{tikzpicture}
-\caption{Sintesi end-to-end della pipeline implementativa. Il flusso principale attraversa le fasi di preprocessing, costruzione dei benchmark, addestramento multi-seed, inferenza, valutazione e analisi statistica; in parallelo, il modulo diagnostico realizza le procedure PCA e KDE. Gli artefatti prodotti vengono persistiti e costituiscono l'input documentale per la successiva analisi dei risultati.}
-\label{fig:implementative_pipeline_summary}
-
+}
+\caption{Architettura software end-to-end e flusso di esecuzione unificato: dall'ingestione dei dataset grezzi, passando per l'armonizzazione delle feature e il ciclo di addestramento multi-seed, fino alla biforcazione tra ramo inferenziale (valutazione prestazionale) e ramo diagnostico (PCA, KDE e TreeSHAP).}
+\label{fig:architettura_software_end_to_end}
 \end{figure}
-
-La Figura~\ref{fig:implementative_pipeline_summary} evidenzia pertanto la separazione funzionale tra il percorso principale, destinato alla costruzione e alla valutazione degli stimatori, e il ramo diagnostico, dedicato alla caratterizzazione geometrica, distributiva e interpretativa dei dati e dei modelli.
+ 
+La Figura~\ref{fig:architettura_software_end_to_end} evidenzia pertanto la separazione funzionale tra il percorso principale, destinato alla costruzione e alla valutazione degli stimatori, e il ramo diagnostico, dedicato alla caratterizzazione geometrica, distributiva e interpretativa dei dati e dei modelli.
 La persistenza degli artefatti costituisce il punto comune tra le diverse fasi, consentendo di mantenere disponibili modelli, metriche, matrici e rappresentazioni grafiche secondo una struttura riproducibile.
-
+ 
 La descrizione implementativa si conclude con la definizione di tale catena end-to-end.
 Gli output generati dalla pipeline costituiscono quindi la base documentale e quantitativa sulla quale viene sviluppata, nel Capitolo~5, l'analisi dei risultati sperimentali.
