@@ -382,7 +382,7 @@ Grazie al vincolo imposto da $\rho$, i cinque benchmark aggregati presentano un'
 
 \begin{table}[H]
 \centering
-\caption{Riepilogo delle cardinalità finali per i benchmark aggregati, con partizionamento 80/20 e vincolo $\rho=10$. Il modello \texttt{INJECTION} funge da baseline di riferimento dell'infrastruttura.}
+\caption{Riepilogo delle cardinalità finali per i benchmark aggregati.}
 \label{tab:benchmark_cardinality}
 \resizebox{\textwidth}{!}{
 \begin{tabular}{lcccccc}
@@ -408,7 +408,7 @@ Come si evince dai dati di partizionamento, l'applicazione rigorosa del rapporto
 
 \begin{table}[H]
 \centering
-\caption{Prospetto sintetico della cardinalità e del partizionamento per i Set Nativi Sorgente Biclasse e Ibridi Biclasse ($\rho=10$).}
+\caption{Prospetto sintetico della cardinalità e del partizionamento per i Set Nativi Sorgente Biclasse e Ibridi Biclasse.}
 \label{tab:biclass_benchmark_cardinality}
 \resizebox{\textwidth}{!}{
 \begin{tabular}{llccccc}
@@ -945,7 +945,7 @@ Tale meccanismo di tracciamento memorizza per ogni modello un record identificat
 
 \begin{table}[H]
 \centering
-\caption[Struttura e campi del record di tracciamento persistito nel registro models\_metadata.csv]{Struttura e campi del record di tracciamento persistito nel registro \\ \texttt{models\_metadata.csv}.}
+\caption{Struttura e campi del record di tracciamento persistito nel registro \texttt{models\_metadata}.}
 \label{tab:models_metadata_schema}
 \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{5cm} >{\raggedright\arraybackslash}X}
 \toprule
@@ -1128,23 +1128,15 @@ Tale soluzione ingegneristica ha garantito la standardizzazione dei log per tutt
     numbersep=8pt
 ]
 def _get_standardized_model_name(dataset_type, unique_classes):
-    """
-    Generates a standardized model name 
-    based on the unique classes present in the dataset.
-    Supports RF, DT, and HGB models dynamically.
-
-    :param dataset_type: string describing the dataset type
-    :param unique_classes: list or array of unique class labels
-    :return: standardized model name as a string
-    """
-    # Strip whitespace and convert to lowercase for consistency
+    # Cancella gli spazi bianchi e converte in minuscolo per coerenza
     classes = [str(c).strip() for c in unique_classes if str(c).strip()]
 
-    # If there are more than two classes, return a generic name
+    # Se len(classes) > 2, restituisce un nome generico
     if len(classes) > 2:
         return f"{dataset_type}_aggregate"
     
-    # Identify the attack class (assuming 'normal' is the benign class)
+    # Identifica la classe di attacco
+    # (assumendo che 'normal' sia la classe benevola)
     attack_classes = [c for c in classes if c.lower() != 'normal']
     attack_name = attack_classes[0].lower() if attack_classes else "normal"
     
@@ -1765,29 +1757,30 @@ L'utilizzo del parametro \texttt{equal\_var=False} applica rigorosamente la form
     numberstyle=\footnotesize\color{mygray},
     numbersep=8pt
 ]
-# Extract target statistical scores for the reference model 
-# across all seed columns
+# Estrazione dei valori di F1-Score medi per il modello 
+# di riferimento (INJECTION) su tutti i seed
 ref_row = data[data["model_name"] == reference_model]
 ref_scores = (
     ref_row.drop(columns=["id", "model_name"]).values.flatten().astype(float)
 )
 
 results_list = []
-# Iterate through each model entry in the summary dataframe for cross-testing
+# Itera su ciascun modello presente nel DataFrame di sintesi 
+# per eseguire i confronti incrociati
 for _, row in data.iterrows():
     current_model = row["model_name"]
 
     if current_model == reference_model: continue
 
-    # Isolate numerical test values for the compared model
+    # Isola i valori numerici di test per il modello confrontato
     current_scores = row.drop(["id", "model_name"]).values.astype(float)
 
-    # Execute Welch's t-test (unequal variances assumed)
+    # Esegue il test t di Welch assumendo varianze non uguali
     t_stat, p_value = stats.ttest_ind(
         ref_scores, current_scores, equal_var=False
     )
 
-    # Evaluate significance against target confidence threshold
+    # Valuta la significatività statistica
     is_significant = "YES" if p_value < alpha else "NO"
 
     results_list.append({
@@ -1832,7 +1825,7 @@ La struttura complessiva del registro finale e la descrizione semantica dei sing
 
 \begin{table}[H]
 \centering
-\caption{Struttura e descrizione semantica dei campi costituenti il file di registro statistico \texttt{welch\_ttest.csv}.}
+\caption{Struttura e descrizione semantica dei campi costituenti il file di registro statistico \texttt{welch\_ttest}.}
 \label{tab:welch_csv_structure}
 \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X}
 \toprule
@@ -2188,7 +2181,7 @@ Sebbene entrambe le funzioni condividano la medesima filosofia di standardizzazi
 
 \begin{table}[H]
 \centering
-\caption{Confronto sinottico tra le procedure diagnostiche di proiezione PCA e stima della densità KDE nel modulo \texttt{plotting.py}.}
+\caption{Confronto sinottico tra le procedure diagnostiche di proiezione PCA e stima della densità KDE nel modulo \texttt{plotting}.}
 \label{tab:confronto_pca_kde}
 \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{4cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
 \toprule
@@ -2277,16 +2270,17 @@ Nel Listato \ref{lst:shap_sampling} è riportata la porzione di codice responsab
     numberstyle=\footnotesize\color{mygray},
     numbersep=8pt
 ]
-# Stratified sampling: Align labels with features
+# Allineamento delle etichette con le caratteristiche
 y_series = pd.Series(
     y_test, index=X_test.index if hasattr(X_test, 'index') else None
 )
 
-# Calculate class quotas: e.g., 10:1 ratio on maximum samples
+# Calcola le quote di campionamento per le due classi
 n_anomaly = MLConstants.SHAP_MAX_SAMPLES // MLConstants.NORMAL_ANOMALY_RATIO
 n_normal = MLConstants.SHAP_MAX_SAMPLES - n_anomaly
 
-# Extract sampled indices for both classes, capping at available instances
+# Estrazione degli indici campionati per entrambe le classi, 
+# limitando al numero di istanze disponibili
 idx_normal = pd.Index([])
 if sum(y_series == 0) > 0:
     idx_normal = y_series[y_series == 0].sample(
@@ -2300,11 +2294,10 @@ if sum(y_series == 1) > 0:
         random_state=MLConstants.MAIN_SEED
     ).index
 
-# Union of stratified indices
 sampled_idx = idx_normal.append(idx_anomaly)
 
-# Filter the original test set using the stratified indices 
-# (or fallback to standard random sampling)
+# Filtra il test set originale utilizzando gli indici stratificati
+# (o fallback a un campionamento casuale standard)
 if not sampled_idx.empty:
     X_test_sampled = X_test.loc[sampled_idx]
 else:
@@ -2340,17 +2333,16 @@ Tale meccanismo consente di mantenere un'unica interfaccia di generazione delle 
     numberstyle=\footnotesize\color{mygray},
     numbersep=8pt
 ]
-# Inizialize Explainer dynamically to support RF, DT, and HGB
+# Inizializzazione dinamica dello spiegatore per supportare RF, DT e HGB
 try:
-    # First attempt: standard TreeExplainer optimized for RF and DT
+    # Primo tentativo: TreeExplainer standard ottimizzato per RF e DT
     explainer = shap.TreeExplainer(
         model, 
         feature_perturbation="tree_path_dependent", 
         model_output="raw"
     )
 except Exception as explainer_err:
-    # Fallback attempt: generic Explainer 
-    # or simplified TreeExplainer (crucial for HGB compatibility)
+    # Tentativo di fallback: TreeExplainer generico o Explainer universale
     try:
         explainer = shap.TreeExplainer(model)
     except Exception:
@@ -2527,7 +2519,7 @@ Il Listato \ref{lst:shap_rendering} illustra la sequenza logica che, partendo da
     numberstyle=\footnotesize\color{mygray},
     numbersep=8pt
 ]
-# Compute SHAP values with additivity check handling
+# Calcolo dei valori SHAP con gestione del controllo di additività
 try:
     shap_values = explainer.shap_values(
         X_test_sampled, check_additivity=False
@@ -2535,13 +2527,13 @@ try:
 except TypeError:
     shap_values = explainer.shap_values(X_test_sampled)
 
-# Handle output disparities (e.g. Explainer objects vs raw ndarrays)
+# Gestire le disparità di output
 if hasattr(shap_values, "values"):
     shap_values_raw = shap_values.values
 else:
     shap_values_raw = shap_values
 
-# Extract positive class (Anomaly) values based on structural dimensions
+# Estrazione dei valori della classe Anomaly in base alla struttura dei dati
 if isinstance(shap_values_raw, list) and len(shap_values_raw) == 2:
     shap_values_raw = shap_values_raw[1]
 elif hasattr(shap_values_raw, 'shape') and len(shap_values_raw.shape) == 3:
@@ -2549,11 +2541,12 @@ elif hasattr(shap_values_raw, 'shape') and len(shap_values_raw.shape) == 3:
 elif hasattr(shap_values_raw, 'shape') and len(shap_values_raw.shape) == 2:
     pass
 
-# Generate and configure the dynamic plot
+# Genera e configura dinamicamente il grafico
 n_features = X_test_sampled.shape[1]
 plt.figure(figsize=(8, max(6, n_features * 0.4)))
 
-# Force the "dot" view to show individual feature impacts
+# Forza la visualizzazione "dot" per mostrare 
+# gli impatti individuali delle feature
 shap.summary_plot(
     shap_values_raw, 
     X_test_sampled, 
@@ -2758,7 +2751,7 @@ La Tabella~\ref{tab:architettura_software_e2e} riassume la mappa dei moduli Pyth
  
 \begin{table}[H]
 \centering
-\caption{Riepilogo dell'architettura software end-to-end: moduli Python, file sorgente, responsabilità e flussi di Input/Output.}
+\caption{Riepilogo dell'architettura software end-to-end.}
 \label{tab:architettura_software_e2e}
 \resizebox{\textwidth}{!}{
 \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
