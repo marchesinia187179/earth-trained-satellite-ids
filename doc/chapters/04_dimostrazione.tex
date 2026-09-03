@@ -86,19 +86,19 @@ Le librerie e i pacchetti impiegati per la manipolazione dati, l'addestramento d
 \caption{Stack tecnologico, librerie e relative versioni vincolate nell'ambiente di runtime.}
 \label{tab:stack_tecnologico}
 \begin{tabular}{lll}
-\hline
+\toprule
 \textbf{Libreria} & \textbf{Versione} & \textbf{Scopo Applicativo} \\
-\hline
-\texttt{Python}\tablefootnote{\url{https://www.python.org/}} & \texttt{3.14.4} & Ambiente di esecuzione e interprete base \\
-\texttt{pandas}\tablefootnote{\url{https://pandas.pydata.org/}} & \texttt{3.0.3} & Manipolazione ed elaborazione di strutture dati tabulari \\
-\texttt{numpy}\tablefootnote{\url{https://numpy.org/}} & \texttt{2.5.1} & Calcolo scientifico e operazioni vettoriali ad alte prestazioni \\
-\texttt{scikit-learn}\tablefootnote{\url{https://scikit-learn.org/}} & \texttt{1.9.0} & Pre-elaborazione \textit{feature} e addestramento classificatori \\
-\texttt{scipy}\tablefootnote{\url{https://scipy.org/}} & \texttt{1.18.0} & Verifiche di significatività statistica (es. test $t$ di Welch) \\
-\texttt{shap}\tablefootnote{\url{https://github.com/slundberg/shap}} & \texttt{0.52.0} & Calcolo dei valori Shapley per l'analisi di \textit{explainability} (XAI) \\
-\texttt{joblib}\tablefootnote{\url{https://joblib.readthedocs.io/}} & \texttt{1.5.3} & Serializzazione e caricamento efficiente dei modelli su disco \\
-\texttt{matplotlib}\tablefootnote{\url{https://matplotlib.org/}} & \texttt{3.11.1} & Generazione di grafici e diagrammi prestazionali \\
-\texttt{seaborn}\tablefootnote{\url{https://seaborn.pydata.org/}} & \texttt{0.13.2} & Visualizzazione avanzata e mappe di calore comparative \\
-\hline
+\midrule
+\texttt{Python}\tablefootnote{\href{https://www.python.org/}{Link alla documentazione ufficiale della libreria \texttt{python}}} & \texttt{3.14.4} & Ambiente di esecuzione e interprete base \\
+\texttt{pandas}\tablefootnote{\href{https://pandas.pydata.org/}{Link alla documentazione ufficiale della libreria \texttt{pandas}}} & \texttt{3.0.3} & Manipolazione ed elaborazione di strutture dati tabulari \\
+\texttt{numpy}\tablefootnote{\href{https://numpy.org/}{Link alla documentazione ufficiale della libreria \texttt{numpy}}} & \texttt{2.5.1} & Calcolo scientifico e operazioni vettoriali ad alte prestazioni \\
+\texttt{scikit-learn}\tablefootnote{\href{https://scikit-learn.org/}{Link alla documentazione ufficiale della libreria \texttt{scikit-learn}}} & \texttt{1.9.0} & Pre-elaborazione \textit{feature} e addestramento classificatori \\
+\texttt{scipy}\tablefootnote{\href{https://scipy.org/}{Link alla documentazione ufficiale della libreria \texttt{scipy}}} & \texttt{1.18.0} & Verifiche di significatività statistica (es. test $t$ di Welch) \\
+\texttt{shap}\tablefootnote{\href{https://github.com/slundberg/shap}{Link alla documentazione ufficiale della libreria \texttt{shap}}} & \texttt{0.52.0} & Calcolo dei valori Shapley per l'analisi di \textit{explainability} (XAI) \\
+\texttt{joblib}\tablefootnote{\href{https://joblib.readthedocs.io/}{Link alla documentazione ufficiale della libreria \texttt{joblib}}} & \texttt{1.5.3} & Serializzazione e caricamento efficiente dei modelli su disco \\
+\texttt{matplotlib}\tablefootnote{\href{https://matplotlib.org/}{Link alla documentazione ufficiale della libreria \texttt{matplotlib}}} & \texttt{3.11.1} & Generazione di grafici e diagrammi prestazionali \\
+\texttt{seaborn}\tablefootnote{\href{https://seaborn.pydata.org/}{Link alla documentazione ufficiale della libreria \texttt{seaborn}}} & \texttt{0.13.2} & Visualizzazione avanzata e mappe di calore comparative \\
+\bottomrule
 \end{tabular}
 \end{table}
 
@@ -157,9 +157,9 @@ Il successivo campionamento e la scalatura in funzione del parametro $\rho$ veng
 \caption{Distribuzione delle istanze del dataset UNSW-NB15 a seguito della procedura di \textit{minority removal}.}
 \label{tab:unsw_distribution}
 \begin{tabular}{llr}
-\hline
+\toprule
 \textbf{Classe Nativa} & \textbf{Tipologia} & \textbf{Conteggio Istanze} \\
-\hline
+\midrule
 \textit{Normal} & Traffico Lecito & $93.000$ \\
 \textit{Generic} & Attacco Malevolo & $58.871$ \\
 \textit{Exploits} & Attacco Malevolo & $44.525$ \\
@@ -168,7 +168,7 @@ Il successivo campionamento e la scalatura in funzione del parametro $\rho$ veng
 \textit{Reconnaissance} & Attacco Malevolo & $13.987$ \\
 \hline
 \textbf{Totale} & & $\mathbf{250.982}$ \\
-\hline
+\bottomrule
 \end{tabular}
 \end{table}
 
@@ -200,16 +200,16 @@ A seguito del processo di \textit{minority merge}, la volumetria complessiva rim
 \caption{Distribuzione delle istanze del dataset \texttt{TER20} a seguito del processo di \textit{minority merge}.}
 \label{tab:ter20_distribution}
 \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X r}
-\hline
+\toprule
 \textbf{Macro-Classe Target ($\mathcal{A}_T$)} & \textbf{Classi Native Accorpate} & \textbf{Conteggio Istanze} \\
-\hline
+\midrule
 \textit{DDoS} & \textit{DDoS}, \textit{LDAP\_DDoS}, \textit{MSSQL\_DDoS}, \textit{NetBIOS\_DDoS}, \textit{Portmap\_DDoS} & $57.292$ \\
 \textit{Botnet} & \textit{Botnet}, \textit{Web Attack}, \textit{Backdoor} & $40.401$ \\
 \textit{Syn\_DDoS} & \textit{Syn\_DDoS} & $15.713$ \\
 \textit{UDP\_DDoS} & \textit{UDP\_DDoS} & $13.838$ \\
 \hline
 \textbf{Totale} & & $\mathbf{127.244}$ \\
-\hline
+\bottomrule
 \end{tabularx}
 \end{table}
 
@@ -224,14 +224,14 @@ La distribuzione finale del segmento \texttt{SAT20} è dettagliata nella Tabella
 \caption{Distribuzione delle istanze del dataset \texttt{SAT20}.}
 \label{tab:sat20_distribution}
 \begin{tabular}{llr}
-\hline
+\toprule
 \textbf{Classe Target ($\mathcal{A}_T$)} & \textbf{Tipologia Minaccia} & \textbf{Conteggio Istanze} \\
-\hline
+\midrule
 \textit{UDP\_DDoS} & Attacco Volumetrico Satellitare & $43.244$ \\
 \textit{Syn\_DDoS} & Attacco Volumetrico Satellitare & $39.076$ \\
 \hline
 \textbf{Totale} & & $\mathbf{82.320}$ \\
-\hline
+\bottomrule
 \end{tabular}
 \end{table}
 
@@ -386,16 +386,16 @@ Grazie al vincolo imposto da $\rho$, i cinque benchmark aggregati presentano un'
 \label{tab:benchmark_cardinality}
 \resizebox{\textwidth}{!}{
 \begin{tabular}{lcccccc}
-\hline
+\toprule
 \textbf{Benchmark} & \textbf{Istanze Normali} & \textbf{Istanze Anomale} & \textbf{Totale} & \textbf{Training Set} & \textbf{Test Set} \\[-5pt]
                    & \textbf{\textit{Normal $Y=0$}} & \textbf{\textit{$Y=1$}} & \textbf{Istanze} & \textbf{\textit{(80\%)}} & \textbf{\textit{(20\%)}} \\
-\hline
+\midrule
 \texttt{INJECTION} (Baseline) & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
 \texttt{NB15} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
 \texttt{NB15\_SAT20} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
 \texttt{NB15\_TER20} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
 \texttt{NB15\_STIN} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
-\hline
+\bottomrule
 \end{tabular}}
 \end{table}
 
@@ -412,10 +412,10 @@ Come si evince dai dati di partizionamento, l'applicazione rigorosa del rapporto
 \label{tab:biclass_benchmark_cardinality}
 \resizebox{\textwidth}{!}{
 \begin{tabular}{llccccc}
-\hline
+\toprule
 \textbf{Dominio} & \textbf{Nome Dataset Biclasse} & \textbf{Istanze Normali} & \textbf{Istanze Attacco} & \textbf{Totale} & \textbf{Train Set} & \textbf{Test Set} \\[-5pt]
  & \textbf{\textit{(File CSV)}} & \textbf{\textit{Normal ($\bf{Y=0}$)}} & \textbf{\textit{Classe $\bf{a}$ ($\bf{Y=1}$)}} & \textbf{Istanze} & \textbf{\textit{(80\%)}} & \textbf{\textit{(20\%)}} \\
-\hline
+\midrule
 \multicolumn{7}{c}{\textbf{\textit{Set Nativi Sorgente Biclasse}}} \\
 \hline
 \texttt{NB15} & \texttt{Normal\_Generic.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
@@ -435,7 +435,7 @@ Come si evince dai dati di partizionamento, l'applicazione rigorosa del rapporto
 \hline
 \texttt{SAT20} & \texttt{Normal\_UDP\_DDoS.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
 \texttt{SAT20} & \texttt{Normal\_Syn\_DDoS.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
-\hline
+\bottomrule
 \end{tabular}}
 \end{table}
 
@@ -586,7 +586,7 @@ Nelle sottosezioni seguenti vengono analizzati nel dettaglio i singoli criteri d
     % --- SFONDO DI RAGGRUPPAMENTO ---
     \begin{scope}[on background layer]
         \node [group_box, fit={(ds) (dt) (filter) (psi) (tr_te_rho) (final_data)}] (bgbox) {};
-        \node [above right, font=\footnotesize\bfseries, text=neutralgrey] at (bgbox.north west) {Pipeline di Preprocessing e Armonizzazione};
+        \node [above, font=\footnotesize\bfseries, text=neutralgrey] at (bgbox.north) {Pipeline di Preprocessing e Armonizzazione};
     \end{scope}
 
 \end{tikzpicture}
@@ -617,9 +617,9 @@ Per garantire l'interoperabilità e la generalizzabilità dei modelli di apprend
     \caption{Feature eliminate durante la fase di pre-processing nei domini sorgente e target.}
     \label{tab:removed_features}
     \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}p{4cm} >{\raggedright\arraybackslash}X}
-    \hline
+    \toprule
     \textbf{Dominio} & \textbf{Categoria} & \textbf{Feature Rimosse} \\
-    \hline
+    \midrule
     Sorgente ($\mathcal{D}_S$) 
     & Protocolli Applicativi & \texttt{service}, \texttt{trans\_depth}, \texttt{response\_body\_len}, \texttt{is\_ftp\_login}, \texttt{ct\_ftp\_cmd}, \texttt{ct\_flw\_http\_mthd} \\
     & Contatori Aggregati & \texttt{ct\_srv\_src}, \texttt{ct\_state\_ttl}, \texttt{ct\_dst\_ltm}, \texttt{ct\_src\_dport\_ltm}, \texttt{ct\_dst\_sport\_ltm}, \texttt{ct\_dst\_src\_ltm}, \texttt{ct\_src\_ltm}, \texttt{ct\_srv\_dst} \\
@@ -632,7 +632,7 @@ Per garantire l'interoperabilità e la generalizzabilità dei modelli di apprend
     & Flag TCP & \texttt{bw\_psh\_flag}, \texttt{fw\_urg\_flag}, \texttt{bw\_urg\_flag}, \texttt{fin\_cnt}, \texttt{syn\_cnt}, \texttt{psh\_cnt}, \texttt{urg\_cnt}, \texttt{ece\_cnt} \\
     & Intervalli Inter-arrivo & \texttt{fl\_iat\_min}, \texttt{bw\_iat\_tot}, \texttt{bw\_iat\_min} \\
     & Contatori Burst & \texttt{fw\_byt\_blk\_avg}, \texttt{fw\_pkt\_blk\_avg}, \texttt{fw\_blk\_rate\_avg}, \texttt{bw\_byt\_blk\_avg}, \texttt{bw\_pkt\_blk\_avg}, \texttt{bw\_blk\_rate\_avg} \\
-    \hline
+    \bottomrule
     \end{tabularx}
     \end{table}
 
@@ -651,14 +651,14 @@ La Tabella~\ref{tab:feature_filtering_summary} riassume il processo logico di ri
 \caption{Sintesi del processo di selezione e allineamento dimensionale tra il dominio sorgente ($\mathcal{D}_S$) e i domini di destinazione ($\mathcal{D}_T$).}
 \label{tab:feature_filtering_summary}
 \begin{tabularx}{\textwidth}{Xccc}
-\hline
+\toprule
 \textbf{Dominio / Sorgente} & \textbf{Colonne Totali} & \textbf{Feature Predittive Grezze} & \textbf{Feature Scartate} \\
-\hline
+\midrule
 Sorgente ($\mathcal{D}_S$) & 45 & $d_S = 42$ & 33 \\
 Target ($\mathcal{D}_T$) & 32 & $d_T = 30$ & 21 \\
 \hline
 \textbf{Spazio Allineato Finale} & \textbf{19} & $\mathbf{d = 16}$ & -- \\
-\hline
+\bottomrule
 \end{tabularx}
 \end{table}
 
@@ -678,7 +678,7 @@ La Tabella~\ref{tab:mapping_operator} formalizza le trasformazioni scalari $\psi
 \begin{tabular}{lllc}
 \toprule
 \textbf{Feature Coordinata ($\bf{x_j}$)} & \textbf{Dominio Sorgente ($\bf{\psi_{S,j}}$)} & \textbf{Dominio Target ($\bf{\psi_{T,j}}$)} & \textbf{Unità di Misura} \\
-\hline
+\midrule
 \texttt{duration} & $\texttt{dur} \cdot 10^6$ & \texttt{fl\_dur} & $\mu$s \\
 \texttt{src\_bytes} & \texttt{sbytes} & \texttt{l\_fw\_pkt} & Byte \\
 \texttt{dst\_bytes} & \texttt{dbytes} & \texttt{l\_bw\_pkt} & Byte \\
@@ -1056,7 +1056,7 @@ Questa metodologia garantisce che i sotto-insiemi estratti rispettino le proporz
 Dal punto di vista dell'ingegneria del software, la pipeline di istanziazione e addestramento è centralizzata all'interno del modulo \texttt{models.py}. 
 La logica architetturale espone un punto di accesso pubblico, la funzione \texttt{model\_processing()}, la quale orchestra dinamicamente l'esecuzione. 
 Tale funzione delega il calcolo matematico del fitting a un \textit{helper} interno denominato \texttt{\_train\_classifier()}, responsabile dell'inizializzazione dell'algoritmo di ML richiesto e della valutazione asincrona delle metriche sul \textit{test set} in-sample. 
-Lo script gestisce inoltre il salvataggio dei pesi strutturali (formato \texttt{.joblib}\footnote{\href{https://joblib.readthedocs.io/en/latest/}{Link alla documentazione ufficiale della libreria \texttt{joblib}}. Tale formato rappresenta lo standard \textit{de facto} nell'ecosistema Python per la serializzazione efficiente di oggetti che ospitano array NumPy di grandi dimensioni, rendendolo particolarmente ottimizzato per il salvataggio dei modelli basati su alberi di decisione.}), garantendo l'aggiornamento automatico del registro \texttt{models\_metadata.csv} tramite l'assegnazione procedurale del \textit{Naming Standard} in base al dominio analizzato.
+Lo script gestisce inoltre il salvataggio dei pesi strutturali (formato \texttt{.joblib}). Tale formato rappresenta lo standard \textit{de facto} nell'ecosistema Python per la serializzazione efficiente di oggetti che ospitano array NumPy di grandi dimensioni, rendendolo particolarmente ottimizzato per il salvataggio dei modelli basati su alberi di decisione, garantendo l'aggiornamento automatico del registro \texttt{models\_metadata.csv} tramite l'assegnazione procedurale del \textit{Naming Standard} in base al dominio analizzato.
 
 \subsection{Istanziazione dei Modelli Biclasse}
 \label{subsec:istanziazione_biclasse}
@@ -1211,12 +1211,12 @@ Il flusso operativo dell'infrastruttura di addestramento e la relativa logica di
     % =========================================================================
     % ARTEFATTI DI OUTPUT
     % =========================================================================
-    \node [node_output, below=1.88cm of proc] (meta) {
+    \node [node_output, below=2.38cm of proc] (meta) {
         \textbf{Registro Metadati}\\
         \texttt{models\_metadata.csv}
     };
 
-    \node [node_output, below=1.5cm of train] (joblib) {
+    \node [node_output, below=2cm of train] (joblib) {
         \textbf{Modello Serializzato}\\
         \texttt{.joblib}
     };
@@ -1228,7 +1228,7 @@ Il flusso operativo dell'infrastruttura di addestramento e la relativa logica di
     \draw [arrow_flow] (main) -- node[above, font=\footnotesize\bfseries, text=neutralgrey] {$(m, s_k)$} (proc);
     \draw [arrow_flow] (proc) -- node[above, font=\footnotesize\bfseries, text=neutralgrey] {Delega} (train);
     
-    \draw [arrow_flow] (proc) -- node[right, pos=0.6, font=\footnotesize, text=neutralgrey] {\texttt{file\_utils}} (meta);
+    \draw [arrow_flow] (proc) -- node[left, pos=0.6, font=\footnotesize, text=neutralgrey] {\texttt{file\_utils}} (meta);
     \draw [arrow_flow] (train) -- node[right, pos=0.51, font=\footnotesize, text=neutralgrey] {\texttt{\_save\_model()}} (joblib);
 
     % =========================================================================
@@ -1238,9 +1238,10 @@ Il flusso operativo dell'infrastruttura di addestramento e la relativa logica di
         \node [group_highlight, fit={(proc) (train)},
                label={[text=paramgreen, font=\bfseries\footnotesize]above:Modulo \texttt{models.py}}] (box_models) {};
 
-        \node [group_box, fit={(meta) (joblib)},
-               label={[text=neutralgrey, font=\bfseries\footnotesize]below:Persistenza (\texttt{runs/})}] (box_storage) {};
+        \node [group_box, fit={(meta) (joblib)}] (box_storage) {};
     \end{scope}
+
+    \node [above, font=\footnotesize\bfseries, text=neutralgrey] at (box_storage.north) {Persistenza (\texttt{runs/})};
 
 \end{tikzpicture}
 \caption{Flusso operativo dell'orchestrazione multi-seed e isolamento degli artefatti persistiti.}
@@ -1303,9 +1304,9 @@ In particolare, vengono utilizzate le metriche descritte in Tabella~\ref{tab:eva
 \caption{Metriche di valutazione delle prestazioni utilizzate per la caratterizzazione dei modelli di apprendimento automatico.}
 \label{tab:evaluation_metrics}
 \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X}
-\hline
+\toprule
 \textbf{Funzione Scikit-Learn} & \textbf{Descrizione Operativa} \\
-\hline
+\midrule
 \texttt{confusion\_matrix} & Matrice di confusione per il conteggio delle predizioni binarie. \\
 \texttt{accuracy\_score} & Proporzione complessiva di predizioni corrette rispetto al totale delle istanze. \\
 \texttt{precision\_score} & Frazione di istanze malevole identificate correttamente rispetto a tutte quelle classificate come tali. \\
@@ -1313,7 +1314,7 @@ In particolare, vengono utilizzate le metriche descritte in Tabella~\ref{tab:eva
 \texttt{f1\_score} & Media armonica tra Precision e Recall, indicatore sintetico in presenza di sbilanciamento delle classi. \\
 \texttt{roc\_auc\_score} & Area sotto la curva ROC (True Positive Rate vs False Positive Rate) al variare della soglia decisionale. \\
 \texttt{average\_precision\_score} & Area sotto la curva Precision-Recall, pesata sull'incremento della Recall ad ogni soglia. \\
-\hline
+\bottomrule
 \end{tabularx}
 \end{table}
 
@@ -1406,9 +1407,9 @@ La struttura complessiva del record e la relativa suddivisione funzionale dei ca
 \caption{Tassonomia e suddivisione concettuale dei campi costituenti il record di tracciamento delle prestazioni.}
 \label{tab:record_structure}
 \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X}
-\hline
+\toprule
 \textbf{Campo} & \textbf{Descrizione Operativa} \\
-\hline
+\midrule
 \multicolumn{2}{c}{\textbf{Metadati ed Esecuzione Sperimentale}} \\
 \hline
 \texttt{id} & Identificatore univoco progressivo della singola esecuzione. \\
@@ -1440,7 +1441,7 @@ La struttura complessiva del record e la relativa suddivisione funzionale dei ca
 \texttt{FNR} & \textit{False Negative Rate}, o tasso di mancato allarme. \\
 \texttt{TNR} & \textit{True Negative Rate}, o specificità del sistema. \\
 \texttt{FPR} & \textit{False Positive Rate}, o tasso di falso allarme. \\
-\hline
+\bottomrule
 \end{tabularx}
 \end{table}
 
@@ -1506,7 +1507,7 @@ L'intero flusso operativo di valutazione e la successiva aggregazione statistica
     % =========================================================================
     % FASE 2: AGGREGAZIONE MULTI-SEED
     % =========================================================================
-    \node [node_process, below=1.5cm of csv_seed] (agg) {
+    \node [node_process, below=2cm of csv_seed] (agg) {
         \textbf{\texttt{\_aggregated\_heatmaps()}}\\
         Concatena $K$ Seed $\to$ Calcolo $\overline{h}_{ij}$ e $\sigma^2_{ij}$
     };
@@ -1524,7 +1525,7 @@ L'intero flusso operativo di valutazione e la successiva aggregazione statistica
     \draw [arrow_flow] (input) -- (infer);
     \draw [arrow_flow] (infer) -- (metrics);
     \draw [arrow_flow] (metrics) -- (csv_seed);
-    \draw [arrow_flow] (csv_seed) -- node[midway, right, font=\footnotesize\bfseries, text=neutralgrey] {Iterazione su $s_1 \dots s_K$} (agg);
+    \draw [arrow_flow] (csv_seed) -- node[midway, right, pos=0.4, font=\footnotesize\bfseries, text=neutralgrey] {Iterazione su $s_1 \dots s_K$} (agg);
     \draw [arrow_flow] (agg) -- (final_out);
 
     % =========================================================================
@@ -1534,9 +1535,10 @@ L'intero flusso operativo di valutazione e la successiva aggregazione statistica
         \node [group_box, fit={(input) (infer) (metrics) (csv_seed)},
             label={[text=mainblue, font=\bfseries\footnotesize]above:Fase 1: Valutazione e Persistenza per Singolo Seed ($s_k$)}] (box1) {};
 
-        \node [group_highlight, fit={(agg) (final_out)},
-            label={[text=paramgreen, font=\bfseries\footnotesize]below:Fase 2: Aggregazione Multi-Seed}] (box2) {};
+        \node [group_highlight, fit={(agg) (final_out)}] (box2) {};
     \end{scope}
+
+    \node [above, font=\footnotesize\bfseries, text=paramgreen, fill=white] at (box2.north) {Fase 2: Aggregazione Multi-Seed};
 
 \end{tikzpicture}
 \caption{Pipeline a due stadi per il calcolo delle metriche di classificazione, tracciamento su file system e aggregazione statistica multi-seed.}
@@ -1575,7 +1577,7 @@ La struttura organizzativa e la composizione tabellare dei file CSV generati per
 \begin{tabularx}{\textwidth}{l l >{\raggedright\arraybackslash}X}
 \toprule
 \textbf{Colonna} & \textbf{Tipo Dati} & \textbf{Descrizione Operativa} \\
-\hline
+\midrule
 \texttt{model\_label} & Stringa & Architettura o denominazione del modello valutato ($i$-esima riga della matrice). \\
 \addlinespace
 \texttt{<dataset\_1>} & Float & Valore (puntuale, medio $\overline{h}_{ij}$ o varianza $\sigma^2_{ij}$) della metrica sul primo dataset. \\
@@ -1833,16 +1835,16 @@ La struttura complessiva del registro finale e la descrizione semantica dei sing
 \caption{Struttura e descrizione semantica dei campi costituenti il file di registro statistico \texttt{welch\_ttest.csv}.}
 \label{tab:welch_csv_structure}
 \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X}
-\hline
+\toprule
 \textbf{Campo} & \textbf{Descrizione Operativa} \\
-\hline
+\midrule
 \texttt{Reference\_Model} & Denominazione del modello di riferimento assunto come baseline (variante \textit{INJECTION}). \\
 \texttt{Compared\_Model} & Denominazione del modello di confronto sottoposto a verifica statistica. \\
 \texttt{t\_statistic} & Valore numerico della statistica $t$ di Welch calcolato tra i campioni di \textit{F1-Score}. \\
 \texttt{p\_value} & Probabilità osservata di ottenere un valore uguale o più estremo sotto l'ipotesi nulla $H_0$. \\
 \texttt{alpha} & Livello di significatività stabilito \textit{a priori} per la decisione statistica ($\alpha = 0{,}05$). \\
 \texttt{is\_significant} & Indicatore booleano dell'esito della verifica (\texttt{True} se $p < \alpha$, \texttt{False} altrimenti). \\
-\hline
+\bottomrule
 \end{tabularx}
 \end{table}
 
@@ -1944,13 +1946,13 @@ Successivamente, tali parametri congelati vengono applicati per via diretta sia 
     % =========================================================================
     % LIVELLO 4: OUTPUT DIAGNOSTICI
     % =========================================================================
-    \node [node_output, below=1cm of transform_source] (out_pca) {
+    \node [node_output, below=1.8cm of transform_source] (out_pca) {
         \textbf{Proiezione PCA 2D}\\
         Scatter Plot Bidimensionale\\
         (PC1 vs PC2)
     };
 
-    \node [node_output, below=1cm of transform_target] (out_kde) {
+    \node [node_output, below=1.8cm of transform_target] (out_kde) {
         \textbf{Stima Densità KDE}\\
         Proiezione Univariata Top-3\\
         (Scala \texttt{symlog})
@@ -1981,7 +1983,7 @@ Successivamente, tali parametri congelati vengono applicati per via diretta sia 
     \end{scope}
 
     \node[above, font=\footnotesize\bfseries, color=paramgreen, fill=white] at (g1.north) {Fase di Stima Statistica (Zero Leakage)};
-    \node[below, font=\footnotesize\bfseries, color=neutralgrey] at (g2.south) {Rappresentazione Grafica Diagnostica (Modulo \texttt{plotting.py})};
+    \node[above, font=\footnotesize\bfseries, color=neutralgrey, fill=white] at (g2.north) {Rappresentazione Grafica Diagnostica};
 
 \end{tikzpicture}
 \caption{Schema concettuale della Standardizzazione Diagnostica Dipendente dal Sorgente: le statistiche di centralità e variabilità $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S)$ e gli autovettori della PCA ($\mathbf{W}_S$) vengono stimati esclusivamente sul benchmark sorgente $S$ e congelati. La trasformazione dei benchmark target $T_k$ avviene per applicazione diretta di tali parametri, preservando lo scostamento distributivo reale (\textit{domain shift}).}
@@ -2634,7 +2636,7 @@ Al fine di formalizzare la natura ibrida di tale procedura, la Figura~\ref{fig:s
         };
         
         % FASE 3: Automazione Densometrica (Livello 3)
-        \node[node_primary, below=2cm of config_var] (kde_gen) {
+        \node[node_primary, below=2.5cm of config_var] (kde_gen) {
             \textbf{Pipeline Densometrica} \\ 
             \texttt{save\_all\_kde\_plots()}
         };
@@ -2650,7 +2652,7 @@ Al fine di formalizzare la natura ibrida di tale procedura, la Figura~\ref{fig:s
         \draw[arrow_target] (shap_plots) -- (human_eval) node[midway, left, font=\footnotesize] {Output Analizzato};
         \draw[arrow_flow] (human_eval) -- (top_features);
         \draw[arrow_flow] (top_features) -- (config_var);
-        \draw[arrow_param] (config_var) -- (kde_gen) node[midway, pos=0.55, left, font=\footnotesize] {Iniezione Parametro};
+        \draw[arrow_param] (config_var) -- (kde_gen) node[midway, pos=0.45, left, font=\footnotesize] {Iniezione Parametro};
         \draw[arrow_flow] (kde_gen) -- (kde_plots);
 
         % =====================================================================
@@ -2669,7 +2671,7 @@ Al fine di formalizzare la natura ibrida di tale procedura, la Figura~\ref{fig:s
 
         \node[above, font=\footnotesize\bfseries, color=neutralgrey] at (box_l1.north) {Fase 1: Automazione Diagnostica};
         \node[above, font=\footnotesize\bfseries, color=paramgreen] at (box_l2.north) {Fase 2: Intervento Supervisionato};
-        \node[below, font=\footnotesize\bfseries, color=neutralgrey] at (box_l3.south) {Fase 3: Automazione Densometrica};
+        \node[above, font=\footnotesize\bfseries, color=neutralgrey, fill=white] at (box_l3.north) {Fase 3: Automazione Densometrica};
         
     \end{tikzpicture}
     \caption{Diagramma architetturale del raccordo \textit{Human-in-the-Loop} tra l'analisi diagnostica (SHAP) e la valutazione densometrica (KDE). L'intervento manuale (Fase 2) funge da disaccoppiamento metodologico tra le due pipeline automatizzate.}
@@ -2842,12 +2844,12 @@ La composizione complessiva degli stadi implementativi è sintetizzata nella Fig
     };
  
     % --- FASE 1: INGESTIONE E DATASET GREZZI ---
-    \node [node_database, above left=1cm and -3cm of align] (unsw) {
+    \node [node_database, above left=1cm and 0cm of align] (unsw) {
         \textbf{UNSW-NB15} ($\mathcal{D}_S$)\\
         \small 257.673 record | 45 col.
     };
  
-    \node [node_database, draw=accentorange, fill=lightorange, above right=1cm and -3cm of align] (stin) {
+    \node [node_database, draw=accentorange, fill=lightorange, above right=1cm and 0cm of align] (stin) {
         \textbf{STIN} ($\mathcal{D}_T$: TER20 / SAT20)\\
         \small 209.564 record | 32 col.
     };
@@ -2873,7 +2875,7 @@ La composizione complessiva degli stadi implementativi è sintetizzata nella Fig
  
     % --- BIFORCAZIONE: RAMO INFERENZIALE E RAMO DIAGNOSTICO ---
     % Ramo Inferenziale (A sinistra)
-    \node [node_accent, below left=3cm and -3cm of loop] (infer_eval) {
+    \node [node_accent, below left=3cm and -4cm of loop] (infer_eval) {
         \textbf{Flusso Inferenziale Principale}\\
         Classificazione su Test Set Cross-Dominio\\
         Calcolo Matrici di Confusione ($TP, TN, FP, FN$)
@@ -2886,7 +2888,7 @@ La composizione complessiva degli stadi implementativi è sintetizzata nella Fig
     };
  
     % Ramo Diagnostico (A destra)
-    \node [node_process, below right=3cm and -3cm of loop] (diag_scaler) {
+    \node [node_process, below right=3cm and -4cm of loop] (diag_scaler) {
         \textbf{Ramo Diagnostico e Spiegabilità}\\
         Applicazione Isolata di \texttt{StandardScaler} ($z$-score)
     };
@@ -2898,17 +2900,17 @@ La composizione complessiva degli stadi implementativi è sintetizzata nella Fig
     };
  
     % --- CONNETTORI ---
-    \draw [arrow_source] (unsw.south) -- ($(align.north west) + (2,0)$);
-    \draw [arrow_target] (stin) -- (align);
+    \draw [arrow_source] (unsw.south) |- (align.west);
+    \draw [arrow_target] (stin.south) |- (align.east);
     \draw [arrow_flow] (align) -- (sampling);
     \draw [arrow_flow] (sampling) -- (loop);
     \draw [arrow_flow] (loop) -- (persist);
  
     % Biforcazione Flussi
-    \draw [arrow_target] (loop.west) -- (infer_eval.north) node[near end, fill=white, font=\footnotesize\bfseries, text=accentorange] {Esecuzione Valutativa};
+    \draw [arrow_target] (loop.south) -- (infer_eval.north) node[midway, fill=white, font=\footnotesize\bfseries, text=accentorange] {Esecuzione Valutativa};
     \draw [arrow_target] (infer_eval) -- (infer_stats);
  
-    \draw [arrow_param] (loop.east) -- (diag_scaler.north) node[near end, fill=white, font=\footnotesize\bfseries, text=paramgreen] {Analisi Post-Hoc};
+    \draw [arrow_param] (loop.south) -- (diag_scaler.north) node[midway, fill=white, font=\footnotesize\bfseries, text=paramgreen] {Analisi Post-Hoc};
     \draw [arrow_param] (diag_scaler) -- (diag_tools);
  
     % --- SFONDI E RAGGRUPPAMENTI ---
@@ -2919,12 +2921,11 @@ La composizione complessiva degli stadi implementativi è sintetizzata nella Fig
         \node [group_highlight, fit={(diag_scaler) (diag_tools)}] (g_diag) {}; % Gruppo Biforcazione Diagnostica
     \end{scope}
 
-    \node [above, font=\bfseries\footnotesize, text=neutralgrey, fill=white] at (g_prep.north) {1. Ingestione, Armonizzazione \& Costruzione Benchmark};
-    \node [above, font=\bfseries\footnotesize, text=neutralgrey, fill=white] at (g_train.north) {2. Core Computazionale \& Training Multi-Seed};
-    \node [above, font=\bfseries\footnotesize, text=accentorange, fill=white] at (g_infer.north) {3a. Ramo Inferenziale (Valutazione)};
-    \node [above, font=\bfseries\footnotesize, text=paramgreen, fill=white] at (g_diag.north) {3b. Ramo Diagnostico (XAI \& Proiezioni)};
+    \node [above, font=\bfseries\footnotesize, text=neutralgrey, fill=white] at (g_prep.north) {Fase 1: Ingestione, Armonizzazione \& Costruzione Benchmark};
+    \node [above, font=\bfseries\footnotesize, text=neutralgrey, fill=white] at (g_train.north) {Fase 2: Core Computazionale \& Training Multi-Seed};
+    \node [above, font=\bfseries\footnotesize, text=accentorange, fill=white] at (g_infer.north) {Fase 3a: Ramo Inferenziale (Valutazione)};
+    \node [above, font=\bfseries\footnotesize, text=paramgreen, fill=white] at (g_diag.north) {Fase 3b: Ramo Diagnostico (XAI \& Proiezioni)};
 
- 
 \end{tikzpicture}
 }
 \caption{Architettura software end-to-end e flusso di esecuzione unificato: dall'ingestione dei dataset grezzi, passando per l'armonizzazione delle feature e il ciclo di addestramento multi-seed, fino alla biforcazione tra ramo inferenziale (valutazione prestazionale) e ramo diagnostico (PCA, KDE e TreeSHAP).}
