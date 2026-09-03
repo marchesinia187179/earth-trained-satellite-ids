@@ -35,31 +35,22 @@ Per facilitare la lettura della trattazione successiva, i principali simboli e c
     \midrule
     $\mathcal{D} = (\mathcal{X}, P(\mathbf{x}))$ &
     Dominio di traffico (spazio delle \textit{feature} e distribuzione marginale) \\
-
     $\mathcal{X} \subseteq \mathbb{R}^d$ &
     Spazio delle caratteristiche $d$-dimensionale omogeneizzato \\
-
     $\mathbf{x} = (x_1, \dots, x_d)^\top$ &
     Vettore delle \textit{feature} del singolo flusso di rete \\
-
     $\mathcal{Y} = \{0,1\}$ &
     Spazio discreto delle etichette primarie ($0$: Normal, $1$: Malevolo) \\
-
     $A \in \mathcal{A}$ &
     Variabile descrittiva per la specifica famiglia di attacco (definita per $Y=1$) \\
-
     $\mathcal{A}_S, \mathcal{A}_T$ &
     Insiemi delle tipologie di minaccia presenti nei domini sorgente e target \\
-
     $\mathcal{D}_S, \mathcal{D}_T$ &
     Dominio Terrestre Sorgente e Domini Target di Destinazione \\
-
     $\mathcal{D}_k^{(train)}, \mathcal{D}_k^{(test)}$ &
     Partizioni disgiunte di addestramento e test per il generico dominio $k$ \\
-
     $\boldsymbol{\psi}_k(\cdot)$ &
     Operatore di proiezione e combinazione dalle \textit{feature} grezze allo spazio $\mathcal{X}$, specifico per il dominio $k \in \{S,T\}$ \\
-
     $N(\cdot)$ &
     Operatore di cardinalità (numero di campioni estratti) \\
     \bottomrule
@@ -833,25 +824,18 @@ Per agevolare la consultazione delle metriche e dei parametri statistici discuss
     \midrule
     $s_0$ &
     Seed deterministico utilizzato per il partizionamento dei dati e la generazione invariante dei benchmark \\
-
     $\mathcal{S} = \{s_1, \dots, s_K\}$ &
     Insieme di $K$ seed pseudo-casuali per l'inizializzazione stocastica e l'addestramento dei classificatori \\
-
     $H_k(M, D)$ &
     Matrice delle prestazioni (es. TPR, TNR) ottenute dal modello $M$ sul benchmark $D$ con il seed $s_k$ \\
-
     $\hat{\mu}(M, D), \hat{\sigma}^2(M, D)$ &
     Stima puntuale del valore atteso e della varianza campionaria delle metriche prestazionali marginalizzate sui $K$ seed \\
-
     $t, \nu_{\text{eff}}$ &
     Statistica del test e gradi di libertà effettivi nel test $t$ di Welch per la significatività rispetto al baseline \\
-
     $\Gamma(M) = |\mathcal{A}_m(M)|$ &
     Indice di granularità: cardinalità delle famiglie d'attacco osservate in addestramento dal modello $M$ \\
-
     $R_1(M)$ &
     Regione decisionale positiva nello spazio $\mathcal{X}$, corrispondente alla previsione dell'etichetta malevola ($Y=1$) \\
-
     $\operatorname{supp} P(\mathbf{x} \mid Y=1, A=a)$ &
     Supporto spaziale effettivo della distribuzione condizionata associata a una singola famiglia di attacco $a$ \\
     \bottomrule
@@ -990,7 +974,8 @@ L'impianto metodologico fin qui descritto culmina nella definizione della matric
     \begin{tabular}{l c c c}
     \toprule
     $\bf{H_k \in \mathbb{R}^{|\mathcal{M}| \times |\mathcal{B}|}}$ & $\bf{\mathcal{D}^{(\text{\bfseries test})}}$ & $\bf{\mathcal{D}_a^{(\text{\bfseries test})}}$ & $\bf{\mathcal{D}_{b\neq a}^{(\text{\bfseries test})}}$ \\[-5pt]
-    & \textbf{(Aggregati)} & \textbf{(Biclasse In-Domain)} & \textbf{(Biclasse Cross)} \\\midrule
+    & \textbf{(Aggregati)} & \textbf{(Biclasse In-Domain)} & \textbf{(Biclasse Cross)} \\
+    \midrule
     $\mathcal{M}_{\text{base}}$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
     $\mathcal{M}_S$            & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
     $\mathcal{M}_H^{(T)}$      & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
@@ -1178,28 +1163,20 @@ Per agevolare la consultazione della trattazione, i simboli matematici, i costru
     \midrule
     $\mathbf{Z}_D$ &
     Matrice dei dati del benchmark $D$ standardizzata mediante la media $\boldsymbol{\mu}_S$ e la deviazione standard $\boldsymbol{\sigma}_S$ del solo dominio sorgente \\
-
     $\boldsymbol{\Sigma}_D, \mathbf{W}_D$ &
     Matrice di covarianza campionaria e matrice di proiezione ortogonale sui primi due assi della PCA \\
-
     $\hat{f}_y(z), h_{\text{KDE}}$ &
     Stima di densità univariata KDE per la classe $y$ e relativo parametro di lisciamento (\textit{bandwidth}) con kernel gaussiano $\kappa(\cdot)$ \\
-
     $\phi_j(\mathbf{x})$ &
     Valore SHAP associato alla $j$-esima caratteristica del vettore $\mathbf{x}$, rappresentante il suo contributo marginale esatto \\
-
     $I_j^{(D)}, C_j$ &
     Importanza media assoluta SHAP della $j$-esima caratteristica sul benchmark $D$ e frequenza globale di inclusione nella \textit{top-3} \\
-
     $TP(\tau), FP(\tau), \newline TN(\tau), FN(\tau)$ &
     Cardinalità della matrice di confusione determinate in funzione della soglia decisionale parametrica $\tau$ \\
-
     $AUC_{ROC}, AUC_{PR}$ &
     Area sottesa alle curve \textit{Receiver Operating Characteristic} e \textit{Precision-Recall} per la caratterizzazione al variare di $\tau \in [0,1]$ \\
-
     $\Delta F_1$ &
     Variazione prestazionale in termini di $F_1$-score per la quantificazione del degrado da \textit{covariate shift} tra sorgente $\mathcal{D}_S$ e target $\mathcal{D}_T$ \\
-
     $t, \nu, H_0$ &
     Statistica del test $t$ di Welch, gradi di libertà effettivi di Welch--Satterthwaite e ipotesi nulla di equivalenza delle medie prestazionali \\
     \bottomrule
@@ -1427,8 +1404,8 @@ Le quattro quantità rappresentano rispettivamente il numero di veri positivi, f
     \centering
     \begin{tikzpicture}[]
         % Assi cartesiani
-        \draw[->, thick] (0,0) -- (10,0) node[right] {\small $f(\mathbf{x}) \in [0,1]$};
-        \draw[->, thick] (0,0) -- (0,5) node[above] {\small $p(f(\mathbf{x}) \mid y)$};
+        \draw[->, thick] (0,0) -- (10,0) node[right] {\footnotesize $f(\mathbf{x}) \in [0,1]$};
+        \draw[->, thick] (0,0) -- (0,5) node[above] {\footnotesize $p(f(\mathbf{x}) \mid y)$};
 
         % Distribuzione Classe 0 (Lecito) - Linea continua
         \draw[thick, black, smooth, domain=0:10] plot (\x, {4.0*exp(-(\x-2.5)^2/1.1)});
@@ -1450,8 +1427,8 @@ Le quattro quantità rappresentano rispettivamente il numero di veri positivi, f
         \fill (4.14,0) circle (2pt) node[below] {$\tau$};
 
         % Regioni decisionali
-        \draw[<->, thick, shorten >=2pt, shorten <=2pt] (0, -0.6) -- (4.14, -0.6) node[midway, below] {\small Decisione: $\hat{y}(\tau)=0$};
-        \draw[<->, thick, shorten >=2pt, shorten <=2pt] (4.14, -0.6) -- (9, -0.6) node[midway, below] {\small Decisione: $\hat{y}(\tau)=1$};
+        \draw[<->, thick, shorten >=2pt, shorten <=2pt] (0, -0.6) -- (4.14, -0.6) node[midway, below] {\footnotesize Decisione: $\hat{y}(\tau)=0$};
+        \draw[<->, thick, shorten >=2pt, shorten <=2pt] (4.14, -0.6) -- (9, -0.6) node[midway, below] {\footnotesize Decisione: $\hat{y}(\tau)=1$};
     \end{tikzpicture}
     \caption{Mappatura della probabilità a posteriori $f(\mathbf{x})$ sulla regola decisionale binaria $\hat{y}(\tau)$ in funzione della soglia $\tau$.}
     \label{fig:soglia_decisionale}
@@ -1526,9 +1503,9 @@ A tale scopo si impiegano le curve \textit{Receiver Operating Characteristic} (R
 
             % Griglia di riferimento
             \draw[neutralgrey!30, thin] (0,4.5) -- (4.5,4.5) -- (4.5,0);
-            \node[below left, text=neutralgrey] at (0,0) {\small $0$};
-            \node[below, text=neutralgrey] at (4.5,0) {\small $1$};
-            \node[left, text=neutralgrey] at (0,4.5) {\small $1$};
+            \node[below left, text=neutralgrey] at (0,0) {\footnotesize $0$};
+            \node[below, text=neutralgrey] at (4.5,0) {\footnotesize $1$};
+            \node[left, text=neutralgrey] at (0,4.5) {\footnotesize $1$};
 
             % Area sottesa (AUC)
             \fill[lightblue] (0,0) -- plot[smooth, domain=0:4.5] (\x, {4.5*sqrt(\x/4.5)}) -- (4.5,0) -- cycle;
@@ -1540,7 +1517,7 @@ A tale scopo si impiegano le curve \textit{Receiver Operating Characteristic} (R
             \draw[very thick, mainblue, smooth, domain=0:4.5] plot (\x, {4.5*sqrt(\x/4.5)});
 
             % Etichette
-            \node[text=mainblue, font=\footnotesize\bfseries] at (2.3, 1.2) {$AUC_{ROC}$};
+            \node[text=mainblue, font=\small\bfseries] at (2.3, 1.2) {$AUC_{ROC}$};
             \node[above, text=neutralgrey] at (2.75, 5.5) {\textbf{(a) Curva ROC}};
         \end{scope}
 
@@ -1552,21 +1529,21 @@ A tale scopo si impiegano le curve \textit{Receiver Operating Characteristic} (R
 
             % Griglia di riferimento
             \draw[neutralgrey!30, thin] (0,4.5) -- (4.5,4.5) -- (4.5,0);
-            \node[below left, text=neutralgrey] at (0,0) {\small $0$};
-            \node[below, text=neutralgrey] at (4.5,0) {\small $1$};
-            \node[left, text=neutralgrey] at (0,4.5) {\small $1$};
+            \node[below left, text=neutralgrey] at (0,0) {\footnotesize $0$};
+            \node[below, text=neutralgrey] at (4.5,0) {\footnotesize $1$};
+            \node[left, text=neutralgrey] at (0,4.5) {\footnotesize $1$};
 
             % Area sottesa (AUC)
             \fill[lightblue] (0,0) -- plot[smooth, domain=0:4.5] (\x, {4.5 - 2*(\x/4.5)^2}) -- (4.5,0) -- cycle;
             
             % Baseline prevalenza (linea orizzontale)
-            \draw[dashed, accentorange, thick] (0,0.8) -- (4.5,0.8) node[right, text=accentorange] {\small $\pi$};
+            \draw[dashed, accentorange, thick] (0,0.8) -- (4.5,0.8) node[right, text=accentorange] {\footnotesize $\pi$};
 
             % Curva PR
             \draw[very thick, mainblue, smooth, domain=0:4.5] plot (\x, {4.5 - 2*(\x/4.5)^2});
 
             % Etichette
-            \node[text=mainblue, font=\footnotesize\bfseries] at (1.2, 1.2) {$AUC_{PR}$};
+            \node[text=mainblue, font=\small\bfseries] at (1.2, 1.2) {$AUC_{PR}$};
             \node[above, text=neutralgrey] at (2.75, 5.5) {\textbf{(b) Curva PR}};
         \end{scope}
     \end{tikzpicture}
