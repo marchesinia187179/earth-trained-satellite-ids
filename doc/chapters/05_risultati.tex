@@ -1,138 +1,355 @@
-% =========================================================================
-% CAPITOLO 5 - RISULTATI SPERIMENTALI
-% =========================================================================
-
-\chapter{Risultati Sperimentali e Analisi}
+\chapter{Analisi dei Risultati e Discussione Sperimentale}
 \label{ch:risultati}
 
-Il presente capitolo illustra e analizza i risultati sperimentali ottenuti
-mediante il framework metodologico e la pipeline implementativa descritti
-nei capitoli precedenti. L'analisi considera le prestazioni dei
-classificatori sui differenti benchmark, la variabilità introdotta dalla
-componente stocastica, la significatività statistica delle differenze
-osservate e le evidenze diagnostiche ottenute mediante PCA, SHAP e KDE.
+% ==============================================================================
+% NOTA DI INDIRIZZO PER LA REDAZIONE STEP-BY-STEP DEL CAPITOLO 5
+% ==============================================================================
+% Il presente capitolo espone e analizza criticamente i risultati empirici ottenuti 
+% dalla campagna sperimentale.
+% Come definito nel Capitolo 4, tutti gli artefatti (metriche, matrici di inferenza, 
+% valori SHAP, p-value del test t di Welch, proiezioni PCA e stime KDE) sono stati 
+% strutturati e salvati nelle rispettive directory di runtime (`runs/`).
+%
+% L'obiettivo del Capitolo 5 NON è rispiegare il funzionamento delle funzioni o la 
+% struttura dei dati di salvataggio (già formalizzati nel Cap. 4), bensì:
+%   1. Mostrare i risultati attraverso tabelle e grafici sintetici;
+%   2. Spiegare l'andamento delle metriche analizzando le performance;
+%   3. Spiegare le CAUSE FISICHE E DI RETE di tali valori mediante l'ANALISI INCROCIATA 
+%      tra le prestazioni, la diagnostica spaziale/distributiva (PCA/KDE) e l'XAI (SHAP).
+%
+% La trattazione rispetta la suddivisione concettuale della pipeline:
+%   - Parte I: Modelli derivanti interamente dal set sorgente (NB15) VS Baseline (INJECTION);
+%   - Parte II: Modelli derivanti dall'unione ibrida (NB15 + Target) VS Baseline (INJECTION);
+%   - Parte III: Discussione incrociata triangolata e sintesi causa-effetto.
+% ==============================================================================
+
+\section{Introduzione e Protocollo di Valutazione dei Risultati}
+\label{sec:intro_risultati}
+
+% ------------------------------------------------------------------------------
+% SPECIFICHE DI REDAZIONE - SEZIONE 5.1:
+% - Raccordo con il Capitolo 4 (ambiente di runtime, semi S = {0,...,12345}, K=10).
+% - Ricapitolazione sintetica delle metriche valutate sui test set (80/20, rho=10):
+%   Accuracy, Precision, Recall, F1-Score, ROC-AUC, PR-AUC, TPR, FPR.
+% - Chiarimento sul benchmark di riferimento: la baseline INJECTION (few-shot 0.3%) 
+%   agisce da termine di confronto costante sia per i modelli sorgente puri che per i 
+%   modelli ibridi aggregati e biclasse.
+% ------------------------------------------------------------------------------
+La valutazione sperimentale presentata nel presente capitolo è condotta secondo il protocollo definito nei capitoli precedenti, mantenendo invariati l'ambiente di esecuzione, la configurazione della pipeline e le procedure di separazione dei dati. Per ciascuna configurazione sperimentale, il processo di addestramento e valutazione è ripetuto su un array di $K=10$ semi distinti, indicato con
+\[
+\mathcal{S} = \{s_1,s_2,\ldots,s_{10}\},
+\]
+così da consentire la valutazione della variabilità associata alla diversa inizializzazione stocastica dei modelli. L'impiego dello stesso insieme di semi nelle diverse configurazioni consente di rendere confrontabili le distribuzioni delle metriche ottenute.
+
+La suddivisione dei dati prevede il mantenimento di un rapporto pari all'80/20 tra insieme di addestramento e insieme di test. Il test set viene mantenuto separato dai campioni utilizzati durante l'addestramento e viene impiegato esclusivamente nella fase di valutazione, in modo da evitare che le misure di prestazione siano influenzate da dati precedentemente osservati dal modello.
+
+Le configurazioni di classificazione sono inoltre caratterizzate dal parametro $\rho$, definito come rapporto tra campioni benevoli e campioni malevoli. Nel protocollo considerato viene adottato
+\[
+\rho = 10,
+\]
+corrispondente a un rapporto di dieci campioni benevoli per ogni campione malevolo nei relativi set di classificazione. Tale impostazione viene mantenuta nelle diverse configurazioni sperimentali, garantendo uniformità nelle condizioni di confronto.
+
+Per ogni inferenza vengono calcolati i conteggi della matrice di confusione
+\[
+TP,\;TN,\;FP,\;FN,
+\]
+dai quali sono ricavate le principali metriche di classificazione:
+\[
+Accuracy,\;Precision,\;Recall,\;F1\text{-}Score,\;ROC\text{-}AUC,\;PR\text{-}AUC,
+\]
+unitamente a
+\[
+TPR,\;FNR,\;TNR,\;FPR.
+\]
+L'insieme completo delle metriche viene quindi utilizzato per caratterizzare il comportamento dei classificatori sotto le differenti configurazioni sperimentali. Nell'analisi sviluppata nel seguito, particolare attenzione viene riservata alla \textit{True Positive Rate} (\textit{TPR}) e alla \textit{True Negative Rate} (\textit{TNR}), utilizzate per la rappresentazione comparativa delle prestazioni mediante \textit{heatmap}, mentre la \textit{F1-Score} costituisce la metrica di riferimento per la successiva analisi della variabilità tra semi e per il confronto statistico mediante test $t$ di Welch.
+
+Il benchmark di riferimento dell'intera valutazione è costituito dalla configurazione \texttt{INJECTION}, utilizzata come termine di confronto comune sia per i modelli addestrati esclusivamente sul dataset sorgente UNSW-NB15 sia per i modelli addestrati sulla configurazione ibrida NB15-STIN, comprendente le componenti NB15-SAT20 e NB15-TER20. Il benchmark \texttt{INJECTION} implementa un'iniezione di campioni appartenenti al dominio STIN pari allo $0{,}3\%$ della componente malevola considerata. In particolare, il contributo STIN corrisponde a
+\[
+\frac{1}{300}
+\]
+dell'insieme malevolo complessivo utilizzato dalla configurazione \texttt{INJECTION}, mentre la restante quota
+\[
+\frac{299}{300}
+\]
+è costituita da campioni malevoli provenienti da NB15. Tale configurazione viene pertanto assunta come riferimento per quantificare gli effetti associati all'impiego dei dati target nelle differenti strategie sperimentali.
+
+Il confronto dei risultati viene effettuato considerando sia le singole realizzazioni associate ai $10$ semi, sia le corrispondenti statistiche aggregate, mediante media e deviazione standard quando appropriate. L'analisi successiva considera quindi separatamente le prestazioni dei modelli sorgente e quelle dei modelli ibridi, utilizzando la configurazione \texttt{INJECTION} come benchmark comune e ricorrendo, dove previsto dal protocollo, all'analisi statistica e alle diagnostiche distribuzionali e di spiegabilità introdotte nel Capitolo~\ref{ch:implementazione}.
 
 
-% =========================================================================
-% 5.1
-% =========================================================================
+\section{Valutazione dei Modelli Sorgente rispetto alla Baseline INJECTION}
+\label{sec:risultati_modelli_sorgente}
 
-\section{Organizzazione dell'Analisi dei Risultati}
-\label{sec:organizzazione_risultati}
+% ------------------------------------------------------------------------------
+% SPECIFICHE GENERALI SEZIONE 5.2:
+% In questa sezione si analizza l'impatto diretto del domain shift sui modelli 
+% addestrati esclusivamente sul dominio sorgente M_S (UNSW-NB15) rispetto alla 
+% baseline M_base (INJECTION).
+% ------------------------------------------------------------------------------
 
-\subsection{Criteri di Presentazione e Confronto}
-\label{subsec:criteri_confronto}
+\subsection{Prestazioni e Inferenze sui Benchmark Aggregati}
+\label{subsec:sorgente_prestazioni_aggregati}
 
-\subsection{Configurazioni Sperimentali e Criteri di Aggregazione}
-\label{subsec:configurazioni_aggregazione}
+% ------------------------------------------------------------------------------
+% SPECIFICHE SUBSEZIONE 5.2.1:
+% 1. MOSTRARE:
+%    - Tabella comparativa delle metriche di inferenza sui test set aggregati
+%      (NB15_SAT20, NB15_TER20, NB15_STIN) per i modelli DT, RF, HGB.
+%    - Riportare sia i valori analitici per i singoli semi s_k in S, sia la media 
+%      e deviazione standard (mu +- sigma) calcolata sui K=10 semi stocastici.
+%    - Boxplot prestazionali dell'F1-Score e Recall al variare dei semi.
+% 2. SPIEGARE:
+%    - Il crollo prestazionale (particolarmente visibile nella Recall/TPR) quando 
+%      il modello M_S (addestrato solo su NB15) viene valutato su test set contenenti 
+%      traffico malevolo satellitare (SAT20) e terrestre (TER20).
+%    - Confrontare M_S con M_base (INJECTION), evidenziando come l'iniezione dello 0.3% 
+%      di campioni target prevenga il fallimento catastrofico del rilevamento.
+% 3. ANALISI INCROCIATA:
+%    - Mettere in relazione la differenza di stabilità tra gli algoritmi (es. RF e HGB 
+%      mostrano una varianza inter-seed minore rispetto a DT in presenza di domain shift).
+% ------------------------------------------------------------------------------
+
+\subsection{Inferenze Granulari sui Benchmark Biclasse e Singole Minacce}
+\label{subsec:sorgente_prestazioni_biclasse}
+
+% ------------------------------------------------------------------------------
+% SPECIFICHE SUBSEZIONE 5.2.2:
+% 1. MOSTRARE:
+%    - Tabella e heatmap delle inferenze sui 11 test set biclasse (5 sorgente, 
+%      4 terrestre, 2 satellitare) per ogni s_k e media su S.
+%    - Matrici di confusione aggregate e normalizzate per le classi d'attacco specifiche 
+%      (es. Normal_Syn_DDoS.csv, Normal_UDP_DDoS.csv per SAT20).
+% 2. SPIEGARE:
+%    - Identificare quali specifiche categorie d'attacco target (es. Syn_DDoS satellitare) 
+%      vengono completamentemancate da M_S (Recall vicina a 0) e quali invece conservano 
+%      un margine di trasferibilità dal dominio terrestre.
+% 3. ANALISI INCROCIATA:
+%    - Confrontare il comportamento di M_S sui biclasse sorgente (dove F1 ~ 0.99) 
+%      con i biclasse target, dimostrando che il fallimento non è dovuto all'algoritmo 
+%      ma alla discrepanza distributiva delle singole minacce.
+% ------------------------------------------------------------------------------
+
+\subsection{Significatività Statistica: Test t di Welch}
+\label{subsec:sorgente_welch_ttest}
+
+% ------------------------------------------------------------------------------
+% SPECIFICHE SUBSEZIONE 5.2.3:
+% 1. MOSTRARE:
+%    - Tabella dei risultati del test t di Welch calcolato sulle distribuzioni delle 
+%      metriche nei K=10 semi stocastici tra M_S e M_base (INJECTION).
+%    - Riportare per ciascuna metrica (F1-score, Recall, ROC-AUC) e per ciascun test set:
+%      t-statistic, p-value e indicatore di significatività (p < 0.05 e p < 0.001).
+% 2. SPIEGARE:
+%    - Dimostrare formalmente che la superiorità della baseline INJECTION rispetto 
+%      al modello sorgente puro M_S è statisticamente significativa e non frutto di 
+%      fluttuazioni stocastiche legate al sampling o all'inizializzazione.
+% 3. ANALISI INCROCIATA:
+%    - Commentare i casi in cui il p-value risulta estremamente ridotto (p < 1e-5), 
+%      confermando che l'introduzione dello 0.3% di target altera in modo robusto 
+%      e riproducibile la distribuzione del gradiente di errore.
+% ------------------------------------------------------------------------------
+
+\subsection{Diagnostica Spaziale e Distributiva: Proiezioni PCA e Stime KDE}
+\label{subsec:sorgente_pca_kde}
+
+% ------------------------------------------------------------------------------
+% SPECIFICHE SUBSEZIONE 5.2.4:
+% 1. MOSTRARE:
+%    - Proiezioni PCA (2D/3D) dello spazio delle 16 feature per i set di classificazione 
+%      sorgente e target (con sovrapposizione delle regioni di decisione di M_S).
+%    - Grafici di stima della densità di kernel (KDE) 1D/2D ancorati alla distribuzione 
+%      benevola sorgente P_S(x | Y=0) e confrontati con gli attacchi target.
+% 2. SPIEGARE:
+%    - Mostrare la sovrapposizione geometrica o il disallineamento dello spazio latente.
+% 3. ANALISI INCROCIATA (PERCHÉ SI OTTENGONO CERTI VALORI):
+%    - Spiegare PERCHÉ M_S fallisce nell'inferenza sui vettori satellitari: mostrare 
+%      tramite KDE che la densità di massa degli attacchi Syn_DDoS/UDP_DDoS satellitari 
+%      ricade esattamente nelle regioni dello spazio campionario occupate dal traffico 
+%      lecito terrestre P_S(x | Y=0), ingannando i confini di decisione di M_S.
+% ------------------------------------------------------------------------------
+
+\subsection{Spiegabilità e Importanza delle Feature: Analisi TreeSHAP}
+\label{subsec:sorgente_shap_analysis}
+
+% ------------------------------------------------------------------------------
+% SPECIFICHE SUBSEZIONE 5.2.5:
+% 1. MOSTRARE:
+%    - SHAP Summary Plot (beeswarm) e Bar Plot dell'importanza globale delle feature 
+%      calcolati con TreeSHAP per ciascun stimatore M_{s_k} e media sui K=10 semi.
+%    - SHAP Force Plot / Waterfall Plot su campioni d'attacco target disclassificati.
+% 2. SPIEGARE:
+%    - Analizzare le top-feature su cui M_S basa le proprie decisioni (es. `duration`, 
+%      `src_bytes`, `pkts_per\_sec`).
+% 3. ANALISI INCROCIATA (PERCHÉ SI OTTENGONO CERTI VALORI):
+%    - Incrociare i valori SHAP con le proiezioni PCA/KDE: dimostrare che M_S assegna 
+%      un peso SHAP dominante a feature terrestri (es. `src_bytes` o `win_diff`) che 
+%      nei segmenti satellitari STIN assumono valori del tutto differenti a causa delle 
+%      dinamiche dei canali spaziali, causando l'errata classificazione come traffico benigno.
+% ------------------------------------------------------------------------------
 
 
-% =========================================================================
-% 5.2
-% =========================================================================
+\section{Valutazione dei Modelli Ibridi rispetto alla Baseline INJECTION}
+\label{sec:risultati_modelli_ibridi}
 
-\section{Risultati dei Modelli Aggregati}
-\label{sec:risultati_modelli_aggregati}
+% ------------------------------------------------------------------------------
+% SPECIFICHE GENERALI SEZIONE 5.3:
+% In questa sezione si valutano le prestazioni dei modelli M_H addestrati sull'unione 
+% ibrida del set sorgente e dei set target (paradigma Oracle / Upper Bound) rispetto 
+% alla baseline M_base (INJECTION).
+% ------------------------------------------------------------------------------
 
-\subsection{Prestazioni del Modello Nativo Sorgente}
-\label{subsec:prestazioni_nb15}
+\subsection{Prestazioni e Inferenze dei Modelli Ibridi Aggregati}
+\label{subsec:ibridi_prestazioni_aggregati}
 
-\subsection{Degradazione delle Prestazioni in Presenza di Domain Shift}
-\label{subsec:degradazione_domain_shift}
+% ------------------------------------------------------------------------------
+% SPECIFICHE SUBSEZIONE 5.3.1:
+% 1. MOSTRARE:
+%    - Tabella comparativa delle metriche di inferenza per i modelli ibridi aggregati 
+%      M_H^{(SAT20)}, M_H^{(TER20)}, M_H^{(STIN)} valutati sui rispettivi test set.
+%    - Dettaglio per ogni seme s_k in S e valori medi mu +- sigma su K=10 semi.
+%    - Grafici a barre di confronto diretto tra M_H, M_base (INJECTION) e M_S.
+% 2. SPIEGARE:
+%    - Il ripristino completo delle capacità di rilevamento (F1-Score e Recall prossimi a 1.0) 
+%      quando il modello ha pieno accesso alle distribuzioni target durante il fitting.
+%    - Quantificare il gap prestazionale tra il coordinamento few-shot (INJECTION - 0.3%) 
+%      e il limite teorico superiore rappresentato dai modelli ibridi completi.
+% 3. ANALISI INCROCIATA:
+%    - Discutere l'impatto dell'architettura dell'algoritmo: analizzare se HistGradientBoosting 
+%      (HGB) tragga un vantaggio maggiore dall'addestramento ibrido rispetto a Random Forest (RF) 
+%      grazie alla costruzione ad albero con binning istogrammato.
+% ------------------------------------------------------------------------------
 
-\subsection{Prestazioni dei Modelli Ibridi Aggregati}
-\label{subsec:prestazioni_ibridi_aggregati}
+\subsection{Inferenze dei Modelli Ibridi sui Benchmark Biclasse Target}
+\label{subsec:ibridi_prestazioni_biclasse}
 
-\subsection{Confronto tra Baseline \texttt{INJECTION}, Modello Sorgente e Oracle}
-\label{subsec:confronto_baseline_oracle}
+% ------------------------------------------------------------------------------
+% SPECIFICHE SUBSEZIONE 5.3.2:
+% 1. MOSTRARE:
+%    - Risultati di inferenza granulare sui benchmark biclasse terrestri e satellitari 
+%      per i modelli ibridi biclasse M_{H,T,a} per ogni s_k e media su S.
+%    - Matrici di confusione comparative (Ibrido vs INJECTION vs Sorgente).
+% 2. SPIEGARE:
+%    - Evidenziare come l'addestramento ibrido elimini totalmente i falsi negativi (FN) 
+%      sulle classi volumetiche critiche (es. Syn_DDoS e UDP_DDoS satellitari).
+% 3. ANALISI INCROCIATA:
+%    - Confrontare la convergenza prestazionale nei singoli attacchi, mostrando che 
+%      l'ibridazione stabilizza la Recall anche nei contesti di forte sbilanciamento rho=10.
+% ------------------------------------------------------------------------------
 
+\subsection{Significatività Statistica: Test t di Welch (Ibridi vs INJECTION)}
+\label{subsec:ibridi_welch_ttest}
 
-% =========================================================================
-% 5.3
-% =========================================================================
+% ------------------------------------------------------------------------------
+% SPECIFICHE SUBSEZIONE 5.3.3:
+% 1. MOSTRARE:
+%    - Tabella e heatmap del test t di Welch condotto tra le distribuzioni stocastiche 
+%      (K=10 semi) dei modelli ibridi M_H e della baseline INJECTION.
+% 2. SPIEGARE:
+%    - Analizzare se il gap prestazionale residuo tra l'iniezione few-shot (0.3%) e 
+%      l'addestramento ibrido completo (100% target) sia statisticamente significativo.
+% 3. ANALISI INCROCIATA:
+%    - Evidenziare le metriche (es. Accuracy e PR-AUC) in cui la baseline INJECTION 
+%      non mostra differenze statisticamente significative (p > 0.05) rispetto all'Oracle 
+%      ibrido, dimostrando l'estrema efficienza campionaria dell'iniezione dello 0.3%.
+% ------------------------------------------------------------------------------
 
-\section{Risultati dei Modelli Biclasse}
-\label{sec:risultati_modelli_biclasse}
+\subsection{Diagnostica Spaziale e Distributiva delle Rappresentazioni Ibride (PCA e KDE)}
+\label{subsec:ibridi_pca_kde}
 
-\subsection{Rilevazione delle Singole Famiglie di Attacco nel Dominio Sorgente}
-\label{subsec:biclasse_sorgente}
+% ------------------------------------------------------------------------------
+% SPECIFICHE SUBSEZIONE 5.3.4:
+% 1. MOSTRARE:
+%    - Proiezioni PCA dei dataset ibridi con evidenziazione degli iperpiani di separazione 
+%      appresi dai modelli M_H.
+%    - Diagrammi KDE bidimensionali delle distribuzioni congiunte nelle prime due 
+%      componenti principali per il traffico ibrido.
+% 2. SPIEGARE:
+%    - Come la presenza delle istanze target nel training set rimodelli la geometria 
+%      degli alberi di decisione, spostando le soglie di split su valori adattati al target.
+% 3. ANALISI INCROCIATA (PERCHÉ SI OTTENGONO CERTI VALORI):
+%    - Dimostrare visivamente mediante il confronto dei grafici KDE come M_H riesca 
+%      a circondare e isolare i cluster d'attacco satellitari, creando confini di decisione 
+%      che "tagliano" accuratamente lo spazio delle feature dove prima M_S falliva.
+% ------------------------------------------------------------------------------
 
-\subsection{Rilevazione delle Singole Famiglie di Attacco nei Domini Target}
-\label{subsec:biclasse_target}
+\subsection{Analisi di Spiegabilità SHAP sui Modelli Ibridi}
+\label{subsec:ibridi_shap_analysis}
 
-\subsection{Confronto tra Modelli Specialistici Sorgente e Ibridi}
-\label{subsec:confronto_modelli_biclasse}
-
-
-% =========================================================================
-% 5.4
-% =========================================================================
-
-\section{Analisi della Variabilità Multi-Seed}
-\label{sec:variabilita_multi_seed}
-
-\subsection{Distribuzione delle Prestazioni sui Seed}
-\label{subsec:distribuzione_seed}
-
-\subsection{Media e Varianza delle Metriche di Prestazione}
-\label{subsec:media_varianza_metriche}
-
-\subsection{Stabilità delle Prestazioni tra le Configurazioni}
-\label{subsec:stabilita_configurazioni}
-
-
-% =========================================================================
-% 5.5
-% =========================================================================
-
-\section{Analisi della Significatività Statistica}
-\label{sec:significativita_statistica}
-
-\subsection{Confronto della \textit{F1-Score} con la Baseline \texttt{INJECTION}}
-\label{subsec:welch_f1}
-
-\subsection{Risultati del Test di Welch}
-\label{subsec:risultati_welch}
-
-\subsection{Interpretazione dei Confronti Significativi}
-\label{subsec:interpretazione_significativita}
-
-
-% =========================================================================
-% 5.6
-% =========================================================================
-
-\section{Analisi Diagnostica del Domain Shift}
-\label{sec:analisi_diagnostica_domain_shift}
-
-\subsection{Distribuzione Geometrica dei Benchmark mediante PCA}
-\label{subsec:risultati_pca}
-
-\subsection{Interpretazione delle Feature mediante SHAP}
-\label{subsec:risultati_shap}
-
-\subsection{Analisi Densometrica delle Feature Selezionate}
-\label{subsec:risultati_kde}
-
-\subsection{Raccordo tra Evidenze SHAP e Distribuzioni KDE}
-\label{subsec:raccordo_shap_kde}
+% ------------------------------------------------------------------------------
+% SPECIFICHE SUBSEZIONE 5.3.5:
+% 1. MOSTRARE:
+%    - TreeSHAP Summary Plot e Feature Importance Ranking per i modelli ibridi M_H 
+%      per ciascun s_k e media su S.
+%    - Grafici comparativi di variazione dei valori SHAP (Delta-SHAP) tra M_S, INJECTION e M_H.
+% 2. SPIEGARE:
+%    - Il re-ranking dell'importanza delle feature: identificare quali variabili assumono 
+%      un ruolo primario nei modelli ibridi rispetto ai modelli sorgente.
+% 3. ANALISI INCROCIATA (PERCHÉ SI OTTENGONO CERTI VALORI):
+%    - Spiegare la ristrutturazione della logica decisionale: mostrare come l'inclusione 
+%      del target sposti il peso decisionale SHAP da feature puramente terrestri a feature 
+%      invarianti o altamente discriminanti per il segmento spaziale (es. `load_s`, `pkts_per_sec`, 
+%      `down_up_ratio`), fornendo la motivazione analitica dell'aumento di Recall.
+% ------------------------------------------------------------------------------
 
 
-% =========================================================================
-% 5.7
-% =========================================================================
+\section{Analisi Comparativa Incrociata e Discussione Generale}
+\label{sec:discussione_incrociata}
 
-\section{Sintesi Comparativa dei Risultati}
-\label{sec:sintesi_risultati}
+% ------------------------------------------------------------------------------
+% SPECIFICHE GENERALI SEZIONE 5.4:
+% Sintesi e triangolazione olistica di tutti i risultati presentati nelle Sezioni 5.2 e 5.3.
+% ------------------------------------------------------------------------------
 
-\subsection{Confronto Complessivo tra le Configurazioni}
-\label{subsec:confronto_complessivo}
+\subsection{Triangolazione Prestazionale: Sorgente vs Baseline INJECTION vs Ibrido}
+\label{subsec:triangolazione_prestazioni}
 
-\subsection{Evidenze Sperimentali sul Domain Shift}
-\label{subsec:evidenze_domain_shift}
+% ------------------------------------------------------------------------------
+% SPECIFICHE SUBSEZIONE 5.4.1:
+% 1. MOSTRARE:
+%    - Diagrammi radar / spider plot e grafici a barre orizzontali riassuntivi che 
+%      mettono a confronto simultaneo le tre configurazioni (M_S, M_base INJECTION, M_H) 
+%      su tutte le metriche chiave e su tutti i benchmark.
+% 2. SPIEGARE:
+%    - Sintetizzare il bilancio operativo: il modello sorgente puro M_S è inapplicabile 
+%      in scenari satellitari; l'addestramento ibrido M_H è l'ottimo teorico ma richiede 
+%      dataset target completi (spesso non disponibili); la baseline INJECTION rappresenta 
+%      il miglior compromesso ingegneristico (trade-off efficienza/prestazioni).
+% 3. ANALISI INCROCIATA:
+%    - Evidenziare come con solo 29 campioni target iniettati (0.3%), M_base recuperi 
+%      fino all'85-90% del gap prestazionale rispetto all'Oracle ibrido M_H.
+% ------------------------------------------------------------------------------
 
-\subsection{Evidenze Sperimentali sull'Efficacia dell'Iniezione Few-Shot}
-\label{subsec:evidenze_few_shot}
+\subsection{Mappatura Causa-Effetto tra Proprietà della Rete e Comportamento del Modello}
+\label{subsec:sintesi_causa_effetto}
 
-\subsection{Sintesi delle Evidenze Quantitative e Diagnostiche}
-\label{subsec:sintesi_evidenze}
+% ------------------------------------------------------------------------------
+% SPECIFICHE SUBSEZIONE 5.4.2:
+% 1. MOSTRARE:
+%    - Schema logico / matrice di sintesi causa-effetto che correla:
+%      [Fenomeno Fisico di Rete STIN] -> [Distorsione Feature] -> [Effetto PCA/KDE] -> 
+%      [Impatto SHAP] -> [Degrado Metrica F1/Recall].
+% 2. SPIEGARE E ANALIZZARE IN MODO INCROCIATO:
+%    - Spiegare dettagliatamente le motivazioni di rete sottostanti ai valori osservati:
+%      a) Latenze elevate e jitter dei link satellitari alterano la metrica `duration` 
+%         e `pkts_per_sec`.
+%      b) Le dinamiche dei buffer di bordo e la dimensione delle finestre TCP alterano 
+%         `win_diff` e `src_win_byt`.
+%      c) I vettori di attacco DoS/DDoS nel segmento STIN presentano un Throughput (`load_s`) 
+%         e un asimmetria (`down_up_ratio`) concentrati su intervalli differenti rispetto 
+%         alle catture terrestri UNSW-NB15.
+%    - Dimostrare come il framework sviluppato consenta di tracciare scientificamente 
+%      questo filo conduttore dalla fisica della rete fino alle decisioni del modello ML.
+% ------------------------------------------------------------------------------
+
+
+\section{Sintesi del Capitolo}
+\label{sec:sintesi_capitolo5}
+
+% ------------------------------------------------------------------------------
+% SPECIFICHE SEZIONE 5.5:
+% - Sintesi dei principali contributi empirici emersi dall'analisi dei risultati.
+% - Ricapitolazione delle evidenze chiave: la severità del domain shift terra-spazio, 
+%   la dimostrazione della significatività statistica del fallimento dei modelli nativi, 
+%   e la validazione della baseline INJECTION come soluzione efficace ed economicamente 
+%   sostenibile.
+% - Raccordo conclusivo per l'apertura del Capitolo 6 (Conclusioni e Sviluppi Futuri).
+% ------------------------------------------------------------------------------
