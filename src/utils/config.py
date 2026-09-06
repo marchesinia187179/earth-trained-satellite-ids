@@ -146,25 +146,25 @@ class RoutineConfig:
     # Defines the standard set of models to be built during a routine phase
     DATASETS_TARGETS_FOR_MODEL_BUILDING = [
         # --- NB15 dataset ---
-        # {'dataset_type': Naming.NB15, 'filename': f"{Naming.NB15}{Naming.AGGR_SCALED}{Naming.EXT}"},
-        # {'dataset_type': Naming.NB15, 'filename': f"Normal_DoS{Naming.EXT}"},
-        # {'dataset_type': Naming.NB15, 'filename': f"Normal_Exploits{Naming.EXT}"},
-        # {'dataset_type': Naming.NB15, 'filename': f"Normal_Fuzzers{Naming.EXT}"},
-        # {'dataset_type': Naming.NB15, 'filename': f"Normal_Generic{Naming.EXT}"},
-        # {'dataset_type': Naming.NB15, 'filename': f"Normal_Reconnaissance{Naming.EXT}"},
+        {'dataset_type': Naming.NB15, 'filename': f"{Naming.NB15}{Naming.AGGR_SCALED}{Naming.EXT}"},
+        {'dataset_type': Naming.NB15, 'filename': f"Normal_DoS{Naming.EXT}"},
+        {'dataset_type': Naming.NB15, 'filename': f"Normal_Exploits{Naming.EXT}"},
+        {'dataset_type': Naming.NB15, 'filename': f"Normal_Fuzzers{Naming.EXT}"},
+        {'dataset_type': Naming.NB15, 'filename': f"Normal_Generic{Naming.EXT}"},
+        {'dataset_type': Naming.NB15, 'filename': f"Normal_Reconnaissance{Naming.EXT}"},
 
         # --- Hybrid dataset ---
-        {'dataset_type': Naming.NB15_STIN, 'filename': f"{Naming.NB15_STIN}{Naming.AGGR_SCALED}{Naming.EXT}"},
-        {'dataset_type': Naming.NB15_SAT20, 'filename': f"{Naming.NB15_SAT20}{Naming.AGGR_SCALED}{Naming.EXT}"},
-        {'dataset_type': Naming.NB15_TER20, 'filename': f"{Naming.NB15_TER20}{Naming.AGGR_SCALED}{Naming.EXT}"},
+        #{'dataset_type': Naming.NB15_STIN, 'filename': f"{Naming.NB15_STIN}{Naming.AGGR_SCALED}{Naming.EXT}"},
+        #{'dataset_type': Naming.NB15_SAT20, 'filename': f"{Naming.NB15_SAT20}{Naming.AGGR_SCALED}{Naming.EXT}"},
+        #{'dataset_type': Naming.NB15_TER20, 'filename': f"{Naming.NB15_TER20}{Naming.AGGR_SCALED}{Naming.EXT}"},
 
         # --- Specific Normal/Anomaly hybrid sub-datasets ---
-        {'dataset_type': Naming.NB15_SAT20, 'filename': f"Normal_Syn_DDoS{Naming.EXT}"},
-        {'dataset_type': Naming.NB15_SAT20, 'filename': f"Normal_UDP_DDoS{Naming.EXT}"},
-        {'dataset_type': Naming.NB15_TER20, 'filename': f"Normal_Botnet{Naming.EXT}"},
-        {'dataset_type': Naming.NB15_TER20, 'filename': f"Normal_DDoS{Naming.EXT}"},
-        {'dataset_type': Naming.NB15_TER20, 'filename': f"Normal_Syn_DDoS{Naming.EXT}"},
-        {'dataset_type': Naming.NB15_TER20, 'filename': f"Normal_UDP_DDoS{Naming.EXT}"},
+        #{'dataset_type': Naming.NB15_SAT20, 'filename': f"Normal_Syn_DDoS{Naming.EXT}"},
+        #{'dataset_type': Naming.NB15_SAT20, 'filename': f"Normal_UDP_DDoS{Naming.EXT}"},
+        #{'dataset_type': Naming.NB15_TER20, 'filename': f"Normal_Botnet{Naming.EXT}"},
+        #{'dataset_type': Naming.NB15_TER20, 'filename': f"Normal_DDoS{Naming.EXT}"},
+        #{'dataset_type': Naming.NB15_TER20, 'filename': f"Normal_Syn_DDoS{Naming.EXT}"},
+        #{'dataset_type': Naming.NB15_TER20, 'filename': f"Normal_UDP_DDoS{Naming.EXT}"},
         
         # --- Prposal dataset ---
         {'dataset_type': Naming.INJECTION, 'filename': f"{Naming.INJECTION}{Naming.AGGR_SCALED}{Naming.EXT}"}
@@ -203,25 +203,25 @@ class PlotConfig:
     # Preferred vertical order (Trained models row alignment)
     HEATMAP_ROW_ORDER = [
         # --- NB15 dataset ---
-        # "(Aggregate nb15)",
-        # "(DoS nb15)",
-        # "(Exploits nb15)",
-        # "(Fuzzers nb15)",
-        # "(Generic nb15)",
-        # "(Reconnaissance nb15)",
+        "(Aggregate nb15)",
+        "(DoS nb15)",
+        "(Exploits nb15)",
+        "(Fuzzers nb15)",
+        "(Generic nb15)",
+        "(Reconnaissance nb15)",
 
         # --- Hybrid dataset ---
-        "(Aggregate nb15_stin)",
-        "(Aggregate nb15_sat20)",
-        "(Aggregate nb15_ter20)",
+        #"(Aggregate nb15_stin)",
+        #"(Aggregate nb15_sat20)",
+        #"(Aggregate nb15_ter20)",
 
         # --- Specific Normal/Anomaly hybrid sub-datasets ---
-        "(Syn_DDoS nb15_sat20)",
-        "(UDP_DDoS nb15_sat20)",
-        "(Botnet nb15_ter20)",
-        "(DDoS nb15_ter20)",
-        "(Syn_DDoS nb15_ter20)",
-        "(UDP_DDoS nb15_ter20)",
+        #"(Syn_DDoS nb15_sat20)",
+        #"(UDP_DDoS nb15_sat20)",
+        #"(Botnet nb15_ter20)",
+        #"(DDoS nb15_ter20)",
+        #"(Syn_DDoS nb15_ter20)",
+        #"(UDP_DDoS nb15_ter20)",
 
         # --- Proposal dataset ---
         "(Aggregate injection)"
@@ -257,7 +257,7 @@ class PlotFlags:
     """Master Switch flags for granular control of plot generation during pipeline execution"""
     
     # Heavy-weight plots (computationally expensive)
-    ENABLE_SHAP_PLOTS = False            # Very heavy - SHAP explainability plots
+    ENABLE_SHAP_PLOTS = True            # Very heavy - SHAP explainability plots
     
     # Light-weight plots (standard visualizations)
     ENABLE_FEATURE_IMPORTANCE = True    # Feature importance bar charts

@@ -1,11 +1,11 @@
 id,timestamp,model_name,dataset_type,classes,samples,TP,TN,FP,FN,Accuracy,Precision,Recall,F1-Score,ROC-AUC,PR-AUC,TPR,FNR,TNR,FPR
-91,2026-07-17 09:37:35,nb15_stin_aggregate,nb15_ter20,"Normal, DDoS, UDP_DDoS, Botnet, Syn_DDoS",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
-92,2026-07-17 09:37:37,nb15_sat20_aggregate,nb15_ter20,"Normal, DDoS, UDP_DDoS, Botnet, Syn_DDoS",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
-93,2026-07-17 09:37:38,nb15_ter20_aggregate,nb15_ter20,"Normal, DDoS, UDP_DDoS, Botnet, Syn_DDoS",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
-94,2026-07-17 09:37:40,nb15_sat20_syn_ddos,nb15_ter20,"Normal, DDoS, UDP_DDoS, Botnet, Syn_DDoS",102300,413,18600,0,1447,0.9293,1.0,0.222,0.3634,0.611,0.2928,0.222,0.778,1.0,0.0
-95,2026-07-17 09:37:41,nb15_sat20_udp_ddos,nb15_ter20,"Normal, DDoS, UDP_DDoS, Botnet, Syn_DDoS",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
-96,2026-07-17 09:37:43,nb15_ter20_botnet,nb15_ter20,"Normal, DDoS, UDP_DDoS, Botnet, Syn_DDoS",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
-97,2026-07-17 09:37:44,nb15_ter20_ddos,nb15_ter20,"Normal, DDoS, UDP_DDoS, Botnet, Syn_DDoS",102300,1427,18600,0,433,0.9788,1.0,0.7672,0.8683,0.8836,0.7884,0.7672,0.2328,1.0,0.0
-98,2026-07-17 09:37:46,nb15_ter20_syn_ddos,nb15_ter20,"Normal, DDoS, UDP_DDoS, Botnet, Syn_DDoS",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
-99,2026-07-17 09:37:47,nb15_ter20_udp_ddos,nb15_ter20,"Normal, DDoS, UDP_DDoS, Botnet, Syn_DDoS",102300,1845,18600,0,15,0.9993,1.0,0.9919,0.996,0.996,0.9927,0.9919,0.0081,1.0,0.0
-100,2026-07-17 09:37:49,injection_aggregate,nb15_ter20,"Normal, DDoS, UDP_DDoS, Botnet, Syn_DDoS",102300,1759,18311,289,101,0.9809,0.8589,0.9457,0.9002,0.9641,0.8192,0.9457,0.0543,0.9845,0.0155
+91,2026-09-05 16:27:26,nb15_stin_aggregate,nb15_ter20,"Normal, DDoS, UDP_DDoS, Botnet, Syn_DDoS",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
+92,2026-09-05 16:27:27,nb15_sat20_aggregate,nb15_ter20,"Normal, DDoS, UDP_DDoS, Botnet, Syn_DDoS",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
+93,2026-09-05 16:27:29,nb15_ter20_aggregate,nb15_ter20,"Normal, DDoS, UDP_DDoS, Botnet, Syn_DDoS",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
+94,2026-09-05 16:27:31,nb15_sat20_syn_ddos,nb15_ter20,"Normal, DDoS, UDP_DDoS, Botnet, Syn_DDoS",102300,413,18600,0,1447,0.9293,1.0,0.222,0.3634,0.611,0.2928,0.222,0.778,1.0,0.0
+95,2026-09-05 16:27:33,nb15_sat20_udp_ddos,nb15_ter20,"Normal, DDoS, UDP_DDoS, Botnet, Syn_DDoS",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
+96,2026-09-05 16:27:34,nb15_ter20_botnet,nb15_ter20,"Normal, DDoS, UDP_DDoS, Botnet, Syn_DDoS",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
+97,2026-09-05 16:27:36,nb15_ter20_ddos,nb15_ter20,"Normal, DDoS, UDP_DDoS, Botnet, Syn_DDoS",102300,1427,18600,0,433,0.9788,1.0,0.7672,0.8683,0.8836,0.7884,0.7672,0.2328,1.0,0.0
+98,2026-09-05 16:27:38,nb15_ter20_syn_ddos,nb15_ter20,"Normal, DDoS, UDP_DDoS, Botnet, Syn_DDoS",102300,1860,18600,0,0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,0.0,1.0,0.0
+99,2026-09-05 16:27:40,nb15_ter20_udp_ddos,nb15_ter20,"Normal, DDoS, UDP_DDoS, Botnet, Syn_DDoS",102300,1845,18600,0,15,0.9993,1.0,0.9919,0.996,0.996,0.9927,0.9919,0.0081,1.0,0.0
+100,2026-09-05 16:27:42,injection_aggregate,nb15_ter20,"Normal, DDoS, UDP_DDoS, Botnet, Syn_DDoS",102300,1759,18311,289,101,0.9809,0.8589,0.9457,0.9002,0.9641,0.8192,0.9457,0.0543,0.9845,0.0155
