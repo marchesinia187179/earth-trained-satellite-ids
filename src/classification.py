@@ -83,7 +83,7 @@ def _classification(model_path, data):
 
 
 # --- Public Functions ---
-def classification_processing(model_path, data, dataset_type, dataset_name, classifications_file, plots_dir, seed):
+def classification_processing(model_path, data, dataset_type, dataset_name, classifications_file, plots_dir):
     """
     Performs classification using a pre-trained model (RF, DT, or HGB) on a given dataset, 
     evaluates metrics, and generates plots based on configuration flags.
@@ -151,23 +151,21 @@ def classification_processing(model_path, data, dataset_type, dataset_name, clas
         )
     
     # Save SHAP summary plot if enabled
-    if seed == 42:
-        if model_name in ["nb15_aggregate", "injection_aggregate", "nb15_stin_aggregate"]:
-            if PlotFlags.ENABLE_SHAP_PLOTS: 
-                try:
-                    # Wrapped in try-except block to handle model-specific SHAP explainer incompatibilities
-                    # (e.g., HistGradientBoosting might require different explainers than standard Trees)
-                    save_shap_plot(
-                        model=model, 
-                        X_test=X_test, 
-                        y_test=y_test, 
-                        model_name=model_name, 
-                        dataset_type=dataset_type, 
-                        dataset_name=dataset_name,
-                        dst_dir=plots_dir
-                    )
-                except Exception as e:
-                    print(f" -> [WARNING] Failed to generate SHAP plot for model '{model_name}': {e}")
+    if PlotFlags.ENABLE_SHAP_PLOTS: 
+        try:
+            # Wrapped in try-except block to handle model-specific SHAP explainer incompatibilities
+            # (e.g., HistGradientBoosting might require different explainers than standard Trees)
+            save_shap_plot(
+                model=model, 
+                X_test=X_test, 
+                y_test=y_test, 
+                model_name=model_name, 
+                dataset_type=dataset_type, 
+                dataset_name=dataset_name,
+                dst_dir=plots_dir
+            )
+        except Exception as e:
+            print(f" -> [WARNING] Failed to generate SHAP plot for model '{model_name}': {e}")
 
     print(f"--- Classification for {dataset_type} dataset using model: {model_name} completed ---")
 

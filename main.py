@@ -200,8 +200,7 @@ def _classifications(model_type, seed):
                 dataset_type=dataset_type, 
                 dataset_name=dataset_path.stem,
                 classifications_file=classifications_file,
-                plots_dir=plots_dir,
-                seed=seed
+                plots_dir=plots_dir
             )
 
     # --- Group and Save Classification Results ---
