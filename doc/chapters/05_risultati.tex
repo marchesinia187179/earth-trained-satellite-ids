@@ -2201,8 +2201,7 @@ valore medio.
 \caption{Media e varianza della TPR sui benchmark target aggregati per il
 modello sorgente aggregato e la baseline.}
 \label{tab:source_vs_base_target_variance}
-\resizebox{\textwidth}{!}{
-\begin{tabular}{llcccc}
+\begin{tabularx}{\textwidth}{ll >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X}
 \toprule
 &
 &
@@ -2262,7 +2261,7 @@ RF & \texttt{nb15\_ter20}
 & 0.98600 & $2.28\times10^{-4}$ \\
 
 \bottomrule
-\end{tabular}}
+\end{tabularx}
 \end{table}
 
 Per DT, il vantaggio della baseline è accompagnato da una marcata riduzione
@@ -2924,8 +2923,8 @@ inter-seed della baseline e quella del modello sorgente confrontato:
 $\overline{F1}_{i}^{(k)}$ sui $10$ seed per la baseline e i modelli sorgente.
 $\Delta F1$ è calcolato come baseline meno modello sorgente.}
 \label{tab:sorgente_welch_descriptive}
-\resizebox{\textwidth}{!}{
-\begin{tabular}{llccc}
+\resizebox{\textwidth}{}{text}
+\begin{tabularx}{\textwidth}{ll >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X}
 \toprule
 \textbf{Alg.}
 & \textbf{Modello}
@@ -3025,7 +3024,7 @@ RF
 & 0.32659 & 0.00129 & $+0.56364$ \\
 
 \bottomrule
-\end{tabular}}
+\end{tabular}
 \end{table}
 
 La sintesi descrittiva mostra innanzitutto che la baseline presenta la maggiore
