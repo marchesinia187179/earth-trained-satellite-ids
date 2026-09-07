@@ -5976,57 +5976,38 @@ osservabile senza introdurre grandezze computazionali non misurate.
 
 \begin{table}[H]
 \centering
-\caption{Sintesi qualitativa del compromesso tra articolazione del modello e
-prestazioni osservate nella configurazione \texttt{INJECTION}.}
+\caption{Sintesi qualitativa del compromesso tra articolazione del modello e prestazioni osservate nella configurazione \texttt{INJECTION}.}
 \label{tab:cap5_classifier_tradeoff}
-\begin{tabular}{p{0.12\textwidth}
-                p{0.23\textwidth}
-                p{0.25\textwidth}
-                p{0.30\textwidth}}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
 \toprule
-\textbf{Alg.}
-&
-\textbf{Articolazione strutturale}
-&
-\textbf{Punto di forza osservato}
-&
-\textbf{Limite / compromesso osservato} \\
+\textbf{Articolazione strutturale} & \textbf{Punto di forza osservato} & \textbf{Limite / compromesso osservato} \\
 \midrule
 
-DT
-&
+\multicolumn{3}{c}{DT} \\
+\hline
+
 Singolo albero
-&
-Elevata TPR target ($0.96612$) con buona prestazione globale.
-&
-Prestazioni inferiori a RF; TNR più bassa tra le tre baseline
-($0.98460$). \\
+& Elevata TPR target ($0.96612$) con buona prestazione globale.
+& Prestazioni inferiori a RF; TNR più bassa tra le tre baseline ($0.98460$). \\
 
-\addlinespace
+\hline
+\multicolumn{3}{c}{HGB} \\
+\hline
 
-HGB
-&
-Ensemble iterativo basato su boosting
-&
-Massima TNR ($0.99658$).
-&
-Sensibilità target più ridotta ($0.82970$) e maggiore dispersione
-inter-seed dell'F1-Score. \\
+Ensemble iterativo basato su boosting 
+& Massima TNR ($0.99658$). 
+&  Sensibilità target più ridotta ($0.82970$) e maggiore dispersione inter-seed dell'F1-Score. \\
 
-\addlinespace
+\hline
+\multicolumn{3}{c}{RF} \\
+\hline
 
-RF
-&
-Ensemble di alberi
-&
-Massima TPR target ($0.98821$), massimo F1 globale ($0.890221$) e minore
-dispersione inter-seed ($0.002452$).
-&
-Struttura più articolata rispetto al singolo DT; il costo aggiuntivo non è
-quantificabile con le misure disponibili. \\
+Ensemble di alberi 
+& Massima TPR target ($0.98821$), massimo F1 globale ($0.890221$) e minore dispersione inter-seed ($0.002452$). 
+& Struttura più articolata rispetto al singolo DT; il costo aggiuntivo non è quantificabile con le misure disponibili. \\
 
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
 
@@ -6098,15 +6079,448 @@ esecuzione. Le implicazioni di tale compromesso vengono approfondite nella
 Sottosezione~\ref{subsec:implicazioni_operative_nids}.
 
 
-
-
-
-
-
-
-
+% ------------------------------------------------------------------------------
+% CONSIDERAZIONI OPERATIVE PER L'APPLICABILITÀ IN AMBITO NIDS SATELLITARE
+% ------------------------------------------------------------------------------
 \subsection{Considerazioni Operative per l'Applicabilità in Ambito NIDS Satellitare}
 \label{subsec:implicazioni_operative_nids}
+
+\paragraph{Criteri di applicabilità derivati dal protocollo sperimentale}
+
+Le analisi sviluppate nelle sezioni precedenti consentono di tradurre i
+risultati sperimentali in alcune considerazioni relative all'impiego del
+framework in un contesto NIDS satellitare. Tale passaggio deve tuttavia essere
+mantenuto distinto da una validazione di deployment: la campagna condotta
+misura infatti la capacità di classificazione e di generalizzazione
+cross-domain dei modelli, ma non comprende una sperimentazione su una
+piattaforma satellitare operativa.
+
+L'applicabilità viene pertanto discussa rispetto alle proprietà effettivamente
+misurate dal protocollo:
+
+\begin{itemize}
+    \item capacità di preservare il riconoscimento del traffico nominale;
+    \item capacità di rilevare attacchi appartenenti al dominio sorgente;
+    \item capacità di generalizzare verso distribuzioni malevole target;
+    \item stabilità rispetto ai differenti seed di addestramento;
+    \item sensibilità della funzione decisionale al \textit{domain shift};
+    \item compromesso tra specializzazione locale e copertura dell'intera
+    matrice di \textit{cross-evaluation}.
+\end{itemize}
+
+Tempi di inferenza, occupazione di memoria, consumo energetico, dimensione
+del modello e requisiti hardware non sono stati misurati. Tali aspetti non
+vengono quindi utilizzati per sostenere l'idoneità di una specifica
+configurazione a un'esecuzione \textit{on-board} o a un determinato segmento
+dell'infrastruttura.
+
+
+\paragraph{Generalizzazione cross-domain come requisito centrale}
+
+Il primo risultato con implicazione operativa riguarda la limitata
+trasferibilità dei modelli addestrati esclusivamente sul dominio sorgente.
+
+Il modello aggregato $\mathcal{M}_S$ mantiene TPR medie pari a $0.7870$,
+$0.7601$ e $0.7833$ sui benchmark \texttt{NB15}, rispettivamente per DT,
+HGB e RF. Quando viene invece valutato sui nove benchmark target, i
+corrispondenti valori si riducono a $0.3234$, $0.0607$ e $0.3035$.
+
+Parallelamente, la TNR rimane elevata, raggiungendo $0.98317$ per DT,
+$0.99659$ per HGB e $0.99150$ per RF. Il degrado osservato non corrisponde
+quindi a un collasso generale del classificatore, ma riguarda principalmente
+la capacità di estendere alle nuove distribuzioni malevole la regione
+decisionale appresa sul dominio sorgente.
+
+In un'applicazione nella quale il traffico osservato possa differire dalla
+distribuzione utilizzata durante l'addestramento, i risultati indicano pertanto
+che la sola validazione in-domain non costituisce un criterio sufficiente per
+caratterizzare il comportamento del NIDS.
+
+La valutazione cross-domain assume quindi un ruolo essenziale: un modello può
+mantenere un'elevata specificità e contemporaneamente non riconoscere una
+quota consistente delle distribuzioni malevole appartenenti a un dominio
+differente.
+
+
+\paragraph{Conoscenza target sparsa come strategia di adattamento}
+
+La baseline \texttt{INJECTION} rappresenta il risultato maggiormente rilevante
+in questa prospettiva. Il relativo training set conserva $9.271$ dei $9.300$
+campioni malevoli provenienti dal sorgente e sostituisce soltanto $29$
+osservazioni con traffico appartenente a \texttt{STIN}.
+
+Nonostante tale quota target rappresenti circa lo $0{,}31\%$ della componente
+malevola, la sensibilità media sui benchmark target aumenta rispetto ai
+modelli sorgente fino a
+
+\begin{equation}
+    \overline{TPR}_{Target}
+    =
+    \begin{cases}
+        0.96612, & \text{DT},\\
+        0.82970, & \text{HGB},\\
+        0.98821, & \text{RF}.
+    \end{cases}
+    \label{eq:cap5_operational_baseline_target_tpr}
+\end{equation}
+
+Contestualmente, la sensibilità media sui benchmark \texttt{NB15} rimane
+sostanzialmente invariata rispetto ai corrispondenti modelli puramente
+sorgente.
+
+All'interno del protocollo considerato, tale comportamento identifica una
+proprietà operativamente interessante: una quantità estremamente limitata di
+conoscenza target risulta associata a un forte incremento della
+generalizzazione senza determinare la sostituzione della conoscenza sorgente.
+
+La conclusione deve essere mantenuta circoscritta ai domini valutati. I
+risultati non dimostrano che $29$ osservazioni costituiscano una quantità
+universalmente sufficiente per adattare un NIDS a un qualsiasi nuovo dominio.
+Dimostrano invece che, per la configurazione sperimentale
+\texttt{NB15}$\rightarrow$\texttt{STIN} analizzata, l'iniezione sparsa
+produce un comportamento sostanzialmente differente rispetto
+all'addestramento esclusivamente sorgente.
+
+
+\paragraph{Limiti operativi della specializzazione ibrida}
+
+Il paradigma $\mathcal{M}_H$ evidenzia il rischio complementare.
+
+I modelli aggregati ibridi raggiungono TPR target prossime all'unità e TNR pari
+a $1.0000$. Considerando esclusivamente traffico nominale sorgente e attacchi
+target, tali configurazioni presentano quindi la separazione più elevata
+osservata nell'intera campagna.
+
+La stessa funzione decisionale produce tuttavia TPR sostanzialmente nulla sui
+sei benchmark malevoli \texttt{NB15}. Sul benchmark
+\texttt{INJECTION}, ancora fortemente dominato dagli attacchi sorgente, la TPR
+dei modelli aggregati ibridi si riduce inoltre a circa $0.00320$.
+
+Un modello fortemente specializzato sul dominio target non può quindi essere
+interpretato automaticamente come una soluzione più generale. Nei dati
+analizzati, l'introduzione estesa della conoscenza target coincide con la
+perdita della capacità di riconoscere una precedente famiglia di anomalie.
+
+Dal punto di vista progettuale, ciò evidenzia la necessità di distinguere due
+obiettivi:
+
+\begin{equation}
+    \text{massimizzazione della prestazione sul dominio corrente}
+    \neq
+    \text{preservazione della conoscenza cross-domain}.
+    \label{eq:cap5_specialization_vs_retention}
+\end{equation}
+
+La prima proprietà è massimizzata dai modelli aggregati ibridi; la seconda
+risulta maggiormente preservata dalla strategia \texttt{INJECTION}.
+
+
+\paragraph{Preservazione della conoscenza e aggiornamento del modello}
+
+Il confronto tra $\mathcal{M}_S$, $\mathcal{M}_{\text{base}}$ e
+$\mathcal{M}_H$ suggerisce quindi che l'aggiornamento di un NIDS in presenza
+di nuove distribuzioni non debba essere valutato esclusivamente sulla
+prestazione ottenuta dopo l'adattamento.
+
+Nel protocollo sperimentale, il passaggio dall'assenza di conoscenza target
+alla conoscenza sparsa migliora sostanzialmente la sensibilità target
+preservando quella sorgente. Il passaggio successivo verso una classe malevola
+interamente target migliora ulteriormente la sensibilità sul nuovo dominio,
+ma elimina quasi completamente il riconoscimento degli attacchi sorgente.
+
+Ne deriva che una procedura di aggiornamento dovrebbe essere verificata
+congiuntamente rispetto a:
+
+\begin{equation}
+    \mathcal{E}_{update}
+    =
+    \left\{
+        \begin{aligned}
+            &\quad\text{prestazione sul nuovo dominio},\quad \\
+            &\quad\text{retention sul dominio precedente},\quad \\
+            &\quad\text{specificità sul traffico nominale}\quad
+        \end{aligned}
+    \right\}
+    \label{eq:cap5_operational_update_criteria}
+\end{equation}
+
+Nel presente lavoro, la matrice di \textit{cross-evaluation} svolge
+precisamente questa funzione: impedisce di giudicare un nuovo modello
+esclusivamente sul dataset utilizzato per il relativo adattamento.
+
+
+\paragraph{Gestione dei falsi positivi e dei falsi negativi}
+
+Le differenze tra DT, HGB e RF mostrano inoltre che la selezione
+dell'architettura deve essere effettuata considerando congiuntamente i due lati
+della matrice di confusione.
+
+Nella baseline, HGB raggiunge la maggiore TNR media,
+$0.99658$, ma presenta una TPR target pari a $0.82970$. RF mantiene invece una
+TNR leggermente inferiore, $0.99057$, associandola a una TPR target pari a
+$0.98821$. DT si colloca tra i due profili, con TNR pari a $0.98460$ e TPR
+target pari a $0.96612$.
+
+Non emerge quindi un classificatore che domini contemporaneamente tutte le
+metriche. La scelta dipende dal peso operativo attribuito ai due errori:
+
+\begin{itemize}
+    \item una maggiore priorità alla riduzione dei falsi positivi valorizza la
+    specificità;
+    \item una maggiore priorità alla riduzione degli attacchi non rilevati
+    valorizza la sensibilità;
+    \item una configurazione orientata alla copertura generale deve considerare
+    simultaneamente entrambe le quantità.
+\end{itemize}
+
+I dati sperimentali mostrano che RF realizza, nella baseline, il compromesso
+quantitativamente più uniforme tra tali proprietà, mentre HGB presenta il
+profilo maggiormente orientato alla specificità.
+
+
+\paragraph{RF come configurazione di riferimento prestazionale}
+
+Considerando esclusivamente le grandezze effettivamente misurate, la baseline
+RF costituisce la configurazione con il profilo globale più favorevole.
+
+Essa raggiunge:
+
+\begin{equation}
+\begin{aligned}
+    \overline{TPR}_{NB15} &= 0.78198,\\
+    \overline{TPR}_{Target} &= 0.98821,\\
+    \overline{TPR}_{16} &= 0.90071,\\
+    \overline{TNR} &= 0.99057,\\
+    \overline{\overline{F1}} &= 0.890221.
+\end{aligned}
+\label{eq:cap5_operational_rf_summary}
+\end{equation}
+
+La deviazione standard della media globale dell'F1-Score lungo i $10$ seed è
+inoltre pari a $0.002452$, inferiore a quella osservata per DT e HGB nella
+medesima configurazione.
+
+RF rappresenta quindi il candidato più favorevole quando il criterio di scelta
+è limitato a prestazione predittiva, generalizzazione cross-domain e stabilità
+multi-seed.
+
+Tale conclusione non equivale tuttavia a una selezione definitiva per il
+deployment. L'assenza di misure relative a latenza, memoria e consumo
+computazionale impedisce di stabilire se il vantaggio predittivo dell'ensemble
+sia compatibile con i vincoli di una specifica piattaforma di esecuzione.
+
+
+\paragraph{DT come candidato per una successiva valutazione orientata alle risorse}
+
+DT presenta un profilo prestazionale leggermente inferiore rispetto a RF, ma
+mantiene nella baseline una TPR target pari a $0.96612$, una TPR globale pari
+a $0.88990$ e un F1-Score globale pari a $0.860388$.
+
+Poiché il modello è costituito da un singolo albero decisionale, esso
+rappresenta una configurazione strutturalmente meno articolata rispetto agli
+ensemble RF e HGB. I dati disponibili non consentono di trasformare tale
+proprietà in un vantaggio misurato in termini di latenza, memoria o consumo.
+
+DT può tuttavia essere identificato come candidato naturale per una successiva
+fase sperimentale nella quale tali quantità vengano misurate direttamente.
+Soltanto tale verifica permetterebbe di determinare se la perdita
+prestazionale rispetto a RF sia compensata da un effettivo vantaggio
+nell'utilizzo delle risorse.
+
+
+\paragraph{Monitoraggio del domain shift}
+
+PCA, KDE e SHAP mostrano inoltre che il comportamento dei classificatori è
+strettamente associato alla distribuzione delle feature osservata durante
+l'addestramento.
+
+Nel passaggio da \texttt{NB15} a \texttt{STIN},
+\texttt{pkts\_per\_sec} presenta variazioni di diversi ordini di grandezza
+nella media e nella varianza, mentre \texttt{total\_bytes} e
+\texttt{dst\_win\_byt} modificano significativamente posizione e dispersione.
+
+Contemporaneamente, \texttt{pkts\_per\_sec} costituisce la principale feature
+SHAP nei modelli sorgente e nella baseline, mentre
+\texttt{dst\_win\_byt} e \texttt{src\_win\_byt} diventano dominanti nel
+modello aggregato ibrido.
+
+Queste evidenze indicano che una variazione della distribuzione in ingresso
+può essere accompagnata da una riorganizzazione significativa della funzione
+decisionale. In un'estensione operativa del framework, le analisi
+distributive adottate nel presente lavoro potrebbero pertanto essere
+riutilizzate come strumenti diagnostici per verificare se il traffico
+osservato continui a essere compatibile con il riferimento utilizzato durante
+l'addestramento.
+
+La campagna sperimentale non definisce tuttavia una soglia automatica di
+\textit{drift detection} e non valuta un meccanismo di aggiornamento
+automatico. PCA e KDE devono quindi essere considerate, nel presente lavoro,
+strumenti di diagnosi e non componenti di un sistema autonomo di
+riaddestramento.
+
+
+\paragraph{Interpretabilità come supporto alla validazione}
+
+L'analisi SHAP fornisce un ulteriore elemento utile alla valutazione operativa.
+Le prestazioni elevate possono infatti essere accompagnate da strategie
+decisionali sostanzialmente differenti.
+
+La baseline conserva una gerarchia nella quale
+\texttt{pkts\_per\_sec} rimane la feature principale per DT, HGB e RF,
+affiancata da descrittori quali \texttt{load\_s},
+\texttt{total\_bytes}, \texttt{src\_bytes} e
+\texttt{src\_mean\_pkt\_size}.
+
+Nel modello aggregato ibrido \texttt{NB15\_STIN}, invece,
+\texttt{dst\_win\_byt} e \texttt{src\_win\_byt} occupano le prime due
+posizioni in tutte le architetture.
+
+L'elevata accuratezza su una nuova distribuzione dovrebbe pertanto essere
+interpretata congiuntamente alla struttura decisionale utilizzata dal modello.
+Nel caso ibrido, la coincidenza strutturale tra dominio e classe rende
+particolarmente importante verificare se l'elevata separazione derivi da
+caratteristiche trasferibili dell'attacco oppure da proprietà specifiche delle
+distribuzioni considerate.
+
+Nel presente protocollo tale distinzione non può essere risolta causalmente,
+ma SHAP permette almeno di identificare la riorganizzazione delle feature sulla
+quale si basa il comportamento osservato.
+
+
+\paragraph{Limite della componente nominale condivisa}
+
+Un ulteriore limite operativo riguarda la costruzione dei benchmark di
+valutazione. La componente nominale utilizzata nei differenti test set
+proviene sempre dal dominio sorgente \texttt{NB15}. Tale scelta permette di
+isolare sperimentalmente la variazione della componente malevola e spiega la
+TNR costante osservata, per un dato modello, attraverso differenti test set.
+
+Di conseguenza, i risultati dimostrano la robustezza cross-domain rispetto
+alla sostituzione della distribuzione degli attacchi, ma non valutano un
+eventuale \textit{domain shift} del traffico nominale.
+
+Questo aspetto limita una generalizzazione diretta della TNR a un contesto nel
+quale anche le condizioni operative benignhe differiscano da quelle
+rappresentate da \texttt{NB15}. Una validazione successiva dovrebbe pertanto
+considerare anche variazioni della componente nominale, oltre a quelle
+malevole.
+
+La TNR elevata ottenuta nel presente lavoro deve quindi essere interpretata
+rispetto alla distribuzione nominale effettivamente inclusa nel protocollo e
+non come garanzia di specificità invariata rispetto a qualsiasi traffico
+benigno futuro.
+
+
+\paragraph{Soglia decisionale e calibrazione operativa}
+
+La pipeline di classificazione utilizza le predizioni prodotte dai modelli
+senza introdurre una soglia decisionale personalizzata per i differenti
+benchmark. Le metriche riportate descrivono pertanto il comportamento della
+configurazione effettivamente implementata, senza una successiva ottimizzazione
+specifica della soglia in funzione del dominio di test.
+
+Questa scelta rende coerente il confronto tra le differenti configurazioni,
+ma lascia aperta una seconda dimensione di analisi operativa. Le curve
+Precision--Recall e le ulteriori diagnostiche di soglia generate dal framework
+potrebbero essere utilizzate in una campagna successiva per studiare il
+compromesso tra falsi positivi e falsi negativi in funzione di specifici
+requisiti applicativi.
+
+Poiché tale ottimizzazione non è stata inclusa nell'analisi quantitativa
+sviluppata nel presente capitolo, non viene formulata alcuna conclusione
+relativa a una soglia operativa ottimale.
+
+
+\paragraph{Condizioni necessarie prima di un deployment}
+
+Alla luce dei risultati ottenuti, il framework fornisce evidenze favorevoli
+rispetto alla possibilità di costruire un NIDS capace di trasferire almeno
+parzialmente la conoscenza tra domini differenti. I risultati non sono però
+sufficienti per qualificare il sistema come direttamente distribuibile in un
+ambiente satellitare reale.
+
+Prima di tale passaggio sarebbe necessario estendere la validazione almeno
+rispetto alle dimensioni che non sono state misurate nella campagna corrente:
+
+\begin{itemize}
+    \item valutazione temporale dell'inferenza;
+    \item occupazione di memoria e dimensione dei modelli;
+    \item utilizzo delle risorse computazionali;
+    \item eventuale consumo energetico;
+    \item comportamento in presenza di variazioni del traffico nominale;
+    \item valutazione della soglia decisionale rispetto ai requisiti
+    operativi;
+    \item verifica della generalizzazione verso distribuzioni non incluse
+    nell'attuale insieme di benchmark.
+\end{itemize}
+
+Tali elementi rappresentano estensioni del protocollo sperimentale e non
+risultati già dimostrati dal presente lavoro.
+
+
+\paragraph{Sintesi delle implicazioni operative}
+
+La Tabella~\ref{tab:cap5_operational_summary} sintetizza le principali
+implicazioni derivabili dai risultati sperimentali.
+
+\begin{table}[H]
+\centering
+\caption{Sintesi delle implicazioni operative dei tre paradigmi di
+addestramento nell'ambito del protocollo NIDS considerato.}
+\label{tab:cap5_operational_summary}
+\begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Paradigma} & \textbf{Evidenza favorevole} & \textbf{Criticità osservata} & \textbf{Implicazione operativa} \\
+\midrule
+
+$\mathcal{M}_S$
+& Conservazione della sensibilità sul dominio sorgente e TNR elevata.
+& Forte riduzione della TPR sulle distribuzioni target.
+& La sola validazione in-domain non è sufficiente a garantire robustezza cross-domain. \\
+
+\addlinespace
+
+$\mathcal{M}_{\text{base}}$
+& Conservazione della TPR sorgente accompagnata da forte incremento della sensibilità target mediante conoscenza target sparsa.
+& Prestazioni target leggermente inferiori ai modelli ibridi aggregati e dipendenti dall'architettura utilizzata.
+& Configurazione più equilibrata per coprire simultaneamente distribuzioni sorgente e target nell'insieme sperimentale considerato. \\
+
+\addlinespace
+
+$\mathcal{M}_H$
+& TPR target prossima all'unità e TNR pari a $1.0000$ nei modelli aggregati.
+& Perdita quasi completa della sensibilità verso gli attacchi sorgente.
+& Un adattamento esteso al nuovo dominio deve essere verificato anche rispetto alla retention delle conoscenze precedenti. \\
+
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Nel complesso, i risultati indicano che la robustezza di un NIDS satellitare
+non può essere valutata esclusivamente attraverso la massima prestazione
+ottenuta su un singolo dominio. L'elemento maggiormente discriminante emerso
+dalla campagna sperimentale è la capacità di mantenere simultaneamente
+sensibilità verso distribuzioni precedentemente apprese e capacità di
+adattamento a nuove distribuzioni malevole.
+
+Tra le configurazioni analizzate, la baseline \texttt{INJECTION} realizza il
+compromesso più uniforme lungo tale dimensione. La conoscenza target sparsa è
+associata a un forte miglioramento cross-domain senza perdita sostanziale
+della conoscenza sorgente, mentre l'addestramento ibrido massimizza la
+specializzazione target a costo della retention.
+
+All'interno della baseline, RF presenta il miglior profilo predittivo globale,
+mentre DT mantiene prestazioni competitive mediante una struttura
+architetturale meno articolata. La scelta definitiva tra tali configurazioni
+richiederebbe tuttavia una successiva caratterizzazione delle risorse
+computazionali, non disponibile nella presente campagna.
+
+L'applicabilità del framework in ambito NIDS satellitare risulta quindi
+supportata, nel perimetro sperimentale analizzato, soprattutto come metodologia
+per lo studio della generalizzazione cross-domain e dell'adattamento mediante
+conoscenza target controllata. La validazione di un deployment operativo
+richiede invece ulteriori verifiche relative alle risorse, al traffico nominale
+target e alle condizioni di esecuzione effettive.
 
 
 
