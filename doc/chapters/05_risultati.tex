@@ -360,75 +360,21 @@ come stima diretta delle coordinate Z-score dei singoli punti visualizzati.
 
 \begin{table}[H]
 \centering
-\caption{Statistiche descrittive delle tre feature KDE per il traffico nominale
-sorgente e per le componenti malevole di \texttt{NB15},
+\caption{Statistiche descrittive delle tre feature KDE per il traffico nominale sorgente e per le componenti malevole di \texttt{NB15},
 \texttt{INJECTION} e \texttt{NB15\_STIN}.}
 \label{tab:kde_feature_statistics}
 \resizebox{\textwidth}{!}{
-\begin{tabular}{llrrrrrr}
+\begin{tabular}{llcccccc}
 \toprule
-&
-&
-\multicolumn{2}{c}{\textbf{\texttt{pkts\_per\_sec}}}
-&
-\multicolumn{2}{c}{\textbf{\texttt{total\_bytes}}}
-&
-\multicolumn{2}{c}{\textbf{\texttt{dst\_win\_byt}}} \\
-\cmidrule(lr){3-4}
-\cmidrule(lr){5-6}
-\cmidrule(lr){7-8}
-\textbf{Configurazione}
-&
-\textbf{Componente}
-&
-$\boldsymbol{\mu}$
-&
-$\boldsymbol{\sigma^2}$
-&
-$\boldsymbol{\mu}$
-&
-$\boldsymbol{\sigma^2}$
-&
-$\boldsymbol{\mu}$
-&
-$\boldsymbol{\sigma^2}$ \\
+& & \multicolumn{2}{c}{\textbf{\texttt{pkts\_per\_sec}}} & \multicolumn{2}{c}{\textbf{\texttt{total\_bytes}}} & \multicolumn{2}{c}{\textbf{\texttt{dst\_win\_byt}}} \\
+\cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8}
+\textbf{Configurazione} & \textbf{Componente} & $\boldsymbol{\mu}$ & $\boldsymbol{\sigma^2}$ & $\boldsymbol{\mu}$ & $\boldsymbol{\sigma^2}$ & $\boldsymbol{\mu}$ & $\boldsymbol{\sigma^2}$ \\
 \midrule
 
-\texttt{NB15}
-& Nominale
-& $6.7933\times10^{4}$
-& $5.7237\times10^{10}$
-& $3.0231\times10^{4}$
-& $1.7286\times10^{10}$
-& $176.6758$
-& $1.3836\times10^{4}$ \\
-
-\texttt{NB15}
-& Malevola
-& $2.0131\times10^{5}$
-& $5.1871\times10^{10}$
-& $1.9513\times10^{4}$
-& $7.4651\times10^{10}$
-& $87.5202$
-& $1.4658\times10^{4}$ \\
-
-\texttt{INJECTION}
-& Malevola
-& $4.5475\times10^{8}$
-& $9.0889\times10^{20}$
-& $1.9463\times10^{4}$
-& $7.4455\times10^{10}$
-& $87.2266$
-& $1.4635\times10^{4}$ \\
-
-\texttt{NB15\_STIN}
-& Malevola
-& $1.1202\times10^{11}$
-& $2.1150\times10^{23}$
-& $1.0891\times10^{3}$
-& $1.4180\times10^{6}$
-& $-0.7813$
-& $4.0057\times10^{3}$ \\
+\texttt{NB15} & Nominale & $6.7933\times10^{4}$ & $5.7237\times10^{10}$ & $3.0231\times10^{4}$ & $1.7286\times10^{10}$ & $176.6758$ & $1.3836\times10^{4}$ \\
+\texttt{NB15} & Malevola & $2.0131\times10^{5}$ & $5.1871\times10^{10}$ & $1.9513\times10^{4}$ & $7.4651\times10^{10}$ & $87.5202$ & $1.4658\times10^{4}$ \\
+\texttt{INJECTION} & Malevola & $4.5475\times10^{8}$ & $9.0889\times10^{20}$ & $1.9463\times10^{4}$ & $7.4455\times10^{10}$ & $87.2266$ & $1.4635\times10^{4}$ \\
+\texttt{NB15\_STIN} & Malevola & $1.1202\times10^{11}$ & $2.1150\times10^{23}$ & $1.0891\times10^{3}$ & $1.4180\times10^{6}$ & $-0.7813$ & $4.0057\times10^{3}$ \\
 
 \bottomrule
 \end{tabular}}
@@ -761,110 +707,37 @@ scostamenti osservati nelle metriche normalizzate.
 
 \begin{table}[H]
 \centering
-\caption{Confronto delle cardinalità della matrice di confusione per la baseline
-\texttt{INJECTION} con DT, HGB e RF sul seed $s=42$.}
+\caption{Confronto delle cardinalità della matrice di confusione per la baseline \texttt{INJECTION} con DT, HGB e RF sul seed $s=42$.}
 \label{tab:baseline_confusion_seed42}
 \resizebox{\textwidth}{!}{
-\begin{tabular}{lrrrrrrrrrrrr}
+\begin{tabular}{lcccccccccccc}
 \toprule
-& \multicolumn{4}{c}{\textbf{DT}}
-& \multicolumn{4}{c}{\textbf{HGB}}
-& \multicolumn{4}{c}{\textbf{RF}} \\
-\cmidrule(lr){2-5}
-\cmidrule(lr){6-9}
-\cmidrule(lr){10-13}
-\textbf{Test Set}
-& \textbf{TP} & \textbf{TN} & \textbf{FP} & \textbf{FN}
-& \textbf{TP} & \textbf{TN} & \textbf{FP} & \textbf{FN}
-& \textbf{TP} & \textbf{TN} & \textbf{FP} & \textbf{FN} \\
+& \multicolumn{4}{c}{\textbf{DT}} & \multicolumn{4}{c}{\textbf{HGB}} & \multicolumn{4}{c}{\textbf{RF}} \\
+\cmidrule(lr){2-5} \cmidrule(lr){6-9} \cmidrule(lr){10-13}
+\textbf{Test Set} & \textbf{TP} & \textbf{TN} & \textbf{FP} & \textbf{FN} & \textbf{TP} & \textbf{TN} & \textbf{FP} & \textbf{FN} & \textbf{TP} & \textbf{TN} & \textbf{FP} & \textbf{FN} \\
 \midrule
-\texttt{nb15} (aggregato)
-& 1539 & 18305 & 295 & 321
-& 1482 & 18540 & 60 & 378
-& 1530 & 18422 & 178 & 330 \\
 
-\texttt{nb15} (DoS)
-& 1693 & 18305 & 295 & 167
-& 1648 & 18540 & 60 & 212
-& 1705 & 18422 & 178 & 155 \\
+\texttt{nb15} (aggregato) & 1539 & 18305 & 295 & 321 & 1482 & 18540 & 60 & 378 & 1530 & 18422 & 178 & 330 \\
+\texttt{nb15} (DoS) & 1693 & 18305 & 295 & 167 & 1648 & 18540 & 60 & 212 & 1705 & 18422 & 178 & 155 \\
+\texttt{nb15} (Exploits) & 1567 & 18305 & 295 & 293 & 1522 & 18540 & 60 & 338 & 1598 & 18422 & 178 & 262 \\
+\texttt{nb15} (Fuzzers) & 525 & 18305 & 295 & 1335 & 338 & 18540 & 60 & 1522 & 450 & 18422 & 178 & 1410 \\
+\texttt{nb15} (Generic) & 1843 & 18305 & 295 & 17 & 1843 & 18540 & 60 & 17 & 1843 & 18422 & 178 & 17 \\
+\texttt{nb15} (Reconnaissance) & 1619 & 18305 & 295 & 241 & 1642 & 18540 & 60 & 218 & 1596 & 18422 & 178 & 264 \\
+\hline
+\texttt{injection} (aggregato) & 1535 & 18305 & 295 & 325 & 1506 & 18540 & 60 & 354 & 1531 & 18422 & 178 & 329 \\
+\hline
+\texttt{nb15\_stin} (aggregato) & 1790 & 18305 & 295 & 70 & 1405 & 18540 & 60 & 455 & 1851 & 18422 & 178 & 9 \\
+\hline
+\texttt{nb15\_sat20} (aggregato) & 1841 & 18305 & 295 & 19 & 1589 & 18540 & 60 & 271 & 1859 & 18422 & 178 & 1 \\
+\texttt{nb15\_sat20} (Syn\_DDoS) & 1825 & 18305 & 295 & 35 & 1512 & 18540 & 60 & 348 & 1860 & 18422 & 178 & 0 \\
+\texttt{nb15\_sat20} (UDP\_DDoS) & 1859 & 18305 & 295 & 1 & 1672 & 18540 & 60 & 188 & 1859 & 18422 & 178 & 1 \\
+\hline
+\texttt{nb15\_ter20} (aggregato) & 1752 & 18305 & 295 & 108 & 1295 & 18540 & 60 & 565 & 1842 & 18422 & 178 & 18 \\
+\texttt{nb15\_ter20} (Botnet) & 1636 & 18305 & 295 & 224 & 1498 & 18540 & 60 & 362 & 1857 & 18422 & 178 & 3 \\
+\texttt{nb15\_ter20} (DDoS) & 1860 & 18305 & 295 & 0 & 1539 & 18540 & 60 & 321 & 1860 & 18422 & 178 & 0 \\
+\texttt{nb15\_ter20} (Syn\_DDoS) & 1794 & 18305 & 295 & 66 & 0 & 18540 & 60 & 1860 & 1731 & 18422 & 178 & 129 \\
+\texttt{nb15\_ter20} (UDP\_DDoS) & 1664 & 18305 & 295 & 196 & 1286 & 18540 & 60 & 574 & 1860 & 18422 & 178 & 0 \\
 
-\texttt{nb15} (Exploits)
-& 1567 & 18305 & 295 & 293
-& 1522 & 18540 & 60 & 338
-& 1598 & 18422 & 178 & 262 \\
-
-\texttt{nb15} (Fuzzers)
-& 525 & 18305 & 295 & 1335
-& 338 & 18540 & 60 & 1522
-& 450 & 18422 & 178 & 1410 \\
-
-\texttt{nb15} (Generic)
-& 1843 & 18305 & 295 & 17
-& 1843 & 18540 & 60 & 17
-& 1843 & 18422 & 178 & 17 \\
-
-\texttt{nb15} (Reconnaissance)
-& 1619 & 18305 & 295 & 241
-& 1642 & 18540 & 60 & 218
-& 1596 & 18422 & 178 & 264 \\
-
-\addlinespace
-\midrule
-\texttt{injection} (aggregato)
-& 1535 & 18305 & 295 & 325
-& 1506 & 18540 & 60 & 354
-& 1531 & 18422 & 178 & 329 \\
-
-\addlinespace
-\midrule
-\texttt{nb15\_stin} (aggregato)
-& 1790 & 18305 & 295 & 70
-& 1405 & 18540 & 60 & 455
-& 1851 & 18422 & 178 & 9 \\
-
-\addlinespace
-\midrule
-\texttt{nb15\_sat20} (aggregato)
-& 1841 & 18305 & 295 & 19
-& 1589 & 18540 & 60 & 271
-& 1859 & 18422 & 178 & 1 \\
-
-\texttt{nb15\_sat20} (Syn\_DDoS)
-& 1825 & 18305 & 295 & 35
-& 1512 & 18540 & 60 & 348
-& 1860 & 18422 & 178 & 0 \\
-
-\texttt{nb15\_sat20} (UDP\_DDoS)
-& 1859 & 18305 & 295 & 1
-& 1672 & 18540 & 60 & 188
-& 1859 & 18422 & 178 & 1 \\
-
-\addlinespace
-\midrule
-\texttt{nb15\_ter20} (aggregato)
-& 1752 & 18305 & 295 & 108
-& 1295 & 18540 & 60 & 565
-& 1842 & 18422 & 178 & 18 \\
-
-\texttt{nb15\_ter20} (Botnet)
-& 1636 & 18305 & 295 & 224
-& 1498 & 18540 & 60 & 362
-& 1857 & 18422 & 178 & 3 \\
-
-\texttt{nb15\_ter20} (DDoS)
-& 1860 & 18305 & 295 & 0
-& 1539 & 18540 & 60 & 321
-& 1860 & 18422 & 178 & 0 \\
-
-\texttt{nb15\_ter20} (Syn\_DDoS)
-& 1794 & 18305 & 295 & 66
-& 0 & 18540 & 60 & 1860
-& 1731 & 18422 & 178 & 129 \\
-
-\texttt{nb15\_ter20} (UDP\_DDoS)
-& 1664 & 18305 & 295 & 196
-& 1286 & 18540 & 60 & 574
-& 1860 & 18422 & 178 & 0 \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -903,110 +776,37 @@ come evidenza distinta.
 
 \begin{table}[H]
 \centering
-\caption{Precision, TPR e TNR della baseline \texttt{INJECTION} con DT, HGB e
-RF sui $16$ test set per il seed $s=42$.}
+\caption{Precision, TPR e TNR della baseline \texttt{INJECTION} con DT, HGB e RF sui $16$ test set per il seed $s=42$.}
 \label{tab:baseline_rates_seed42}
 \resizebox{\textwidth}{!}{
 \begin{tabular}{lccccccccc}
 \toprule
-& \multicolumn{3}{c}{\textbf{DT}}
-& \multicolumn{3}{c}{\textbf{HGB}}
-& \multicolumn{3}{c}{\textbf{RF}} \\
-\cmidrule(lr){2-4}
-\cmidrule(lr){5-7}
-\cmidrule(lr){8-10}
-\textbf{Test Set}
-& \textbf{Precision} & \textbf{TPR} & \textbf{TNR}
-& \textbf{Precision} & \textbf{TPR} & \textbf{TNR}
-& \textbf{Precision} & \textbf{TPR} & \textbf{TNR} \\
+& \multicolumn{3}{c}{\textbf{DT}} & \multicolumn{3}{c}{\textbf{HGB}} & \multicolumn{3}{c}{\textbf{RF}} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10}
+\textbf{Test Set} & \textbf{Precision} & \textbf{TPR} & \textbf{TNR} & \textbf{Precision} & \textbf{TPR} & \textbf{TNR} & \textbf{Precision} & \textbf{TPR} & \textbf{TNR} \\
 \midrule
-\texttt{nb15} (aggregato)
-& 0.8391 & 0.8274 & 0.9841
-& 0.9611 & 0.7968 & 0.9968
-& 0.8958 & 0.8226 & 0.9904 \\
 
-\texttt{nb15} (DoS)
-& 0.8516 & 0.9102 & 0.9841
-& 0.9649 & 0.8860 & 0.9968
-& 0.9055 & 0.9167 & 0.9904 \\
+\texttt{nb15} (aggregato) & 0.8391 & 0.8274 & 0.9841 & 0.9611 & 0.7968 & 0.9968 & 0.8958 & 0.8226 & 0.9904 \\
+\texttt{nb15} (DoS) & 0.8516 & 0.9102 & 0.9841 & 0.9649 & 0.8860 & 0.9968 & 0.9055 & 0.9167 & 0.9904 \\
+\texttt{nb15} (Exploits) & 0.8416 & 0.8425 & 0.9841 & 0.9621 & 0.8183 & 0.9968 & 0.8998 & 0.8591 & 0.9904 \\
+\texttt{nb15} (Fuzzers) & 0.6402 & 0.2823 & 0.9841 & 0.8492 & 0.1817 & 0.9968 & 0.7166 & 0.2419 & 0.9904 \\
+\texttt{nb15} (Generic) & 0.8620 & 0.9909 & 0.9841 & 0.9685 & 0.9909 & 0.9968 & 0.9119 & 0.9909 & 0.9904 \\
+\texttt{nb15} (Reconnaissance) & 0.8459 & 0.8704 & 0.9841 & 0.9647 & 0.8828 & 0.9968 & 0.8997 & 0.8581 & 0.9904 \\
+\hline
+\texttt{injection} (aggregato) & 0.8388 & 0.8253 & 0.9841 & 0.9617 & 0.8097 & 0.9968 & 0.8958 & 0.8231 & 0.9904 \\
+\hline
+\texttt{nb15\_stin} (aggregato) & 0.8585 & 0.9624 & 0.9841 & 0.9590 & 0.7554 & 0.9968 & 0.9123 & 0.9952 & 0.9904 \\
+\hline
+\texttt{nb15\_sat20} (aggregato) & 0.8619 & 0.9898 & 0.9841 & 0.9636 & 0.8543 & 0.9968 & 0.9126 & 0.9995 & 0.9904 \\
+\texttt{nb15\_sat20} (Syn\_DDoS) & 0.8608 & 0.9812 & 0.9841 & 0.9618 & 0.8129 & 0.9968 & 0.9127 & 1.0000 & 0.9904 \\
+\texttt{nb15\_sat20} (UDP\_DDoS) & 0.8630 & 0.9995 & 0.9841 & 0.9654 & 0.8989 & 0.9968 & 0.9126 & 0.9995 & 0.9904 \\
+\hline
+\texttt{nb15\_ter20} (aggregato) & 0.8559 & 0.9419 & 0.9841 & 0.9557 & 0.6962 & 0.9968 & 0.9119 & 0.9903 & 0.9904 \\
+\texttt{nb15\_ter20} (Botnet) & 0.8472 & 0.8796 & 0.9841 & 0.9615 & 0.8054 & 0.9968 & 0.9125 & 0.9984 & 0.9904 \\
+\texttt{nb15\_ter20} (DDoS) & 0.8631 & 1.0000 & 0.9841 & 0.9625 & 0.8274 & 0.9968 & 0.9127 & 1.0000 & 0.9904 \\
+\texttt{nb15\_ter20} (Syn\_DDoS) & 0.8588 & 0.9645 & 0.9841 & 0.0000 & 0.0000 & 0.9968 & 0.9068 & 0.9306 & 0.9904 \\
+\texttt{nb15\_ter20} (UDP\_DDoS) & 0.8494 & 0.8946 & 0.9841 & 0.9554 & 0.6914 & 0.9968 & 0.9127 & 1.0000 & 0.9904 \\
 
-\texttt{nb15} (Exploits)
-& 0.8416 & 0.8425 & 0.9841
-& 0.9621 & 0.8183 & 0.9968
-& 0.8998 & 0.8591 & 0.9904 \\
-
-\texttt{nb15} (Fuzzers)
-& 0.6402 & 0.2823 & 0.9841
-& 0.8492 & 0.1817 & 0.9968
-& 0.7166 & 0.2419 & 0.9904 \\
-
-\texttt{nb15} (Generic)
-& 0.8620 & 0.9909 & 0.9841
-& 0.9685 & 0.9909 & 0.9968
-& 0.9119 & 0.9909 & 0.9904 \\
-
-\texttt{nb15} (Reconnaissance)
-& 0.8459 & 0.8704 & 0.9841
-& 0.9647 & 0.8828 & 0.9968
-& 0.8997 & 0.8581 & 0.9904 \\
-
-\addlinespace
-\midrule
-\texttt{injection} (aggregato)
-& 0.8388 & 0.8253 & 0.9841
-& 0.9617 & 0.8097 & 0.9968
-& 0.8958 & 0.8231 & 0.9904 \\
-
-\addlinespace
-\midrule
-\texttt{nb15\_stin} (aggregato)
-& 0.8585 & 0.9624 & 0.9841
-& 0.9590 & 0.7554 & 0.9968
-& 0.9123 & 0.9952 & 0.9904 \\
-
-\addlinespace
-\midrule
-\texttt{nb15\_sat20} (aggregato)
-& 0.8619 & 0.9898 & 0.9841
-& 0.9636 & 0.8543 & 0.9968
-& 0.9126 & 0.9995 & 0.9904 \\
-
-\texttt{nb15\_sat20} (Syn\_DDoS)
-& 0.8608 & 0.9812 & 0.9841
-& 0.9618 & 0.8129 & 0.9968
-& 0.9127 & 1.0000 & 0.9904 \\
-
-\texttt{nb15\_sat20} (UDP\_DDoS)
-& 0.8630 & 0.9995 & 0.9841
-& 0.9654 & 0.8989 & 0.9968
-& 0.9126 & 0.9995 & 0.9904 \\
-
-\addlinespace
-\midrule
-\texttt{nb15\_ter20} (aggregato)
-& 0.8559 & 0.9419 & 0.9841
-& 0.9557 & 0.6962 & 0.9968
-& 0.9119 & 0.9903 & 0.9904 \\
-
-\texttt{nb15\_ter20} (Botnet)
-& 0.8472 & 0.8796 & 0.9841
-& 0.9615 & 0.8054 & 0.9968
-& 0.9125 & 0.9984 & 0.9904 \\
-
-\texttt{nb15\_ter20} (DDoS)
-& 0.8631 & 1.0000 & 0.9841
-& 0.9625 & 0.8274 & 0.9968
-& 0.9127 & 1.0000 & 0.9904 \\
-
-\texttt{nb15\_ter20} (Syn\_DDoS)
-& 0.8588 & 0.9645 & 0.9841
-& 0.0000 & 0.0000 & 0.9968
-& 0.9068 & 0.9306 & 0.9904 \\
-
-\texttt{nb15\_ter20} (UDP\_DDoS)
-& 0.8494 & 0.8946 & 0.9841
-& 0.9554 & 0.6914 & 0.9968
-& 0.9127 & 1.0000 & 0.9904 \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -1083,104 +883,32 @@ sui $16$ test set per il seed $s=42$.}
 \resizebox{\textwidth}{!}{
 \begin{tabular}{lcccccc}
 \toprule
-& \multicolumn{2}{c}{\textbf{DT}}
-& \multicolumn{2}{c}{\textbf{HGB}}
-& \multicolumn{2}{c}{\textbf{RF}} \\
-\cmidrule(lr){2-3}
-\cmidrule(lr){4-5}
-\cmidrule(lr){6-7}
-\textbf{Test Set}
-& \textbf{F1-Score} & \textbf{PR-AUC}
-& \textbf{F1-Score} & \textbf{PR-AUC}
-& \textbf{F1-Score} & \textbf{PR-AUC} \\
+& \multicolumn{2}{c}{\textbf{DT}} & \multicolumn{2}{c}{\textbf{HGB}} & \multicolumn{2}{c}{\textbf{RF}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
+\textbf{Test Set} & \textbf{F1-Score} & \textbf{PR-AUC} & \textbf{F1-Score} & \textbf{PR-AUC} & \textbf{F1-Score} & \textbf{PR-AUC} \\
 \midrule
-\texttt{nb15} (aggregato)
-& 0.8332 & 0.7120
-& 0.8713 & 0.9263
-& 0.8576 & 0.9095 \\
 
-\texttt{nb15} (DoS)
-& 0.8799 & 0.7548
-& 0.9238 & 0.9648
-& 0.9110 & 0.9602 \\
+\texttt{nb15} (aggregato) & 0.8332 & 0.7120 & 0.8713 & 0.9263 & 0.8576 & 0.9095 \\
+\texttt{nb15} (DoS) & 0.8799 & 0.7548 & 0.9238 & 0.9648 & 0.9110 & 0.9602 \\
+\texttt{nb15} (Exploits) & 0.8420 & 0.7102 & 0.8844 & 0.9469 & 0.8790 & 0.9342 \\
+\texttt{nb15} (Fuzzers) & 0.3918 & 0.2890 & 0.2994 & 0.5824 & 0.3617 & 0.5099 \\
+\texttt{nb15} (Generic) & 0.9220 & 0.8571 & 0.9795 & 0.9968 & 0.9498 & 0.9932 \\
+\texttt{nb15} (Reconnaissance) & 0.8580 & 0.7053 & 0.9220 & 0.9659 & 0.8784 & 0.9461 \\
+\hline
+\texttt{injection} (aggregato) & 0.8320 & 0.7104 & 0.8792 & 0.9342 & 0.8579 & 0.9154 \\
+\hline
+\texttt{nb15\_stin} (aggregato) & 0.9075 & 0.8316 & 0.8451 & 0.9191 & 0.9519 & 0.9802 \\
+\hline
+\texttt{nb15\_sat20} (aggregato) & 0.9214 & 0.8560 & 0.9057 & 0.9579 & 0.9541 & 0.9873 \\
+\texttt{nb15\_sat20} (Syn\_DDoS) & 0.9171 & 0.8484 & 0.8811 & 0.9682 & 0.9543 & 0.9902 \\
+\texttt{nb15\_sat20} (UDP\_DDoS) & 0.9263 & 0.8646 & 0.9310 & 0.9604 & 0.9541 & 0.9898 \\
+\hline
+\texttt{nb15\_ter20} (aggregato) & 0.8969 & 0.8134 & 0.8056 & 0.8922 & 0.9495 & 0.9746 \\
+\texttt{nb15\_ter20} (Botnet) & 0.8631 & 0.7581 & 0.8765 & 0.9464 & 0.9535 & 0.9675 \\
+\texttt{nb15\_ter20} (DDoS) & 0.9265 & 0.8651 & 0.8899 & 0.9379 & 0.9543 & 0.9834 \\
+\texttt{nb15\_ter20} (Syn\_DDoS) & 0.9086 & 0.8339 & 0.0000 & 0.5501 & 0.9185 & 0.9660 \\
+\texttt{nb15\_ter20} (UDP\_DDoS) & 0.8714 & 0.7714 & 0.8022 & 0.9499 & 0.9543 & 0.9859 \\
 
-\texttt{nb15} (Exploits)
-& 0.8420 & 0.7102
-& 0.8844 & 0.9469
-& 0.8790 & 0.9342 \\
-
-\texttt{nb15} (Fuzzers)
-& 0.3918 & 0.2890
-& 0.2994 & 0.5824
-& 0.3617 & 0.5099 \\
-
-\texttt{nb15} (Generic)
-& 0.9220 & 0.8571
-& 0.9795 & 0.9968
-& 0.9498 & 0.9932 \\
-
-\texttt{nb15} (Reconnaissance)
-& 0.8580 & 0.7053
-& 0.9220 & 0.9659
-& 0.8784 & 0.9461 \\
-
-\addlinespace
-\midrule
-\texttt{injection} (aggregato)
-& 0.8320 & 0.7104
-& 0.8792 & 0.9342
-& 0.8579 & 0.9154 \\
-
-\addlinespace
-\midrule
-\texttt{nb15\_stin} (aggregato)
-& 0.9075 & 0.8316
-& 0.8451 & 0.9191
-& 0.9519 & 0.9802 \\
-
-\addlinespace
-\midrule
-\texttt{nb15\_sat20} (aggregato)
-& 0.9214 & 0.8560
-& 0.9057 & 0.9579
-& 0.9541 & 0.9873 \\
-
-\texttt{nb15\_sat20} (Syn\_DDoS)
-& 0.9171 & 0.8484
-& 0.8811 & 0.9682
-& 0.9543 & 0.9902 \\
-
-\texttt{nb15\_sat20} (UDP\_DDoS)
-& 0.9263 & 0.8646
-& 0.9310 & 0.9604
-& 0.9541 & 0.9898 \\
-
-\addlinespace
-\midrule
-\texttt{nb15\_ter20} (aggregato)
-& 0.8969 & 0.8134
-& 0.8056 & 0.8922
-& 0.9495 & 0.9746 \\
-
-\texttt{nb15\_ter20} (Botnet)
-& 0.8631 & 0.7581
-& 0.8765 & 0.9464
-& 0.9535 & 0.9675 \\
-
-\texttt{nb15\_ter20} (DDoS)
-& 0.9265 & 0.8651
-& 0.8899 & 0.9379
-& 0.9543 & 0.9834 \\
-
-\texttt{nb15\_ter20} (Syn\_DDoS)
-& 0.9086 & 0.8339
-& 0.0000 & 0.5501
-& 0.9185 & 0.9660 \\
-
-\texttt{nb15\_ter20} (UDP\_DDoS)
-& 0.8714 & 0.7714
-& 0.8022 & 0.9499
-& 0.9543 & 0.9859 \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -1416,21 +1144,19 @@ collocate ai vertici delle rispettive graduatorie SHAP.
 
 \begin{table}[H]
 \centering
-\caption{Confronto delle prime cinque feature nella graduatoria SHAP della
-baseline \texttt{INJECTION} per DT, HGB e RF al seed $s=42$.}
+\caption{Confronto delle prime cinque feature nella graduatoria SHAP della baseline \texttt{INJECTION} per DT, HGB e RF al seed $s=42$.}
 \label{tab:baseline_shap_top5}
 \begin{tabular}{clll}
 \toprule
-\textbf{Rank} &
-\textbf{DT} &
-\textbf{HGB} &
-\textbf{RF} \\
+\textbf{Rank} & \textbf{DT} & \textbf{HGB} & \textbf{RF} \\
 \midrule
+
 1 & \texttt{pkts\_per\_sec}       & \texttt{pkts\_per\_sec}       & \texttt{pkts\_per\_sec} \\
 2 & \texttt{load\_s}              & \texttt{load\_s}              & \texttt{total\_bytes} \\
 3 & \texttt{total\_bytes}         & \texttt{down\_up\_ratio}      & \texttt{src\_bytes} \\
 4 & \texttt{src\_bytes}           & \texttt{src\_bytes}           & \texttt{src\_mean\_pkt\_size} \\
 5 & \texttt{byte\_ratio}          & \texttt{src\_mean\_pkt\_size} & \texttt{load\_s} \\
+
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1565,56 +1291,22 @@ narrativo a tutte le quantità registrate nella matrice di valutazione.
 
 \begin{table}[H]
 \centering
-\caption{Prestazioni dei modelli sorgente sui rispettivi test set omologhi per
-il seed $s=42$.}
+\caption{Prestazioni dei modelli sorgente sui rispettivi test set omologhi per il seed $s=42$.}
 \label{tab:sorgente_matched_seed42}
 \resizebox{\textwidth}{!}{
 \begin{tabular}{lccccccccc}
 \toprule
-&
-\multicolumn{3}{c}{\textbf{DT}}
-&
-\multicolumn{3}{c}{\textbf{HGB}}
-&
-\multicolumn{3}{c}{\textbf{RF}} \\
-\cmidrule(lr){2-4}
-\cmidrule(lr){5-7}
-\cmidrule(lr){8-10}
-\textbf{Modello Sorgente}
-& \textbf{TPR} & \textbf{TNR} & \textbf{F1}
-& \textbf{TPR} & \textbf{TNR} & \textbf{F1}
-& \textbf{TPR} & \textbf{TNR} & \textbf{F1} \\
+& \multicolumn{3}{c}{\textbf{DT}} & \multicolumn{3}{c}{\textbf{HGB}} & \multicolumn{3}{c}{\textbf{RF}} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10}
+\textbf{Modello Sorgente} & \textbf{TPR} & \textbf{TNR} & \textbf{F1} & \textbf{TPR} & \textbf{TNR} & \textbf{F1} & \textbf{TPR} & \textbf{TNR} & \textbf{F1} \\
 \midrule
 
-Aggregato
-& 0.8242 & 0.9826 & 0.8251
-& 0.8022 & 0.9964 & 0.8728
-& 0.8220 & 0.9917 & 0.8629 \\
-
-DoS
-& 0.9280 & 0.9934 & 0.9307
-& 0.9129 & 0.9974 & 0.9415
-& 0.9317 & 0.9968 & 0.9491 \\
-
-Exploits
-& 0.8919 & 0.9906 & 0.8982
-& 0.8694 & 0.9954 & 0.9079
-& 0.9043 & 0.9942 & 0.9216 \\
-
-Fuzzers
-& 0.4763 & 0.9626 & 0.5150
-& 0.3403 & 0.9898 & 0.4720
-& 0.4747 & 0.9684 & 0.5303 \\
-
-Generic
-& 0.9876 & 0.9995 & 0.9914
-& 0.9882 & 0.9997 & 0.9924
-& 0.9866 & 0.9997 & 0.9916 \\
-
-Reconnaissance
-& 0.9414 & 0.9954 & 0.9473
-& 0.9425 & 0.9956 & 0.9488
-& 0.9409 & 0.9960 & 0.9501 \\
+Aggregato & 0.8242 & 0.9826 & 0.8251 & 0.8022 & 0.9964 & 0.8728 & 0.8220 & 0.9917 & 0.8629 \\
+DoS & 0.9280 & 0.9934 & 0.9307 & 0.9129 & 0.9974 & 0.9415 & 0.9317 & 0.9968 & 0.9491 \\
+Exploits & 0.8919 & 0.9906 & 0.8982 & 0.8694 & 0.9954 & 0.9079 & 0.9043 & 0.9942 & 0.9216 \\
+Fuzzers & 0.4763 & 0.9626 & 0.5150 & 0.3403 & 0.9898 & 0.4720 & 0.4747 & 0.9684 & 0.5303 \\
+Generic & 0.9876 & 0.9995 & 0.9914 & 0.9882 & 0.9997 & 0.9924 & 0.9866 & 0.9997 & 0.9916 \\
+Reconnaissance & 0.9414 & 0.9954 & 0.9473 & 0.9425 & 0.9956 & 0.9488 & 0.9409 & 0.9960 & 0.9501 \\
 
 \bottomrule
 \end{tabular}}
@@ -1696,49 +1388,45 @@ $K=10$ repliche per tutti i modelli sorgente valutati sui sei benchmark
 
 \begin{table}[H]
 \centering
-\caption{TPR media sui $10$ seed dei modelli sorgente valutati sui benchmark
-sorgente e sul test set \texttt{INJECTION}.}
+\caption{TPR media sui $10$ seed dei modelli sorgente valutati sui benchmark sorgente e sul test set \texttt{INJECTION}.}
 \label{tab:sorgente_mean_tpr_source_tests}
 \resizebox{\textwidth}{!}{
-\begin{tabular}{llccccccc}
+\begin{tabular}{lccccccc}
 \toprule
-\textbf{Alg.} &
-\textbf{Modello} &
-\textbf{Aggr. NB15} &
-\textbf{DoS} &
-\textbf{Exploits} &
-\textbf{Fuzzers} &
-\textbf{Generic} &
-\textbf{Recon.} &
-\textbf{INJECTION} \\
+\textbf{Modello} & \textbf{Aggr. NB15} & \textbf{DoS} & \textbf{Exploits} & \textbf{Fuzzers} & \textbf{Generic} & \textbf{Recon.} & \textbf{INJECTION} \\
 \midrule
 
-DT & Aggregato       & 0.8215 & 0.9073 & 0.8432 & 0.2851 & 0.9916 & 0.8737 & 0.8274 \\
-DT & DoS             & 0.5908 & 0.9306 & 0.7211 & 0.1725 & 0.6300 & 0.2015 & 0.5847 \\
-DT & Exploits        & 0.3942 & 0.9261 & 0.8927 & 0.1903 & 0.0220 & 0.2504 & 0.4167 \\
-DT & Fuzzers         & 0.3197 & 0.7847 & 0.4175 & 0.4794 & 0.0805 & 0.1906 & 0.3201 \\
-DT & Generic         & 0.6042 & 0.7359 & 0.4273 & 0.1213 & 0.9867 & 0.1421 & 0.5972 \\
-DT & Reconnaissance  & 0.6592 & 0.7911 & 0.4459 & 0.1450 & 0.9444 & 0.9386 & 0.6627 \\
+\multicolumn{8}{c}{DT} \\
+\hline
 
-\addlinespace
-\midrule
+Aggregato       & 0.8215 & 0.9073 & 0.8432 & 0.2851 & 0.9916 & 0.8737 & 0.8274 \\
+DoS             & 0.5908 & 0.9306 & 0.7211 & 0.1725 & 0.6300 & 0.2015 & 0.5847 \\
+Exploits        & 0.3942 & 0.9261 & 0.8927 & 0.1903 & 0.0220 & 0.2504 & 0.4167 \\
+Fuzzers         & 0.3197 & 0.7847 & 0.4175 & 0.4794 & 0.0805 & 0.1906 & 0.3201 \\
+Generic         & 0.6042 & 0.7359 & 0.4273 & 0.1213 & 0.9867 & 0.1421 & 0.5972 \\
+Reconnaissance  & 0.6592 & 0.7911 & 0.4459 & 0.1450 & 0.9444 & 0.9386 & 0.6627 \\
 
-HGB & Aggregato      & 0.8018 & 0.8941 & 0.8173 & 0.1775 & 0.9900 & 0.8797 & 0.8039 \\
-HGB & DoS            & 0.7029 & 0.9131 & 0.7357 & 0.1391 & 0.9648 & 0.1933 & 0.7048 \\
-HGB & Exploits       & 0.4278 & 0.9099 & 0.8714 & 0.1629 & 0.1310 & 0.2248 & 0.4442 \\
-HGB & Fuzzers        & 0.2524 & 0.7605 & 0.3610 & 0.3517 & 0.0089 & 0.1470 & 0.2520 \\
-HGB & Generic        & 0.5454 & 0.5847 & 0.3317 & 0.0913 & 0.9879 & 0.1095 & 0.5426 \\
-HGB & Reconnaissance & 0.6724 & 0.7794 & 0.4054 & 0.1375 & 0.9785 & 0.9465 & 0.6671 \\
+\hline
+\multicolumn{8}{c}{HGB} \\
+\hline
 
-\addlinespace
-\midrule
+Aggregato      & 0.8018 & 0.8941 & 0.8173 & 0.1775 & 0.9900 & 0.8797 & 0.8039 \\
+DoS            & 0.7029 & 0.9131 & 0.7357 & 0.1391 & 0.9648 & 0.1933 & 0.7048 \\
+Exploits       & 0.4278 & 0.9099 & 0.8714 & 0.1629 & 0.1310 & 0.2248 & 0.4442 \\
+Fuzzers        & 0.2524 & 0.7605 & 0.3610 & 0.3517 & 0.0089 & 0.1470 & 0.2520 \\
+Generic        & 0.5454 & 0.5847 & 0.3317 & 0.0913 & 0.9879 & 0.1095 & 0.5426 \\
+Reconnaissance & 0.6724 & 0.7794 & 0.4054 & 0.1375 & 0.9785 & 0.9465 & 0.6671 \\
 
-RF & Aggregato       & 0.8236 & 0.9261 & 0.8619 & 0.2337 & 0.9915 & 0.8629 & 0.8272 \\
-RF & DoS             & 0.7164 & 0.9320 & 0.7305 & 0.1487 & 0.9874 & 0.2039 & 0.7202 \\
-RF & Exploits        & 0.3991 & 0.9282 & 0.9047 & 0.1750 & 0.0224 & 0.2386 & 0.4147 \\
-RF & Fuzzers         & 0.3007 & 0.7704 & 0.3906 & 0.4739 & 0.0459 & 0.1669 & 0.2950 \\
-RF & Generic         & 0.5792 & 0.7169 & 0.3621 & 0.1159 & 0.9870 & 0.1373 & 0.5694 \\
-RF & Reconnaissance  & 0.6602 & 0.7832 & 0.4235 & 0.1410 & 0.9580 & 0.9406 & 0.6621 \\
+\hline
+\multicolumn{8}{c}{RF} \\
+\hline
+
+Aggregato       & 0.8236 & 0.9261 & 0.8619 & 0.2337 & 0.9915 & 0.8629 & 0.8272 \\
+DoS             & 0.7164 & 0.9320 & 0.7305 & 0.1487 & 0.9874 & 0.2039 & 0.7202 \\
+Exploits        & 0.3991 & 0.9282 & 0.9047 & 0.1750 & 0.0224 & 0.2386 & 0.4147 \\
+Fuzzers         & 0.3007 & 0.7704 & 0.3906 & 0.4739 & 0.0459 & 0.1669 & 0.2950 \\
+Generic         & 0.5792 & 0.7169 & 0.3621 & 0.1159 & 0.9870 & 0.1373 & 0.5694 \\
+Reconnaissance  & 0.6602 & 0.7832 & 0.4235 & 0.1410 & 0.9580 & 0.9406 & 0.6621 \\
 
 \bottomrule
 \end{tabular}}
@@ -1782,84 +1470,45 @@ proveniente dai domini target.
 
 \begin{table}[H]
 \centering
-\caption{TPR media sui $10$ seed dei modelli sorgente valutati sui benchmark
-target aggregati e biclasse.}
+\caption{TPR media sui $10$ seed dei modelli sorgente valutati sui benchmark target aggregati e biclasse.}
 \label{tab:sorgente_mean_tpr_target_tests}
 \resizebox{\textwidth}{!}{
-\begin{tabular}{llccccccccc}
+\begin{tabular}{lccccccccc}
 \toprule
-\textbf{Alg.} &
-\textbf{Modello} &
-\textbf{STIN} &
-\textbf{SAT20} &
-\textbf{TER20} &
-\textbf{SAT Syn} &
-\textbf{SAT UDP} &
-\textbf{Botnet} &
-\textbf{DDoS} &
-\textbf{TER Syn} &
-\textbf{TER UDP} \\
+\textbf{Modello} & \textbf{STIN} & \textbf{SAT20} & \textbf{TER20} & \textbf{SAT Syn} & \textbf{SAT UDP} & \textbf{Botnet} & \textbf{DDoS} & \textbf{TER Syn} & \textbf{TER UDP} \\
 \midrule
 
-DT & Aggregato
-& 0.3807 & 0.1947 & 0.5294 & 0.0725 & 0.2917 & 0.6726 & 0.6669 & 0.0484 & 0.0538 \\
+\multicolumn{10}{c}{DT} \\
+\hline
 
-DT & DoS
-& 0.4824 & 0.8149 & 0.2537 & 0.9528 & 0.6946 & 0.1320 & 0.0848 & 0.6024 & 0.8877 \\
+Aggregato & 0.3807 & 0.1947 & 0.5294 & 0.0725 & 0.2917 & 0.6726 & 0.6669 & 0.0484 & 0.0538 \\
+DoS & 0.4824 & 0.8149 & 0.2537 & 0.9528 & 0.6946 & 0.1320 & 0.0848 & 0.6024 & 0.8877 \\
+Exploits & 0.2033 & 0.2978 & 0.1455 & 0.0715 & 0.4973 & 0.3573 & 0.0673 & 0.0284 & 0.0406 \\
+Fuzzers & 0.4181 & 0.3712 & 0.4698 & 0.0178 & 0.6797 & 0.8898 & 0.4467 & 0.0092 & 0.0191 \\
+Generic & 0.1267 & 0.3068 & 0.0141 & 0.0485 & 0.5289 & 0.0057 & 0.0118 & 0.0039 & 0.0459 \\
+Reconnaissance & 0.0501 & 0.0044 & 0.0812 & 0.0000 & 0.0063 & 0.0988 & 0.0079 & 0.3774 & 0.0000 \\
 
-DT & Exploits
-& 0.2033 & 0.2978 & 0.1455 & 0.0715 & 0.4973 & 0.3573 & 0.0673 & 0.0284 & 0.0406 \\
+\hline
+\multicolumn{10}{c}{HGB} \\
+\hline
 
-DT & Fuzzers
-& 0.4181 & 0.3712 & 0.4698 & 0.0178 & 0.6797 & 0.8898 & 0.4467 & 0.0092 & 0.0191 \\
+Aggregato & 0.0662 & 0.1055 & 0.0438 & 0.0000 & 0.2020 & 0.0906 & 0.0378 & 0.0000 & 0.0000 \\
+DoS & 0.1380 & 0.1540 & 0.1436 & 0.0000 & 0.2921 & 0.2309 & 0.1578 & 0.0000 & 0.0000 \\
+Exploits & 0.0428 & 0.0287 & 0.0547 & 0.0000 & 0.0527 & 0.1013 & 0.0536 & 0.0000 & 0.0000 \\
+Fuzzers & 0.2781 & 0.2157 & 0.3301 & 0.0000 & 0.4071 & 0.6226 & 0.3009 & 0.0000 & 0.0000 \\
+Generic & 0.1137 & 0.2625 & 0.0204 & 0.0000 & 0.5016 & 0.0703 & 0.0006 & 0.0000 & 0.0000 \\
+Reconnaissance & 0.0005 & 0.0002 & 0.0000 & 0.0000 & 0.0001 & 0.0001 & 0.0001 & 0.0000 & 0.0000 \\
 
-DT & Generic
-& 0.1267 & 0.3068 & 0.0141 & 0.0485 & 0.5289 & 0.0057 & 0.0118 & 0.0039 & 0.0459 \\
+\hline
+\multicolumn{10}{c}{RF} \\
+\hline
 
-DT & Reconnaissance
-& 0.0501 & 0.0044 & 0.0812 & 0.0000 & 0.0063 & 0.0988 & 0.0079 & 0.3774 & 0.0000 \\
-
-\addlinespace
-\midrule
-
-HGB & Aggregato
-& 0.0662 & 0.1055 & 0.0438 & 0.0000 & 0.2020 & 0.0906 & 0.0378 & 0.0000 & 0.0000 \\
-
-HGB & DoS
-& 0.1380 & 0.1540 & 0.1436 & 0.0000 & 0.2921 & 0.2309 & 0.1578 & 0.0000 & 0.0000 \\
-
-HGB & Exploits
-& 0.0428 & 0.0287 & 0.0547 & 0.0000 & 0.0527 & 0.1013 & 0.0536 & 0.0000 & 0.0000 \\
-
-HGB & Fuzzers
-& 0.2781 & 0.2157 & 0.3301 & 0.0000 & 0.4071 & 0.6226 & 0.3009 & 0.0000 & 0.0000 \\
-
-HGB & Generic
-& 0.1137 & 0.2625 & 0.0204 & 0.0000 & 0.5016 & 0.0703 & 0.0006 & 0.0000 & 0.0000 \\
-
-HGB & Reconnaissance
-& 0.0005 & 0.0002 & 0.0000 & 0.0000 & 0.0001 & 0.0001 & 0.0001 & 0.0000 & 0.0000 \\
-
-\addlinespace
-\midrule
-
-RF & Aggregato
-& 0.3601 & 0.2613 & 0.4564 & 0.0000 & 0.4929 & 0.5570 & 0.6036 & 0.0000 & 0.0000 \\
-
-RF & DoS
-& 0.3558 & 0.6878 & 0.1296 & 0.5753 & 0.8007 & 0.1061 & 0.0594 & 0.1293 & 0.5109 \\
-
-RF & Exploits
-& 0.1594 & 0.3199 & 0.0522 & 0.0000 & 0.6077 & 0.1314 & 0.0355 & 0.0000 & 0.0000 \\
-
-RF & Fuzzers
-& 0.5040 & 0.4818 & 0.5338 & 0.0000 & 0.9023 & 0.9191 & 0.5841 & 0.0000 & 0.0000 \\
-
-RF & Generic
-& 0.1089 & 0.2572 & 0.0139 & 0.0000 & 0.4856 & 0.0448 & 0.0054 & 0.0000 & 0.0000 \\
-
-RF & Reconnaissance
-& 0.0050 & 0.0156 & 0.0000 & 0.0000 & 0.0200 & 0.0029 & 0.0001 & 0.0000 & 0.0000 \\
+Aggregato & 0.3601 & 0.2613 & 0.4564 & 0.0000 & 0.4929 & 0.5570 & 0.6036 & 0.0000 & 0.0000 \\
+DoS & 0.3558 & 0.6878 & 0.1296 & 0.5753 & 0.8007 & 0.1061 & 0.0594 & 0.1293 & 0.5109 \\
+Exploits & 0.1594 & 0.3199 & 0.0522 & 0.0000 & 0.6077 & 0.1314 & 0.0355 & 0.0000 & 0.0000 \\
+Fuzzers & 0.5040 & 0.4818 & 0.5338 & 0.0000 & 0.9023 & 0.9191 & 0.5841 & 0.0000 & 0.0000 \\
+Generic & 0.1089 & 0.2572 & 0.0139 & 0.0000 & 0.4856 & 0.0448 & 0.0054 & 0.0000 & 0.0000 \\
+Reconnaissance & 0.0050 & 0.0156 & 0.0000 & 0.0000 & 0.0200 & 0.0029 & 0.0001 & 0.0000 & 0.0000 \\
 
 \bottomrule
 \end{tabular}}
@@ -1928,60 +1577,22 @@ configurazione.
 
 \begin{table}[H]
 \centering
-\caption{Media e varianza della TNR sui $10$ seed per i modelli sorgente. Il
-valore è indipendente dal test set malevolo poiché la componente nominale
-rimane invariata all'interno del protocollo sperimentale.}
+\caption{Media e varianza della TNR sui $10$ seed per i modelli sorgente. Il valore è indipendente dal test set malevolo poiché la componente nominale rimane invariata all'interno del protocollo sperimentale.}
 \label{tab:sorgente_tnr_multiseed}
 \resizebox{\textwidth}{!}{
 \begin{tabular}{lcccccc}
 \toprule
-&
-\multicolumn{2}{c}{\textbf{DT}}
-&
-\multicolumn{2}{c}{\textbf{HGB}}
-&
-\multicolumn{2}{c}{\textbf{RF}} \\
-\cmidrule(lr){2-3}
-\cmidrule(lr){4-5}
-\cmidrule(lr){6-7}
-\textbf{Modello}
-& $\boldsymbol{\overline{TNR}}$
-& $\boldsymbol{\mathrm{Var}(TNR)}$
-& $\boldsymbol{\overline{TNR}}$
-& $\boldsymbol{\mathrm{Var}(TNR)}$
-& $\boldsymbol{\overline{TNR}}$
-& $\boldsymbol{\mathrm{Var}(TNR)}$ \\
+& \multicolumn{2}{c}{\textbf{DT}} & \multicolumn{2}{c}{\textbf{HGB}} & \multicolumn{2}{c}{\textbf{RF}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
+\textbf{Modello} & $\boldsymbol{\overline{TNR}}$ & $\boldsymbol{\mathrm{Var}(TNR)}$ & $\boldsymbol{\overline{TNR}}$ & $\boldsymbol{\mathrm{Var}(TNR)}$ & $\boldsymbol{\overline{TNR}}$ & $\boldsymbol{\mathrm{Var}(TNR)}$ \\
 \midrule
 
-Aggregato
-& 0.98317 & $1.51\times10^{-7}$
-& 0.99659 & $2.32\times10^{-8}$
-& 0.99150 & $6.00\times10^{-8}$ \\
-
-DoS
-& 0.99362 & $5.51\times10^{-8}$
-& 0.99776 & $5.38\times10^{-8}$
-& 0.99672 & $8.44\times10^{-9}$ \\
-
-Exploits
-& 0.99049 & $4.99\times10^{-8}$
-& 0.99588 & $7.07\times10^{-8}$
-& 0.99413 & $2.46\times10^{-8}$ \\
-
-Fuzzers
-& 0.96248 & $1.77\times10^{-7}$
-& 0.98900 & $2.38\times10^{-7}$
-& 0.96847 & $8.01\times10^{-8}$ \\
-
-Generic
-& 0.99950 & $2.22\times10^{-9}$
-& 0.99960 & $8.89\times10^{-9}$
-& 0.99964 & $2.67\times10^{-9}$ \\
-
-Reconnaissance
-& 0.99521 & $1.21\times10^{-8}$
-& 0.99555 & $7.17\times10^{-8}$
-& 0.99608 & $1.51\times10^{-8}$ \\
+Aggregato & 0.98317 & $1.51\times10^{-7}$ & 0.99659 & $2.32\times10^{-8}$ & 0.99150 & $6.00\times10^{-8}$ \\
+DoS & 0.99362 & $5.51\times10^{-8}$ & 0.99776 & $5.38\times10^{-8}$ & 0.99672 & $8.44\times10^{-9}$ \\
+Exploits & 0.99049 & $4.99\times10^{-8}$ & 0.99588 & $7.07\times10^{-8}$ & 0.99413 & $2.46\times10^{-8}$ \\
+Fuzzers & 0.96248 & $1.77\times10^{-7}$ & 0.98900 & $2.38\times10^{-7}$ & 0.96847 & $8.01\times10^{-8}$ \\
+Generic & 0.99950 & $2.22\times10^{-9}$ & 0.99960 & $8.89\times10^{-9}$ & 0.99964 & $2.67\times10^{-9}$ \\
+Reconnaissance & 0.99521 & $1.21\times10^{-8}$ & 0.99555 & $7.17\times10^{-8}$ & 0.99608 & $1.51\times10^{-8}$ \\
 
 \bottomrule
 \end{tabular}}
@@ -2105,46 +1716,19 @@ aggregati e biclasse associati a \texttt{STIN}, \texttt{SAT20} e
 
 \begin{table}[H]
 \centering
-\caption{Confronto multi-seed tra modello aggregato sorgente e baseline.
-Le differenze $\Delta$ sono calcolate come baseline meno modello sorgente.}
+\caption{Confronto multi-seed tra modello aggregato sorgente e baseline. Le differenze $\Delta$ sono calcolate come baseline meno modello sorgente.}
 \label{tab:source_vs_base_summary_tpr}
 \resizebox{\textwidth}{!}{
 \begin{tabular}{lcccccccc}
 \toprule
-&
-\multicolumn{3}{c}{\textbf{TPR media -- benchmark NB15}}
-&
-\multicolumn{3}{c}{\textbf{TPR media -- benchmark target}}
-&
-\multicolumn{2}{c}{\textbf{TNR media}} \\
-\cmidrule(lr){2-4}
-\cmidrule(lr){5-7}
-\cmidrule(lr){8-9}
-\textbf{Alg.}
-& $\boldsymbol{\mathcal{M}_S}$
-& $\boldsymbol{\mathcal{M}_{base}}$
-& $\boldsymbol{\Delta}$
-& $\boldsymbol{\mathcal{M}_S}$
-& $\boldsymbol{\mathcal{M}_{base}}$
-& $\boldsymbol{\Delta}$
-& $\boldsymbol{\mathcal{M}_S}$
-& $\boldsymbol{\mathcal{M}_{base}}$ \\
+& \multicolumn{3}{c}{\textbf{TPR media -- benchmark NB15}} & \multicolumn{3}{c}{\textbf{TPR media -- benchmark target}} & \multicolumn{2}{c}{\textbf{TNR media}} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-9}
+\textbf{Alg.} & $\boldsymbol{\mathcal{M}_S}$ & $\boldsymbol{\mathcal{M}_{base}}$ & $\boldsymbol{\Delta}$ & $\boldsymbol{\mathcal{M}_S}$ & $\boldsymbol{\mathcal{M}_{base}}$ & $\boldsymbol{\Delta}$ & $\boldsymbol{\mathcal{M}_S}$ & $\boldsymbol{\mathcal{M}_{base}}$ \\
 \midrule
 
-DT
-& 0.7870 & 0.7860 & $-0.0011$
-& 0.3234 & 0.9661 & $+0.6427$
-& 0.98317 & 0.98460 \\
-
-HGB
-& 0.7601 & 0.7609 & $+0.0008$
-& 0.0607 & 0.8297 & $+0.7690$
-& 0.99659 & 0.99658 \\
-
-RF
-& 0.7833 & 0.7820 & $-0.0013$
-& 0.3035 & 0.9882 & $+0.6847$
-& 0.99150 & 0.99057 \\
+DT & 0.7870 & 0.7860 & $-0.0011$ & 0.3234 & 0.9661 & $+0.6427$ & 0.98317 & 0.98460 \\
+HGB & 0.7601 & 0.7609 & $+0.0008$ & 0.0607 & 0.8297 & $+0.7690$ & 0.99659 & 0.99658 \\
+RF & 0.7833 & 0.7820 & $-0.0013$ & 0.3035 & 0.9882 & $+0.6847$ & 0.99150 & 0.99057 \\
 
 \bottomrule
 \end{tabular}}
@@ -2198,67 +1782,37 @@ valore medio.
 
 \begin{table}[H]
 \centering
-\caption{Media e varianza della TPR sui benchmark target aggregati per il
-modello sorgente aggregato e la baseline.}
+\caption{Media e varianza della TPR sui benchmark target aggregati per il modello sorgente aggregato e la baseline.}
 \label{tab:source_vs_base_target_variance}
-\begin{tabularx}{\textwidth}{ll >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X}
+\begin{tabularx}{\textwidth}{l >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X}
 \toprule
-&
-&
-\multicolumn{2}{c}{\textbf{Modello sorgente}}
-&
-\multicolumn{2}{c}{\textbf{Baseline INJECTION}} \\
-\cmidrule(lr){3-4}
-\cmidrule(lr){5-6}
-\textbf{Alg.}
-& \textbf{Test Set}
-& $\boldsymbol{\overline{TPR}}$
-& $\boldsymbol{\mathrm{Var}(TPR)}$
-& $\boldsymbol{\overline{TPR}}$
-& $\boldsymbol{\mathrm{Var}(TPR)}$ \\
+& \multicolumn{2}{c}{\textbf{Modello sorgente}} & \multicolumn{2}{c}{\textbf{Baseline INJECTION}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5}
+\textbf{Test Set} & $\boldsymbol{\overline{TPR}}$ & $\boldsymbol{\mathrm{Var}(TPR)}$ & $\boldsymbol{\overline{TPR}}$ & $\boldsymbol{\mathrm{Var}(TPR)}$ \\
 \midrule
 
-DT & \texttt{nb15\_stin}
-& 0.38071 & $7.74\times10^{-3}$
-& 0.97282 & $1.24\times10^{-4}$ \\
+\multicolumn{5}{c}{DT} \\
+\hline
 
-DT & \texttt{nb15\_sat20}
-& 0.19473 & $1.87\times10^{-2}$
-& 0.98630 & $2.15\times10^{-5}$ \\
+\texttt{nb15\_stin} & 0.38071 & $7.74\times10^{-3}$ & 0.97282 & $1.24\times10^{-4}$ \\
+\texttt{nb15\_sat20} & 0.19473 & $1.87\times10^{-2}$ & 0.98630 & $2.15\times10^{-5}$ \\
+\texttt{nb15\_ter20} & 0.52940 & $3.61\times10^{-3}$ & 0.96182 & $4.07\times10^{-4}$ \\
 
-DT & \texttt{nb15\_ter20}
-& 0.52940 & $3.61\times10^{-3}$
-& 0.96182 & $4.07\times10^{-4}$ \\
+\hline
+\multicolumn{5}{c}{HGB} \\
+\hline
 
-\addlinespace
-\midrule
+\texttt{nb15\_stin} & 0.06624 & $5.25\times10^{-3}$ & 0.84945 & $8.17\times10^{-3}$ \\
+\texttt{nb15\_sat20} & 0.10553 & $7.18\times10^{-3}$ & 0.90956 & $8.31\times10^{-3}$ \\
+\texttt{nb15\_ter20} & 0.04378 & $8.58\times10^{-3}$ & 0.81505 & $9.90\times10^{-3}$ \\
 
-HGB & \texttt{nb15\_stin}
-& 0.06624 & $5.25\times10^{-3}$
-& 0.84945 & $8.17\times10^{-3}$ \\
+\hline
+\multicolumn{5}{c}{RF} \\
+\hline
 
-HGB & \texttt{nb15\_sat20}
-& 0.10553 & $7.18\times10^{-3}$
-& 0.90956 & $8.31\times10^{-3}$ \\
-
-HGB & \texttt{nb15\_ter20}
-& 0.04378 & $8.58\times10^{-3}$
-& 0.81505 & $9.90\times10^{-3}$ \\
-
-\addlinespace
-\midrule
-
-RF & \texttt{nb15\_stin}
-& 0.36006 & $1.81\times10^{-4}$
-& 0.99253 & $9.12\times10^{-5}$ \\
-
-RF & \texttt{nb15\_sat20}
-& 0.26130 & $7.19\times10^{-4}$
-& 0.99954 & $9.38\times10^{-8}$ \\
-
-RF & \texttt{nb15\_ter20}
-& 0.45636 & $5.01\times10^{-5}$
-& 0.98600 & $2.28\times10^{-4}$ \\
+\texttt{nb15\_stin} & 0.36006 & $1.81\times10^{-4}$ & 0.99253 & $9.12\times10^{-5}$ \\
+\texttt{nb15\_sat20} & 0.26130 & $7.19\times10^{-4}$ & 0.99954 & $9.38\times10^{-8}$ \\
+\texttt{nb15\_ter20} & 0.45636 & $5.01\times10^{-5}$ & 0.98600 & $2.28\times10^{-4}$ \\
 
 \bottomrule
 \end{tabularx}
@@ -2316,43 +1870,22 @@ puramente sorgente disponibile per quello specifico test set.
 
 \begin{table}[H]
 \centering
-\caption{Vantaggio TPR della baseline rispetto al migliore modello sorgente
-disponibile su ciascun benchmark target.}
+\caption{Vantaggio TPR della baseline rispetto al migliore modello sorgente disponibile su ciascun benchmark target.}
 \label{tab:source_vs_base_best_source_delta}
 \begin{tabular}{lccc}
 \toprule
-\textbf{Test Set Target}
-& $\boldsymbol{\Delta TPR^{best}_{DT}}$
-& $\boldsymbol{\Delta TPR^{best}_{HGB}}$
-& $\boldsymbol{\Delta TPR^{best}_{RF}}$ \\
+\textbf{Test Set Target} & $\boldsymbol{\Delta TPR^{best}_{DT}}$ & $\boldsymbol{\Delta TPR^{best}_{HGB}}$ & $\boldsymbol{\Delta TPR^{best}_{RF}}$ \\
 \midrule
 
-\texttt{nb15\_stin} (aggregato)
-& $+0.49045$ & $+0.57134$ & $+0.48851$ \\
-
-\texttt{nb15\_sat20} (aggregato)
-& $+0.17140$ & $+0.64707$ & $+0.31176$ \\
-
-\texttt{nb15\_ter20} (aggregato)
-& $+0.43242$ & $+0.48495$ & $+0.45224$ \\
-
-\texttt{nb15\_sat20} (Syn\_DDoS)
-& $+0.02042$ & $+0.92871$ & $+0.42382$ \\
-
-\texttt{nb15\_sat20} (UDP\_DDoS)
-& $+0.30487$ & $+0.39284$ & $+0.09739$ \\
-
-\texttt{nb15\_ter20} (Botnet)
-& $+0.04918$ & $+0.24576$ & $+0.06542$ \\
-
-\texttt{nb15\_ter20} (DDoS)
-& $+0.33281$ & $+0.57548$ & $+0.39645$ \\
-
-\texttt{nb15\_ter20} (Syn\_DDoS)
-& $+0.36490$ & $+0.49886$ & $+0.81039$ \\
-
-\texttt{nb15\_ter20} (UDP\_DDoS)
-& $+0.00767$ & $+0.82656$ & $+0.48200$ \\
+\texttt{nb15\_stin} (aggregato) & $+0.49045$ & $+0.57134$ & $+0.48851$ \\
+\texttt{nb15\_sat20} (aggregato) & $+0.17140$ & $+0.64707$ & $+0.31176$ \\
+\texttt{nb15\_ter20} (aggregato) & $+0.43242$ & $+0.48495$ & $+0.45224$ \\
+\texttt{nb15\_sat20} (Syn\_DDoS) & $+0.02042$ & $+0.92871$ & $+0.42382$ \\
+\texttt{nb15\_sat20} (UDP\_DDoS) & $+0.30487$ & $+0.39284$ & $+0.09739$ \\
+\texttt{nb15\_ter20} (Botnet) & $+0.04918$ & $+0.24576$ & $+0.06542$ \\
+\texttt{nb15\_ter20} (DDoS) & $+0.33281$ & $+0.57548$ & $+0.39645$ \\
+\texttt{nb15\_ter20} (Syn\_DDoS) & $+0.36490$ & $+0.49886$ & $+0.81039$ \\
+\texttt{nb15\_ter20} (UDP\_DDoS) & $+0.00767$ & $+0.82656$ & $+0.48200$ \\
 
 \bottomrule
 \end{tabular}
@@ -2644,35 +2177,19 @@ caratteristiche delle tre graduatorie SHAP.
 
 \begin{table}[H]
 \centering
-\caption{Confronto delle prime cinque feature nella graduatoria SHAP del
-modello aggregato sorgente \texttt{NB15} per DT, HGB e RF al seed $s=42$.}
+\caption{Confronto delle prime cinque feature nella graduatoria SHAP del modello aggregato sorgente \texttt{NB15} per DT, HGB e RF al seed $s=42$.}
 \label{tab:sorgente_shap_top5}
 \begin{tabular}{clll}
 \toprule
-\textbf{Rank}
-& \textbf{DT}
-& \textbf{HGB}
-& \textbf{RF} \\
+\textbf{Rank} & \textbf{DT} & \textbf{HGB} & \textbf{RF} \\
 \midrule
-1 & \texttt{pkts\_per\_sec}
-  & \texttt{pkts\_per\_sec}
-  & \texttt{pkts\_per\_sec} \\
 
-2 & \texttt{total\_bytes}
-  & \texttt{down\_up\_ratio}
-  & \texttt{total\_bytes} \\
+1 & \texttt{pkts\_per\_sec} & \texttt{pkts\_per\_sec} & \texttt{pkts\_per\_sec} \\
+2 & \texttt{total\_bytes} & \texttt{down\_up\_ratio} & \texttt{total\_bytes} \\
+3 & \texttt{load\_s} & \texttt{byte\_ratio} & \texttt{src\_mean\_pkt\_size} \\
+4 & \texttt{src\_mean\_pkt\_size} & \texttt{load\_s} & \texttt{duration} \\
+5 & \texttt{byte\_ratio} & \texttt{src\_bytes} & \texttt{src\_bytes} \\
 
-3 & \texttt{load\_s}
-  & \texttt{byte\_ratio}
-  & \texttt{src\_mean\_pkt\_size} \\
-
-4 & \texttt{src\_mean\_pkt\_size}
-  & \texttt{load\_s}
-  & \texttt{duration} \\
-
-5 & \texttt{byte\_ratio}
-  & \texttt{src\_bytes}
-  & \texttt{src\_bytes} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -3261,9 +2778,7 @@ tutte le tre architetture, risultano pari a $1.0000$.
 \begin{tabularx}{\textwidth}{l >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X}
 \toprule
 & \multicolumn{2}{c}{\textbf{DT}} & \multicolumn{2}{c}{\textbf{HGB}} & \multicolumn{2}{c}{\textbf{RF}} \\
-\cmidrule(lr){2-3}
-\cmidrule(lr){4-5}
-\cmidrule(lr){6-7}
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
 \textbf{Modello / Test Set} & \textbf{TPR} & \textbf{F1} & \textbf{TPR} & \textbf{F1} & \textbf{TPR} & \textbf{F1} \\
 \midrule
 
@@ -3347,79 +2862,25 @@ sorgente e trasferimento all'interno delle distribuzioni target.
 
 \begin{table}[H]
 \centering
-\caption{TPR media multi-seed dei modelli ibridi sui benchmark sorgente,
-\texttt{INJECTION} e target. Le colonne \textit{NB15} e \textit{Target}
-rappresentano rispettivamente la media sui sei e sui nove test set dei
-corrispondenti gruppi.}
+\caption{TPR media multi-seed dei modelli ibridi sui benchmark sorgente, \texttt{INJECTION} e target. Le colonne \textit{NB15} e \textit{Target} rappresentano rispettivamente la media sui sei e sui nove test set dei corrispondenti gruppi.}
 \label{tab:ibridi_domain_transfer_tpr}
 \resizebox{\textwidth}{!}{
 \begin{tabular}{lccccccccc}
 \toprule
-&
-\multicolumn{3}{c}{\textbf{DT}}
-&
-\multicolumn{3}{c}{\textbf{HGB}}
-&
-\multicolumn{3}{c}{\textbf{RF}} \\
-\cmidrule(lr){2-4}
-\cmidrule(lr){5-7}
-\cmidrule(lr){8-10}
-\textbf{Modello}
-& \textbf{NB15}
-& \textbf{INJ.}
-& \textbf{Target}
-& \textbf{NB15}
-& \textbf{INJ.}
-& \textbf{Target}
-& \textbf{NB15}
-& \textbf{INJ.}
-& \textbf{Target} \\
+& \multicolumn{3}{c}{\textbf{DT}} & \multicolumn{3}{c}{\textbf{HGB}} & \multicolumn{3}{c}{\textbf{RF}} \\
+\cmidrule(lr){2-4} \cmidrule(lr){5-7} \cmidrule(lr){8-10}
+\textbf{Modello} & \textbf{NB15} & \textbf{INJ.} & \textbf{Target} & \textbf{NB15} & \textbf{INJ.} & \textbf{Target} & \textbf{NB15} & \textbf{INJ.} & \textbf{Target} \\
 \midrule
 
-\texttt{nb15\_stin\_aggregate}
-& 0.000000 & 0.00320 & 0.999922
-& 0.000000 & 0.00320 & 0.999944
-& 0.000000 & 0.00320 & 0.999922 \\
-
-\texttt{nb15\_sat20\_aggregate}
-& 0.000000 & 0.00320 & 0.999889
-& 0.000000 & 0.00320 & 0.981796
-& 0.000000 & 0.00320 & 0.999894 \\
-
-\texttt{nb15\_ter20\_aggregate}
-& 0.000000 & 0.00320 & 0.999922
-& 0.000000 & 0.00320 & 0.999944
-& 0.000000 & 0.00320 & 0.999906 \\
-
-\texttt{nb15\_sat20\_syn\_ddos}
-& 0.000000 & 0.00050 & 0.424387
-& 0.000000 & 0.00050 & 0.315589
-& 0.000000 & 0.00050 & 0.443831 \\
-
-\texttt{nb15\_sat20\_udp\_ddos}
-& 0.000000 & 0.00320 & 0.974900
-& 0.000000 & 0.00270 & 0.551311
-& 0.000000 & 0.00320 & 0.898881 \\
-
-\texttt{nb15\_ter20\_botnet}
-& 0.000000 & 0.00320 & 0.952424
-& 0.000000 & 0.00310 & 0.842102
-& 0.000000 & 0.00320 & 0.910777 \\
-
-\texttt{nb15\_ter20\_ddos}
-& 0.000000 & 0.00310 & 0.829924
-& 0.000000 & 0.00270 & 0.551311
-& 0.000000 & 0.00285 & 0.664007 \\
-
-\texttt{nb15\_ter20\_syn\_ddos}
-& 0.000000 & 0.00320 & 0.999928
-& 0.000025 & 0.00196 & 0.629574
-& 0.000000 & 0.00320 & 0.999910 \\
-
-\texttt{nb15\_ter20\_udp\_ddos}
-& 0.000000 & 0.00320 & 0.978669
-& 0.000000 & 0.00050 & 0.350036
-& 0.000000 & 0.00050 & 0.448567 \\
+\texttt{nb15\_stin\_aggregate} & 0.000000 & 0.00320 & 0.999922 & 0.000000 & 0.00320 & 0.999944 & 0.000000 & 0.00320 & 0.999922 \\
+\texttt{nb15\_sat20\_aggregate} & 0.000000 & 0.00320 & 0.999889 & 0.000000 & 0.00320 & 0.981796 & 0.000000 & 0.00320 & 0.999894 \\
+\texttt{nb15\_ter20\_aggregate} & 0.000000 & 0.00320 & 0.999922 & 0.000000 & 0.00320 & 0.999944 & 0.000000 & 0.00320 & 0.999906 \\
+\texttt{nb15\_sat20\_syn\_ddos} & 0.000000 & 0.00050 & 0.424387 & 0.000000 & 0.00050 & 0.315589 & 0.000000 & 0.00050 & 0.443831 \\
+\texttt{nb15\_sat20\_udp\_ddos} & 0.000000 & 0.00320 & 0.974900 & 0.000000 & 0.00270 & 0.551311 & 0.000000 & 0.00320 & 0.898881 \\
+\texttt{nb15\_ter20\_botnet} & 0.000000 & 0.00320 & 0.952424 & 0.000000 & 0.00310 & 0.842102 & 0.000000 & 0.00320 & 0.910777 \\
+\texttt{nb15\_ter20\_ddos} & 0.000000 & 0.00310 & 0.829924 & 0.000000 & 0.00270 & 0.551311 & 0.000000 & 0.00285 & 0.664007 \\
+\texttt{nb15\_ter20\_syn\_ddos} & 0.000000 & 0.00320 & 0.999928 & 0.000025 & 0.00196 & 0.629574 & 0.000000 & 0.00320 & 0.999910 \\
+\texttt{nb15\_ter20\_udp\_ddos} & 0.000000 & 0.00320 & 0.978669 & 0.000000 & 0.00050 & 0.350036 & 0.000000 & 0.00050 & 0.448567 \\
 
 \bottomrule
 \end{tabular}}
@@ -3706,8 +3167,7 @@ della TPR media sull'intera matrice dei $16$ test set.
 
 \begin{table}[H]
 \centering
-\caption{Differenze di TPR e TNR tra i modelli aggregati ibridi e la baseline \texttt{INJECTION}. 
-I valori sono calcolati come modello ibrido meno baseline.}
+\caption{Differenze di TPR e TNR tra i modelli aggregati ibridi e la baseline \texttt{INJECTION}. I valori sono calcolati come modello ibrido meno baseline.}
 \label{tab:hybrid_vs_base_aggregate_delta}
 \begin{tabularx}{\textwidth}{l >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X}
 \toprule
@@ -5980,7 +5440,8 @@ osservabile senza introdurre grandezze computazionali non misurate.
 \label{tab:cap5_classifier_tradeoff}
 \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
 \toprule
-\textbf{Articolazione strutturale} & \textbf{Punto di forza osservato} & \textbf{Limite / compromesso osservato} \\
+\textbf{Articolazione strutturale} & \textbf{Punto di forza osservato} & \textbf{Limite /} \\[-5pt]
+ & & \textbf{compromesso osservato} \\
 \midrule
 
 \multicolumn{3}{c}{DT} \\
