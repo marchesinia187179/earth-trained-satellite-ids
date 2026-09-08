@@ -67,7 +67,7 @@ Poiché scaler e PCA rimangono congelati, tali percentuali identificano il siste
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth] {images/chapter4/pca/pca_sorgente_nb15.png}
+    \includegraphics[width=0.95\textwidth] {images/chapter5/pca/pca_sorgente_nb15.png}
     \caption{Proiezione PCA bidimensionale del benchmark sorgente \texttt{NB15} nel sistema di riferimento ottenuto mediante standardizzazione e fitting sul dominio sorgente.}
     \label{fig:pca_sorgente_nb15}
 \end{figure}
@@ -83,7 +83,7 @@ Poiché la PCA non utilizza l'etichetta $Y$ nella costruzione degli assi, tale r
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth] {images/chapter4/pca/pca_baseline_injection.png}
+    \includegraphics[width=0.95\textwidth] {images/chapter5/pca/pca_baseline_injection.png}
     \caption{Proiezione PCA bidimensionale del benchmark \texttt{INJECTION}, utilizzato per l'addestramento della baseline $\mathcal{M}_{\mathrm{base}}$, nel sistema di riferimento PCA definito dal dominio sorgente.}
     \label{fig:pca_baseline_injection}
 \end{figure}
@@ -100,7 +100,7 @@ Non è pertanto possibile attribuire visivamente tali punti periferici ai $6$ ca
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth] {images/chapter4/pca/pca_hybrid_nb15_stin.png}
+    \includegraphics[width=0.95\textwidth] {images/chapter5/pca/pca_hybrid_nb15_stin.png}
     \caption{Proiezione PCA bidimensionale del benchmark ibrido \texttt{NB15\_STIN}, composto da traffico nominale sorgente \texttt{NB15} e traffico malevolo target \texttt{STIN}, nel sistema di riferimento PCA definito dal dominio sorgente.}
     \label{fig:pca_hybrid_nb15_stin}
 \end{figure}
@@ -207,7 +207,7 @@ I valori descrivono le popolazioni di classe originarie dalle quali sono costrui
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth] {images/chapter4/kde/kde_sorgente_nb15.png}
+    \includegraphics[width=0.95\textwidth] {images/chapter5/kde/kde_sorgente_nb15.png}
     \caption{Stime KDE delle feature \texttt{pkts\_per\_sec}, \texttt{total\_bytes} e \texttt{dst\_win\_byt} per il benchmark sorgente \texttt{NB15}, espresse mediante standardizzazione ancorata al dominio sorgente.}
     \label{fig:kde_sorgente_nb15}
 \end{figure}
@@ -224,7 +224,7 @@ Nel complesso, nessuna delle tre feature produce isolatamente una separazione di
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth] {images/chapter4/kde/kde_baseline_injection.png}
+    \includegraphics[width=0.95\textwidth] {images/chapter5/kde/kde_baseline_injection.png}
     \caption{Stime KDE delle feature \texttt{pkts\_per\_sec}, \texttt{total\_bytes} e \texttt{dst\_win\_byt} per il benchmark \texttt{INJECTION}, utilizzato per l'addestramento della baseline $\mathcal{M}_{\mathrm{base}}$.}
     \label{fig:kde_baseline_injection}
 \end{figure}
@@ -246,7 +246,7 @@ Il \textit{domain shift} non assume quindi la forma di una traslazione uniforme 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.95\textwidth] {images/chapter4/kde/kde_hybrid_nb15_stin.png}
+    \includegraphics[width=0.95\textwidth] {images/chapter5/kde/kde_hybrid_nb15_stin.png}
     \caption{Stime KDE delle feature \texttt{pkts\_per\_sec}, \texttt{total\_bytes} e \texttt{dst\_win\_byt} per il benchmark ibrido \texttt{NB15\_STIN}, costituito da traffico nominale sorgente \texttt{NB15} e traffico malevolo target \texttt{STIN}.}
     \label{fig:kde_hybrid_nb15_stin}
 \end{figure}
@@ -445,7 +445,7 @@ Il confronto riguarda pertanto principalmente la gerarchia delle feature e il ve
 
     \begin{minipage}[t]{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth] {images/chapter4/shap/shap_dt_42_baseline_injection.png}
+        \includegraphics[width=\linewidth] {images/chapter5/shap/shap_dt_42_baseline_injection.png}
 
         \smallskip
         \small (a) Decision Tree
@@ -453,7 +453,7 @@ Il confronto riguarda pertanto principalmente la gerarchia delle feature e il ve
     \hfill
     \begin{minipage}[t]{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth] {images/chapter4/shap/shap_hgb_42_baseline_injection.png}
+        \includegraphics[width=\linewidth] {images/chapter5/shap/shap_hgb_42_baseline_injection.png}
 
         \smallskip
         \small (b) Histogram-based Gradient Boosting
@@ -463,7 +463,7 @@ Il confronto riguarda pertanto principalmente la gerarchia delle feature e il ve
 
     \begin{minipage}[t]{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth] {images/chapter4/shap/shap_rf_42_baseline_injection.png}
+        \includegraphics[width=\linewidth] {images/chapter5/shap/shap_rf_42_baseline_injection.png}
 
         \smallskip
         \small (c) Random Forest
@@ -757,7 +757,7 @@ Il criterio di lettura delle attribuzioni è quello introdotto nella Sottosezion
 
     \begin{minipage}[t]{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth] {images/chapter4/shap/shap_dt_42_sorgente_nb15.png}
+        \includegraphics[width=\linewidth] {images/chapter5/shap/shap_dt_42_sorgente_nb15.png}
 
         \smallskip
         \small (a) Decision Tree
@@ -765,7 +765,7 @@ Il criterio di lettura delle attribuzioni è quello introdotto nella Sottosezion
     \hfill
     \begin{minipage}[t]{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth] {images/chapter4/shap/shap_hgb_42_sorgente_nb15.png}
+        \includegraphics[width=\linewidth] {images/chapter5/shap/shap_hgb_42_sorgente_nb15.png}
 
         \smallskip
         \small (b) Histogram-based Gradient Boosting
@@ -775,7 +775,7 @@ Il criterio di lettura delle attribuzioni è quello introdotto nella Sottosezion
 
     \begin{minipage}[t]{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth] {images/chapter4/shap/shap_rf_42_sorgente_nb15.png}
+        \includegraphics[width=\linewidth] {images/chapter5/shap/shap_rf_42_sorgente_nb15.png}
 
         \smallskip
         \small (c) Random Forest
@@ -1198,7 +1198,7 @@ Il criterio di lettura delle attribuzioni è quello introdotto nella Sottosezion
 
     \begin{minipage}[t]{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth] {images/chapter4/shap/shap_dt_42_hybrid_nb15_stin.png}
+        \includegraphics[width=\linewidth] {images/chapter5/shap/shap_dt_42_hybrid_nb15_stin.png}
 
         \smallskip
         \small (a) Decision Tree
@@ -1206,7 +1206,7 @@ Il criterio di lettura delle attribuzioni è quello introdotto nella Sottosezion
     \hfill
     \begin{minipage}[t]{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth] {images/chapter4/shap/shap_hgb_42_hybrid_nb15_stin.png}
+        \includegraphics[width=\linewidth] {images/chapter5/shap/shap_hgb_42_hybrid_nb15_stin.png}
 
         \smallskip
         \small (b) Histogram-based Gradient Boosting
@@ -1216,7 +1216,7 @@ Il criterio di lettura delle attribuzioni è quello introdotto nella Sottosezion
 
     \begin{minipage}[t]{0.48\textwidth}
         \centering
-        \includegraphics[width=\linewidth] {images/chapter4/shap/shap_rf_42_hybrid_nb15_stin.png}
+        \includegraphics[width=\linewidth] {images/chapter5/shap/shap_rf_42_hybrid_nb15_stin.png}
 
         \smallskip
         \small (c) Random Forest
