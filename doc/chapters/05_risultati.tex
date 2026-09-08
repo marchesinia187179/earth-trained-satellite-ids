@@ -209,12 +209,10 @@ I valori descrivono le popolazioni di classe originarie dalle quali sono costrui
     \centering
     \caption{Statistiche descrittive delle tre feature KDE per il traffico nominale sorgente e per le componenti malevole di \texttt{NB15}, \texttt{INJECTION} e \texttt{NB15\_STIN}.}
     \label{tab:kde_feature_statistics}
-    \scriptsize
     \resizebox{\textwidth}{!}{
-    \begin{tabular}{llrrrrrr}
+    \begin{tabular}{llcccccc}
         \toprule
-        & &
-        \multicolumn{2}{c}{\texttt{pkts\_per\_sec}} & \multicolumn{2}{c}{\texttt{total\_bytes}} & \multicolumn{2}{c}{\texttt{dst\_win\_byt}} \\
+        & & \multicolumn{2}{c}{\texttt{pkts\_per\_sec}} & \multicolumn{2}{c}{\texttt{total\_bytes}} & \multicolumn{2}{c}{\texttt{dst\_win\_byt}} \\
         \cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8}
         \textbf{Configurazione} & \textbf{Componente} & $\boldsymbol{\mu}$ & $\boldsymbol{\sigma^{2}}$ & $\boldsymbol{\mu}$ & $\boldsymbol{\sigma^{2}}$ & $\boldsymbol{\mu}$ & $\boldsymbol{\sigma^{2}}$ \\
         \midrule
@@ -362,7 +360,6 @@ La Tabella~\ref{tab:baseline_rates_seed42} riporta Precision, TPR e TNR per l'in
     \centering
     \caption{Precision, TPR e TNR della baseline \texttt{INJECTION} con DT, HGB e RF sui $16$ test set per il seed $s=42$.}
     \label{tab:baseline_rates_seed42}
-    \scriptsize
     \resizebox{\textwidth}{!}{
     \begin{tabular}{lccc|ccc|ccc}
         \toprule
@@ -528,8 +525,7 @@ Tabella~\ref{tab:baseline_shap_top5}.
 
 \begin{table}[H]
     \centering
-    \caption{Prime cinque feature nella graduatoria SHAP della baseline
-    \texttt{INJECTION} per DT, HGB e RF al seed $s=42$.}
+    \caption{Prime cinque feature nella graduatoria SHAP della baseline \texttt{INJECTION} per DT, HGB e RF al seed $s=42$.}
     \label{tab:baseline_shap_top5}
     \begin{tabular}{c|lll}
         \toprule
@@ -592,7 +588,6 @@ La Tabella~\ref{tab:sorgente_matched_seed42} riporta TPR, TNR e F1-Score ottenut
 \begin{table}[H]
     \centering
     \caption{Prestazioni dei modelli sorgente sui rispettivi test set omologhi per il seed $s=42$.} \label{tab:sorgente_matched_seed42}
-    \scriptsize
     \resizebox{\textwidth}{!}{
     \begin{tabular}{lccc|ccc|ccc}
         \toprule
@@ -698,7 +693,6 @@ La Tabella~\ref{tab:source_vs_base_summary_tpr} sintetizza il confronto separand
     \centering
     \caption{Confronto multi-seed tra modello aggregato sorgente e baseline. Le differenze $\Delta$ sono calcolate come baseline meno modello sorgente.}
     \label{tab:source_vs_base_summary_tpr}
-    \scriptsize
     \resizebox{\textwidth}{!}{
     \begin{tabular}{c|ccc|ccc|cc}
         \toprule
@@ -1126,38 +1120,28 @@ La Tabella~\ref{tab:hybrid_vs_base_aggregate_delta} sintetizza il confronto mult
     \centering
     \caption{Differenze di TPR e TNR tra i modelli aggregati ibridi e la baseline \texttt{INJECTION}. I valori sono calcolati come modello ibrido meno baseline.}
     \label{tab:hybrid_vs_base_aggregate_delta}
-    \scriptsize
     \resizebox{\textwidth}{!}{
     \begin{tabular}{lccccc}
         \toprule
-        \textbf{Modello Ibrido} &
-        $\boldsymbol{\Delta TPR_{\text{NB15}}}$ &
-        $\boldsymbol{\Delta TPR_{\text{INJ}}}$ &
-        $\boldsymbol{\Delta TPR_{\text{Target}}}$ &
-        $\boldsymbol{\Delta TPR_{16}}$ &
-        $\boldsymbol{\Delta TNR}$ \\
+        \textbf{Modello Ibrido} & $\boldsymbol{\Delta TPR_{\text{NB15}}}$ & $\boldsymbol{\Delta TPR_{\text{INJ}}}$ & $\boldsymbol{\Delta TPR_{\text{Target}}}$ & $\boldsymbol{\Delta TPR_{16}}$ & $\boldsymbol{\Delta TNR}$ \\
         \midrule
-
         \multicolumn{6}{c}{\textbf{DT}} \\
         \hline
         \texttt{nb15\_stin\_aggregate} & $-0.78597$ & $-0.82428$ & $+0.03381$ & $-0.32724$ & $+0.01540$ \\
         \texttt{nb15\_sat20\_aggregate} & $-0.78597$ & $-0.82428$ & $+0.03377$ & $-0.32726$ & $+0.01540$ \\
         \texttt{nb15\_ter20\_aggregate} & $-0.78597$ & $-0.82428$ & $+0.03381$ & $-0.32724$ & $+0.01540$ \\
-
         \hline
         \multicolumn{6}{c}{\textbf{HGB}} \\
         \hline
         \texttt{nb15\_stin\_aggregate} & $-0.76085$ & $-0.80375$ & $+0.17025$ & $-0.23979$ & $+0.00342$ \\
         \texttt{nb15\_sat20\_aggregate} & $-0.76085$ & $-0.80375$ & $+0.15210$ & $-0.25000$ & $+0.00342$ \\
         \texttt{nb15\_ter20\_aggregate} & $-0.76085$ & $-0.80375$ & $+0.17025$ & $-0.23979$ & $+0.00342$ \\
-
         \hline
         \multicolumn{6}{c}{\textbf{RF}} \\
         \hline
         \texttt{nb15\_stin\_aggregate} & $-0.78198$ & $-0.82238$ & $+0.01171$ & $-0.33805$ & $+0.00943$ \\
         \texttt{nb15\_sat20\_aggregate} & $-0.78198$ & $-0.82238$ & $+0.01168$ & $-0.33807$ & $+0.00943$ \\
         \texttt{nb15\_ter20\_aggregate} & $-0.78198$ & $-0.82238$ & $+0.01169$ & $-0.33806$ & $+0.00943$ \\
-
         \bottomrule
     \end{tabular}
     }
@@ -1448,26 +1432,22 @@ La Tabella~\ref{tab:global_paradigm_comparison} costituisce il riferimento quant
     \centering
     \caption{Quadro comparativo globale dei modelli aggregati sorgente, baseline e ibridi.  Per $\mathcal{M}_{H}$ gli intervalli rappresentano i valori minimo e massimo osservati tra i tre modelli aggregati ibridi.}
     \label{tab:global_paradigm_comparison}
-    \scriptsize
     \resizebox{\textwidth}{!}{
     \begin{tabular}{llcccccc}
         \toprule
         \textbf{Paradigma} & \textbf{Configurazione} & $\boldsymbol{\overline{TPR}_{NB15}}$ & $\boldsymbol{TPR_{INJ}}$ & $\boldsymbol{\overline{TPR}_{Target}}$ & $\boldsymbol{\overline{TPR}_{16}}$ & $\boldsymbol{\overline{TNR}}$ & $\boldsymbol{\overline{\overline{F1}}}$ \\
         \midrule
-
         \multicolumn{8}{c}{\textbf{DT}} \\
         \hline
         $\mathcal{M}_{S}$ & \texttt{nb15\_aggregate} & 0.7870 & 0.82742 & 0.3234 & 0.5288 & 0.98317 & 0.56308 \\
         $\mathcal{M}_{\mathrm{base}}$ & \texttt{injection\_aggregate} & 0.78597 & 0.82748 & 0.96612 & 0.88990 & 0.98460 & 0.860388 \\
         $\mathcal{M}_{H}^{\mathrm{aggr}}$ & \texttt{NB15+Target} & 0.0000 & 0.00320 & 0.999889--0.999922 & 0.56264--0.56266 & 1.0000 & 0.562863--0.562874 \\
-
         \hline
         \multicolumn{8}{c}{\textbf{HGB}} \\
         \hline
         $\mathcal{M}_{S}$ & \texttt{nb15\_aggregate} & 0.7601 & 0.80387 & 0.0607 & 0.3694 & 0.99659 & 0.41231 \\
         $\mathcal{M}_{\mathrm{base}}$ & \texttt{injection\_aggregate} & 0.76085 & 0.80695 & 0.82970 & 0.80246 & 0.99658 & 0.854074 \\
         $\mathcal{M}_{H}^{\mathrm{aggr}}$ & \texttt{NB15+Target} & 0.0000 & 0.00320 & 0.981796--0.999944 & 0.55246--0.56267 & 1.0000 & 0.556714--0.562881 \\
-
         \hline
         \multicolumn{8}{c}{\textbf{RF}} \\
         \hline
@@ -1607,46 +1587,34 @@ La Tabella~\ref{tab:cap5_cause_effect_mapping} sintetizza le principali associaz
     \centering
     \caption{Mappatura sinottica delle associazioni osservate tra evidenze distributive, rilevanza SHAP e comportamento prestazionale.  Le relazioni riportate non rappresentano nessi causali dimostrati.}
     \label{tab:cap5_cause_effect_mapping}
-    \scriptsize
+    \footnotesize
     \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
         \toprule
         \textbf{Evidenza distributiva} & \textbf{Evidenza SHAP} & \textbf{Comportamento associato} \\
         \midrule
-
         \textbf{\texttt{pkts\_per\_sec}:} scostamento più marcato tra componente malevola NB15 e STIN.
         & Prima feature per DT, HGB e RF nei modelli sorgente e nella baseline; rilevanza inferiore nei modelli ibridi.
         & Fragilità target dei modelli sorgente e forte incremento della generalizzazione nella baseline, che mantiene la feature dominante. \\
-
         \addlinespace
-
         \textbf{\texttt{total\_bytes}:} riduzione marcata di posizione e dispersione nel traffico malevolo STIN.
         & Elevata rilevanza soprattutto nei modelli sorgente e baseline DT/RF; posizione inferiore nel modello ibrido.
         & Dimensione rilevante nelle configurazioni che conservano una struttura decisionale maggiormente sovrapposta a quella sorgente. \\
-
         \addlinespace
-
         \textbf{\texttt{dst\_win\_byt}:} distribuzione target differente e più concentrata rispetto al riferimento sorgente.
         & Prima feature per DT, HGB e RF nel modello aggregato \texttt{NB15\_STIN}.
         & Centralità associata al profilo fortemente specializzato del paradigma ibrido: TPR target prossime all'unità e TPR sorgente prossime a zero. \\
-
         \addlinespace
-
         \textbf{\texttt{src\_win\_byt}:} non inclusa tra le tre feature sottoposte a KDE; non viene quindi assunta una caratterizzazione densometrica specifica.
         & Seconda feature per DT, HGB e RF nel modello aggregato ibrido.
         & Ulteriore evidenza della riorganizzazione della funzione decisionale nel passaggio a \texttt{NB15\_STIN}. \\
-
         \addlinespace
-
         \textbf{\texttt{INJECTION}:} $29$ campioni target su $9\,300$ campioni malevoli; composizione ancora fortemente dominata dal sorgente.
         & Gerarchie SHAP largamente sovrapposte a quelle dei modelli NB15.
         & TPR sorgente sostanzialmente preservata e forte incremento della sensibilità target. \\
-
         \addlinespace
-
         \textbf{Composizione ibrida:} classe nominale NB15 e classe malevola interamente target; marcata separazione distributiva.
         & Centralità condivisa delle feature di finestra e riduzione del ruolo di diverse feature dominanti nel paradigma sorgente.
         & Massima sensibilità target ma perdita quasi completa del riconoscimento degli attacchi sorgente. \\
-
         \bottomrule
     \end{tabularx}
 \end{table}
@@ -1664,149 +1632,73 @@ In tale quadro, la baseline rappresenta la configurazione nella quale l'integraz
 \label{subsec:tradeoff_complessita_prestazioni}
 
 \paragraph{Perimetro dell'analisi.}
-Il confronto tra classificatori deve essere mantenuto entro le grandezze
-effettivamente raccolte durante la campagna sperimentale. 
-Il protocollo non
-comprende misure di tempo di addestramento, latenza di inferenza, occupazione
-di memoria, dimensione dei modelli serializzati, utilizzo della CPU o consumo
-energetico. 
-Non è pertanto possibile costruire un rapporto quantitativo tra
-prestazioni e costo computazionale né stabilire quale architettura sia più
-adatta a specifici vincoli hardware.
+Il confronto tra classificatori deve essere mantenuto entro le grandezze effettivamente raccolte durante la campagna sperimentale. 
+Il protocollo non comprende misure di tempo di addestramento, latenza di inferenza, occupazione di memoria, dimensione dei modelli serializzati, utilizzo della CPU o consumo energetico. 
+Non è pertanto possibile costruire un rapporto quantitativo tra prestazioni e costo computazionale né stabilire quale architettura sia più adatta a specifici vincoli hardware.
 
-Il termine ``complessità computazionale'' viene quindi utilizzato
-esclusivamente in senso qualitativo e architetturale. 
-DT è costituito da un
-singolo albero decisionale; RF aggrega una molteplicità di alberi e, nella
-configurazione implementata, utilizza \texttt{n\_jobs=-1}; HGB costruisce
-invece iterativamente un ensemble mediante gradient boosting su
-rappresentazioni a istogrammi. 
-Tali differenze non vengono convertite in
-stime di latenza, memoria o consumo non disponibili sperimentalmente.
+Il termine ``complessità computazionale'' viene quindi utilizzato esclusivamente in senso qualitativo e architetturale. 
+DT è costituito da un singolo albero decisionale; RF aggrega una molteplicità di alberi e, nella configurazione implementata, utilizza \texttt{n\_jobs=-1}; HGB costruisce invece iterativamente un ensemble mediante gradient boosting su rappresentazioni a istogrammi. 
+Tali differenze non vengono convertite in stime di latenza, memoria o consumo non disponibili sperimentalmente.
 
 \paragraph{Prestazioni delle tre architetture nella baseline.}
-La configurazione \texttt{INJECTION} costituisce il riferimento più
-informativo per il confronto, poiché il quadro globale ha mostrato che essa
-realizza il comportamento più uniforme tra sorgente e target.
+La configurazione \texttt{INJECTION} costituisce il riferimento più informativo per il confronto, poiché il quadro globale ha mostrato che essa realizza il comportamento più uniforme tra sorgente e target.
 
-RF presenta il miglior profilo predittivo complessivo: TPR target pari a
-$0.98821$, TPR globale pari a $0.90071$, TNR pari a $0.99057$ e F1-Score
-globale multi-seed pari a $0.890221$. 
-DT raggiunge rispettivamente
-$0.96612$, $0.88990$, $0.98460$ e $0.860388$. 
-Rispetto al singolo albero,
-RF incrementa quindi la TPR target di $0.02209$ e l'F1-Score globale di
-$0.029833$.
+RF presenta il miglior profilo predittivo complessivo: TPR target pari a $0.98821$, TPR globale pari a $0.90071$, TNR pari a $0.99057$ e F1-Score globale multi-seed pari a $0.890221$. 
+DT raggiunge rispettivamente $0.96612$, $0.88990$, $0.98460$ e $0.860388$. 
+Rispetto al singolo albero, RF incrementa quindi la TPR target di $0.02209$ e l'F1-Score globale di $0.029833$.
 
 HGB presenta un profilo differente. 
-La TNR raggiunge $0.99658$, valore più
-elevato tra le tre baseline, mentre la TPR target si riduce a $0.82970$ e
-l'F1-Score globale a $0.854074$. 
-Rispetto a HGB, RF presenta quindi un
-vantaggio di $0.15851$ nella TPR target e di $0.036147$ nell'F1-Score
-globale, a fronte di una specificità leggermente inferiore.
+La TNR raggiunge $0.99658$, valore più elevato tra le tre baseline, mentre la TPR target si riduce a $0.82970$ e l'F1-Score globale a $0.854074$. 
+Rispetto a HGB, RF presenta quindi un vantaggio di $0.15851$ nella TPR target e di $0.036147$ nell'F1-Score globale, a fronte di una specificità leggermente inferiore.
 
-Il protocollo evidenzia pertanto un effettivo compromesso tra i due tipi di
-errore. 
-HGB privilegia maggiormente la preservazione del traffico nominale,
-mentre RF riduce sensibilmente la quota di attacchi target non riconosciuti.
-DT mantiene un profilo competitivo mediante la struttura meno articolata tra
-quelle considerate, senza che tale proprietà possa essere trasformata in un
-vantaggio computazionale misurato.
+Il protocollo evidenzia pertanto un effettivo compromesso tra i due tipi di errore. 
+HGB privilegia maggiormente la preservazione del traffico nominale, mentre RF riduce sensibilmente la quota di attacchi target non riconosciuti.
+DT mantiene un profilo competitivo mediante la struttura meno articolata tra quelle considerate, senza che tale proprietà possa essere trasformata in un vantaggio computazionale misurato.
 
 \paragraph{Stabilità rispetto alle inizializzazioni.}
-La dispersione della media globale dell'F1-Score lungo i $10$ seed è pari a
-$0.003516$ per DT, $0.036341$ per HGB e $0.002452$ per RF. 
-RF combina
-quindi il maggiore valore medio con la minore dispersione tra le tre
-architetture della baseline; DT presenta anch'esso una variabilità contenuta,
-mentre HGB mostra una maggiore sensibilità all'inizializzazione.
+La dispersione della media globale dell'F1-Score lungo i $10$ seed è pari a $0.003516$ per DT, $0.036341$ per HGB e $0.002452$ per RF. 
+RF combina quindi il maggiore valore medio con la minore dispersione tra le tre architetture della baseline; DT presenta anch'esso una variabilità contenuta, mentre HGB mostra una maggiore sensibilità all'inizializzazione.
 
-La stabilità non rappresenta una misura di costo computazionale, ma
-costituisce un ulteriore elemento nella valutazione predittiva: il confronto
-non riguarda soltanto la prestazione media, ma anche la regolarità con cui
-essa viene riprodotta nelle differenti repliche.
+La stabilità non rappresenta una misura di costo computazionale, ma costituisce un ulteriore elemento nella valutazione predittiva: il confronto non riguarda soltanto la prestazione media, ma anche la regolarità con cui essa viene riprodotta nelle differenti repliche.
 
 \paragraph{Composizione del training set e articolazione del modello.}
-Le differenze tra algoritmi devono essere interpretate insieme alla
-composizione dei dati di addestramento. 
-Mantenendo invariata l'architettura,
-il passaggio dal modello aggregato sorgente alla baseline incrementa la TPR
-target di $+0.6427$ per DT, $+0.7690$ per HGB e $+0.6847$ per RF. 
-Tali
-scostamenti sono sensibilmente superiori alle differenze osservate tra DT,
-HGB e RF all'interno della sola baseline.
+Le differenze tra algoritmi devono essere interpretate insieme alla composizione dei dati di addestramento. 
+Mantenendo invariata l'architettura, il passaggio dal modello aggregato sorgente alla baseline incrementa la TPR target di $+0.6427$ per DT, $+0.7690$ per HGB e $+0.6847$ per RF. 
+Tali scostamenti sono sensibilmente superiori alle differenze osservate tra DT, HGB e RF all'interno della sola baseline.
 
-Analogamente, nei modelli aggregati ibridi tutte le architetture convergono
-verso TPR target prossime all'unità e TPR sorgente nulle. 
-La maggiore
-articolazione algoritmica non elimina quindi gli effetti associati alla
-distribuzione utilizzata per il training. 
-Nel protocollo considerato,
-composizione dei dati e architettura interagiscono nel determinare il
-comportamento finale, ma la prima produce in diversi confronti le variazioni
-prestazionali di maggiore magnitudine.
+Analogamente, nei modelli aggregati ibridi tutte le architetture convergono verso TPR target prossime all'unità e TPR sorgente nulle. 
+La maggiore articolazione algoritmica non elimina quindi gli effetti associati alla distribuzione utilizzata per il training. 
+Nel protocollo considerato, composizione dei dati e architettura interagiscono nel determinare il comportamento finale, ma la prima produce in diversi confronti le variazioni prestazionali di maggiore magnitudine.
 
 \paragraph{Sintesi qualitativa del compromesso.}
-La Tabella~\ref{tab:cap5_classifier_tradeoff} riassume il confronto senza
-attribuire ai classificatori costi computazionali non misurati.
+La Tabella~\ref{tab:cap5_classifier_tradeoff} riassume il confronto senza attribuire ai classificatori costi computazionali non misurati.
 
 \begin{table}[H]
-\centering
-\caption{Sintesi qualitativa del compromesso tra articolazione del modello e
-prestazioni osservate nella configurazione \texttt{INJECTION}.}
-\label{tab:cap5_classifier_tradeoff}
-\begin{tabularx}{\textwidth}{
-    >{\raggedright\arraybackslash}X
-    >{\raggedright\arraybackslash}X
-    >{\raggedright\arraybackslash}X}
-\toprule
-\textbf{Articolazione strutturale} &
-\textbf{Punto di forza osservato} &
-\textbf{Limite / compromesso osservato} \\
-\midrule
-
-\textbf{DT:} singolo albero
-&
-Elevata TPR target ($0.96612$) e buona prestazione globale.
-&
-Prestazioni inferiori a RF; TNR più bassa tra le tre baseline
-($0.98460$).
-\\
-
-\addlinespace
-
-\textbf{HGB:} ensemble iterativo basato su boosting
-&
-Massima TNR ($0.99658$).
-&
-Sensibilità target più ridotta ($0.82970$) e maggiore dispersione
-inter-seed dell'F1-Score.
-\\
-
-\addlinespace
-
-\textbf{RF:} ensemble di alberi
-&
-Massima TPR target ($0.98821$), massimo F1 globale ($0.890221$) e minore
-dispersione inter-seed ($0.002452$).
-&
-Struttura più articolata rispetto al singolo DT; il relativo costo
-computazionale non è quantificato dal protocollo.
-\\
-
-\bottomrule
-\end{tabularx}
+    \centering
+    \caption{Sintesi qualitativa del compromesso tra articolazione del modello e prestazioni osservate nella configurazione \texttt{INJECTION}.}
+    \label{tab:cap5_classifier_tradeoff}
+    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+        \toprule
+        \textbf{Articolazione strutturale} & \textbf{Punto di forza osservato} & \textbf{Limite / compromesso} \\[-5pt]
+         & & \textbf{osservato} \\
+        \midrule
+        \textbf{DT:} singolo albero
+        & Elevata TPR target ($0.96612$) e buona prestazione globale.
+        & Prestazioni inferiori a RF; TNR più bassa tra le tre baseline ($0.98460$). \\
+        \addlinespace
+        \textbf{HGB:} ensemble iterativo basato su boosting
+        & Massima TNR ($0.99658$).
+        & Sensibilità target più ridotta ($0.82970$) e maggiore dispersione inter-seed dell'F1-Score. \\
+        \addlinespace
+        \textbf{RF:} ensemble di alberi
+        & Massima TPR target ($0.98821$), massimo F1 globale ($0.890221$) e minore dispersione inter-seed ($0.002452$).
+        & Struttura più articolata rispetto al singolo DT; il relativo costo computazionale non è quantificato dal protocollo. \\
+        \bottomrule
+    \end{tabularx}
 \end{table}
 
-Considerando esclusivamente le grandezze misurate, RF costituisce quindi il
-riferimento prestazionale più favorevole nella baseline, mentre HGB presenta
-il profilo maggiormente orientato alla specificità e DT conserva prestazioni
-competitive mediante una struttura algoritmica meno articolata. 
-Non è
-tuttavia possibile derivare da tali risultati un ordinamento rispetto a
-latenza, memoria, energia o idoneità a una specifica piattaforma di
-esecuzione.
+Considerando esclusivamente le grandezze misurate, RF costituisce quindi il riferimento prestazionale più favorevole nella baseline, mentre HGB presenta il profilo maggiormente orientato alla specificità e DT conserva prestazioni competitive mediante una struttura algoritmica meno articolata. 
+Non è tuttavia possibile derivare da tali risultati un ordinamento rispetto a latenza, memoria, energia o idoneità a una specifica piattaforma di esecuzione.
 
 
 % ------------------------------------------------------------------------------
@@ -1817,343 +1709,151 @@ esecuzione.
 \label{subsec:implicazioni_operative_nids}
 
 \paragraph{Perimetro delle considerazioni operative.}
-Le evidenze sperimentali consentono di derivare alcune implicazioni per la
-valutazione di un NIDS in presenza di \textit{domain shift}, ma non
-costituiscono una validazione di deployment satellitare. 
-La campagna misura
-prestazioni predittive, generalizzazione cross-domain, stabilità multi-seed
-e caratteristiche della funzione decisionale; non misura invece proprietà
-della piattaforma quali latenza, memoria o consumo energetico.
+Le evidenze sperimentali consentono di derivare alcune implicazioni per la valutazione di un NIDS in presenza di \textit{domain shift}, ma non costituiscono una validazione di deployment satellitare. 
+La campagna misura prestazioni predittive, generalizzazione cross-domain, stabilità multi-seed e caratteristiche della funzione decisionale; non misura invece proprietà della piattaforma quali latenza, memoria o consumo energetico.
 
-Le considerazioni seguenti riguardano pertanto esclusivamente il
-comportamento osservato nei benchmark e nelle condizioni sperimentali
-definite dal framework.
+Le considerazioni seguenti riguardano pertanto esclusivamente il comportamento osservato nei benchmark e nelle condizioni sperimentali definite dal framework.
 
 \paragraph{Generalizzazione cross-domain come requisito di valutazione.}
-Il primo risultato operativo riguarda i modelli addestrati esclusivamente
-sul sorgente. 
-Le elevate prestazioni in-domain non vengono preservate in modo
-uniforme quando la distribuzione degli attacchi viene sostituita dal target,
-mentre la TNR rimane elevata.
+Il primo risultato operativo riguarda i modelli addestrati esclusivamente sul sorgente. 
+Le elevate prestazioni in-domain non vengono preservate in modo uniforme quando la distribuzione degli attacchi viene sostituita dal target, mentre la TNR rimane elevata.
 
-Una valutazione limitata al dataset utilizzato durante l'addestramento non
-risulta quindi sufficiente a caratterizzare la robustezza del classificatore.
-Nel protocollo considerato, la matrice di \textit{cross-evaluation} risulta
-essenziale proprio perché separa la capacità di riconoscere il traffico noto
-dalla capacità di estendere la regione positiva a distribuzioni malevole
-differenti.
+Una valutazione limitata al dataset utilizzato durante l'addestramento non risulta quindi sufficiente a caratterizzare la robustezza del classificatore.
+Nel protocollo considerato, la matrice di \textit{cross-evaluation} risulta essenziale proprio perché separa la capacità di riconoscere il traffico noto dalla capacità di estendere la regione positiva a distribuzioni malevole differenti.
 
 \paragraph{Conoscenza target sparsa e preservazione della conoscenza sorgente.}
-La baseline \texttt{INJECTION} costituisce l'evidenza principale in questa
-prospettiva. 
-La sostituzione di $29$ campioni sui $9\,300$ appartenenti alla
-classe malevola, pari a circa lo $0.31\%$, è associata a un forte incremento
-della sensibilità target senza una perdita sostanziale della sensibilità sui
-benchmark NB15.
+La baseline \texttt{INJECTION} costituisce l'evidenza principale in questa prospettiva. 
+La sostituzione di $29$ campioni sui $9\,300$ appartenenti alla classe malevola, pari a circa lo $0.31\%$, è associata a un forte incremento della sensibilità target senza una perdita sostanziale della sensibilità sui benchmark NB15.
 
-Tale risultato deve essere mantenuto strettamente circoscritto alla
-configurazione sperimentale analizzata. 
-Non dimostra che $29$ osservazioni
-siano universalmente sufficienti per adattare un NIDS a un nuovo dominio;
-mostra invece che, nel trasferimento
-\texttt{NB15}$\rightarrow$\texttt{STIN} considerato, una conoscenza target
-molto sparsa distingue nettamente il comportamento della baseline da quello
-dei modelli puramente sorgente.
+Tale risultato deve essere mantenuto strettamente circoscritto alla configurazione sperimentale analizzata. 
+Non dimostra che $29$ osservazioni siano universalmente sufficienti per adattare un NIDS a un nuovo dominio; mostra invece che, nel trasferimento \texttt{NB15}$\rightarrow$\texttt{STIN} considerato, una conoscenza target molto sparsa distingue nettamente il comportamento della baseline da quello dei modelli puramente sorgente.
 
 \paragraph{Specializzazione target e retention.}
 I modelli aggregati ibridi mostrano il limite complementare. 
-Essi
-massimizzano la sensibilità sulle distribuzioni target e raggiungono TNR
-unitaria, ma perdono quasi completamente la capacità di riconoscere gli
-attacchi NB15. 
-L'adattamento esteso al nuovo dominio non può quindi essere
-valutato soltanto rispetto alla prestazione ottenuta dopo il cambiamento.
+Essi massimizzano la sensibilità sulle distribuzioni target e raggiungono TNR unitaria, ma perdono quasi completamente la capacità di riconoscere gli attacchi NB15. 
+L'adattamento esteso al nuovo dominio non può quindi essere valutato soltanto rispetto alla prestazione ottenuta dopo il cambiamento.
 
-Nel protocollo considerato, un aggiornamento efficace deve essere
-caratterizzato contemporaneamente rispetto alla nuova distribuzione, alla
-retention delle anomalie precedentemente apprese e alla preservazione del
-traffico nominale. 
-La cross-evaluation evidenzia precisamente tale
-distinzione, impedendo che la prestazione quasi perfetta sul target mascheri
-la perdita della conoscenza sorgente.
+Nel protocollo considerato, un aggiornamento efficace deve essere caratterizzato contemporaneamente rispetto alla nuova distribuzione, alla retention delle anomalie precedentemente apprese e alla preservazione del traffico nominale. 
+La cross-evaluation evidenzia precisamente tale distinzione, impedendo che la prestazione quasi perfetta sul target mascheri la perdita della conoscenza sorgente.
 
 \paragraph{Compromesso tra falsi positivi e attacchi non rilevati.}
-Le tre architetture della baseline producono inoltre profili differenti tra
-sensibilità e specificità. 
-HGB raggiunge la TNR più elevata, $0.99658$, ma
-una TPR target pari a $0.82970$; RF associa una TNR pari a $0.99057$ a una
-TPR target di $0.98821$; DT raggiunge rispettivamente $0.98460$ e
-$0.96612$.
+Le tre architetture della baseline producono inoltre profili differenti tra sensibilità e specificità. 
+HGB raggiunge la TNR più elevata, $0.99658$, ma una TPR target pari a $0.82970$; RF associa una TNR pari a $0.99057$ a una TPR target di $0.98821$; DT raggiunge rispettivamente $0.98460$ e $0.96612$.
 
-Non emerge pertanto un classificatore che domini simultaneamente ogni
-dimensione. 
-Se il criterio di selezione è limitato alle prestazioni
-predittive globali e alla stabilità multi-seed, RF costituisce il riferimento
-più favorevole tra le configurazioni analizzate. 
-Tale risultato non equivale
-tuttavia a una selezione definitiva per un sistema operativo, poiché il
-protocollo non misura il costo dell'esecuzione.
+Non emerge pertanto un classificatore che domini simultaneamente ogni dimensione. 
+Se il criterio di selezione è limitato alle prestazioni predittive globali e alla stabilità multi-seed, RF costituisce il riferimento più favorevole tra le configurazioni analizzate. 
+Tale risultato non equivale tuttavia a una selezione definitiva per un sistema operativo, poiché il protocollo non misura il costo dell'esecuzione.
 
 \paragraph{Diagnostica del domain shift e interpretabilità.}
-PCA, KDE e SHAP forniscono inoltre strumenti complementari per
-caratterizzare variazioni del dominio. 
-Le prime due tecniche evidenziano
-modificazioni geometriche e distributive dello spazio delle feature, mentre
-SHAP consente di verificare se tali condizioni siano accompagnate da una
-riorganizzazione delle caratteristiche maggiormente utilizzate dal modello.
+PCA, KDE e SHAP forniscono inoltre strumenti complementari per caratterizzare variazioni del dominio. 
+Le prime due tecniche evidenziano modificazioni geometriche e distributive dello spazio delle feature, mentre SHAP consente di verificare se tali condizioni siano accompagnate da una riorganizzazione delle caratteristiche maggiormente utilizzate dal modello.
 
-Nel presente lavoro tali tecniche svolgono esclusivamente una funzione
-diagnostica. 
-Non è definita una soglia automatica di \textit{drift detection}
-e non viene implementato un meccanismo autonomo di aggiornamento o
-riaddestramento. 
-Analogamente, SHAP permette di identificare la diversa
-struttura decisionale dei paradigmi, ma non risolve causalmente il
-confondimento tra classe e dominio presente nei benchmark ibridi.
+Nel presente lavoro tali tecniche svolgono esclusivamente una funzione diagnostica. 
+Non è definita una soglia automatica di \textit{drift detection} e non viene implementato un meccanismo autonomo di aggiornamento o riaddestramento. 
+Analogamente, SHAP permette di identificare la diversa struttura decisionale dei paradigmi, ma non risolve causalmente il confondimento tra classe e dominio presente nei benchmark ibridi.
 
 \paragraph{Limite della componente nominale condivisa.}
-Un limite sperimentale rilevante riguarda la distribuzione del traffico
-nominale. 
-Nei differenti benchmark di valutazione la componente benign
-proviene sempre dal dominio sorgente \texttt{NB15}; la variazione
-cross-domain riguarda quindi la componente malevola.
+Un limite sperimentale rilevante riguarda la distribuzione del traffico nominale. 
+Nei differenti benchmark di valutazione la componente benign proviene sempre dal dominio sorgente \texttt{NB15}; la variazione cross-domain riguarda quindi la componente malevola.
 
-Le TNR elevate osservate dimostrano pertanto la preservazione della
-classificazione sul traffico nominale effettivamente incluso nel protocollo,
-ma non permettono di concludere che la specificità rimarrebbe invariata in
-presenza di un differente dominio benigno. 
-Il presente esperimento non valuta
-quindi un \textit{benign-domain shift}.
+Le TNR elevate osservate dimostrano pertanto la preservazione della classificazione sul traffico nominale effettivamente incluso nel protocollo, ma non permettono di concludere che la specificità rimarrebbe invariata in presenza di un differente dominio benigno. 
+Il presente esperimento non valuta quindi un \textit{benign-domain shift}.
 
 \paragraph{Soglia decisionale.}
-La pipeline utilizza inoltre le predizioni dei classificatori senza una
-calibrazione personalizzata della soglia decisionale per i differenti
-benchmark. 
-Le metriche riportate descrivono quindi la configurazione
-effettivamente implementata e non il risultato di un'ottimizzazione
-successiva del compromesso tra falsi positivi e falsi negativi.
+La pipeline utilizza inoltre le predizioni dei classificatori senza una calibrazione personalizzata della soglia decisionale per i differenti benchmark. 
+Le metriche riportate descrivono quindi la configurazione effettivamente implementata e non il risultato di un'ottimizzazione successiva del compromesso tra falsi positivi e falsi negativi.
 
-Le curve Precision--Recall e le diagnostiche di soglia generate dal
-framework non vengono utilizzate nel presente capitolo per selezionare una
-soglia operativa ottimale; nessuna conclusione in tal senso viene pertanto
-derivata dai risultati.
+Le curve Precision--Recall e le diagnostiche di soglia generate dal framework non vengono utilizzate nel presente capitolo per selezionare una soglia operativa ottimale; nessuna conclusione in tal senso viene pertanto derivata dai risultati.
 
 \paragraph{Sintesi delle implicazioni operative.}
-La Tabella~\ref{tab:cap5_operational_summary} riassume le principali
-implicazioni direttamente supportate dal protocollo sperimentale.
+La Tabella~\ref{tab:cap5_operational_summary} riassume le principali implicazioni direttamente supportate dal protocollo sperimentale.
 
 \begin{table}[H]
-\centering
-\caption{Sintesi delle implicazioni operative dei tre paradigmi di
-addestramento nell'ambito del protocollo NIDS considerato.}
-\label{tab:cap5_operational_summary}
-\scriptsize
-\begin{tabularx}{\textwidth}{
-    l
-    >{\raggedright\arraybackslash}X
-    >{\raggedright\arraybackslash}X
-    >{\raggedright\arraybackslash}X}
-\toprule
-\textbf{Paradigma} &
-\textbf{Evidenza favorevole} &
-\textbf{Criticità osservata} &
-\textbf{Implicazione operativa} \\
-\midrule
-
-$\mathcal{M}_{S}$
-&
-Conservazione della sensibilità sul dominio sorgente e TNR elevata.
-&
-Forte riduzione della TPR sulle distribuzioni target.
-&
-La sola validazione in-domain non è sufficiente a caratterizzare la
-robustezza cross-domain.
-\\
-
-\addlinespace
-
-$\mathcal{M}_{\mathrm{base}}$
-&
-Conservazione della TPR sorgente accompagnata da un forte incremento della
-sensibilità target mediante conoscenza target sparsa.
-&
-Prestazioni target inferiori agli aggregati ibridi e dipendenti
-dall'architettura utilizzata.
-&
-Configurazione più uniforme per la copertura simultanea di distribuzioni
-sorgente e target nell'insieme sperimentale considerato.
-\\
-
-\addlinespace
-
-$\mathcal{M}_{H}$
-&
-TPR target prossime all'unità e TNR pari a $1.0000$ nei modelli aggregati.
-&
-Perdita quasi completa della sensibilità verso gli attacchi sorgente.
-&
-L'adattamento esteso al nuovo dominio deve essere valutato anche rispetto
-alla retention delle conoscenze precedentemente apprese.
-\\
-
-\bottomrule
-\end{tabularx}
+    \centering
+    \caption{Sintesi delle implicazioni operative dei tre paradigmi di addestramento nell'ambito del protocollo NIDS considerato.}
+    \label{tab:cap5_operational_summary}
+    \footnotesize
+    \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+        \toprule
+        \textbf{Paradigma} & \textbf{Evidenza favorevole} & \textbf{Criticità osservata} & \textbf{Implicazione operativa} \\
+        \midrule
+        $\mathcal{M}_{S}$
+        & Conservazione della sensibilità sul dominio sorgente e TNR elevata.
+        & Forte riduzione della TPR sulle distribuzioni target.
+        & La sola validazione in-domain non è sufficiente a caratterizzare la robustezza cross-domain. \\
+        \addlinespace
+        $\mathcal{M}_{\mathrm{base}}$
+        & Conservazione della TPR sorgente accompagnata da un forte incremento della sensibilità target mediante conoscenza target sparsa.
+        & Prestazioni target inferiori agli aggregati ibridi e dipendenti dall'architettura utilizzata.
+        & Configurazione più uniforme per la copertura simultanea di distribuzioni sorgente e target nell'insieme sperimentale considerato. \\
+        \addlinespace
+        $\mathcal{M}_{H}$
+        & TPR target prossime all'unità e TNR pari a $1.0000$ nei modelli aggregati.
+        & Perdita quasi completa della sensibilità verso gli attacchi sorgente.
+        & L'adattamento esteso al nuovo dominio deve essere valutato anche rispetto alla retention delle conoscenze precedentemente apprese. \\
+        \bottomrule
+    \end{tabularx}
 \end{table}
 
-Nel complesso, i risultati mostrano che la robustezza cross-domain non può
-essere valutata esclusivamente mediante la massima prestazione ottenuta su un
-singolo dominio. 
-Nel perimetro sperimentale analizzato, il criterio più
-discriminante è la capacità di acquisire informazione sul target preservando
-contemporaneamente la conoscenza sorgente e la corretta classificazione del
-traffico nominale.
+Nel complesso, i risultati mostrano che la robustezza cross-domain non può essere valutata esclusivamente mediante la massima prestazione ottenuta su un singolo dominio. 
+Nel perimetro sperimentale analizzato, il criterio più discriminante è la capacità di acquisire informazione sul target preservando contemporaneamente la conoscenza sorgente e la corretta classificazione del traffico nominale.
 
-Sotto tale criterio, \texttt{INJECTION} realizza il compromesso più uniforme
-tra i tre paradigmi considerati. 
-All'interno della baseline, RF presenta il
-profilo predittivo globale più favorevole, mentre l'assenza di misure
-computazionali e di una variazione del dominio nominale impedisce di
-estendere tale risultato a una selezione definitiva per un deployment
-satellitare. 
-Le evidenze raccolte costituiscono pertanto la sintesi
-interpretativa della campagna sperimentale e preparano la conclusione del
-capitolo.
-
-
-
-
-
-
-
-
-
+Sotto tale criterio, \texttt{INJECTION} realizza il compromesso più uniforme tra i tre paradigmi considerati. 
+All'interno della baseline, RF presenta il profilo predittivo globale più favorevole, mentre l'assenza di misure computazionali e di una variazione del dominio nominale impedisce di estendere tale risultato a una selezione definitiva per un deployment satellitare. 
+Le evidenze raccolte costituiscono pertanto la sintesi interpretativa della campagna sperimentale e preparano la conclusione del capitolo.
 
 
 
 % ==============================================================================
-% SEZIONE 6: CONCLUSIONI DEL CAPITOLO
+% SEZIONE 5.6: SINTESI E CONCLUSIONI DEL CAPITOLO
 % ==============================================================================
+
 \section{Sintesi e Conclusioni del Capitolo}
 \label{sec:cap5_conclusioni}
 
-Il presente capitolo ha completato la validazione sperimentale del framework attraverso una lettura congiunta delle proprietà distributive dei benchmark, delle prestazioni predittive, della stabilità rispetto alle inizializzazioni e delle caratteristiche maggiormente coinvolte nelle funzioni decisionali dei classificatori.
+Il presente capitolo ha completato la validazione sperimentale del framework attraverso una lettura congiunta delle proprietà distributive dei benchmark, delle prestazioni predittive, della stabilità multi-seed e delle caratteristiche maggiormente coinvolte nelle funzioni decisionali dei classificatori.
 
-La diagnostica preliminare mediante PCA e KDE ha evidenziato che il passaggio
-dal dominio sorgente \texttt{NB15} alle distribuzioni target non può essere
-ricondotto a una perturbazione uniforme dello spazio delle feature. Lo
-scostamento assume infatti forme differenti nelle variabili considerate:
-\texttt{pkts\_per\_sec} presenta variazioni di scala particolarmente marcate,
-mentre \texttt{total\_bytes} e \texttt{dst\_win\_byt} mostrano modificazioni
-della posizione, della dispersione e della forma delle rispettive
-distribuzioni. La configurazione \texttt{INJECTION}, pur rimanendo
-numericamente dominata dal traffico sorgente, incorpora già evidenze
-distributive riconducibili alla componente target; il benchmark
-\texttt{NB15\_STIN} rappresenta invece una condizione di scostamento molto più
-pronunciata, nella quale la componente malevola è interamente sostituita dal
-dominio target.
+La diagnostica mediante PCA e KDE ha mostrato che il passaggio dal dominio sorgente \texttt{NB15} alle distribuzioni target non corrisponde a una perturbazione uniforme dello spazio delle feature. 
+Le variabili analizzate presentano infatti scostamenti differenti per scala, posizione e dispersione, confermando la presenza di un \textit{domain shift} rilevante tra le componenti malevole sorgente e target. 
+Tale evidenza costituisce il contesto distributivo entro il quale devono essere interpretate le prestazioni dei modelli, senza attribuire a una singola feature un ruolo causale nel comportamento osservato.
 
-Tale quadro distributivo trova riscontro nelle prestazioni dei tre paradigmi
-di addestramento considerati. I modelli puramente sorgente
-$\mathcal{M}_S$ conservano una capacità discriminativa significativa sui
-benchmark \texttt{NB15}, ma mostrano una marcata perdita di sensibilità quando
-vengono applicati alle distribuzioni malevole target. La TNR rimane invece
-elevata, indicando che il principale limite osservato non consiste in un
-collasso generale della classificazione, bensì nella mancata estensione della
-regione positiva appresa alle nuove distribuzioni d'attacco.
+Il confronto tra i tre paradigmi di addestramento ha evidenziato regimi di generalizzazione distinti. 
+I modelli puramente sorgente $\mathcal{M}_{S}$ mantengono una capacità discriminativa significativa sui benchmark \texttt{NB15} e una TNR elevata, ma presentano una marcata perdita di sensibilità sulle distribuzioni malevole target. 
+I modelli ibridi $\mathcal{M}_{H}$ raggiungono invece TPR target prossime all'unità e, nelle configurazioni aggregate, TNR pari a $1.0000$, ma perdono quasi completamente la capacità di riconoscere gli attacchi sorgente. 
+La massima specializzazione sul nuovo dominio non coincide pertanto, nel protocollo considerato, con la migliore generalizzazione complessiva.
 
-All'estremo opposto, i modelli ibridi $\mathcal{M}_H$ raggiungono una
-sensibilità target prossima all'unità e, nelle configurazioni aggregate,
-TNR pari a $1.0000$. Tale specializzazione è tuttavia accompagnata dalla
-perdita quasi completa della capacità di riconoscere gli attacchi sorgente.
-L'aumento della quantità di conoscenza target utilizzata durante
-l'addestramento non determina pertanto, nel protocollo analizzato, un
-miglioramento monotono della generalizzazione complessiva. La massimizzazione
-della prestazione sul nuovo dominio e la preservazione della conoscenza
-precedentemente acquisita emergono come proprietà distinte.
+Tra tali estremi si colloca la baseline $\mathcal{M}_{\mathrm{base}}$, addestrata mediante \texttt{INJECTION}. 
+La sostituzione di $29$ dei $9\,300$ campioni malevoli con osservazioni target, pari a circa lo $0.31\%$ della classe positiva di training, risulta associata a un marcato incremento della sensibilità cross-domain senza una perdita sostanziale della sensibilità sorgente. 
+La TPR media sui benchmark target raggiunge $0.96612$ per DT, $0.82970$ per HGB e $0.98821$ per RF, mentre il comportamento sui benchmark \texttt{NB15} rimane sostanzialmente sovrapposto a quello dei corrispondenti modelli sorgente.
 
-Tra questi due regimi si colloca la baseline
-$\mathcal{M}_{\text{base}}$, addestrata sulla configurazione
-\texttt{INJECTION}. L'introduzione di $29$ campioni target all'interno della
-componente malevola di $9.300$ osservazioni risulta associata a una modifica
-sostanziale della capacità di generalizzazione, pur mantenendo pressoché
-inalterata la sensibilità sul dominio sorgente. Le TPR medie sui benchmark
-target raggiungono $0.96612$ per DT, $0.82970$ per HGB e $0.98821$ per RF,
-a fronte di valori pari rispettivamente a $0.3234$, $0.0607$ e $0.3035$ per
-i corrispondenti modelli aggregati sorgente. Contestualmente, la sensibilità
-sui benchmark \texttt{NB15} rimane sostanzialmente conservata.
+La medesima distinzione emerge considerando l'intera matrice di \textit{cross-evaluation}. 
+La baseline raggiunge la maggiore TPR media sui $16$ benchmark per tutte le architetture, pari a $0.88990$ per DT, $0.80246$ per HGB e $0.90071$ per RF. 
+Anche la sintesi multi-seed mediante F1-Score conferma tale comportamento, con valori globali rispettivamente pari a $0.860388$, $0.854074$ e $0.890221$. 
+Il vantaggio della configurazione \texttt{INJECTION} deve quindi essere interpretato come maggiore uniformità tra conservazione della conoscenza sorgente e riconoscimento delle distribuzioni target, e non come massimizzazione della prestazione su ogni singolo benchmark.
 
-La medesima distinzione emerge considerando la matrice completa di
-\textit{cross-evaluation}. La baseline raggiunge le maggiori TPR medie sui
-$16$ benchmark per tutte le architetture, pari a $0.88990$ per DT,
-$0.80246$ per HGB e $0.90071$ per RF. Anche la sintesi multi-seed mediante
-F1-Score conferma tale comportamento, con valori medi globali pari
-rispettivamente a $0.860388$, $0.854074$ e $0.890221$. Il vantaggio della
-baseline deve quindi essere interpretato come maggiore uniformità di
-comportamento tra distribuzioni sorgente e target, e non come
-massimizzazione della prestazione su ogni singolo benchmark.
+L'analisi inferenziale ha qualificato ulteriormente tale risultato. 
+Tutti i $18$ confronti di Welch tra la baseline e i modelli sorgente e tutti i $27$ confronti con le configurazioni ibride risultano significativi secondo il criterio $p<0.05$ adottato dal protocollo. 
+Il test è applicato alla media dell'F1-Score sui $16$ benchmark per ciascun seed; gli esiti caratterizzano pertanto una differenza globale tra le distribuzioni delle prestazioni multi-seed e non implicano una superiorità della baseline su ciascun test individuale. 
+Secondo il test adottato, tali distribuzioni non risultano compatibili con l'ipotesi nulla di uguaglianza delle medie, tenuto conto della variabilità inter-seed osservata. 
+I risultati mantengono inoltre il carattere esplorativo previsto dalla metodologia, poiché non è stata applicata una correzione per confronti multipli.
 
-L'analisi inferenziale ha ulteriormente qualificato tale risultato. Nel
-confronto con i modelli sorgente, tutti i $18$ test $t$ di Welch risultano
-significativi secondo il criterio $p<0{,}05$ adottato dal protocollo.
-Analogamente, tutti i $27$ confronti tra baseline e configurazioni ibride
-risultano statisticamente significativi. Poiché il test viene applicato alla
-media dell'F1-Score sui $16$ benchmark per ciascun seed, tali esiti
-caratterizzano la differenza globale tra le configurazioni e non implicano una
-superiorità della baseline su ogni singolo test set. Nel rispetto
-dell'impostazione sperimentale adottata, i risultati confermano tuttavia che le
-differenze osservate non risultano riconducibili alla sola variabilità
-introdotta dalle differenti inizializzazioni dei classificatori.
+Le analisi SHAP hanno mostrato che i differenti regimi prestazionali sono accompagnati da differenti organizzazioni della funzione decisionale. 
+Nei modelli sorgente e nella baseline, \texttt{pkts\_per\_sec} occupa la prima posizione di rilevanza globale per DT, HGB e RF; la baseline preserva quindi una struttura informativa largamente sovrapposta a quella sorgente, pur modificando l'ordinamento delle caratteristiche secondarie. 
+Nel modello aggregato ibrido \texttt{NB15\_STIN}, invece, \texttt{dst\_win\_byt} e \texttt{src\_win\_byt} assumono rispettivamente la prima e la seconda posizione in tutte le architetture. 
+La maggiore specializzazione target risulta pertanto associata anche a una sostanziale riorganizzazione delle feature utilizzate dal classificatore. 
+Le corrispondenze tra diagnostica distributiva, SHAP e comportamento prestazionale devono tuttavia essere interpretate come associazioni empiriche e non come relazioni causali dimostrate.
 
-Le analisi SHAP hanno fornito un ulteriore livello di interpretazione del
-fenomeno. Nei modelli sorgente e nella baseline,
-\texttt{pkts\_per\_sec} occupa la prima posizione di rilevanza globale per DT,
-HGB e RF, mostrando come una delle feature maggiormente interessate dal
-\textit{domain shift} costituisca contemporaneamente una dimensione centrale
-della funzione decisionale. La baseline conserva gran parte di tale struttura
-informativa, pur modificando l'ordinamento delle caratteristiche secondarie.
-
-Nel modello aggregato ibrido \texttt{NB15\_STIN}, la gerarchia cambia invece
-in maniera sostanziale: \texttt{dst\_win\_byt} e
-\texttt{src\_win\_byt} assumono rispettivamente la prima e la seconda
-posizione nelle tre architetture. La riorganizzazione delle attribuzioni
-coincide quindi con il passaggio dalla generalizzazione più uniforme della
-baseline alla forte specializzazione target del paradigma ibrido. Le
-corrispondenze tra diagnostica distributiva, SHAP e prestazioni costituiscono
-associazioni empiriche coerenti, ma non vengono interpretate come relazioni
-causali, poiché il protocollo non comprende interventi controllati o studi di
-ablazione sulle singole feature.
-
-Il confronto tra DT, HGB e RF ha infine mostrato che l'architettura del
-classificatore modula il compromesso tra sensibilità e specificità, senza
-annullare l'effetto esercitato dalla composizione del training set. Nella
-baseline, RF presenta il profilo predittivo globale più favorevole, associando
-la maggiore sensibilità media target, la maggiore TPR globale, il maggiore
-F1-Score medio multi-seed e la minore dispersione di quest'ultimo tra le tre
-architetture. DT mantiene prestazioni relativamente vicine mediante una
-struttura costituita da un singolo albero, mentre HGB privilegia maggiormente
-la specificità, raggiungendo la TNR più elevata a fronte di una sensibilità
-target inferiore.
+Il confronto tra le architetture ha infine mostrato che DT, HGB e RF modulano diversamente il compromesso tra sensibilità, specificità e stabilità, senza annullare l'effetto della composizione del training set.
+Nella baseline, RF presenta il profilo predittivo globale più favorevole, associando la maggiore sensibilità target, la maggiore TPR globale, il maggiore F1-Score medio multi-seed e la minore dispersione di quest'ultimo tra le tre architetture. 
+HGB privilegia maggiormente la specificità, raggiungendo la TNR più elevata a fronte di una sensibilità target inferiore, mentre DT mantiene prestazioni competitive mediante una struttura algoritmica qualitativamente meno articolata.
 
 Tale confronto rimane circoscritto alle grandezze effettivamente misurate.
-La campagna sperimentale non comprende infatti misure di latenza, occupazione
-di memoria, dimensione dei modelli o consumo energetico; non è quindi
-possibile derivare dai risultati del capitolo un ordinamento quantitativo dei
-classificatori rispetto al costo computazionale né una selezione definitiva
-per un deployment satellitare.
+La campagna sperimentale non comprende misure di latenza di inferenza, occupazione di memoria, dimensione dei modelli, utilizzo delle risorse o consumo energetico; non è quindi possibile derivare un ordinamento quantitativo dei classificatori rispetto al costo computazionale né identificare una configurazione definitivamente idonea a un deployment satellitare. 
+Analogamente, la componente nominale dei benchmark rimane sempre derivata da \texttt{NB15} e non viene quindi valutato un \textit{domain shift} del traffico benigno.
 
-Nel complesso, il percorso sperimentale ha mostrato che la valutazione della
-robustezza cross-domain non può essere ridotta né alla sola prestazione
-in-domain né alla massimizzazione della sensibilità sul dominio target. Nel
-perimetro dei benchmark analizzati, l'elemento discriminante è rappresentato
-dalla capacità di acquisire informazione sul nuovo dominio preservando
-contemporaneamente la conoscenza precedentemente appresa e la corretta
-classificazione del traffico nominale. Sotto tale criterio, la configurazione
-\texttt{INJECTION} realizza il compromesso più uniforme tra i tre paradigmi
-considerati.
+Nel complesso, i risultati mostrano che la robustezza cross-domain non può essere valutata né attraverso la sola prestazione in-domain né mediante la massimizzazione della sensibilità sul nuovo dominio. 
+Nel perimetro sperimentale analizzato, il criterio discriminante è rappresentato dalla capacità di acquisire informazione sul target preservando contemporaneamente la conoscenza precedentemente appresa e la corretta classificazione del traffico nominale. 
+Sotto tale criterio, la configurazione \texttt{INJECTION} realizza il compromesso più uniforme tra i tre paradigmi considerati.
 
-Con la presente sezione si conclude pertanto l'analisi sperimentale del
-framework. Le evidenze quantitative, statistiche e interpretative raccolte nel
-capitolo costituiscono la base empirica sulla quale verranno formulate, nel
-capitolo conclusivo della tesi, le considerazioni complessive sul lavoro
-svolto e sul contributo del progetto, mantenendo distinta tale sintesi finale
-dalla discussione dei risultati sviluppata in questa sede.
+Con la presente sezione si conclude l'analisi sperimentale del framework.
+Le evidenze quantitative, statistiche e interpretative ottenute costituiscono la base empirica per le conclusioni complessive della tesi, nelle quali il contributo del lavoro verrà ricondotto agli obiettivi definiti nei capitoli precedenti e distinto dai limiti e dalle possibili estensioni del protocollo sperimentale.
