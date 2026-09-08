@@ -1,8 +1,10 @@
 \chapter{Risultati Numerici Completi}
 \label{app:risultati_completi}
 
-La presente appendice raccoglie i risultati numerici completi associati alle analisi sperimentali sviluppate nel Capitolo~\ref{ch:risultati}. 
-Le tabelle riportate nel seguito costituiscono il dettaglio integrale delle matrici di valutazione e delle analisi statistiche richiamate nel corpo principale della trattazione, dove sono mantenuti i risultati necessari all'interpretazione e al confronto tra i differenti paradigmi sperimentali.
+La presente appendice raccoglie i risultati numerici completi associati alle analisi sperimentali sviluppate nel Capitolo~\ref{ch:risultati}.
+Al fine di preservare la leggibilità della discussione principale, nel Capitolo~\ref{ch:risultati} sono riportati i risultati necessari all'interpretazione e al confronto tra i paradigmi sperimentali, mentre nel seguito sono raccolti i relativi dettagli numerici completi.
+
+L'organizzazione dell'appendice segue la medesima articolazione logica adottata nell'analisi sperimentale: baseline \texttt{INJECTION}, modelli sorgente, modelli ibridi e verifiche statistiche.
 
 
 % ==============================================================================
@@ -11,6 +13,11 @@ Le tabelle riportate nel seguito costituiscono il dettaglio integrale delle matr
 
 \section{Risultati Completi della Baseline INJECTION}
 \label{app:baseline_injection}
+
+La presente sezione raccoglie il dettaglio numerico delle valutazioni della baseline \texttt{INJECTION} discusse nella Sezione~\ref{sec:baseline_prestazioni}. 
+Sono riportate separatamente le cardinalità complete delle matrici di confusione e le metriche complementari ottenute sui benchmark di cross-evaluation.
+
+\subsection{Matrici di Confusione}
 
 \begin{table}[H]
     \centering
@@ -42,6 +49,8 @@ Le tabelle riportate nel seguito costituiscono il dettaglio integrale delle matr
     \end{tabular}
     }
 \end{table}
+
+\subsection{Metriche Complementari}
 
 \begin{table}[H]
     \centering
@@ -83,9 +92,14 @@ Le tabelle riportate nel seguito costituiscono il dettaglio integrale delle matr
 \section{Risultati Completi dei Modelli Sorgente}
 \label{app:modelli_sorgente}
 
+La presente sezione raccoglie il dettaglio numerico delle analisi relative ai modelli addestrati esclusivamente sul dominio sorgente, discusse nella Sezione~\ref{sec:risultati_modelli_sorgente}. 
+I risultati sono organizzati distinguendo le prestazioni sul dominio sorgente, la risposta cross-domain, la specificità multi-seed e il confronto con la baseline \texttt{INJECTION}.
+
 % ==============================================================================
 % RISULTATI COMPLETI DEI MODELLI SORGENTE
 % ==============================================================================
+
+\subsection{Prestazioni sul Dominio Sorgente e su INJECTION}
 
 \begin{table}[H]
     \centering
@@ -128,6 +142,8 @@ Le tabelle riportate nel seguito costituiscono il dettaglio integrale delle matr
 \end{table}
 
 
+\subsection{Prestazioni Cross-Domain}
+
 \begin{table}[H]
     \centering
     \caption{TPR media sui $10$ seed dei modelli sorgente valutati sui benchmark target aggregati e biclasse.}
@@ -169,6 +185,8 @@ Le tabelle riportate nel seguito costituiscono il dettaglio integrale delle matr
 \end{table}
 
 
+\subsection{Specificità Multi-Seed}
+
 \begin{table}[H]
     \centering
     \caption{Media e varianza della TNR sui $10$ seed per i modelli sorgente. Il valore è indipendente dal test set malevolo poiché la componente nominale rimane invariata all'interno del protocollo sperimentale.}
@@ -190,6 +208,8 @@ Le tabelle riportate nel seguito costituiscono il dettaglio integrale delle matr
     }
 \end{table}
 
+
+\subsection{Confronto Completo con la Baseline INJECTION}
 
 \begin{table}[H]
     \centering
@@ -254,9 +274,14 @@ Le tabelle riportate nel seguito costituiscono il dettaglio integrale delle matr
 \section{Risultati Completi dei Modelli Ibridi}
 \label{app:modelli_ibridi}
 
+La presente sezione riporta il dettaglio numerico delle valutazioni dei modelli ibridi discusse nella Sezione~\ref{sec:risultati_modelli_ibridi}. 
+Sono riportate separatamente le prestazioni sui benchmark target omologhi e i risultati della cross-evaluation sulle differenti distribuzioni considerate.
+
 % ==============================================================================
 % PRESTAZIONI OMOLOGHE DEI MODELLI IBRIDI
 % ==============================================================================
+
+\subsection{Prestazioni sui Benchmark Omologhi}
 
 \begin{table}[H]
     \centering
@@ -287,6 +312,8 @@ Le tabelle riportate nel seguito costituiscono il dettaglio integrale delle matr
 % CROSS-EVALUATION DEI MODELLI IBRIDI
 % ==============================================================================
 
+\subsection{Cross-Evaluation dei Modelli Ibridi}
+
 \begin{table}[H]
     \centering
     \caption{TPR media multi-seed dei modelli ibridi sui benchmark sorgente, \texttt{INJECTION} e target. Le colonne NB15 e Target rappresentano rispettivamente la media sui sei e sui nove test set dei corrispondenti gruppi.}
@@ -312,12 +339,33 @@ Le tabelle riportate nel seguito costituiscono il dettaglio integrale delle matr
 \end{table}
 
 
+
+% ==============================================================================
+% MAPPE DI CALORE
+% ==============================================================================
+\section{Mappe di Calore della Cross-Evaluation}
+\label{app:heatmap_cross_evaluation}
+
+La presente sezione riporta le rappresentazioni grafiche aggregate delle
+matrici di valutazione ottenute nel protocollo di \textit{cross-evaluation}.
+Le mappe di calore complementano il dettaglio numerico riportato nelle
+sezioni precedenti, fornendo una rappresentazione sinottica del comportamento
+dei modelli rispetto ai differenti benchmark di test.
+
+\subsection{Mappe di Calore Aggregate della TPR}
+\label{app:heatmap_tpr}
+
+
+
 % ==============================================================================
 % ANALISI STATISTICA
 % ==============================================================================
 
 \section{Risultati Completi dei Test Statistici}
 \label{app:welch}
+
+La presente sezione raccoglie le statistiche descrittive e i risultati completi dei test $t$ di Welch discussi nel Capitolo~\ref{ch:risultati}. 
+I confronti sono organizzati separatamente per i modelli sorgente e per i modelli ibridi, assumendo in entrambi i casi la configurazione \texttt{INJECTION} come riferimento sperimentale.
 
 % ==============================================================================
 % TEST DI WELCH -- MODELLI SORGENTE
@@ -375,7 +423,6 @@ Le tabelle riportate nel seguito costituiscono il dettaglio integrale delle matr
     \centering
     \caption{Media e deviazione standard campionaria dei valori medi di F1-Score sui $10$ seed per la baseline e i modelli ibridi. $\Delta F1$ è calcolato come baseline meno modello ibrido.}
     \label{tab:ibridi_welch_descriptive}
-    \scriptsize
     \resizebox{\textwidth}{!}{
     \begin{tabular}{lccc|ccc|ccc}
         \toprule
@@ -392,6 +439,30 @@ Le tabelle riportate nel seguito costituiscono il dettaglio integrale delle matr
         \texttt{nb15\_ter20\_ddos} & 0.491250 & 0.082180 & $+0.369138$ & 0.335325 & 0.000000 & $+0.518749$ & 0.401911 & 0.085435 & $+0.488310$ \\
         \texttt{nb15\_ter20\_syn\_ddos} & 0.562876 & 0.000009 & $+0.297513$ & 0.408438 & 0.018932 & $+0.445636$ & 0.562871 & 0.000022 & $+0.327351$ \\
         \texttt{nb15\_ter20\_udp\_ddos} & 0.555778 & 0.008641 & $+0.304611$ & 0.230466 & 0.023354 & $+0.623608$ & 0.282475 & 0.000000 & $+0.607746$ \\
+        \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{Risultati del test $t$ di Welch tra \texttt{injection\_aggregate} e i modelli ibridi, con $\alpha=0{,}05$.}
+    \label{tab:ibridi_welch_results}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{lccc|ccc|ccc}
+        \toprule
+        \multirow{2}{*}{\textbf{Modello confrontato}} & \multicolumn{3}{c|}{\textbf{DT}} & \multicolumn{3}{c|}{\textbf{HGB}} & \multicolumn{3}{c}{\textbf{RF}} \\
+        & $\boldsymbol{t}$ & $\boldsymbol{p}$ & \textbf{Sign.} & $\boldsymbol{t}$ & $\boldsymbol{p}$ & \textbf{Sign.} & $\boldsymbol{t}$ & $\boldsymbol{p}$ & \textbf{Sign.} \\
+        \midrule
+        \texttt{nb15\_sat20\_aggregate} & 267.5863 & $7.2356\times10^{-19}$ & Sì & 25.1143 & $1.9370\times10^{-10}$ & Sì & 422.2333 & $1.1929\times10^{-20}$ & Sì \\
+        \texttt{nb15\_sat20\_syn\_ddos} & 169.2801 & $3.4456\times10^{-20}$ & Sì & 56.6262 & $8.4088\times10^{-13}$ & Sì & 629.8796 & $6.8206\times10^{-38}$ & Sì \\
+        \texttt{nb15\_sat20\_udp\_ddos} & 79.7886 & $3.9878\times10^{-16}$ & Sì & 45.1404 & $6.4262\times10^{-12}$ & Sì & 455.9473 & $2.4901\times10^{-22}$ & Sì \\
+        \texttt{nb15\_stin\_aggregate} & 267.5751 & $7.2343\times10^{-19}$ & Sì & 25.3389 & $1.1170\times10^{-9}$ & Sì & 422.2191 & $1.1923\times10^{-20}$ & Sì \\
+        \texttt{nb15\_ter20\_aggregate} & 267.5751 & $7.2343\times10^{-19}$ & Sì & 25.3389 & $1.1170\times10^{-9}$ & Sì & 422.2268 & $1.1923\times10^{-20}$ & Sì \\
+        \texttt{nb15\_ter20\_botnet} & 61.1330 & $4.4121\times10^{-14}$ & Sì & 13.1250 & $9.0594\times10^{-9}$ & Sì & 201.5742 & $3.4772\times10^{-24}$ & Sì \\
+        \texttt{nb15\_ter20\_ddos} & 14.1915 & $1.7560\times10^{-7}$ & Sì & 45.1404 & $6.4262\times10^{-12}$ & Sì & 18.0668 & $2.1765\times10^{-8}$ & Sì \\
+        \texttt{nb15\_ter20\_syn\_ddos} & 267.5736 & $7.2352\times10^{-19}$ & Sì & 34.3910 & $1.4012\times10^{-14}$ & Sì & 422.2097 & $1.1864\times10^{-20}$ & Sì \\
+        \texttt{nb15\_ter20\_udp\_ddos} & 103.2535 & $6.1024\times10^{-19}$ & Sì & 45.6509 & $8.1098\times10^{-18}$ & Sì & 783.8890 & $4.5557\times10^{-23}$ & Sì \\
         \bottomrule
     \end{tabular}
     }

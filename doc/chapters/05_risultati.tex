@@ -4,39 +4,18 @@
 \chapter{Analisi dei Risultati e Discussione Sperimentale}
 \label{ch:risultati}
 
-Il presente capitolo espone e analizza i risultati ottenuti mediante il protocollo
-sperimentale implementato nel Capitolo~\ref{ch:implementazione}, ponendo particolare
-attenzione alla capacità delle differenti configurazioni di classificazione di
-mantenere un comportamento discriminativo stabile in presenza di variazioni del
-dominio di traffico.
+Il presente capitolo espone e analizza i risultati ottenuti mediante il protocollo sperimentale implementato nel Capitolo~\ref{ch:implementazione}, ponendo particolare attenzione alla capacità delle differenti configurazioni di classificazione di mantenere un comportamento discriminativo stabile in presenza di variazioni del dominio di traffico.
 
-L'analisi viene condotta secondo una progressione coerente con il framework
-metodologico definito nel Capitolo~\ref{ch:metodologia}. In primo luogo, viene
-esaminata la struttura geometrica e distributiva dei benchmark mediante gli
-strumenti diagnostici PCA e KDE, al fine di caratterizzare preliminarmente
-l'entità dello scostamento tra il dominio sorgente e le configurazioni contenenti
-traffico target. Successivamente, vengono valutate le prestazioni della baseline
-\textit{INJECTION}, assunta come riferimento sperimentale, e confrontate
-separatamente con quelle dei modelli addestrati esclusivamente sul dominio
-sorgente e con quelle dei modelli ibridi.
+L'analisi viene condotta secondo una progressione coerente con il framework metodologico definito nel Capitolo~\ref{ch:metodologia}. 
+In primo luogo, viene esaminata la struttura geometrica e distributiva dei benchmark mediante gli strumenti diagnostici PCA e KDE, al fine di caratterizzare preliminarmente l'entità dello scostamento tra il dominio sorgente e le configurazioni contenenti traffico target. 
+Successivamente, vengono valutate le prestazioni della baseline \textit{INJECTION}, assunta come riferimento sperimentale, e confrontate separatamente con quelle dei modelli addestrati esclusivamente sul dominio sorgente e con quelle dei modelli ibridi.
 
-La valutazione quantitativa viene sviluppata combinando i risultati puntuali
-ottenuti per il seed rappresentativo $s=42$ con le statistiche aggregate sulle
-$K=10$ repliche stocastiche definite nel protocollo \textit{multi-seed}. Tale
-impostazione consente di distinguere la descrizione analitica delle singole
-configurazioni dalla verifica della stabilità dei risultati rispetto
-all'inizializzazione degli stimatori. Il confronto viene infine completato
-mediante il test $t$ di Welch sull'\textit{F1-Score} e attraverso l'analisi
-post-hoc SHAP delle caratteristiche maggiormente coinvolte nelle decisioni dei
-classificatori.
+La valutazione quantitativa viene sviluppata combinando i risultati puntuali ottenuti per il seed rappresentativo $s=42$ con le statistiche aggregate sulle $K=10$ repliche stocastiche definite nel protocollo \textit{multi-seed}. 
+Tale impostazione consente di distinguere la descrizione analitica delle singole configurazioni dalla verifica della stabilità dei risultati rispetto all'inizializzazione degli stimatori. 
+Il confronto viene infine completato mediante il test $t$ di Welch sull'\textit{F1-Score} e attraverso l'analisi post-hoc SHAP delle caratteristiche maggiormente coinvolte nelle decisioni dei classificatori.
 
-La parte conclusiva del capitolo integra quindi le evidenze prestazionali,
-distributive e di spiegabilità, con l'obiettivo di individuare associazioni
-coerenti tra variazioni dello spazio delle caratteristiche e comportamento
-predittivo. Le eventuali relazioni individuate vengono interpretate nei limiti
-consentiti dagli artefatti sperimentali disponibili, distinguendo le evidenze
-direttamente osservabili dalle possibili spiegazioni di carattere
-trasmissivo e di rete.
+La parte conclusiva del capitolo integra quindi le evidenze prestazionali, distributive e di spiegabilità, con l'obiettivo di individuare associazioni coerenti tra variazioni dello spazio delle caratteristiche e comportamento predittivo. 
+Le eventuali relazioni individuate vengono interpretate nei limiti consentiti dagli artefatti sperimentali disponibili, distinguendo le evidenze direttamente osservabili dalle interpretazioni compatibili con il protocollo sperimentale.
 
 
 % ==============================================================================
@@ -285,7 +264,7 @@ Il traffico malevolo target occupa quindi una regione caratterizzata da volumi c
 Anche \texttt{dst\_win\_byt} evidenzia una modifica strutturale: la media passa da $87.52$ per gli attacchi \texttt{NB15} a circa $-0.78$ per \texttt{STIN}, mentre la varianza diminuisce da circa $1.47\times10^{4}$ a $4.01\times10^{3}$. 
 La distribuzione target risulta conseguentemente concentrata in regioni differenti rispetto a quelle maggiormente popolate dal traffico nominale sorgente.
 
-Le tre caratteristiche descrivono quindi modalità distinte di variazione cross-domain: \texttt{pkts\_per\_sec} combina una forte traslazione con una marcata espansione della dispersione; \texttt{total\_bytes} presenta una riduzione della posizione centrale e una contrazione della varianza; \texttt{dst\_win\_byt} modifica sia la posizione sia la concentrazione della distribuzione. 
+Le tre caratteristiche descrivono quindi modalità distinte di variazione cross-domain: \newline \texttt{pkts\_per\_sec} combina una forte traslazione con una marcata espansione della dispersione; \texttt{total\_bytes} presenta una riduzione della posizione centrale e una contrazione della varianza; \texttt{dst\_win\_byt} modifica sia la posizione sia la concentrazione della distribuzione. 
 Lo scostamento tra \texttt{NB15} e \texttt{STIN} non risulta pertanto riconducibile a una singola trasformazione di scala, ma interessa in modo eterogeneo le diverse dimensioni osservate.
 
 \paragraph{Raccordo tra evidenza PCA e KDE.}
@@ -449,7 +428,7 @@ Tali differenze emergono pur utilizzando la medesima strategia di composizione \
 
 \paragraph{Criterio di lettura delle attribuzioni.}
 L'analisi SHAP considera, per tutte e tre le architetture, il seed $s=42$ e il test set \texttt{INJECTION}, mantenendo quindi lo stesso riferimento sperimentale della valutazione precedente. 
-La procedura segue l'implementazione descritta nella Sottosezione~4.6.2 del Capitolo~4 e considera le attribuzioni relative alla classe positiva \textit{Attack/Anomaly}.
+La procedura segue l'implementazione descritta nella Sottosezione~\ref{subsec:implementazione_shap} del Capitolo~\ref{ch:implementazione} e considera le attribuzioni relative alla classe positiva \textit{Attack/Anomaly}.
 
 Nei \textit{summary dot plot}, l'ordinamento verticale esprime la rilevanza globale delle feature sul campione analizzato, mentre la posizione orizzontale descrive direzione e ampiezza del contributo all'output del modello. 
 Valori SHAP positivi spostano la risposta verso la classe malevola e valori negativi nella direzione opposta; la codifica cromatica distingue valori elevati e ridotti della caratteristica. 
@@ -822,7 +801,7 @@ Rispetto alle altre architetture, assumono quindi maggiore rilevanza i rapporti 
 Per \texttt{down\_up\_ratio} e \texttt{byte\_ratio}, valori elevati risultano prevalentemente associati a contributi negativi, mentre \texttt{load\_s} presenta una tendenza opposta, con numerosi valori elevati nella regione positiva.
 
 \paragraph{Random Forest.}
-Nel RF, Figura~\ref{fig:shap_sorgente_nb15}(c), \texttt{pkts\_per\_sec} è seguita da \texttt{total\_bytes}, \texttt{src\_mean\_pkt\_size}, \texttt{duration} e \texttt{src\_bytes}. 
+Nel RF, Figura~\ref{fig:shap_sorgente_nb15}(c), \texttt{pkts\_per\_sec} è seguita da \texttt{total\_bytes}, \newline \texttt{src\_mean\_pkt\_size}, \texttt{duration} e \texttt{src\_bytes}. 
 La feature principale e \texttt{total\_bytes} mostrano distribuzioni articolate su entrambi i lati dell'origine, mentre \texttt{load\_s}, collocata immediatamente dopo le prime cinque caratteristiche, presenta valori elevati prevalentemente associati a contributi positivi. 
 Per \texttt{down\_up\_ratio} si osserva invece una tendenza qualitativamente inversa.
 
@@ -989,7 +968,7 @@ Una prima valutazione riguarda le condizioni nelle quali ciascun modello viene a
 I risultati completi per il seed rappresentativo $s=42$ sono riportati nella Tabella~\ref{tab:ibridi_matched_seed42} in Appendice.
 
 Le prestazioni risultano sostanzialmente sature. 
-Sui benchmark aggregati \texttt{NB15\_STIN} e \texttt{NB15\_SAT20}, DT, HGB e RF identificano $1\,859$ dei $1\,860$ campioni malevoli, producendo un solo falso negativo e nessun falso positivo. 
+Sui benchmark aggregati \texttt{NB15\_STIN} e \newline \texttt{NB15\_SAT20}, DT, HGB e RF identificano $1\,859$ dei $1\,860$ campioni malevoli, producendo un solo falso negativo e nessun falso positivo. 
 Ne conseguono TPR pari a $0.9995$, TNR e Precision pari a $1.0000$ e F1-Score pari a $0.9997$. 
 Sul benchmark aggregato \texttt{NB15\_TER20} e sui sei test biclasse omologhi, le tre architetture raggiungono invece TPR, TNR, Precision e F1-Score pari a $1.0000$.
 
@@ -1054,7 +1033,7 @@ Un'elevata prestazione sulla distribuzione omologa non implica pertanto una gene
 Tale proprietà distingue in particolare i rilevatori biclasse dai modelli aggregati, che presentano una risposta sostanzialmente uniforme nell'intero gruppo target.
 
 \paragraph{Stabilità multi-seed e raccordo con la diagnostica distributiva.}
-La stabilità sulle distribuzioni omologhe risulta molto elevata.  Per la quasi totalità delle configurazioni, la TPR media rimane pari a $1.0000$ con varianza nulla; anche le poche variazioni osservate sono dell'ordine di $10^{-8}$. 
+La stabilità sulle distribuzioni omologhe risulta molto elevata.  Per la quasi totalità delle configurazioni, la TPR media rimane pari a $1.0000$ con varianza nulla; anche le varianze non nulle osservate sono dell'ordine di $10^{-8}$. 
 Il comportamento rilevato nel seed $s=42$ non rappresenta quindi un'anomalia isolata della specifica inizializzazione.
 
 La forte asimmetria tra sorgente e target è inoltre compatibile con la diagnostica sviluppata nella Sezione~\ref{sec:diagnostica_spaziale_distributiva}. 
@@ -1185,7 +1164,7 @@ $\mathcal{M}_{\mathrm{base}}$ rinuncia a una quota di sensibilità target rispet
 
 \paragraph{Modelli biclasse: specializzazione locale e trasferimento cross-target.}
 Il confronto con la baseline conferma la maggiore dipendenza dei rilevatori biclasse dalla specifica distribuzione utilizzata nel training. 
-Per DT, tre dei sei specialisti superano la TPR target media della baseline: \texttt{nb15\_sat20\_udp\_ddos}, con $0.97490$; \texttt{nb15\_ter20\_syn\_ddos}, con $0.99993$; e \texttt{nb15\_ter20\_udp\_ddos}, con $0.97867$.
+Per DT, tre dei sei specialisti superano la TPR target media della baseline: \texttt{nb15\_sat20\_udp\_ddos}, con $0.97490$; \texttt{nb15\_ter20\_syn\_ddos}, con $0.99993$; e \newline \texttt{nb15\_ter20\_udp\_ddos}, con $0.97867$.
 
 Per HGB soltanto \texttt{nb15\_ter20\_botnet}, con $0.84210$, supera la baseline, pari a $0.82970$. 
 Per RF, la cui baseline raggiunge $0.98821$, soltanto \texttt{nb15\_ter20\_syn\_ddos}, con $0.99991$, mantiene un vantaggio nella media sui nove benchmark target.
@@ -1274,7 +1253,7 @@ La Tabella~\ref{tab:ibridi_shap_top5} sintetizza le prime cinque feature delle t
 
 \begin{table}[H]
     \centering
-    \caption{Prime cinque feature nella graduatoria SHAP del modello aggregato ibrido \texttt{NB15\_STIN} per DT, HGB e RF al seed $s=42$.}
+    \caption[Prime cinque feature nella graduatoria SHAP del modello aggregato ibrido \newline \texttt{NB15\_STIN} per DT, HGB e RF al seed $s=42$.]{Prime cinque feature nella graduatoria SHAP del modello aggregato ibrido \texttt{NB15\_STIN} per DT, HGB e RF al seed $s=42$.}
     \label{tab:ibridi_shap_top5}
     \begin{tabular}{c|lll}
         \toprule
@@ -1345,7 +1324,7 @@ Anche in questo caso il test riguarda la prestazione \emph{globale} lungo l'inte
 \paragraph{Sintesi descrittiva dell'F1-Score multi-seed.}
 Le statistiche complete sono riportate nella Tabella~\ref{tab:ibridi_welch_descriptive} in Appendice. 
 Per DT, la baseline raggiunge una media globale pari a $0.860388$, mentre i tre modelli aggregati ibridi si attestano intorno a $0.56287$. 
-Per HGB, \texttt{injection\_aggregate} raggiunge $0.854074$, contro $0.562881$ dei modelli aggregati \texttt{nb15\_stin\_aggregate} e \texttt{nb15\_ter20\_aggregate}. 
+Per HGB, \texttt{injection\_aggregate} raggiunge $0.854074$, contro $0.562881$ dei modelli aggregati \texttt{nb15\_stin\_aggregate} e \newline \texttt{nb15\_ter20\_aggregate}. 
 Per RF, la baseline raggiunge $0.890221$, mentre gli aggregati ibridi rimangono nuovamente prossimi a $0.56287$.
 
 Il valore intorno a $0.5625$ non rappresenta una prestazione uniformemente intermedia sui singoli test set. 
@@ -1423,7 +1402,7 @@ dove $\overline{TPR}_{ij}$ rappresenta la TPR media sulle $K=10$ repliche per la
 Il benchmark \texttt{INJECTION} e la media sull'intero insieme dei $16$ test vengono mantenuti separati, così da preservare l'informazione relativa all'asimmetria tra comportamento sorgente e target. 
 Per l'F1-Score viene richiamata la misura globale multi-seed già definita nell'Equazione~\eqref{eq:cap5_f1_seed_mean_source}.
 
-Nel paradigma $\mathcal{M}_{S}$ viene considerato \texttt{nb15\_aggregate}; per $\mathcal{M}_{\mathrm{base}}$ viene utilizzato \texttt{injection\_aggregate}; per $\mathcal{M}_{H}$ vengono invece riportati gli intervalli minimo--massimo osservati tra i tre modelli aggregati \texttt{nb15\_stin\_aggregate}, \texttt{nb15\_sat20\_aggregate} e \texttt{nb15\_ter20\_aggregate}.
+Nel paradigma $\mathcal{M}_{S}$ viene considerato \texttt{nb15\_aggregate}; per $\mathcal{M}_{\mathrm{base}}$ viene utilizzato \newline \texttt{injection\_aggregate}; per $\mathcal{M}_{H}$ vengono invece riportati gli intervalli minimo--massimo osservati tra i tre modelli aggregati \texttt{nb15\_stin\_aggregate}, \texttt{nb15\_sat20\_aggregate} e \newline \texttt{nb15\_ter20\_aggregate}.
 
 \paragraph{Sintesi quantitativa dei tre paradigmi.}
 La Tabella~\ref{tab:global_paradigm_comparison} costituisce il riferimento quantitativo principale della discussione, riunendo le metriche necessarie a confrontare direttamente i tre paradigmi.
@@ -1575,7 +1554,7 @@ La classificazione dipende infatti dall'interazione multidimensionale tra le car
 
 \paragraph{Ruolo della composizione del training set.}
 La lettura congiunta dei tre paradigmi mostra infine che la composizione della classe malevola è sistematicamente associata a differenti organizzazioni della funzione decisionale. 
-Nel paradigma sorgente, la classe positiva è interamente NB15; nella baseline rimane prevalentemente sorgente e incorpora una componente target di $29$ osservazioni; nel paradigma ibrido la classe nominale è sorgente e quella malevola interamente target.
+Nel paradigma sorgente, la classe positiva è interamente NB15; nella configurazione \texttt{INJECTION}, il benchmark rimane prevalentemente sorgente e incorpora complessivamente $29$ osservazioni target, delle quali $23$ appartengono alla partizione di training; nel paradigma ibrido, la classe nominale è sorgente e quella malevola interamente target. 
 
 La progressione non descrive quindi un semplice incremento quantitativo della conoscenza target, ma tre differenti condizioni distributive di addestramento. 
 Le rispettive gerarchie SHAP e i profili di generalizzazione mostrano che la modalità con cui il nuovo dominio viene incorporato nel training set è associata al tipo di conoscenza successivamente trasferito dal classificatore.
@@ -1585,7 +1564,7 @@ La Tabella~\ref{tab:cap5_cause_effect_mapping} sintetizza le principali associaz
 
 \begin{table}[H]
     \centering
-    \caption{Mappatura sinottica delle associazioni osservate tra evidenze distributive, rilevanza SHAP e comportamento prestazionale.  Le relazioni riportate non rappresentano nessi causali dimostrati.}
+    \caption{Mappatura sinottica delle associazioni osservate tra evidenze distributive, rilevanza SHAP e comportamento prestazionale. Le associazioni riportate descrivono corrispondenze empiriche tra i fenomeni osservati, senza implicare relazioni causali dimostrate.}
     \label{tab:cap5_cause_effect_mapping}
     \footnotesize
     \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
@@ -1754,9 +1733,9 @@ Analogamente, SHAP permette di identificare la diversa struttura decisionale dei
 
 \paragraph{Limite della componente nominale condivisa.}
 Un limite sperimentale rilevante riguarda la distribuzione del traffico nominale. 
-Nei differenti benchmark di valutazione la componente benign proviene sempre dal dominio sorgente \texttt{NB15}; la variazione cross-domain riguarda quindi la componente malevola.
+Nei differenti benchmark di valutazione la componente nominale proviene sempre dal dominio sorgente \texttt{NB15}; la variazione cross-domain riguarda quindi la componente malevola.
 
-Le TNR elevate osservate dimostrano pertanto la preservazione della classificazione sul traffico nominale effettivamente incluso nel protocollo, ma non permettono di concludere che la specificità rimarrebbe invariata in presenza di un differente dominio benigno. 
+Le TNR elevate osservate dimostrano pertanto la preservazione della classificazione sul traffico nominale effettivamente incluso nel protocollo, ma non permettono di concludere che la specificità rimarrebbe invariata in presenza di un differente dominio nominale. 
 Il presente esperimento non valuta quindi un \textit{benign-domain shift}.
 
 \paragraph{Soglia decisionale.}
@@ -1823,7 +1802,8 @@ I modelli ibridi $\mathcal{M}_{H}$ raggiungono invece TPR target prossime all'un
 La massima specializzazione sul nuovo dominio non coincide pertanto, nel protocollo considerato, con la migliore generalizzazione complessiva.
 
 Tra tali estremi si colloca la baseline $\mathcal{M}_{\mathrm{base}}$, addestrata mediante \texttt{INJECTION}. 
-La sostituzione di $29$ dei $9\,300$ campioni malevoli con osservazioni target, pari a circa lo $0.31\%$ della classe positiva di training, risulta associata a un marcato incremento della sensibilità cross-domain senza una perdita sostanziale della sensibilità sorgente. 
+La configurazione \texttt{INJECTION} è costruita sostituendo $29$ dei $9\,300$ campioni malevoli del benchmark con osservazioni target, pari a circa lo $0.31\%$ della componente positiva complessiva. 
+Tale configurazione risulta associata a un marcato incremento della sensibilità cross-domain senza una perdita sostanziale della sensibilità sorgente.
 La TPR media sui benchmark target raggiunge $0.96612$ per DT, $0.82970$ per HGB e $0.98821$ per RF, mentre il comportamento sui benchmark \texttt{NB15} rimane sostanzialmente sovrapposto a quello dei corrispondenti modelli sorgente.
 
 La medesima distinzione emerge considerando l'intera matrice di \textit{cross-evaluation}. 
