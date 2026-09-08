@@ -730,8 +730,6 @@ La Tabella~\ref{tab:mapping_operator} formalizza le trasformazioni scalari $\psi
 \end{tabularx}
 \end{table}
 
-\newpage
-
 Nel processo di mappatura emergono tre aspetti architetturali critici:
 \begin{itemize}
     \item \textbf{Conversioni di Scala e Armonizzazione Temporale:} Per allineare le metriche, la durata dei flussi nel dominio sorgente è stata riscalata da secondi a microsecondi (fattore moltiplicativo $10^6$). Parallelamente, il throughput nominale (\texttt{sload}, \texttt{dload}), originariamente quantificato in bit/s in UNSW-NB15, è stato convertito in Byte/s (dividendolo per 8) per coincidere con l'unità di misura nativa dei domini target.
