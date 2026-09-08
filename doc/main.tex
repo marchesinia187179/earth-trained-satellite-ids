@@ -224,25 +224,39 @@
     \pagestyle{scrplain} % Ripristina lo stile di pagina normale (con numero di pagina)
     \setcounter{page}{1} % Fa ripartire la numerazione da 1
 
-    % Aggiungi qui i capitoli
+    % ==============================================================================
+    % CORPO PRINCIPALE
+    % ==============================================================================
     \input{chapters/01_introduzione.tex}
-
     \input{chapters/02_contesto.tex}
-
     \input{chapters/03_metodologia_refactored.tex}
-
     \input{chapters/04_dimostrazione.tex}
-
     \input{chapters/05_risultati.tex}
+    %\input{chapters/06_conclusioni.tex} TODO
+    
+    % ==============================================================================
+    % APPENDICI
+    % ==============================================================================
 
-    \input{chapters/99_acknowledgements}
-    
     \clearpage 
-    
+    \appendix
+
+    \input{chapters/appendice_risultati.tex}
+
+    % ==============================================================================
+    % BIBLIOGRAFIA
+    % ==============================================================================
+
+    \clearpage
     \addcontentsline{toc}{chapter}{Riferimenti}
-    
     \printbibliography[heading=subbibliography, title=Bibliografia]
 
-    \nocite{*}
+    % \nocite{*}
+
+    % ==============================================================================
+    % RINGRAZIAMENTI
+    % ==============================================================================
+
+    %\input{chapters/99_acknowledgements} TODO
    
 \end{document}
