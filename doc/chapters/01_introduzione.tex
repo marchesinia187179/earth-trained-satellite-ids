@@ -92,14 +92,14 @@ Il framework considera pertanto tre regimi principali di addestramento, concepit
     \item \textbf{Modello sorgente ($\mathcal{M}_{S}$):} il classificatore viene addestrato esclusivamente sul dominio sorgente $\mathcal{D}_{S}^{(\text{train})}$. 
     Tale configurazione rappresenta il caso privo di adattamento e consente di quantificare la trasferibilità diretta della conoscenza appresa verso distribuzioni non osservate durante il \textit{training};
 
-    \item \textbf{Modello baseline ($\mathcal{M}_{\text{base}}$):} il dominio sorgente viene integrato con una quantità fortemente limitata e controllata di osservazioni target. 
+    \item \textbf{Modello baseline ($\mathcal{M}_{\text{base}}$, \texttt{INJECTION}):} il dominio sorgente viene integrato con una quantità fortemente limitata e controllata di osservazioni target. 
     Questa configurazione rappresenta una condizione intermedia, nella quale il classificatore dispone di una conoscenza preventiva sparsa del dominio di destinazione senza sostituire la struttura informativa acquisita sul sorgente;
 
     \item \textbf{Modelli ibridi ($\mathcal{M}_{H}^{(T)}$):} la componente nominale sorgente viene combinata con la componente malevola del dominio target considerato. 
     Tali configurazioni rappresentano il caso di maggiore esposizione alla distribuzione di destinazione e consentono di osservare il comportamento di classificatori fortemente specializzati sul nuovo dominio.
 \end{enumerate}
 
-Il confronto tra questi tre regimi consente di trasformare il problema della trasferibilità in un problema più generale di equilibrio tra \textit{adaptation} e \textit{retention}. 
+Il confronto tra questi tre regimi consente di trasformare il problema della trasferibilità in un problema più generale di equilibrio tra \textit{adaptation}, intesa come acquisizione di conoscenza relativa al dominio target, e \textit{retention}, intesa come preservazione della capacità discriminativa precedentemente acquisita sul dominio sorgente.
 Un sistema capace di ottenere prestazioni elevate sul solo dominio sorgente può infatti risultare poco sensibile alle distribuzioni target; simmetricamente, una forte specializzazione sul dominio di destinazione può compromettere la capacità di riconoscere configurazioni precedentemente apprese. 
 La robustezza cross-domain viene quindi interpretata non come la massimizzazione isolata delle prestazioni su uno specifico benchmark, ma come la capacità di acquisire informazione relativa al nuovo dominio preservando, per quanto possibile, la conoscenza discriminativa precedente.
 
@@ -119,6 +119,113 @@ Il protocollo confronta classificatori ad albero caratterizzati da differenti st
 L'obiettivo non consiste tuttavia nell'identificare a priori un classificatore universalmente ottimale, bensì nel caratterizzare il compromesso tra sensibilità, specificità, stabilità e capacità di trasferimento nelle differenti condizioni sperimentali.
 
 Il problema di ricerca può pertanto essere sintetizzato nella valutazione sistematica di come \textbf{composizione del dominio di addestramento}, \textbf{quantità di conoscenza target}, \textbf{granularità della componente malevola} e \textbf{architettura del classificatore} concorrano a determinare la robustezza di un NIDS in condizioni cross-domain.
+
+La Figura~\ref{fig:problema_ricerca_rq} sintetizza graficamente il problema di ricerca, evidenziando il passaggio tra dominio sorgente e dominio target e le principali dimensioni sperimentali attraverso cui viene valutata la robustezza cross-domain.
+
+\begin{figure}[H]
+    \centering
+
+    \begin{tikzpicture}
+
+        % -----------------------------------------------------------------
+        % PROBLEMA CENTRALE
+        % -----------------------------------------------------------------
+        \node[node_process, text width=5.8cm] (robustness) {
+            \textbf{Problema di ricerca}\\[2pt]
+            Robustezza cross-domain del NIDS
+        };
+
+        % -----------------------------------------------------------------
+        % DOMINI SORGENTE E TARGET
+        % -----------------------------------------------------------------
+        \node[node_primary, text width=3.4cm, above left=1.5cm and -1cm of robustness] (source) {
+            \textbf{Dominio sorgente}\\
+            $\mathcal{D}_{S}$
+        };
+
+        \node[node_accent, text width=3.4cm, above right=1.5cm and -1cm of robustness] (target) {
+            \textbf{Dominio target}\\
+            $\mathcal{D}_{T}$
+        };
+
+        % Domain shift
+        \draw[arrow_flow] (source.east) -- node[above, font=\footnotesize, align=center] {
+                variazione distributiva\\[-5pt]
+                (\textit{domain shift})
+            } (target.west);
+
+        % Convergenza dei due domini verso il problema di ricerca
+        \draw[arrow_source] (source.south) |- (robustness.west);
+        \draw[arrow_target] (target.south) |- (robustness.east);
+
+        % -----------------------------------------------------------------
+        % DIMENSIONI DEL PROBLEMA
+        % -----------------------------------------------------------------
+        \coordinate (dims_center) at ($(robustness.south)+(0,-2.10cm)$);
+
+        % RQ1
+        \node[node_transform, text width=3.15cm, below=1.5cm of robustness, xshift=-6cm] (d1) {
+            \textbf{Composizione}\\[-5pt]
+            \textbf{del dominio}\\[-5pt]
+            \textbf{di addestramento}\\
+            Trasferibilità diretta\\[3pt]
+            \footnotesize RQ1
+        };
+
+        % RQ2
+        \node[node_transform, text width=3.15cm, below=1.5cm of robustness, xshift=-2cm] (d2) {
+            \textbf{Quantità di}\\[-5pt]
+            \textbf{conoscenza target}\\
+            Adattamento sparso\\[3pt]
+            \footnotesize RQ2
+        };
+
+        % RQ3
+        \node[node_transform, text width=3.15cm, below=1.5cm of robustness, xshift=2cm] (d3) {
+            \textbf{Granularità della}\\[-5pt]
+            \textbf{componente}\\[-5pt]
+            \textbf{malevola}\\
+            Aggregazione e\\[-5pt]
+            specializzazione\\[3pt]
+            \footnotesize RQ3
+        };
+
+        % RQ4
+        \node[node_transform, text width=3.15cm, below=1.5cm of robustness, xshift=6cm] (d4) {
+            \textbf{Architettura del}\\[-5pt]
+            \textbf{classificatore}\\
+            Sensibilità,\\[-5pt]
+            specificità e\\[-5pt]
+            stabilità\\[3pt]
+            \footnotesize RQ4
+        };
+
+        % -----------------------------------------------------------------
+        % DIRAMAZIONE DAL PROBLEMA ALLE QUATTRO DIMENSIONI
+        % -----------------------------------------------------------------
+        \coordinate (branch) at ($(robustness.south)+(0,-0.55cm)$);
+
+        \draw[draw=neutralgrey, thick] (robustness.south) -- (branch);
+
+        \draw[arrow_flow] (branch) -| (d1.north);
+        \draw[arrow_flow] (branch) -| (d2.north);
+        \draw[arrow_flow] (branch) -| (d3.north);
+        \draw[arrow_flow] (branch) -| (d4.north);
+
+        % -----------------------------------------------------------------
+        % RIQUADRO DELLE DIMENSIONI SPERIMENTALI
+        % -----------------------------------------------------------------
+        \begin{scope}[on background layer]
+            \node[ group_box, fit=(d1)(d2)(d3)(d4)] {};
+        \end{scope}
+
+    \end{tikzpicture}
+
+    \caption{
+        Sintesi concettuale del problema di ricerca e collegamento tra le principali dimensioni sperimentali e le domande di ricerca.
+    }
+    \label{fig:problema_ricerca_rq}
+\end{figure}
 
 Su tale formulazione vengono definite, nella sezione successiva, le domande di ricerca e gli obiettivi specifici che guidano il protocollo sperimentale.
 

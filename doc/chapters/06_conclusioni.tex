@@ -1,20 +1,557 @@
 \chapter{Conclusioni Finali}
-\label{chap:conclusioni}
+\label{ch:conclusioni}
+
+Il presente capitolo conclude il percorso di ricerca sviluppato nella tesi, ricomponendo le evidenze metodologiche e sperimentali emerse dall'analisi della trasferibilità cross-domain di \textit{Network Intrusion Detection Systems} (NIDS) basati su Machine Learning.
+
+A partire dai risultati discussi nel Capitolo~\ref{ch:risultati}, vengono dapprima sintetizzati gli elementi fondamentali del lavoro svolto e, successivamente, formulate risposte esplicite alle domande di ricerca definite nel Capitolo~\ref{ch:introduzione}. 
+Le evidenze ottenute vengono quindi ricondotte ai contributi complessivi dello studio, distinguendo le implicazioni metodologiche dalle possibili ricadute per la futura progettazione di sistemi di rilevamento destinati a infrastrutture integrate terrestre-spaziali.
+
+La trattazione si conclude con l'identificazione dei principali limiti della campagna sperimentale e con la definizione di possibili sviluppi futuri, mantenendo le considerazioni formulate entro il perimetro delle grandezze e delle condizioni effettivamente investigate.
+
+
+
+% ==============================================================================
+% SINTESI DEL LAVORO SVOLTO
+% ==============================================================================
 
 \section{Sintesi del Lavoro Svolto}
 \label{sec:sintesi_lavoro}
 
-\section{Principali Evidenze Sperimentali}
-\label{sec:evidenze_sperimentali}
+Il lavoro di tesi ha affrontato il problema della generalizzazione di classificatori NIDS supervisionati in presenza di distribuzioni di traffico eterogenee, con particolare riferimento al trasferimento della conoscenza acquisita in un dominio sorgente terrestre verso domini target rappresentativi di scenari di comunicazione terrestre-spaziali.
+
+La problematica è stata affrontata mediante la definizione di un framework metodologico volto a separare tre aspetti complementari: la rappresentazione comune delle osservazioni provenienti da domini differenti, la composizione controllata della conoscenza disponibile durante l'addestramento e la valutazione sistematica della capacità di generalizzazione dei classificatori.
+
+Sul piano della rappresentazione dei dati, i dataset UNSW-NB15 e STIN, quest'ultimo articolato nei domini TER20 e SAT20, sono stati ricondotti a uno spazio condiviso delle \textit{feature} mediante un operatore di mappatura finalizzato all'armonizzazione semantica e dimensionale delle grandezze di traffico. 
+Tale passaggio ha consentito di definire una base comune sulla quale effettuare l'addestramento e la successiva valutazione cross-domain, evitando che differenze puramente strutturali tra gli schemi originari dei dataset impedissero il confronto tra i domini considerati.
+
+Su tale rappresentazione sono stati definiti differenti regimi di addestramento, caratterizzati da livelli progressivamente differenti di conoscenza del dominio target. 
+La configurazione sorgente considera esclusivamente osservazioni appartenenti al dominio terrestre di origine; la configurazione \textit{INJECTION} introduce invece una quantità fortemente limitata e controllata di campioni malevoli target all'interno del training set; le configurazioni ibride aumentano ulteriormente l'esposizione del classificatore alle distribuzioni target mediante l'impiego della relativa componente malevola disponibile. 
+Questa articolazione ha permesso di analizzare il trasferimento cross-domain non come una condizione binaria tra assenza e piena disponibilità di conoscenza target, ma come un processo dipendente dalla quantità e dalla composizione dell'informazione resa disponibile durante l'apprendimento.
+
+Parallelamente, il problema è stato osservato a differenti livelli di granularità della componente malevola attraverso la costruzione di benchmark aggregati e biclasse. 
+In entrambi i casi il problema decisionale è rimasto binario, distinguendo traffico normale e traffico malevolo, mentre è variata la composizione della classe positiva: eterogenea nei modelli aggregati e circoscritta a una singola famiglia di attacco nei modelli specialistici. 
+Tale distinzione ha consentito di valutare il rapporto tra specializzazione e capacità di generalizzazione rispetto a distribuzioni non coincidenti con quelle utilizzate durante l'addestramento.
+
+La campagna sperimentale ha inoltre confrontato tre differenti famiglie di classificatori ad albero --- \textit{Decision Tree}, \textit{Random Forest} e \textit{Histogram-based Gradient Boosting} --- attraverso un protocollo \textit{multi-seed} e una matrice di valutazione incrociata tra modelli e benchmark. 
+Le metriche predittive sono state affiancate da analisi statistiche e diagnostiche finalizzate a caratterizzare la stabilità delle prestazioni, il disallineamento distributivo tra i domini e la struttura decisionale appresa dai classificatori.
+
+Nel complesso, i risultati discussi nel Capitolo~\ref{ch:risultati} hanno evidenziato come la robustezza cross-domain non possa essere ricondotta alla sola capacità di ottenere elevate prestazioni sul dominio di addestramento o, alternativamente, alla massimizzazione della sensibilità sul dominio target. 
+Nel perimetro sperimentale considerato, la composizione della conoscenza utilizzata durante l'addestramento è risultata uno dei fattori maggiormente associati al compromesso tra acquisizione di informazione relativa al nuovo dominio e conservazione delle proprietà discriminative precedentemente apprese sul sorgente.
+
+In tale quadro, la configurazione \textit{INJECTION}, pur incorporando una quantità estremamente ridotta di conoscenza target, ha mostrato un comportamento complessivamente più uniforme rispetto alle condizioni caratterizzate dall'assenza di informazione target o da una più marcata specializzazione verso le relative distribuzioni. 
+Tale evidenza non viene interpretata come dimostrazione della superiorità generale di una specifica strategia di adattamento, ma costituisce il principale elemento sperimentale attraverso cui valutare, nelle sezioni successive, l'effetto della conoscenza target sparsa sulla generalizzazione cross-domain.
+
+La sintesi appena delineata fornisce pertanto il quadro entro il quale ricondurre le evidenze sperimentali alle quattro domande di ricerca formulate all'inizio del lavoro. 
+La sezione seguente analizza separatamente ciascuna domanda, distinguendo le conclusioni direttamente supportate dalla campagna sperimentale dalle interpretazioni che richiedono ulteriori verifiche.
+
+
+
+% ==============================================================================
+% RISPOSTE ALLE DOMANDE DI RICERCA
+% ==============================================================================
+
+\section{Risposte alle Domande di Ricerca}
+\label{sec:risposte_rq}
+
+Le evidenze sperimentali raccolte consentono di ricondurre i risultati ottenuti alle quattro domande di ricerca formulate nel Capitolo~\ref{ch:introduzione}.
+La presente sezione ne fornisce una risposta esplicita, mantenendo distinte le conclusioni direttamente supportate dal protocollo sperimentale dalle interpretazioni che richiederebbero condizioni di validazione ulteriori.
+
+
+% ------------------------------------------------------------------------------
+% RQ1
+% ------------------------------------------------------------------------------
+
+\subsection{RQ1 -- Trasferibilità Diretta e Domain Shift}
+\label{subsec:conclusioni_rq1}
+
+La prima domanda di ricerca è stata formulata come segue:
+
+\begin{quote}
+\textit{In quale misura un NIDS supervisionato, addestrato esclusivamente sul dominio sorgente, mantiene la propria capacità discriminativa quando viene valutato su distribuzioni malevole appartenenti ai domini target?}
+\end{quote}
+
+I risultati ottenuti indicano che, nel protocollo sperimentale considerato, la capacità discriminativa appresa esclusivamente sul dominio sorgente presenta una \textbf{trasferibilità diretta limitata e fortemente dipendente dalla distribuzione target considerata}.
+
+Tale conclusione emerge in modo particolarmente evidente dall'analisi dei modelli aggregati sorgente.
+Le TPR medie ottenute sui benchmark appartenenti alla tassonomia NB15 risultano pari a $0.7870$, $0.7601$ e $0.7833$, rispettivamente per Decision Tree, Histogram-based Gradient Boosting e Random Forest.
+Quando i medesimi classificatori vengono valutati sui benchmark target, tali valori si riducono rispettivamente a $0.3234$, $0.0607$ e $0.3035$.
+Il degrado interessa pertanto tutte le architetture considerate, sebbene con intensità differente, evidenziando che una buona capacità discriminativa sul dominio di addestramento non implica il mantenimento della medesima sensibilità nei confronti di distribuzioni malevole non osservate durante il training.
+
+Il comportamento della specificità consente di qualificare ulteriormente tale risultato.
+I modelli sorgente mantengono infatti valori elevati di TNR anche durante la cross-evaluation.
+Il fenomeno osservato non corrisponde quindi a un collasso indiscriminato della funzione di classificazione, ma riguarda principalmente la capacità di estendere alle nuove distribuzioni malevole le regioni decisionali apprese sul dominio sorgente.
+Nel perimetro dei dati disponibili, il classificatore continua pertanto a riconoscere correttamente gran parte del traffico nominale, mentre una quota rilevante delle osservazioni malevole target non viene intercettata.
+
+Tale evidenza deve tuttavia essere interpretata considerando la composizione dei benchmark utilizzati.
+Il traffico benigno impiegato nella campagna sperimentale proviene infatti dal dominio sorgente UNSW-NB15 anche nelle configurazioni contenenti attacchi STIN.
+L'elevata TNR osservata non consente quindi di concludere che la capacità di riconoscimento del traffico nominale rimarrebbe invariata in presenza di un analogo \textit{domain shift} della componente benigna.
+La valutazione condotta caratterizza specificamente il trasferimento rispetto alle \textbf{distribuzioni malevole target}.
+
+L'analisi dei classificatori specialistici mostra inoltre che la trasferibilità non è completamente assente.
+Alcuni modelli biclasse addestrati su specifiche famiglie sorgente mantengono infatti sensibilità elevate nei confronti di determinate distribuzioni target, risultando compatibili con una parziale sovrapposizione delle regioni dello spazio delle caratteristiche associate a differenti famiglie di attacco.
+Tali episodi rimangono tuttavia circoscritti a particolari combinazioni modello--benchmark e non delineano un comportamento sistematico di generalizzazione verso l'intero dominio di destinazione.
+
+Le evidenze prestazionali risultano infine coerenti con la diagnostica distributiva sviluppata nel Capitolo~\ref{ch:risultati}.
+Le analisi PCA e KDE hanno mostrato scostamenti tra la componente malevola sorgente e le distribuzioni target nello spazio condiviso delle caratteristiche.
+Il contemporaneo degrado della sensibilità dei modelli addestrati esclusivamente su NB15 risulta quindi compatibile con l'ipotesi che osservazioni malevole appartenenti al nuovo dominio occupino regioni non adeguatamente rappresentate durante l'apprendimento.
+Tale corrispondenza viene interpretata in termini associativi e non causali, poiché il protocollo sperimentale non comprende interventi controllati sulle singole caratteristiche.
+
+In risposta alla \textbf{RQ1}, è pertanto possibile concludere che, nelle condizioni sperimentali considerate, \textbf{l'addestramento esclusivamente sul dominio sorgente non risulta sufficiente a garantire una capacità discriminativa uniforme nei confronti delle distribuzioni malevole target}.
+La conoscenza acquisita sul sorgente conserva una trasferibilità parziale verso specifiche configurazioni, ma il comportamento complessivo evidenzia una marcata sensibilità al \textit{domain shift}.
+Ne consegue che la sola validazione intra-domain non costituisce un indicatore sufficiente della robustezza di un NIDS destinato a operare in presenza di distribuzioni di traffico eterogenee.
+
+
+% ------------------------------------------------------------------------------
+% RQ2
+% ------------------------------------------------------------------------------
+
+\subsection{RQ2 -- Adattamento mediante Conoscenza Target Sparsa}
+\label{subsec:conclusioni_rq2}
+
+La seconda domanda di ricerca è stata formulata come segue:
+
+\begin{quote}
+\textit{In quale misura l'introduzione di una quantità limitata e controllata di conoscenza target consente di migliorare la capacità di generalizzazione cross-domain preservando contemporaneamente la conoscenza discriminativa acquisita sul dominio sorgente?}
+\end{quote}
+
+Le evidenze sperimentali indicano che, nelle condizioni considerate, l'introduzione di una quantità estremamente ridotta di conoscenza target può essere associata a un marcato incremento della capacità di rilevamento cross-domain senza determinare una degradazione apprezzabile delle prestazioni medie sul dominio sorgente.
+
+La configurazione \textit{INJECTION} costituisce il riferimento principale per tale valutazione.
+La relativa componente malevola comprende $9\,300$ osservazioni, delle quali $9\,271$ appartengono al dominio sorgente e soltanto $29$ provengono da STIN.
+La conoscenza target introdotta rappresenta pertanto circa lo $0.31\%$ della componente malevola complessiva, mantenendo pressoché invariata la predominanza della distribuzione sorgente.
+
+Nonostante tale proporzione fortemente sbilanciata, il confronto \textit{multi-seed} con i modelli addestrati esclusivamente su NB15 mostra una variazione sostanziale della risposta alle distribuzioni target.
+Per Decision Tree, la TPR media sui nove benchmark target passa da $0.3234$ nella configurazione sorgente a $0.9661$ nella configurazione \textit{INJECTION}; per Histogram-based Gradient Boosting, da $0.0607$ a $0.8297$; per Random Forest, da $0.3035$ a $0.9882$.
+Le differenze corrispondono rispettivamente a incrementi pari a $+0.6427$, $+0.7690$ e $+0.6847$.
+
+Il miglioramento osservato sulla componente target non risulta accompagnato, sul piano descrittivo, da una perdita equivalente della conoscenza sorgente.
+Sui sei benchmark appartenenti alla tassonomia NB15, le differenze di TPR media tra il modello sorgente e la baseline risultano infatti pari a $-0.0011$ per DT, $+0.0008$ per HGB e $-0.0013$ per RF.
+Anche la TNR rimane sostanzialmente stabile tra le due configurazioni.
+Nel protocollo considerato, l'introduzione della componente target sparsa modifica pertanto principalmente la risposta verso le distribuzioni malevole non osservate dal modello puramente sorgente, mantenendo pressoché invariata la sensibilità media nei confronti delle distribuzioni NB15.
+
+La valutazione sull'intera matrice di \textit{cross-evaluation} rafforza tale interpretazione.
+La configurazione \textit{INJECTION} presenta la maggiore media globale dell'F1-Score tra le configurazioni confrontate per tutte e tre le famiglie algoritmiche.
+L'analisi inferenziale mediante test $t$ di Welch mostra inoltre differenze statisticamente significative rispetto ai modelli sorgente secondo il criterio adottato nel protocollo sperimentale.
+Tale risultato non implica una superiorità della baseline su ogni singolo benchmark, ma indica che il comportamento complessivo osservato lungo le differenti distribuzioni non risulta riconducibile alla sola variabilità stocastica associata all'inizializzazione dei classificatori.
+
+Un ulteriore elemento di interpretazione deriva dal confronto con le configurazioni ibride, nelle quali la componente malevola target viene incorporata in misura sostanzialmente maggiore.
+Tali modelli raggiungono sensibilità molto elevate sulle distribuzioni target, in particolare nelle configurazioni aggregate, ma mostrano contemporaneamente una marcata perdita della capacità di riconoscere le distribuzioni d'attacco sorgente.
+L'incremento della conoscenza target non determina quindi, nel protocollo analizzato, un miglioramento uniforme della generalizzazione globale, ma può produrre una maggiore specializzazione verso il dominio di destinazione.
+
+Sotto questo profilo, la configurazione \textit{INJECTION} presenta il comportamento più uniforme tra i tre regimi di addestramento considerati: rispetto al modello puramente sorgente acquisisce una capacità di rilevamento sensibilmente maggiore sulle distribuzioni target, mentre rispetto alle configurazioni ibride conserva in misura più consistente la conoscenza discriminativa relativa al dominio di origine.
+Tale osservazione suggerisce che il bilanciamento tra conoscenza sorgente e target costituisca un elemento rilevante nella progettazione di strategie di adattamento cross-domain.
+
+La portata di tale conclusione deve tuttavia essere mantenuta entro i limiti del disegno sperimentale.
+La campagna non ha considerato una variazione progressiva del numero o della proporzione di osservazioni target introdotte durante l'addestramento.
+Non è quindi possibile stabilire se i $29$ campioni impiegati costituiscano una quantità minima, ottimale o generalmente sufficiente, né determinare la forma della relazione tra quantità di conoscenza target e capacità di generalizzazione.
+Il risultato mostra che, per la specifica composizione dei benchmark e per le famiglie di classificatori considerate, la quota target prevista dalla configurazione \textit{INJECTION} è associata a una modifica rilevante e favorevole del comportamento cross-domain.
+
+In risposta alla \textbf{RQ2}, è pertanto possibile concludere che \textbf{una conoscenza target fortemente sparsa può produrre, nelle condizioni sperimentali analizzate, un rilevante miglioramento della generalizzazione verso le distribuzioni malevole target preservando sostanzialmente la capacità discriminativa acquisita sul dominio sorgente}.
+L'evidenza non identifica tuttavia una proporzione universalmente ottimale di campioni target, ma mostra come anche un'esposizione estremamente limitata al dominio di destinazione possa risultare associata a un cambiamento sostanziale della funzione di classificazione.
+
+
+% ------------------------------------------------------------------------------
+% RQ3
+% ------------------------------------------------------------------------------
+
+\subsection{RQ3 -- Granularità, Specializzazione e Generalizzazione}
+\label{subsec:conclusioni_rq3}
+
+La terza domanda di ricerca è stata formulata come segue:
+
+\begin{quote}
+\textit{Come incide la granularità della rappresentazione della componente malevola sulla capacità del classificatore di generalizzare in presenza di variazioni distributive?}
+\end{quote}
+
+I risultati ottenuti indicano che la granularità della componente malevola incide in modo sostanziale sul compromesso tra specializzazione e generalizzazione.
+Nel protocollo sperimentale considerato, i modelli addestrati su una rappresentazione aggregata delle distribuzioni d'attacco mostrano generalmente un comportamento più uniforme quando vengono trasferiti verso benchmark differenti, mentre i rilevatori biclasse tendono a sviluppare una risposta maggiormente specializzata rispetto alla singola famiglia utilizzata durante l'addestramento.
+
+Tale confronto non riguarda una distinzione tra classificazione binaria e multiclasse.
+Lo spazio di uscita rimane infatti binario in entrambe le configurazioni, distinguendo traffico normale e traffico malevolo.
+Ciò che varia è la composizione della classe positiva: nei modelli aggregati essa comprende simultaneamente più famiglie d'attacco, mentre nei modelli specialistici viene circoscritta a una singola distribuzione malevola.
+La granularità deve pertanto essere interpretata come proprietà della conoscenza utilizzata per definire la regione positiva e non come variazione della cardinalità dello spazio delle etichette predette.
+
+L'analisi dei modelli biclasse evidenzia chiaramente l'effetto della specializzazione.
+I rilevatori specialistici raggiungono frequentemente sensibilità molto elevate, o prossime all'unità, quando vengono valutati sulla medesima famiglia d'attacco utilizzata durante l'addestramento.
+Tale comportamento non si trasferisce tuttavia in modo sistematico alle altre distribuzioni.
+La risposta cross-domain e cross-family risulta fortemente eterogenea e dipendente dalla specifica configurazione considerata.
+
+Un esempio significativo è fornito dai modelli ibridi addestrati sulla distribuzione Syn\_DDoS del dominio SAT20.
+Sulla relativa famiglia omologa, le tre architetture raggiungono una TPR pari a $1.0000$; considerando invece l'insieme dei nove benchmark target, la sensibilità media si riduce a circa $0.4244$ per DT, $0.3156$ per HGB e $0.4438$ per RF.
+La forte prestazione sulla distribuzione utilizzata nel training non implica quindi, in questo caso, una capacità equivalente di rilevare altre popolazioni malevole appartenenti allo stesso insieme target.
+
+Il comportamento degli specialistici non è tuttavia uniformemente sfavorevole.
+Alcune famiglie presentano una trasferibilità sensibilmente maggiore verso distribuzioni differenti.
+Il modello specialistico SAT20 UDP\_DDoS, ad esempio, raggiunge una TPR target media pari a circa $0.9749$ per DT e $0.8989$ per RF, mostrando un comportamento compatibile, in specifiche condizioni, con la presenza di caratteristiche discriminative condivise tra differenti distribuzioni malevole.
+Anche tra i modelli sorgente sono stati osservati trasferimenti locali rilevanti tra determinate famiglie.
+
+Tali casi impediscono di stabilire una relazione deterministica secondo cui una maggiore specializzazione conduca necessariamente a una minore generalizzazione.
+I risultati indicano piuttosto che la granularità ristretta aumenta la dipendenza del comportamento del classificatore dalla corrispondenza tra la distribuzione utilizzata durante l'apprendimento e quella incontrata in fase di valutazione.
+
+Un quadro differente emerge per le configurazioni aggregate.
+Nel paradigma ibrido, i modelli NB15\_STIN, NB15\_SAT20 e NB15\_TER20 mantengono TPR prossime all'unità sull'insieme dei benchmark target anche quando la distribuzione di valutazione non coincide con quella specificamente impiegata per la costruzione del training set.
+La maggiore eterogeneità della componente positiva risulta pertanto associata, nel perimetro analizzato, a una copertura più uniforme delle distribuzioni malevole target.
+
+La medesima differenza emerge considerando l'F1-Score medio calcolato sull'intera matrice di \textit{cross-evaluation}.
+All'interno del gruppo dei modelli ibridi, le configurazioni aggregate raggiungono generalmente valori globali superiori rispetto alla maggior parte dei rilevatori specialistici.
+Gli specialistici possono conseguire prestazioni eccellenti localmente, ma vengono maggiormente penalizzati quando la valutazione comprende distribuzioni differenti da quella utilizzata durante l'addestramento.
+
+Sul piano interpretativo, tali risultati sono compatibili con l'ipotesi metodologica secondo cui l'esposizione simultanea a più distribuzioni malevole consenta di apprendere una regione decisionale capace di rappresentare una porzione più ampia dello spazio occupato dalla classe positiva.
+Al contrario, l'addestramento su una singola famiglia può produrre una regione maggiormente aderente alle caratteristiche specifiche di quella distribuzione, aumentando la sensibilità locale ma anche la dipendenza dalla somiglianza con le osservazioni incontrate successivamente.
+Tale interpretazione rimane comunque descrittiva e non costituisce una dimostrazione geometrica o causale della forma delle regioni decisionali apprese.
+
+In risposta alla \textbf{RQ3}, è quindi possibile concludere che \textbf{una rappresentazione più aggregata ed eterogenea della componente malevola risulta generalmente associata a una maggiore uniformità della generalizzazione cross-domain, mentre una granularità specialistica favorisce prestazioni elevate sulla distribuzione di riferimento ma produce una trasferibilità più variabile verso famiglie differenti}.
+La scelta della granularità rappresenta pertanto un compromesso tra specializzazione locale e ampiezza della capacità discriminativa, la cui configurazione più appropriata dipende dall'obiettivo operativo e dalla variabilità delle distribuzioni che il NIDS è chiamato a riconoscere.
+
+
+% ------------------------------------------------------------------------------
+% RQ4
+% ------------------------------------------------------------------------------
+
+\subsection{RQ4 -- Architettura, Stabilità e Struttura Decisionale}
+\label{subsec:conclusioni_rq4}
+
+La quarta domanda di ricerca è stata formulata come segue:
+
+\begin{quote}
+\textit{In quale misura l'architettura del classificatore modifica il compromesso tra sensibilità, specificità, stabilità e robustezza cross-domain nei differenti regimi di addestramento?}
+\end{quote}
+
+I risultati ottenuti mostrano che l'architettura del classificatore contribuisce a modificare il compromesso tra sensibilità, specificità e stabilità, senza tuttavia determinare autonomamente il comportamento cross-domain del sistema.
+Le differenze osservate tra Decision Tree, Histogram-based Gradient Boosting e Random Forest devono infatti essere interpretate congiuntamente alla composizione del training set e al regime di addestramento nel quale ciascun classificatore viene utilizzato.
+
+La configurazione \textit{INJECTION} consente di effettuare il confronto più diretto tra le tre architetture, poiché mantiene invariata la composizione dei dati e modifica esclusivamente la famiglia algoritmica.
+In tale condizione, Random Forest presenta il profilo predittivo complessivamente più favorevole tra i classificatori considerati.
+La TPR media sui benchmark target raggiunge $0.98821$, mentre la media globale dell'F1-Score lungo l'intera matrice di \textit{cross-evaluation} è pari a $0.890221$.
+La TNR rimane contestualmente elevata, pari a $0.99057$.
+
+Decision Tree mostra un comportamento relativamente vicino a RF sul piano della sensibilità target, raggiungendo una TPR media pari a $0.96612$ e un F1-Score globale pari a $0.860388$.
+La relativa TNR, pari a $0.98460$, risulta tuttavia la più contenuta tra le tre baseline.
+Nel perimetro delle sole metriche predittive analizzate, DT si colloca pertanto in una posizione intermedia, mantenendo una buona capacità di rilevamento cross-domain senza raggiungere il profilo globale osservato per RF.
+
+Histogram-based Gradient Boosting presenta invece un compromesso differente.
+La TNR della baseline raggiunge $0.99658$, il valore più elevato tra le tre architetture, indicando una maggiore capacità di contenere i falsi positivi sul traffico nominale considerato.
+Tale proprietà è accompagnata da una TPR target pari a $0.82970$, inferiore ai valori ottenuti da DT e RF, e da un F1-Score globale pari a $0.854074$.
+L'architettura HGB mostra pertanto, nella configurazione analizzata, un comportamento maggiormente orientato alla specificità rispetto alla sensibilità verso le distribuzioni malevole target.
+
+Il confronto \textit{multi-seed} introduce un ulteriore elemento discriminante.
+La deviazione standard dell'F1-Score globale della baseline è pari a $0.003516$ per DT, $0.036341$ per HGB e $0.002452$ per RF.
+Random Forest associa quindi alla maggiore prestazione media globale anche la minore dispersione rispetto alle inizializzazioni considerate.
+Decision Tree mantiene anch'esso una variabilità contenuta, mentre HGB presenta una dispersione superiore di circa un ordine di grandezza rispetto agli altri due classificatori.
+
+Tale evidenza consente di distinguere prestazione e stabilità come proprietà complementari.
+Una singola esecuzione caratterizzata da metriche elevate non è infatti sufficiente a descrivere il comportamento di un classificatore quando il processo di apprendimento comprende componenti stocastiche.
+Nel protocollo considerato, RF mostra il comportamento più regolare tra le repliche della baseline, mentre HGB risulta maggiormente sensibile alla variazione del seed.
+
+Le differenze architetturali emergono anche dall'analisi post-hoc delle attribuzioni SHAP.
+Nei modelli sorgente e nella configurazione \textit{INJECTION}, \texttt{pkts\_per\_sec} occupa la prima posizione di rilevanza globale per tutte e tre le architetture, evidenziando l'esistenza di un nucleo informativo condiviso.
+L'ordinamento delle caratteristiche successive varia tuttavia tra i classificatori: DT e RF attribuiscono maggiore rilevanza a descrittori legati ai volumi e al carico trasmissivo, mentre HGB assegna un ruolo più marcato ad alcuni rapporti direzionali del flusso.
+L'architettura modifica quindi il modo in cui l'informazione disponibile viene organizzata all'interno della funzione decisionale, pur partendo dal medesimo spazio delle caratteristiche.
+
+Un cambiamento ancora più marcato viene osservato nel paradigma ibrido.
+Per DT, HGB e RF, \texttt{dst\_win\_byt} e \texttt{src\_win\_byt} assumono rispettivamente la prima e la seconda posizione nella graduatoria SHAP del modello aggregato NB15\_STIN.
+Le tre architetture convergono pertanto sulle medesime caratteristiche dominanti quando la composizione del training set viene modificata sostanzialmente verso il dominio target.
+
+Persistono tuttavia differenze nella distribuzione delle attribuzioni.
+Nei modelli DT e HGB la funzione decisionale appare maggiormente concentrata sulle due principali caratteristiche di finestra, mentre RF mantiene contributi osservabili distribuiti anche su ulteriori dimensioni dello spazio delle feature.
+Tale differenza descrive una diversa organizzazione interna della funzione decisionale, ma non consente di attribuire causalmente a tale struttura le differenze prestazionali osservate.
+
+Il confronto tra regimi di addestramento mostra infatti che l'effetto della composizione dei dati può risultare più marcato delle differenze tra le architetture.
+Il passaggio dal modello sorgente alla configurazione \textit{INJECTION}, mantenendo invariata la famiglia algoritmica e introducendo soltanto una quota estremamente ridotta di campioni target, determina incrementi della TPR target pari a $+0.6427$ per DT, $+0.7690$ per HGB e $+0.6847$ per RF.
+Tali variazioni sono sensibilmente superiori alle differenze osservate tra i tre classificatori all'interno della medesima configurazione \textit{INJECTION}.
+
+Analogamente, nelle configurazioni aggregate ibride tutte e tre le architetture raggiungono sensibilità prossime all'unità sulle distribuzioni target e, contemporaneamente, perdono quasi completamente la capacità di riconoscere gli attacchi sorgente.
+Il fenomeno di specializzazione non viene quindi eliminato dalla scelta di DT, HGB o RF, ma coinvolge trasversalmente le tre famiglie algoritmiche quando la composizione della conoscenza di addestramento viene modificata in modo sostanziale.
+
+In risposta alla \textbf{RQ4}, è pertanto possibile concludere che \textbf{l'architettura del classificatore modula il compromesso tra sensibilità, specificità, stabilità e struttura decisionale, ma la robustezza cross-domain dipende in misura sostanziale anche dalla composizione delle distribuzioni utilizzate durante l'addestramento}.
+Nel protocollo sperimentale considerato, Random Forest presenta il comportamento complessivamente più favorevole nella configurazione \textit{INJECTION}, combinando elevata sensibilità target, maggiore F1-Score globale e ridotta dispersione inter-seed; HGB privilegia maggiormente la specificità, mentre DT mantiene un comportamento intermedio.
+
+Tale risultato non consente tuttavia di identificare RF come architettura generalmente ottimale per un NIDS destinato a infrastrutture terrestre-spaziali.
+La campagna sperimentale non comprende infatti misure di latenza di inferenza, occupazione di memoria, dimensione del modello, utilizzo delle risorse hardware o consumo energetico.
+Le conclusioni riguardano pertanto esclusivamente le proprietà predittive e di stabilità effettivamente misurate e non costituiscono una raccomandazione definitiva rispetto a un deployment operativo.
+
+Le conclusioni formulate per le quattro domande di ricerca sono sintetizzate nella Tabella~\ref{tab:sintesi_rq}, che associa a ciascuna RQ la risposta emersa dalla campagna sperimentale, la relativa evidenza principale e il limite interpretativo.
+
+\begin{table}[H]
+    \centering
+    \caption{Sintesi delle risposte alle domande di ricerca e delle relative evidenze sperimentali.}
+    \label{tab:sintesi_rq}
+    \begin{tabularx}{\textwidth}{c >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+        \toprule
+        \textbf{RQ} & \textbf{Risposta} & \textbf{Evidenza} & \textbf{Limite} \\
+        \midrule
+        \textbf{RQ1} &
+        Trasferibilità source-only limitata e dipendente dalla distribuzione target. &
+        Marcata riduzione della TPR sui target, con episodi locali di trasferibilità. &
+        \textit{Benign-domain shift} non valutato. \\
+        \addlinespace
+        \textbf{RQ2} &
+        Conoscenza target sparsa associata a una maggiore generalizzazione cross-domain. &
+        \textit{INJECTION}: $29$ campioni target incrementano la sensibilità target preservando sostanzialmente la risposta su NB15. &
+        I $29$ campioni non definiscono una quantità minima od ottimale. \\
+        \addlinespace
+        \textbf{RQ3} &
+        Aggregazione associata a una generalizzazione più uniforme; specializzazione maggiormente dipendente dalla distribuzione. &
+        Modelli aggregati più uniformi; rilevatori biclasse più dipendenti dalla famiglia d'attacco. &
+        Presenti eccezioni di trasferimento tra specifiche famiglie. \\
+        \addlinespace
+        \textbf{RQ4} &
+        L'architettura modula sensibilità, specificità e stabilità. &
+        RF mostra il profilo misurato più favorevole; HGB privilegia la specificità; DT risulta intermedio. &
+        Costi computazionali e di deployment non valutati. \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+
+
+% ==============================================================================
+% CONTRIBUTI E IMPLICAZIONI DEL LAVORO
+% ==============================================================================
 
 \section{Contributi e Implicazioni del Lavoro}
 \label{sec:contributi_implicazioni}
 
+Le risposte alle domande di ricerca consentono di ricondurre le evidenze sperimentali ai contributi metodologici, sperimentali e implementativi dichiarati nel Capitolo~\ref{ch:introduzione}.
+Il contributo del presente lavoro non consiste nella proposta di una nuova architettura di classificazione, ma nella definizione e nella validazione di un quadro sistematico per lo studio della robustezza cross-domain di classificatori NIDS supervisionati in presenza di distribuzioni eterogenee e differenti livelli di disponibilità della conoscenza target.
+
+Un primo contributo riguarda la \textbf{formalizzazione di un framework metodologico per il confronto tra domini eterogenei}.
+La definizione di uno spazio condiviso delle caratteristiche e di operatori di mappatura specifici per ciascuna sorgente ha consentito di rendere confrontabili dataset originariamente caratterizzati da schemi e semantiche differenti.
+L'utilità di tale impostazione non risiede esclusivamente nell'armonizzazione dei dati utilizzati nella presente campagna, ma nella separazione concettuale tra rappresentazione del dominio e protocollo di classificazione.
+In questo modo, il problema del \textit{domain shift} può essere studiato mantenendo controllate le differenze di rappresentazione che, in assenza di armonizzazione, renderebbero ambiguo il confronto tra sorgente e target.
+
+Il secondo contributo è rappresentato dalla \textbf{definizione di un protocollo controllato di addestramento e cross-evaluation}.
+L'introduzione dei tre regimi $\mathcal{M}_{S}$, $\mathcal{M}_{\mathrm{base}}$ e $\mathcal{M}_{H}^{(T)}$ ha permesso di osservare il trasferimento non come una semplice contrapposizione tra modello sorgente e modello target, ma come un problema di equilibrio tra acquisizione di nuova informazione e conservazione della conoscenza precedentemente appresa.
+La valutazione dei modelli su un insieme comune di benchmark ha inoltre evidenziato come una prestazione elevata sul dominio utilizzato durante il training non costituisca, da sola, un'indicazione sufficiente della robustezza complessiva del classificatore.
+
+Il terzo contributo, e principale risultato sperimentale del lavoro, riguarda la \textbf{valutazione dell'adattamento mediante conoscenza target sparsa}.
+La configurazione \textit{INJECTION} ha mostrato che, nelle condizioni sperimentali considerate, l'introduzione di una quota estremamente ridotta di osservazioni malevole target può essere associata a un marcato incremento della sensibilità cross-domain senza una perdita apprezzabile della capacità discriminativa sul dominio sorgente.
+Il valore di tale risultato risiede soprattutto nell'evidenziare che la disponibilità di conoscenza target non deve essere necessariamente interpretata come una condizione dicotomica tra assenza completa e disponibilità estesa.
+
+Al tempo stesso, il confronto con i modelli ibridi mostra che una maggiore esposizione al dominio target non determina necessariamente una maggiore robustezza globale.
+Le configurazioni maggiormente specializzate raggiungono infatti sensibilità prossime all'unità sulle distribuzioni target considerate, ma perdono quasi completamente la capacità di riconoscere gli attacchi appartenenti al dominio sorgente.
+Ne deriva che l'adattamento dovrebbe essere valutato congiuntamente alla \textit{retention} della conoscenza precedente e non esclusivamente attraverso la prestazione raggiunta sul nuovo dominio.
+
+Un quarto contributo riguarda l'\textbf{analisi congiunta della granularità della componente malevola, dell'architettura algoritmica e della stabilità stocastica}.
+Il confronto tra modelli aggregati e specialistici ha mostrato che la rappresentazione di più famiglie d'attacco all'interno della classe positiva è generalmente associata a una capacità di generalizzazione più uniforme, mentre i modelli biclasse possono raggiungere prestazioni locali molto elevate mantenendo una trasferibilità più dipendente dalla specifica distribuzione considerata.
+
+Parallelamente, il confronto tra DT, HGB e RF ha evidenziato che la famiglia algoritmica modifica il compromesso tra sensibilità, specificità e stabilità.
+Nella configurazione \textit{INJECTION}, Random Forest ha presentato il profilo predittivo complessivamente più favorevole tra le architetture considerate, mentre HGB ha privilegiato maggiormente la specificità e DT ha mostrato un comportamento intermedio.
+Le differenze tra classificatori non hanno tuttavia annullato gli effetti prodotti dalla composizione del training set, che nel protocollo considerato ha determinato variazioni prestazionali più ampie rispetto a quelle osservate tra le tre architetture all'interno del medesimo regime di addestramento.
+
+Il quinto contributo consiste nell'\textbf{integrazione tra valutazione predittiva, analisi statistica, diagnostica distributiva e spiegabilità post-hoc} all'interno di una pipeline software riproducibile.
+La replicazione \textit{multi-seed} e il test $t$ di Welch hanno permesso di affiancare alle prestazioni puntuali una caratterizzazione della variabilità tra differenti inizializzazioni.
+PCA e KDE hanno invece fornito una descrizione delle differenze distributive osservate nello spazio delle caratteristiche, mentre SHAP ha consentito di confrontare le dimensioni maggiormente coinvolte nelle decisioni dei classificatori al variare del regime di addestramento.
+
+L'integrazione di tali strumenti ha mostrato, in particolare, che il cambiamento della composizione dei dati può essere accompagnato da una riorganizzazione sostanziale della funzione decisionale.
+Le corrispondenze osservate tra scostamento distributivo, rilevanza SHAP e andamento prestazionale costituiscono elementi interpretativi utili per caratterizzare il comportamento dei modelli, pur non consentendo di stabilire relazioni causali tra singole caratteristiche e capacità di generalizzazione.
+
+Dai contributi descritti derivano alcune implicazioni per la futura progettazione di NIDS destinati a infrastrutture integrate terrestre-spaziali.
+
+In primo luogo, la \textbf{validazione cross-domain dovrebbe essere considerata esplicitamente nel processo di valutazione}.
+I risultati dei modelli sorgente mostrano infatti che un classificatore può mantenere buone prestazioni sul dominio di origine e un'elevata specificità sul traffico nominale considerato, riducendo contemporaneamente in modo marcato la propria sensibilità verso distribuzioni malevole appartenenti a un dominio differente.
+Una validazione limitata a partizioni statisticamente vicine al training set rischia pertanto di fornire una caratterizzazione incompleta della robustezza del sistema.
+
+In secondo luogo, i risultati suggeriscono l'interesse di \textbf{strategie di aggiornamento controllato mediante quantità limitate di conoscenza target}.
+In contesti nei quali l'acquisizione di traffico satellitare etichettato risulti onerosa o limitata, la configurazione \textit{INJECTION} mostra che anche una disponibilità ridotta di informazione sul nuovo dominio può risultare rilevante.
+La presente campagna non determina tuttavia la quantità minima o ottimale di dati necessaria per ottenere tale effetto; la definizione di tale relazione richiede una valutazione sistematica a differenti livelli di iniezione.
+
+In terzo luogo, un eventuale adattamento del classificatore dovrebbe includere una \textbf{verifica esplicita della conservazione delle distribuzioni precedentemente apprese}.
+La forte specializzazione osservata nei modelli ibridi evidenzia infatti il rischio che l'incremento della prestazione sul dominio target venga ottenuto a costo della capacità di riconoscere minacce appartenenti al dominio sorgente.
+Per sistemi destinati a operare lungo infrastrutture eterogenee, la robustezza dovrebbe pertanto essere valutata sull'insieme dei domini rilevanti e non soltanto rispetto al contesto più recentemente incorporato nel training.
+
+Infine, la scelta dell'architettura algoritmica dovrebbe essere effettuata considerando congiuntamente gli obiettivi predittivi e i vincoli della piattaforma di destinazione.
+La presente sperimentazione consente di confrontare DT, HGB e RF rispetto a sensibilità, specificità e stabilità, ma non rispetto a latenza, occupazione di memoria, dimensione del modello o consumo energetico.
+Il profilo favorevole osservato per RF non può quindi essere trasformato direttamente in una raccomandazione per un deployment satellitare.
+
+Nel complesso, il lavoro suggerisce che la progettazione di NIDS per infrastrutture integrate terrestre-spaziali debba considerare la robustezza come una proprietà multidimensionale, dipendente non soltanto dall'accuratezza del classificatore, ma anche dalla rappresentatività dei dati, dalla capacità di trasferimento tra domini, dalla conservazione della conoscenza precedente, dalla granularità delle minacce rappresentate e dalla stabilità del processo di apprendimento.
+Le implicazioni delineate costituiscono indicazioni derivabili dal protocollo sperimentale e non una validazione di un'architettura NIDS operativa, la cui valutazione richiederebbe ulteriori dati e misure specifiche di deployment.
+
+
+
+% ==============================================================================
+% LIMITI DELLO STUDIO
+% ==============================================================================
+
 \section{Limiti dello Studio}
 \label{sec:limiti_studio}
+
+Le conclusioni formulate nelle sezioni precedenti devono essere interpretate entro il perimetro del protocollo sperimentale adottato.
+Sebbene il framework abbia consentito di analizzare sistematicamente differenti condizioni di trasferimento cross-domain, alcune caratteristiche dei dati, delle architetture considerate e della procedura di valutazione limitano la possibilità di estendere direttamente i risultati a scenari operativi più generali.
+
+Un primo limite riguarda la \textbf{composizione del traffico nominale nei benchmark cross-domain}.
+Le distribuzioni target derivate da STIN forniscono la componente malevola utilizzata nelle configurazioni TER20 e SAT20, mentre il traffico nominale impiegato durante la campagna sperimentale rimane derivato da UNSW-NB15.
+Di conseguenza, la variazione di dominio analizzata interessa principalmente la classe positiva, mentre non viene valutato un corrispondente \textit{domain shift} della componente benigna.
+
+Tale vincolo assume particolare rilevanza nell'interpretazione della TNR.
+Gli elevati valori di specificità osservati nelle differenti configurazioni indicano che i classificatori mantengono una buona capacità di riconoscere il traffico nominale sorgente, ma non permettono di stabilire come il sistema si comporterebbe in presenza di traffico benigno acquisito direttamente all'interno di un segmento satellitare o, più in generale, appartenente a una distribuzione nominale target differente.
+La robustezza rispetto al \textit{benign-domain shift} rimane pertanto una proprietà non verificata dal presente studio.
+
+Un secondo limite deriva dalla \textbf{numerosità e dalla rappresentatività delle sorgenti dati}.
+La campagna è costruita utilizzando UNSW-NB15 come dominio sorgente e STIN, articolato nelle componenti TER20 e SAT20, come riferimento per le distribuzioni malevole target.
+La molteplicità dei benchmark derivati da tali sorgenti consente di valutare differenti famiglie d'attacco e differenti configurazioni di training, ma non equivale alla validazione su una molteplicità di dataset satellitari indipendenti.
+
+I risultati ottenuti descrivono quindi il comportamento del framework rispetto alle distribuzioni effettivamente disponibili e non permettono di assumere che le medesime relazioni quantitative si mantengano inalterate su altre infrastrutture, campagne di acquisizione, protocolli di rete o popolazioni di attacco.
+In particolare, l'effetto osservato per la configurazione \textit{INJECTION} dovrà essere verificato su ulteriori dataset target prima di poterne valutare la generalità.
+
+Un terzo limite riguarda la \textbf{rappresentazione condivisa delle caratteristiche}.
+L'allineamento tra UNSW-NB15 e STIN richiede di restringere l'analisi a un insieme di feature semanticamente confrontabili tra le sorgenti e di derivare, ove necessario, grandezze equivalenti mediante trasformazioni algebriche e conversioni dimensionali.
+Tale scelta costituisce un requisito necessario per la cross-evaluation, ma comporta la rinuncia ad attributi disponibili esclusivamente in una delle sorgenti dati.
+
+Lo spazio condiviso utilizzato dal framework rappresenta pertanto soltanto una parte dell'informazione potenzialmente disponibile all'interno dei dataset originari.
+Ciò limita sia l'analisi di caratteristiche specifiche del segmento satellitare sia la possibilità di sperimentare architetture che richiedano rappresentazioni strutturali più ricche rispetto al vettore tabulare utilizzato nella presente campagna.
+
+Un quarto limite riguarda il \textbf{numero e la tipologia delle architetture di Machine Learning valutate}.
+L'esperimento confronta Decision Tree, Random Forest e Histogram-based Gradient Boosting, ossia tre famiglie di classificatori riconducibili a modelli basati su alberi.
+Tale scelta permette un confronto controllato tra differenti strategie di costruzione della funzione decisionale, ma non consente di estendere direttamente le conclusioni ad architetture appartenenti ad altre famiglie, quali reti neurali, modelli sequenziali o approcci basati su rappresentazioni a grafo.
+
+La valutazione delle architetture è inoltre stata condotta mantenendo gli iperparametri predefiniti forniti dalla libreria utilizzata, fatta eccezione per il parametro \texttt{random\_state}.
+Non sono state applicate procedure di ricerca mediante \textit{Grid Search}, \textit{Randomized Search} o altre strategie di ottimizzazione.
+I risultati devono quindi essere interpretati come confronto tra le configurazioni considerate dal protocollo e non come stima della massima prestazione ottenibile da ciascuna famiglia algoritmica.
+
+Tale scelta ha consentito di evitare che un'ottimizzazione specifica sui benchmark confondesse l'analisi della generalizzazione cross-domain, ma impedisce contemporaneamente di stabilire se differenti configurazioni iperparametriche avrebbero modificato il compromesso osservato tra sensibilità, specificità e stabilità.
+
+Un quinto limite riguarda la \textbf{caratterizzazione della soglia decisionale}.
+L'analisi principale si concentra sulle metriche ottenute secondo la configurazione decisionale utilizzata dalla pipeline e integra tale valutazione con misure probabilistiche quali PR-AUC.
+Durante la sperimentazione sono stati inoltre generati artefatti relativi alle distribuzioni delle probabilità, alle metriche al variare della soglia e alle curve ROC; tali informazioni non sono state tuttavia oggetto di una campagna sistematica finalizzata alla selezione o all'ottimizzazione della soglia $\tau$.
+
+Non è quindi possibile stabilire, sulla base dell'analisi sviluppata, se il compromesso tra falsi positivi e falsi negativi possa essere ulteriormente modificato mediante soglie specifiche per modello, dominio o contesto operativo.
+Le conclusioni sulla sensibilità e sulla specificità rimangono riferite alla configurazione decisionale effettivamente valutata.
+
+Un sesto limite interessa la \textbf{portata dell'analisi statistica}.
+Il test $t$ di Welch è stato applicato alle distribuzioni multi-seed dell'F1-Score globale mediante confronti separati tra la baseline e le altre configurazioni.
+Il protocollo non applica correzioni per confronti multipli, quali Bonferroni o Benjamini--Hochberg, privilegiando deliberatamente la sensibilità esplorativa dell'analisi.
+
+Di conseguenza, gli esiti inferenziali devono essere interpretati come supporto statistico alle differenze globali osservate e non come una caratterizzazione inferenziale esaustiva dell'intera matrice sperimentale.
+Inoltre, il test opera sulla sintesi dell'F1-Score lungo i benchmark e non attribuisce una significatività statistica indipendente a ciascuna coppia modello--dataset.
+Le differenze locali rimangono pertanto descritte principalmente attraverso le metriche prestazionali osservate.
+
+Un ulteriore limite riguarda la \textbf{natura interpretativa delle analisi PCA, KDE e SHAP}.
+Tali strumenti hanno consentito di individuare corrispondenze tra variazioni distributive, rilevanza delle caratteristiche e comportamento dei classificatori.
+Il protocollo non comprende tuttavia studi di ablazione, interventi controllati sulle singole feature o un disegno sperimentale finalizzato all'identificazione di relazioni causali.
+
+Le associazioni osservate non permettono quindi di affermare che una determinata variazione distributiva sia la causa diretta di uno specifico degrado o miglioramento prestazionale.
+Il limite risulta particolarmente rilevante nei benchmark ibridi, nei quali dominio e classe possono risultare strutturalmente correlati: il traffico nominale deriva dal sorgente, mentre quello malevolo appartiene al target.
+In tale condizione, l'elevata importanza SHAP di una caratteristica può riflettere informazione relativa alla classe, al dominio o a una combinazione delle due componenti, senza che gli artefatti disponibili consentano di separarne causalmente il contributo.
+
+Infine, il presente studio non comprende una \textbf{validazione su una piattaforma NIDS operativa né una caratterizzazione quantitativa delle risorse computazionali}.
+Non sono stati misurati tempi di inferenza, latenza end-to-end, occupazione di memoria, dimensione dei modelli, utilizzo delle risorse hardware o consumo energetico.
+
+Tale assenza impedisce di stabilire quale delle architetture considerate risulti maggiormente adatta a un'esecuzione on-board, a un nodo terrestre con vincoli di risorse o a uno specifico segmento di un'infrastruttura integrata.
+Analogamente, il comportamento osservato in ambiente sperimentale non costituisce una validazione del sistema in presenza di traffico di rete operativo, vincoli temporali reali, evoluzione continua delle distribuzioni o condizioni hardware proprie di una piattaforma satellitare.
+
+Nel complesso, tali limiti non modificano le evidenze ottenute all'interno del protocollo considerato, ma ne delimitano l'ambito di validità.
+I risultati consentono di caratterizzare il comportamento cross-domain delle configurazioni sperimentate e di individuare relazioni rilevanti tra conoscenza target, granularità, architettura e stabilità, senza estendere tali conclusioni a condizioni non direttamente osservate.
+
+I limiti individuati definiscono contestualmente le principali direzioni attraverso cui il framework può essere esteso.
+La sezione successiva traduce pertanto tali vincoli in una serie di sviluppi futuri finalizzati ad ampliare sia la validità sperimentale sia la rilevanza applicativa del lavoro.
+
+
+
+% ==============================================================================
+% SVILUPPI FUTURI
+% ==============================================================================
 
 \section{Sviluppi Futuri}
 \label{sec:sviluppi_futuri}
 
+I limiti discussi nella sezione precedente individuano diverse direzioni attraverso cui il framework proposto può essere esteso.
+Gli sviluppi futuri riguardano sia l'ampliamento della validità sperimentale dei risultati sia la progressiva transizione da un protocollo di valutazione cross-domain verso una caratterizzazione maggiormente rappresentativa delle condizioni operative di un NIDS destinato a infrastrutture integrate terrestre-spaziali.
+
+Una prima estensione prioritaria riguarda l'\textbf{introduzione di traffico nominale appartenente al dominio target}.
+La disponibilità di osservazioni benigne acquisite direttamente in un contesto satellitare consentirebbe di rimuovere uno dei principali vincoli della presente campagna, nella quale la componente nominale rimane interamente derivata da UNSW-NB15.
+
+Tale integrazione permetterebbe di valutare simultaneamente lo scostamento distributivo delle componenti benigna e malevola, verificando se l'elevata specificità osservata nel presente studio venga mantenuta quando anche il traffico nominale differisce dalla distribuzione utilizzata durante l'addestramento.
+Il protocollo potrebbe quindi essere esteso da una caratterizzazione prevalentemente centrata sul trasferimento delle distribuzioni d'attacco a una valutazione più completa del \textit{domain shift} dell'intero spazio di classificazione.
+
+Una seconda direzione riguarda l'\textbf{ampliamento del numero di dataset target indipendenti}.
+L'impiego di ulteriori raccolte di traffico provenienti da infrastrutture satellitari differenti consentirebbe di verificare se le relazioni osservate tra modello sorgente, configurazione \textit{INJECTION} e modelli ibridi risultino riproducibili anche al variare della sorgente dati.
+
+In particolare, una validazione multi-dataset permetterebbe di distinguere maggiormente gli effetti associati al trasferimento cross-domain da quelli eventualmente specifici delle caratteristiche di STIN, TER20 e SAT20.
+L'estensione potrebbe comprendere differenti condizioni operative, protocolli, famiglie di minaccia e modalità di acquisizione, mantenendo invariata la logica di armonizzazione e cross-evaluation definita dal framework.
+
+All'interno della medesima direzione risulterebbe inoltre utile approfondire sistematicamente la \textbf{quantità di conoscenza target necessaria per l'adattamento}.
+La configurazione \textit{INJECTION} ha mostrato un comportamento favorevole con una quota target estremamente ridotta, ma la presente campagna non consente di individuare una quantità minima o ottimale di osservazioni.
+
+Una possibile estensione consiste pertanto nel definire una sequenza controllata di livelli di iniezione,
+\[
+    \lambda_{T}^{(1)} < \lambda_{T}^{(2)} < \dots < \lambda_{T}^{(n)},
+\]
+mantenendo invariati gli altri elementi del protocollo.
+Ciò permetterebbe di studiare l'evoluzione del compromesso tra \textit{adaptation} e \textit{retention} al crescere della conoscenza target, verificando se esista una regione nella quale l'incremento della capacità di generalizzazione cross-domain preceda l'eventuale perdita della conoscenza sorgente.
+
+Una terza estensione riguarda lo \textbf{studio sistematico della soglia decisionale}.
+La campagna attuale produce le probabilità predette dai classificatori e comprende metriche e artefatti relativi alle curve ROC, alle distribuzioni delle probabilità e alla variazione delle prestazioni al modificarsi della soglia.
+Tali informazioni possono essere utilizzate per estendere l'analisi oltre la configurazione decisionale adottata nella valutazione principale.
+
+Definendo la predizione in funzione di una soglia parametrica
+\[
+    \hat{y}(\tau) =
+    \begin{cases}
+        1, & p(Y=1 \mid \mathbf{x}) \geq \tau, \\
+        0, & p(Y=1 \mid \mathbf{x}) < \tau,
+    \end{cases}
+\]
+sarebbe possibile analizzare sistematicamente l'andamento di TPR, TNR, Precision e F1-Score per $\tau \in [0,1]$.
+Le curve ROC e Precision--Recall potrebbero essere utilizzate congiuntamente alle distribuzioni delle probabilità per verificare come il compromesso tra falsi positivi e falsi negativi cambi al variare del modello e del dominio di valutazione.
+
+Tale analisi risulterebbe particolarmente rilevante in un contesto NIDS, nel quale il costo associato a un falso allarme e quello associato alla mancata identificazione di un attacco possono essere differenti.
+Lo sviluppo futuro non dovrebbe pertanto limitarsi alla ricerca di una soglia che massimizzi una singola metrica, ma caratterizzare la stabilità della soglia rispetto al \textit{domain shift}, verificando se un valore definito sul dominio sorgente mantenga un comportamento adeguato anche sulle distribuzioni target.
+
+Una quarta direzione riguarda la \textbf{caratterizzazione delle risorse computazionali e la validazione su piattaforme di esecuzione rappresentative}.
+Il confronto sviluppato nella presente tesi è limitato alle proprietà predittive e alla stabilità dei classificatori.
+Una successiva campagna dovrebbe affiancare a tali grandezze misure relative a:
+\begin{itemize}
+    \item latenza di inferenza;
+    \item occupazione di memoria;
+    \item dimensione dei modelli serializzati;
+    \item utilizzo delle risorse di calcolo;
+    \item consumo energetico.
+\end{itemize}
+
+L'acquisizione congiunta di tali misure permetterebbe di costruire un confronto multidimensionale tra accuratezza predittiva e costo computazionale.
+In tale scenario sarebbe possibile verificare sperimentalmente se il vantaggio prestazionale osservato per RF nella configurazione \textit{INJECTION} giustifichi la relativa articolazione strutturale oppure se modelli differenti offrano un compromesso più favorevole in presenza di specifici vincoli hardware.
+
+Una successiva fase potrebbe quindi prevedere l'esecuzione del NIDS su piattaforme maggiormente rappresentative dei contesti di destinazione, includendo dispositivi embedded o nodi di elaborazione caratterizzati da risorse limitate.
+Solo attraverso tale valutazione sarebbe possibile passare dal confronto algoritmico sviluppato nel presente lavoro a considerazioni quantitative sull'effettiva utilizzabilità delle diverse configurazioni in un sistema operativo.
+
+Una quinta direzione di sviluppo riguarda infine l'\textbf{estensione della rappresentazione dei dati e delle famiglie modellistiche}.
+Il framework attuale opera su uno spazio tabulare condiviso delle feature e utilizza classificatori basati su alberi.
+La disponibilità futura di dataset più completi, caratterizzati non soltanto da un insieme più ampio di attributi ma anche, ove disponibili, da informazioni utili a rappresentare le relazioni tra differenti entità o flussi della rete, permetterebbe di esplorare paradigmi modellistici differenti.
+
+In tale contesto potrebbero essere valutate, ad esempio, architetture basate su \textit{Graph Neural Networks} (GNN) o altri modelli capaci di sfruttare rappresentazioni strutturate del traffico.
+Tale estensione richiederebbe tuttavia una revisione della rappresentazione di ingresso, poiché il confronto con le architetture attuali dovrebbe essere effettuato garantendo che l'informazione aggiuntiva utilizzata dai nuovi modelli sia effettivamente disponibile e semanticamente confrontabile tra i domini sorgente e target.
+
+L'obiettivo non sarebbe quindi sostituire necessariamente i classificatori ad albero utilizzati nella presente campagna, ma verificare se una rappresentazione più ricca della struttura delle comunicazioni consenta di apprendere proprietà maggiormente trasferibili rispetto a quelle esprimibili attraverso il solo vettore tabulare condiviso.
+
+Le direzioni delineate possono essere considerate secondo una progressione incrementale.
+L'introduzione di traffico benigno target e di ulteriori dataset estenderebbe innanzitutto la validità empirica del protocollo; l'analisi della quantità di conoscenza target e della soglia decisionale approfondirebbe il comportamento del meccanismo di adattamento; la misurazione delle risorse avvicinerebbe il framework a una valutazione ingegneristica di deployment; infine, l'utilizzo di rappresentazioni più complete consentirebbe di ampliare il confronto verso nuove famiglie di modelli.
+
+Nel loro insieme, tali sviluppi permetterebbero di verificare quanto le evidenze emerse nella presente tesi siano generalizzabili oltre le specifiche condizioni sperimentali considerate e di evolvere progressivamente il framework da strumento di analisi della trasferibilità cross-domain a base metodologica per la progettazione e la validazione di NIDS destinati a infrastrutture di comunicazione terrestre-spaziali.
+
+
+
+% ==============================================================================
+% CONSIDERAZIONI CONCLUSIVE
+% ==============================================================================
+
 \section{Considerazioni Conclusive}
 \label{sec:considerazioni_conclusive}
+
+Il presente lavoro ha affrontato il problema della robustezza cross-domain dei sistemi NIDS supervisionati, analizzando in quale misura la conoscenza acquisita su un dominio sorgente terrestre possa essere trasferita verso distribuzioni malevole appartenenti a contesti target eterogenei.
+L'indagine ha mostrato come tale trasferimento non possa essere valutato esclusivamente attraverso le prestazioni ottenute sul dominio di addestramento, poiché classificatori efficaci in condizioni intra-domain possono presentare una marcata riduzione della capacità di rilevamento quando vengono esposti a distribuzioni differenti.
+
+Il principale elemento emerso dalla campagna sperimentale riguarda il ruolo della conoscenza target introdotta durante l'apprendimento.
+Nel protocollo considerato, la configurazione \textit{INJECTION} ha mostrato che anche un'esposizione estremamente limitata al dominio target può essere associata a un significativo miglioramento della generalizzazione cross-domain, preservando contemporaneamente la capacità discriminativa acquisita sul sorgente.
+Il risultato non identifica una quantità universalmente ottimale di informazione target, ma evidenzia come il problema dell'adattamento non debba necessariamente essere ricondotto all'alternativa tra assenza completa di conoscenza del nuovo dominio e addestramento estensivo sulle relative distribuzioni.
+
+Il confronto con i modelli sorgente e ibridi ha inoltre evidenziato che la robustezza deve essere interpretata come un compromesso tra \textit{adaptation} e \textit{retention}.
+La sola conoscenza sorgente non garantisce una generalizzazione uniforme verso le distribuzioni target, mentre una forte esposizione alla componente malevola di destinazione può determinare una specializzazione tale da compromettere il riconoscimento delle minacce precedentemente apprese.
+Analogamente, granularità della componente malevola e architettura del classificatore contribuiscono a modulare tale equilibrio, senza tuttavia sostituire il ruolo centrale assunto dalla composizione dei dati di addestramento.
+
+Sotto questa prospettiva, il contributo del framework proposto risiede principalmente nella possibilità di osservare in maniera controllata tali fenomeni, integrando armonizzazione dei domini, differenti livelli di conoscenza target, cross-evaluation, analisi \textit{multi-seed}, verifica statistica e strumenti diagnostici della struttura distributiva e decisionale.
+La metodologia sviluppata fornisce pertanto una base riproducibile per lo studio della trasferibilità dei NIDS in presenza di distribuzioni eterogenee, mantenendo distinte la prestazione predittiva, la stabilità del modello e le evidenze interpretative associate al \textit{domain shift}.
+
+Le conclusioni rimangono circoscritte alle condizioni effettivamente investigate.
+La disponibilità futura di traffico benigno target, ulteriori dataset satellitari, analisi sistematiche della soglia decisionale, misure delle risorse computazionali e rappresentazioni dei dati più complete permetterà di verificare quanto le evidenze osservate possano essere estese verso condizioni operative più realistiche.
+Nel perimetro sperimentale considerato, il risultato complessivo suggerisce comunque che la progettazione di NIDS per infrastrutture integrate terrestre-spaziali debba attribuire alla capacità di \textbf{adattarsi a nuove distribuzioni senza perdere la conoscenza precedentemente acquisita} un ruolo centrale nella valutazione della robustezza del sistema.
