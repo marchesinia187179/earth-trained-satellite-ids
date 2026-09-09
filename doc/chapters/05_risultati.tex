@@ -737,6 +737,9 @@ Contestualmente, la TNR rimane elevata perché la distribuzione nominale continu
 Nel protocollo considerato, l'introduzione nella baseline di soli $29$ campioni target è quindi associata a un incremento sostanziale della sensibilità cross-domain, senza una variazione apprezzabile delle prestazioni medie sui benchmark NB15 né della specificità. 
 Tale evidenza rimane, a questo livello, descrittiva: la successiva analisi statistica verifica se le differenze globali osservate lungo le repliche multi-seed risultino compatibili con l'ipotesi di uguaglianza delle medie.
 
+Una rappresentazione sinottica dell'intera matrice di \textit{cross-evaluation} è riportata nelle Figure~\ref{fig:heatmap_tpr_source_dt}, \ref{fig:heatmap_tpr_source_hgb} e \ref{fig:heatmap_tpr_source_rf}, raccolte nell'Appendice~\ref{app:heatmap_tpr_sorgente}.
+Le mappe di calore riportano congiuntamente la TPR media e la relativa varianza sui $K=10$ seed per tutte le combinazioni modello--benchmark, fornendo il dettaglio visuale del comportamento cross-domain sintetizzato nella presente sottosezione.
+
 Nel complesso, il confronto mostra che la conoscenza target sparsa distingue i due paradigmi soprattutto nella risposta cross-domain, mentre la conoscenza sorgente viene sostanzialmente preservata. 
 L'analisi SHAP viene quindi utilizzata per verificare come il modello aggregato sorgente organizzi la rilevanza delle feature in assenza della componente target introdotta nella baseline.
 
@@ -1177,6 +1180,9 @@ Nel paradigma ibrido tali differenze distributive sono sistematicamente associat
 
 Le metriche non consentono di determinare se i modelli ibridi utilizzino direttamente informazione riconducibile al dominio o caratteristiche semantiche degli attacchi. 
 Esse mostrano tuttavia una generalizzazione asimmetrica: l'estensione della conoscenza target non determina il mantenimento della sensibilità verso le anomalie sorgente.
+
+La struttura completa di tale comportamento è riportata nelle Figure~\ref{fig:heatmap_tpr_hybrid_dt}, \ref{fig:heatmap_tpr_hybrid_hgb} e \ref{fig:heatmap_tpr_hybrid_rf}, raccolte nell'Appendice~\ref{app:heatmap_tpr_ibridi}.
+Le matrici aggregate visualizzano, per ciascuna combinazione tra modello ibrido e benchmark di test, la TPR media e la relativa varianza sui $K=10$ seed, completando il quadro numerico della \textit{cross-evaluation} senza introdurre ulteriori criteri di valutazione.
 
 Il confronto quantitativo identifica pertanto due profili distinti: $\mathcal{M}_{H}$ massimizza la sensibilità sulle distribuzioni target, mentre $\mathcal{M}_{\mathrm{base}}$ mantiene un comportamento più uniforme tra dominio sorgente e target. 
 L'analisi SHAP approfondisce la diversa organizzazione delle feature associata a tali profili.

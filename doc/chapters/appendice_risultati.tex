@@ -247,7 +247,6 @@ I risultati sono organizzati distinguendo le prestazioni sul dominio sorgente, l
     \centering
     \caption{Vantaggio TPR della baseline rispetto al migliore modello sorgente disponibile su ciascun benchmark target.}
     \label{tab:source_vs_base_best_source_delta}
-    \resizebox{\textwidth}{!}{
     \begin{tabular}{lccc}
         \toprule
         \textbf{Test Set Target} & $\boldsymbol{\Delta TPR^{best}_{DT}}$ & $\boldsymbol{\Delta TPR^{best}_{HGB}}$ & $\boldsymbol{\Delta TPR^{best}_{RF}}$ \\
@@ -263,8 +262,66 @@ I risultati sono organizzati distinguendo le prestazioni sul dominio sorgente, l
         \texttt{nb15\_ter20} (UDP\_DDoS) & $+0.00767$ & $+0.82656$ & $+0.48200$ \\
         \bottomrule
     \end{tabular}
-    }
 \end{table}
+
+
+% ==============================================================================
+% HEATMAP TPR AGGREGATE -- MODELLI SORGENTE VS BASELINE
+% ==============================================================================
+
+\subsection{Mappe di Calore Aggregate della TPR}
+\label{app:heatmap_tpr_sorgente}
+
+A completamento del dettaglio numerico riportato nelle tabelle precedenti, le Figure~\ref{fig:heatmap_tpr_source_dt}, \ref{fig:heatmap_tpr_source_hgb} e \ref{fig:heatmap_tpr_source_rf} forniscono una rappresentazione sinottica della \textit{cross-evaluation} dei modelli sorgente rispetto alla baseline \texttt{INJECTION}.
+
+Per ciascuna architettura, le righe identificano i modelli addestrati sulle differenti configurazioni sorgente, mentre le colonne rappresentano i benchmark e le classi utilizzati in fase di valutazione. 
+La configurazione \texttt{INJECTION} è riportata separatamente come riferimento sperimentale.
+Ogni cella delle matrici aggregate riporta la TPR media ottenuta sui $K=10$ seed e la corrispondente varianza inter-seed; la colonna finale riassume inoltre il valore medio sull'intera \textit{cross-evaluation}.
+
+Le mappe costituiscono pertanto la controparte grafica dei risultati quantitativi discussi nel Capitolo~\ref{ch:risultati} e riportati in forma tabellare nella presente appendice, senza introdurre una metrica ulteriore rispetto al protocollo sperimentale.
+
+\begin{landscape}
+    \begin{figure}[p]
+        \centering
+
+        \includegraphics[
+            width=\linewidth,
+            height=0.80\textheight,
+            keepaspectratio
+        ] {images/chapter5/heatmaps/dt_TPR_aggregated_matrix_source_vs_baseline.png}
+        \caption{Matrice aggregata della TPR per Decision Tree nel confronto tra modelli sorgente e baseline \texttt{INJECTION}. Per ciascuna cella sono riportate la media e la varianza calcolate sui $K=10$ seed.}
+        \label{fig:heatmap_tpr_source_dt}
+    \end{figure}
+\end{landscape}
+
+\begin{landscape}
+    \begin{figure}[p]
+        \centering
+
+        \includegraphics[
+            width=\linewidth,
+            height=0.80\textheight,
+            keepaspectratio
+        ] {images/chapter5/heatmaps/hgb_TPR_aggregated_matrix_source_vs_baseline.png}
+        \caption{Matrice aggregata della TPR per Histogram-based Gradient Boosting nel confronto tra modelli sorgente e baseline \texttt{INJECTION}. Per ciascuna cella sono riportate la media e la varianza calcolate sui $K=10$ seed.}
+        \label{fig:heatmap_tpr_source_hgb}
+    \end{figure}
+\end{landscape}
+
+\begin{landscape}
+    \begin{figure}[p]
+        \centering
+
+        \includegraphics[
+            width=\linewidth,
+            height=0.80\textheight,
+            keepaspectratio
+        ] {images/chapter5/heatmaps/rf_TPR_aggregated_matrix_source_vs_baseline.png}
+        \caption{Matrice aggregata della TPR per Random Forest nel confronto tra modelli sorgente e baseline \texttt{INJECTION}. Per ciascuna cella sono riportate la media e la varianza calcolate sui $K=10$ seed.}
+        \label{fig:heatmap_tpr_source_rf}
+    \end{figure}
+\end{landscape}
+
 
 
 % ==============================================================================
@@ -339,21 +396,62 @@ Sono riportate separatamente le prestazioni sui benchmark target omologhi e i ri
 \end{table}
 
 
-
 % ==============================================================================
-% MAPPE DI CALORE
+% HEATMAP TPR AGGREGATE -- MODELLI IBRIDI VS BASELINE
 % ==============================================================================
-\section{Mappe di Calore della Cross-Evaluation}
-\label{app:heatmap_cross_evaluation}
-
-La presente sezione riporta le rappresentazioni grafiche aggregate delle
-matrici di valutazione ottenute nel protocollo di \textit{cross-evaluation}.
-Le mappe di calore complementano il dettaglio numerico riportato nelle
-sezioni precedenti, fornendo una rappresentazione sinottica del comportamento
-dei modelli rispetto ai differenti benchmark di test.
 
 \subsection{Mappe di Calore Aggregate della TPR}
-\label{app:heatmap_tpr}
+\label{app:heatmap_tpr_ibridi}
+
+Le Figure~\ref{fig:heatmap_tpr_hybrid_dt}, \ref{fig:heatmap_tpr_hybrid_hgb} e \ref{fig:heatmap_tpr_hybrid_rf} completano la caratterizzazione della \textit{cross-evaluation} dei modelli ibridi mediante una rappresentazione grafica delle matrici aggregate della TPR.
+
+Le righe comprendono i modelli aggregati e biclasse addestrati utilizzando la componente malevola target, mentre le colonne corrispondono ai medesimi benchmark sorgente, \texttt{INJECTION} e target impiegati nel protocollo di valutazione. 
+La baseline \texttt{INJECTION} è riportata separatamente come riferimento comune. 
+Analogamente alle matrici relative ai modelli sorgente, ciascuna cella riporta la TPR media e la relativa varianza ottenute sui $K=10$ seed, mentre la colonna finale sintetizza la risposta media lungo l'intera matrice di valutazione.
+
+Tale rappresentazione integra il dettaglio numerico della Tabella~\ref{tab:ibridi_domain_transfer_tpr}, consentendo di preservare nell'appendice la struttura completa dei risultati multi-seed senza appesantire la discussione principale del Capitolo~\ref{ch:risultati}.
+
+\begin{landscape}
+    \begin{figure}[p]
+        \centering
+
+        \includegraphics[
+            width=\linewidth,
+            height=0.80\textheight,
+            keepaspectratio
+        ] {images/chapter5/heatmaps/dt_TPR_aggregated_matrix_hybrid_vs_baseline.png}
+        \caption{Matrice aggregata della TPR per Decision Tree nel confronto tra modelli ibridi e baseline \texttt{INJECTION}. Per ciascuna cella sono riportate la media e la varianza calcolate sui $K=10$ seed.}
+        \label{fig:heatmap_tpr_hybrid_dt}
+    \end{figure}
+\end{landscape}
+
+\begin{landscape}
+    \begin{figure}[p]
+        \centering
+
+        \includegraphics[
+            width=\linewidth,
+            height=0.80\textheight,
+            keepaspectratio
+        ] {images/chapter5/heatmaps/hgb_TPR_aggregated_matrix_hybrid_vs_baseline.png}
+        \caption{Matrice aggregata della TPR per Histogram-based Gradient Boosting nel confronto tra modelli ibridi e baseline \texttt{INJECTION}. Per ciascuna cella sono riportate la media e la varianza calcolate sui $K=10$ seed.}
+        \label{fig:heatmap_tpr_hybrid_hgb}
+    \end{figure}
+\end{landscape}
+
+\begin{landscape}
+    \begin{figure}[p]
+        \centering
+
+        \includegraphics[
+            width=\linewidth,
+            height=0.80\textheight,
+            keepaspectratio
+        ] {images/chapter5/heatmaps/rf_TPR_aggregated_matrix_hybrid_vs_baseline.png}
+        \caption{Matrice aggregata della TPR per Random Forest nel confronto tra modelli ibridi e baseline \texttt{INJECTION}. Per ciascuna cella sono riportate la media e la varianza calcolate sui $K=10$ seed.}
+        \label{fig:heatmap_tpr_hybrid_rf}
+    \end{figure}
+\end{landscape}
 
 
 
