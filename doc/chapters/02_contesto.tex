@@ -8,7 +8,7 @@ La trattazione si articola come segue.
 La Sezione~\ref{sec:telecomunicazioni} analizza le caratteristiche strutturali, le vulnerabilità e i profili di rischio che differenziano le infrastrutture terrestri dai segmenti spaziali, evidenziando la necessità di paradigmi di monitoraggio attivo. 
 La Sezione~\ref{sec:ids_ml} esamina i principi operativi dei \textit{Network Intrusion Detection Systems} (NIDS) guidati dall'apprendimento automatico, fornendo una disamina critica della letteratura principale e identificando i limiti dei modelli attuali nel gestire transizioni tra domini differenti. 
 Successivamente, la Sezione~\ref{sec:domain_shift_data} formalizza rigorosamente i fenomeni di disallineamento distributivo (\textit{domain shift}) e di scarsità dei dati etichettati, definendo le strategie di adattamento di dominio supervisionato. 
-Infine, la Sezione~\ref{sec:sintesi_posizionamento} sintetizza i gap metodologici emersi dallo stato dell'arte e colloca puntualmente i contributi innovativi e l'approccio proposto da questo lavoro di tesi nel panorama scientifico di riferimento.
+Infine, la Sezione~\ref{sec:sintesi_posizionamento} sintetizza i gap metodologici emersi dallo stato dell'arte e colloca l'approccio considerato nel presente lavoro rispetto ai principali assi di confronto individuati nella letteratura.
 
 \section{Telecomunicazioni}
 \label{sec:telecomunicazioni}
@@ -127,10 +127,23 @@ Ai fini di un'adeguata contestualizzazione del ruolo di tali strumenti nell'infr
     \draw [arrow_bidi] (nids_ground) -- (core);
     \draw [arrow_alert] (logic_attack) -- (core);
 
+    % LIMITI ORIZZONTALI COMUNI PER I DUE GROUP BOX
+    \coordinate (box_left) at ($(gateway.west)+(-0.5,0)$); 
+    \coordinate (box_right) at ($(terminal.east)+(0.5,0)$);
+
     % Box
-    \begin{scope}[on background layer]
-        \node[group_box, fit={(leo) (geo) (rf_attack)}] (gspace) {};
-        \node[group_box, fit={(nids_space) (gateway) (terminal) (core) (nids_ground) (logic_attack)}] (gter) {};        
+    \begin{scope}[on background layer]  
+        % Segmento spaziale 
+        \node[ 
+            group_box, 
+            fit={(box_left |- rf_attack.north) (box_right |- leo.south) (leo) (geo) (rf_attack)} 
+        ] (gspace) {}; 
+        
+        % Segmento terrestre 
+        \node[ 
+            group_box, 
+            fit={(box_left |- nids_space.north) (box_right |- logic_attack.south) (nids_space) (gateway) (terminal) (core) (nids_ground) (logic_attack)} 
+        ] (gter) {};
     \end{scope}
 
     \node[above, font=\footnotesize\bfseries, text=neutralgrey] at (gspace.north) {Segmento Spaziale};
@@ -151,11 +164,11 @@ Tradizionalmente, la rilevazione delle intrusioni nei NIDS si articola in due ma
 Sebbene il primo garantisca un'elevata accuratezza nel riconoscere minacce note confrontando il traffico con un database di pattern malevoli predefiniti, esso mostra un'intrinseca inefficacia di fronte ad attacchi inediti (\textit{Zero-Day}) e a varianti strutturali concepite per eludere i controlli \cite{khraisat2019}.
 Tale limite ha orientato la ricerca verso modelli analitici capaci di apprendere la profilazione comportamentale del traffico nominale. 
 
-Per superare la rigidità dei meccanismi deterministici basati su firme, l'integrazione delle tecniche di Machine Learning nei NIDS ha introdotto un paradigma adattivo e altamente generalizzabile, in grado di modellare la complessa dinamica del traffico trasmissivo moderno.
-Attraverso la formalizzazione di \textit{feature} statistiche e sintattiche rilevanti\footnote{Nei NIDS moderni, la caratterizzazione del traffico poggia sull'estrazione di attributi di flusso (es. formato NetFlow/IPFIX), tra cui la dimensione degli \textit{header}, la frequenza dei pacchetti, la dimensione delle finestre TCP e la distribuzione temporale degli interarrivi.} — quali la frequenza dei pacchetti, la dimensione degli \textit{header} e la distribuzione dei tempi di interarrivo —, un NIDS basato su Machine Learning costruisce una rappresentazione statistica del flusso informativo per rilevare deviazioni microscopiche riconducibili ad attività malevole senza la necessità di una firma preesistente \cite{hindy2020, khraisat2019}.
+Per superare la rigidità dei meccanismi deterministici basati su firme, l'integrazione delle tecniche di Machine Learning nei NIDS consente di apprendere rappresentazioni statistiche del traffico e funzioni decisionali a partire dalle osservazioni disponibili.
+Attraverso la formalizzazione di \textit{feature} statistiche e sintattiche rilevanti\footnote{Nei NIDS moderni, la caratterizzazione del traffico poggia sull'estrazione di attributi di flusso (es. formato NetFlow/IPFIX), tra cui la dimensione degli \textit{header}, la frequenza dei pacchetti, la dimensione delle finestre TCP e la distribuzione temporale degli interarrivi.} --- quali la frequenza dei pacchetti, la dimensione degli \textit{header} e la distribuzione dei tempi di interarrivo ---, un NIDS basato su Machine Learning può discriminare tra differenti configurazioni di traffico senza richiedere necessariamente la corrispondenza con una firma malevola predefinita \cite{hindy2020,khraisat2019}.
 
-In questo contesto, la scelta metodologica di privilegiare classificatori di tipo supervisionato rispetto a soluzioni non supervisionate offre un vantaggio determinante in termini di affidabilità operativa\footnote{L'apprendimento supervisionato consente di contenere drasticamente il tasso di falsi allarmi (\textit{False Positive Rate}, FPR), che costituisce una delle principali criticità applicative dei NIDS in ambienti ad alta variabilità stocastica.}.
-Laddove l'apprendimento non supervisionato risente di un'elevata sensibilità alle fluttuazioni fisiologiche della rete, i modelli supervisionati permettono di tracciare confini di decisione precisi e stabili, ottimizzando la separazione tra flussi leciti e malevoli sia in formulazioni di classificazione binaria sia in configurazioni multiclasse per la caratterizzazione delle specifiche famiglie di minaccia \cite{kilincer2021}.
+In questo contesto, i classificatori supervisionati sfruttano osservazioni etichettate per apprendere una funzione decisionale tra le classi considerate.
+Rispetto alle tecniche puramente non supervisionate, tale disponibilità informativa può contribuire a contenere i falsi allarmi e a rendere quantitativamente verificabile la capacità discriminativa del modello, pur mantenendo la prestazione dipendente dalla rappresentatività delle distribuzioni utilizzate durante l'addestramento \cite{kilincer2021}.
 
 \subsection{NIDS in Machine Learning per le telecomunicazioni terrestri}
 \label{subsec:ids_terrestri}
@@ -174,9 +187,11 @@ Spostando l'attenzione sui modelli guidati da dati etichettati, un primo contrib
 Gli autori hanno formalizzato le metodologie di \textit{benchmarking} per la sicurezza di rete attraverso la bonifica dei bias di ridondanza con il dataset NSL-KDD\footnote{Il dataset NSL-KDD ha risolto i problemi di duplicazione dei record presenti nell'originale KDD'99, i quali sbilanciavano le metriche di valutazione e alteravano la capacità dei classificatori di apprendere pattern di attacco rari.}. 
 Nonostante l'importanza storica di tale lavoro nel validare l'accuratezza dei modelli supervisionati, il nostro approccio se ne discosta nettamente: la valutazione condotta da Tavallaee et al. rimane circoscritta a un dominio sintetico e stazionario, senza indagare il comportamento dei classificatori di fronte a fenomeni di \textit{domain shift}\footnote{Con \textit{domain shift} (o scostamento distributivo) si intende la variazione della distribuzione di probabilità congiunta dei dati tra il dominio di addestramento e quello di test ($P_S(X, Y) \neq P_T(X,Y)$), la quale determina un drastico decadimento della capacità di generalizzazione del modello.}.
 
-Successivamente, Sharafaldin et al. \cite{sharafaldin2018} hanno esteso la caratterizzazione dei NIDS supervisionati a flussi ad alta dimensionalità e a vettori d'attacco complessi tramite l'introduzione del dataset CIC-IDS2017. 
-Sebbene questo studio costituisca uno standard di riferimento per la modellazione del traffico moderno, la nostra proposta segna un chiaro elemento di discontinuità: l'analisi di Sharafaldin et al. valuta le prestazioni focalizzandosi su una risposta prevalentemente multiclasse all'interno di un singolo contesto trasmissivo locale. 
-Il nostro lavoro mette invece a confronto diretto la granularità binaria e multiclasse sotto scostamenti distributivi eterogenei, valutando come la struttura della risposta incida sulla stabilità dei confini discriminativi durante il trasferimento cross-dominio.
+Successivamente, Sharafaldin et al.~\cite{sharafaldin2018} hanno esteso la caratterizzazione dei NIDS supervisionati a flussi ad alta dimensionalità e a vettori d'attacco complessi tramite l'introduzione del dataset CIC-IDS2017.
+Sebbene tale contributo costituisca un riferimento consolidato per la modellazione del traffico moderno, la relativa valutazione rimane prevalentemente circoscritta a un singolo dominio di riferimento.
+
+Il presente lavoro considera invece il comportamento dei classificatori in condizioni cross-domain e introduce un confronto tra differenti livelli di granularità della rappresentazione della componente malevola.
+Lo spazio di uscita rimane binario, mentre varia il numero di famiglie d'attacco rappresentate simultaneamente all'interno della classe positiva, consentendo di confrontare configurazioni aggregate e rilevatori specialistici rispetto alla rispettiva capacità di generalizzazione.
 
 \subsection{NIDS in Machine Learning per le telecomunicazioni satellitari}
 \label{subsec:ids_satellitari}
@@ -189,61 +204,58 @@ Tuttavia, la barriera primaria allo sviluppo di NIDS nativi per lo spazio risied
 
 Nell'ambito della letteratura focalizzata sulle reti integrate spazio-terra, un punto di riferimento di primaria importanza è costituito dallo studio di Wan et al. \cite{wan2025}, incentrato su un NIDS distribuito basato su \textit{Federated Learning} per la protezione delle infrastrutture satellitari. 
 Il pregio principale di questo contributo risiede nell'adozione di un paradigma di addestramento cooperativo che tutela la riservatezza dei dati locali e riduce l'ampiezza di banda richiesta sui collegamenti spaziali. 
-Ciononostante, il nostro approccio si diversifica in modo sostanziale da tale impostazione: lo studio di Wan et al. presuppone un'architettura federata attiva che richiede continui cicli di aggregazione e sincronizzazione dei parametri tra i nodi della costellazione. 
-Al contrario, la nostra soluzione valuta la trasferibilità diretta (\textit{zero-shot}\footnote{Nel contesto considerato, l'approccio \textit{zero-shot} indica la valutazione diretta delle prestazioni di un classificatore, addestrato esclusivamente su dati di origine terrestre, nei confronti del traffico proveniente dal canale satellitare, senza applicare riaddestramenti o adattamenti specifici (\textit{fine-tuning}).}) di un modello addestrato nel dominio terrestre verso l'ambiente satellitare, affrontando il \textit{domain shift} senza gravare sui collegamenti orbitali con l'onere computazionale e comunicativo di un protocollo distribuito.
+Ciononostante, il presente lavoro si differenzia sostanzialmente da tale impostazione. 
+Lo studio di Wan et al. presuppone infatti un'architettura federata attiva, basata su cicli periodici di aggregazione e sincronizzazione dei parametri tra i nodi della costellazione. 
+Il framework considerato nella presente tesi non introduce invece procedure federate né meccanismi di sincronizzazione distribuita: tra i regimi analizzati viene valutata la trasferibilità diretta (\textit{zero-shot}\footnote{Nel contesto considerato, l'approccio \textit{zero-shot} indica la valutazione diretta delle prestazioni di un classificatore addestrato esclusivamente sul dominio sorgente nei confronti di distribuzioni target non osservate durante l'addestramento, senza applicare procedure di adattamento o \textit{fine-tuning}.}) di classificatori supervisionati addestrati sul dominio terrestre e, separatamente, l'effetto dell'introduzione controllata di conoscenza target. 
+Tale impostazione evita per costruzione lo scambio iterativo di parametri caratteristico dei protocolli federati, senza tuttavia fornire una quantificazione dei costi computazionali o comunicativi associati a un eventuale deployment operativo. 
 
 Infine, un ulteriore filone di ricerca sulle reti integrate spazio-aria-terra (SAGIN\footnote{\textit{Space-Air-Ground Integrated Networks}: architetture di rete tridimensionali ed eterogenee che integrano la segmentazione spaziale (satelliti LEO/MEO/GEO), aerea (droni, HAPS) e terrestre.}) è rappresentato dal lavoro di Alam e Song \cite{alam2024}, focalizzato sull'orchestrazione dinamica delle risorse mediante l'impiego combinato di \textit{Graph Neural Networks} (GNN) e \textit{Deep Reinforcement Learning} (DRL). 
-Il merito fondamentale di tale studio risiede nella capacità di adattarsi alla topologia fortemente dinamica dei nodi spaziali per l'ottimizzazione delle prestazioni di rete. 
-Tuttavia, il nostro lavoro si distingue nettamente da questa prospettiva: la trattazione di Alam e Song è orientata all'allocazione delle risorse infrastrutturali e richiede modelli decisionali complessi caratterizzati da elevati costi computazionali e frequenti cicli di riaddestramento. 
-La nostra proposta si concentra invece sulla caratterizzazione della sicurezza e sul rilevamento delle intrusioni tramite un'architettura di classificazione alleggerita, valutandone la robustezza discriminativa di fronte alle distorsioni di canale senza ricorrere a complessi processi di riapprendimento in tempo reale.
+Il principale elemento distintivo di tale approccio risiede nella capacità di adattare le decisioni di allocazione alla topologia dinamica dei nodi spaziali. 
+Il presente lavoro si colloca su un piano differente: l'obiettivo non riguarda l'orchestrazione delle risorse infrastrutturali, bensì la valutazione della robustezza cross-domain di classificatori NIDS supervisionati. 
+Il protocollo adottato utilizza classificatori ad albero e non prevede meccanismi di riaddestramento online o di sincronizzazione distribuita, concentrando l'analisi sulle proprietà predittive, sulla stabilità e sulla trasferibilità della funzione decisionale.
 
 \begin{table}[H]
 \centering
-\caption{Sintesi e confronto della letteratura principale sui NIDS nei domini terrestre e satellitare.}
+\caption{Sintesi comparativa dello stato dell'arte sui NIDS nei domini terrestre e satellitare e posizionamento del presente lavoro.}
 \label{tab:stato_arte_nids}
-\begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}p{1.7cm} >{\raggedright\arraybackslash}p{2.1cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+\begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
 \toprule
-\textbf{Rif.} & \textbf{Dominio} & \textbf{Approccio} & \textbf{Punto di Forza} & \textbf{Limiti e Gap} \\[-5pt]
- &  &  &  & \textbf{Metodologico} \\
+\textbf{Rif.} & \textbf{Dominio} & \textbf{Approccio} \\
 \midrule
-\cite{sommer2010} &
-Terrestre &
-ML Unsupervised &
-Rilevamento di minacce \textit{zero-day} senza dataset etichettati. &
-Elevato tasso di falsi allarmi (FPR) dovuto alle fluttuazioni stocastiche di rete. \\
+\cite{sommer2010} & Terrestre & ML Unsupervised \\
+\multicolumn{3}{>{\raggedright\arraybackslash}p{\textwidth}}{\textbf{Contributo} Rilevamento di minacce \textit{zero-day} senza dataset etichettati.} \\
+\multicolumn{3}{>{\raggedright\arraybackslash}p{\textwidth}}{\textbf{Limite} Elevato tasso di falsi allarmi (FPR) dovuto alle fluttuazioni stocastiche di rete.} \\
 \addlinespace
-\cite{tavallaee2009} &
-Terrestre &
-ML Supervised &
-Benchmarking rigido e bonifica dei bias di ridondanza (NSL-KDD). &
-Analisi circoscritta a dati sintetici e stazionari; assenza di valutazione su \textit{domain shift}. \\
+\cite{tavallaee2009} & Terrestre & ML Supervised \\
+\multicolumn{3}{>{\raggedright\arraybackslash}p{\textwidth}}{\textbf{Contributo} Benchmarking rigido e bonifica dei bias di ridondanza (NSL-KDD).} \\
+\multicolumn{3}{>{\raggedright\arraybackslash}p{\textwidth}}{\textbf{Limite} Analisi circoscritta a dati sintetici e stazionari; assenza di valutazione su \textit{domain shift}.} \\
 \addlinespace
-\cite{sharafaldin2018} &
-Terrestre &
-ML Supervised &
-Caratterizzazione di flussi ad alta dimensionalità (CIC-IDS2017). &
-Ristretto alla sola risposta multiclasse; omette la valutazione binaria e cross-dominio. \\
+\cite{sharafaldin2018} & Terrestre & ML Supervised \\
+\multicolumn{3}{>{\raggedright\arraybackslash}p{\textwidth}}{\textbf{Contributo} Caratterizzazione di flussi ad alta dimensionalità (CIC-IDS2017).} \\
+\multicolumn{3}{>{\raggedright\arraybackslash}p{\textwidth}}{\textbf{Limite} Ristretto alla sola risposta multiclasse; omette la valutazione binaria e cross-dominio.} \\
 \addlinespace
-\cite{wan2025} &
-Spazio-Terra &
-Federated Learning &
-Addestramento distribuito e cooperativo con tutela della privacy. &
-Elevato \textit{overhead} per sincronizzazione continua dei parametri su tratte orbitali. \\
+\cite{wan2025} & Spazio-Terra & Federated Learning \\
+\multicolumn{3}{>{\raggedright\arraybackslash}p{\textwidth}}{\textbf{Contributo} Addestramento distribuito e cooperativo con tutela della privacy.} \\
+\multicolumn{3}{>{\raggedright\arraybackslash}p{\textwidth}}{\textbf{Limite} Elevato \textit{overhead} per sincronizzazione continua dei parametri su tratte orbitali.} \\
 \addlinespace
-\cite{alam2024} &
-SAGIN &
-GNN + DRL &
-Adattamento dinamico alle topologie spaziali ad alta variabilità. &
-Elevato carico computazionale; orientato alle risorse anziché alla rilevazione. \\
+\cite{alam2024} & SAGIN & GNN + DRL \\
+\multicolumn{3}{>{\raggedright\arraybackslash}p{\textwidth}}{\textbf{Contributo} Adattamento dinamico alle topologie spaziali ad alta variabilità.} \\
+\multicolumn{3}{>{\raggedright\arraybackslash}p{\textwidth}}{\textbf{Limite} Elevato carico computazionale; orientato alle risorse anziché alla rilevazione.} \\
+\midrule
+\textbf{Presente lavoro} & Terrestre / Terrestre-Spaziale & ML Supervised; Cross-Domain \\
+\multicolumn{3}{>{\raggedright\arraybackslash}p{\textwidth}}{\textbf{Contributo} Valutazione \textit{zero-shot}, conoscenza target sparsa, cross-evaluation e analisi \textit{multi-seed}.} \\
+\multicolumn{3}{>{\raggedright\arraybackslash}p{\textwidth}}{\textbf{Limite} \textit{Benign-domain shift} non valutato; assenza di misure di latenza, memoria e consumo energetico per il deployment.} \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \noindent
-L'analisi dello stato dell'arte, i cui contributi fondamentali e i relativi elementi di discontinuità sono sintetizzati nella Tabella~\ref{tab:stato_arte_nids}, evidenzia come la progettazione di NIDS basati su Machine Learning per infrastrutture integrate debba superare l'ipotesi di stazionarietà\footnote{L'ipotesi di stazionarietà assume che le proprietà statistiche dei flussi di rete (es. media, varianza e distribuzione dei pacchetti) rimangano invarianti nel tempo e tra domini differenti, condizione regolarmente smentita nella transizione tra reti terrestri e spaziali.} e omogeneità prevalente nella letteratura attuale.
+L'analisi dello stato dell'arte, i cui contributi fondamentali e i relativi elementi di discontinuità sono sintetizzati nella Tabella~\ref{tab:stato_arte_nids}, evidenzia come la valutazione di NIDS basati su Machine Learning per infrastrutture integrate richieda di superare l'ipotesi di stazionarietà\footnote{L'ipotesi di stazionarietà assume che le proprietà statistiche dei flussi di rete, quali media, varianza e distribuzione delle caratteristiche osservate, rimangano sostanzialmente invarianti tra i contesti considerati. Tale assunzione può venire meno nel trasferimento tra domini eterogenei.} e di considerare esplicitamente la trasferibilità della funzione decisionale.
 
-Come illustrato nello schema concettuale di Figura~\ref{fig:domain_shift_concept}, l'estensione dei modelli dal contesto terrestre a quello satellitare richiede di formalizzare le problematiche di degrado prestazionale causate dal disallineamento distributivo del traffico (\textit{domain shift}) e dalla severa indisponibilità di dati etichettati nel segmento spaziale. 
-Tali sfide metodologiche costituiscono l'oggetto della trattazione dettagliata sviluppata nella sezione seguente.
+Il posizionamento del presente lavoro evidenzia in particolare l'interesse verso un regime intermedio tra la valutazione puramente intra-domain e le architetture adattive distribuite: il problema viene studiato mediante classificatori supervisionati sottoposti a cross-evaluation tra domini eterogenei e attraverso differenti livelli di disponibilità della conoscenza target.
+
+Come illustrato nello schema concettuale di Figura~\ref{fig:domain_shift_concept}, tale prospettiva richiede di formalizzare il degrado prestazionale potenzialmente associato al disallineamento distributivo del traffico (\textit{domain shift}) e la contemporanea scarsità di osservazioni target etichettate. 
+Tali problematiche costituiscono l'oggetto della trattazione sviluppata nella sezione seguente.
 
 \begin{figure}[H]
     \centering
@@ -321,8 +333,8 @@ La transizione da architetture trasmissive omogenee a scenari eterogenei impone 
 
 L'efficacia dei modelli di Machine Learning applicati ai Network Intrusion Detection Systems (NIDS) poggia fondamentalmente sull'assunto teorico che i dati di addestramento e quelli operativi siano indipendenti e identicamente distribuiti (\textit{i.i.d.}). 
 Tuttavia, nelle infrastrutture di rete reali la natura dinamica e fortemente variabile del traffico invalida frequentemente tale ipotesi, introducendo un marcato scostamento distributivo \cite{pan2010}. 
-In questo scenario, l'adozione di paradigmi di \textit{transfer learning} diventa essenziale per mitigare il decadimento prestazionale dei classificatori. 
-Tale approccio permette, infatti, di trasferire la conoscenza estratta dal dominio di origine eludendo il severo onere computazionale e logistico imposto dalla raccolta ex novo di dati etichettati e dal riaddestramento integrale dei modelli.
+In questo scenario, i paradigmi di \textit{transfer learning} costituiscono una possibile strategia per mitigare il decadimento prestazionale associato al trasferimento tra distribuzioni differenti.
+Tali approcci mirano a riutilizzare la conoscenza acquisita nel dominio sorgente quando la disponibilità di osservazioni etichettate nel dominio target è limitata, riducendo la necessità di costruire un modello completamente indipendente a partire dal solo dominio di destinazione.
 
 In termini formali, un dominio $\mathcal{D}$ è definito dalla coppia costituita da uno spazio delle \textit{feature} $\mathcal{X}$\footnote{Nel contesto dei NIDS basati su flussi di rete, lo spazio $\mathcal{X}$ codifica attributi statistici del traffico, quali la dimensione media dei pacchetti, la durata dei flussi e i tempi di interarrivo.} e da una distribuzione di probabilità marginale $P(X)$, tale per cui $\mathcal{D}=\{\mathcal{X},P(X)\}$. 
 Assumendo uno spazio delle \textit{feature} condiviso ($\mathcal{X}_S=\mathcal{X}_T=\mathcal{X}$), dati un dominio di origine (\textit{source}) $\mathcal{D}_S=\{\mathcal{X},P_S(X)\}$ e un dominio di destinazione (\textit{target}) $\mathcal{D}_T=\{\mathcal{X},P_T(X)\}$, il fenomeno del \textit{domain shift} si verifica quando le distribuzioni marginali differiscono tra i contesti, ossia $P_S(X)\neq P_T(X)$ (\textit{covariate shift}). 
@@ -361,31 +373,39 @@ L'addestramento del modello $f(\cdot;\theta)$ viene condotto minimizzando una fu
 \end{equation}
 dove $\ell(\cdot)$ rappresenta la funzione di perdita istantanea (es. \textit{cross-entropy}) e $\alpha > 0$ è un iperparametro di ponderazione della perdita\footnote{L'iperparametro $\alpha$ compensa la sproporzione quantitativa tra $N_S$ e $N_T$, evitando che il gradiente calcolato sui dati terrestri sovrasti il segnale di adattamento proveniente dal dominio satellitare.}.
 
-L'ottimizzazione dell'Equazione~(\ref{eq:supervised_da_loss}) permette di riallineare i confini di separazione e di inglobare la variabilità stocastica del canale di destinazione senza perdere la ricchezza informativa sugli attacchi complessi appresa dal dominio terrestre \cite{motiian2017}. 
-Tale approccio compensa l'impatto del disallineamento distributivo, garantendo un'elevata capacità di generalizzazione del classificatore sia nella discriminazione binaria sia nella caratterizzazione multiclasse delle minacce.
+L'ottimizzazione congiunta rappresentata nell'Equazione~(\ref{eq:supervised_da_loss}) mira a modificare la funzione decisionale incorporando l'informazione disponibile nel dominio di destinazione, preservando contestualmente la conoscenza strutturata acquisita sul dominio sorgente \cite{motiian2017}. 
+In termini generali, tale formulazione costituisce quindi un riferimento teorico per la mitigazione del disallineamento distributivo in presenza di una disponibilità limitata di campioni target etichettati.
 
-\section{Sintesi e Posizionamento del Lavoro}
+L'efficacia dell'adattamento non può tuttavia essere assunta a priori, poiché dipende dalla relazione tra le distribuzioni coinvolte, dalla quantità e dalla rappresentatività della conoscenza target e dal classificatore adottato. 
+Nel presente lavoro tale principio viene pertanto investigato sperimentalmente attraverso configurazioni controllate del training set, descritte formalmente nel capitolo successivo, senza identificare l'Equazione~(\ref{eq:supervised_da_loss}) con una specifica funzione di perdita implementata nella pipeline.
+
+
+
+% ==============================================================================
+% SINTESI DELLO STATO DELL'ARTE E RESEARCH GAP
+% ==============================================================================
+
+\section{Sintesi dello Stato dell'Arte e Research Gap}
 \label{sec:sintesi_posizionamento}
 
-L'analisi approfondita della letteratura scientifica condotta nel presente capitolo evidenzia come la convergenza tra le infrastrutture di comunicazione terrestri e i segmenti trasmissivi orbitali abbia ridisegnato il perimetro di sicurezza delle reti moderne. 
-Se da un lato l'integrazione di sistemi di monitoraggio attivo basati su Machine Learning (NIDS) rappresenta la soluzione principale per contrastare vettori d'attacco dinamici e minacce \textit{zero-day} \cite{khraisat2019, hindy2020}, dall'altro l'esame dello stato dell'arte mette in luce una marcata frammentazione metodologica, strutturata su due paradigmi tra loro disallineati:
+L'analisi della letteratura scientifica sviluppata nel presente capitolo evidenzia come la convergenza tra infrastrutture di comunicazione terrestri e segmenti trasmissivi spaziali abbia ampliato il perimetro operativo e di sicurezza delle reti moderne. 
+In tale contesto, i sistemi NIDS basati su Machine Learning costituiscono uno degli strumenti disponibili per il rilevamento di comportamenti malevoli non completamente descrivibili mediante regole o firme statiche \cite{khraisat2019,hindy2020}.
 
+Lo stato dell'arte esaminato mette tuttavia in evidenza due criticità metodologiche complementari:
 \begin{enumerate}
-\item \textbf{I NIDS per reti terrestri}, pur garantendo elevatissimi indici prestazionali su dataset di riferimento ad alta dimensionalità come NSL-KDD \cite{tavallaee2009} e CIC-IDS2017 \cite{sharafaldin2018}, vengono valutati quasi esclusivamente in condizioni stazionarie e intra-dominio. Tale impostazione ignora sistematicamente l'effetto che le variazioni della distribuzione dei dati (\textit{domain shift}) producono sulla stabilità dei confini di decisione del classificatore.
-\item \textbf{I NIDS per ambienti satellitari e SAGIN}, orientati ad affrontare la natura intrinsecamente dinamica del canale radio spaziale, ricorrono prevalentemente ad architetture complesse basate su \textit{Federated Learning} \cite{wan2025} o all'orchestrazione con \textit{Deep Reinforcement Learning} e Graph Neural Networks \cite{alam2024}. Pur offrendo soluzioni di protezione cooperativa e gestione delle risorse, tali approcci impongono continui cicli di aggregazione, riaddestramento e sincronizzazione dei parametri, generando un \textit{overhead} comunicativo e computazionale\footnote{Sui collegamenti satellitari, caratterizzati da elevati tempi di \textit{Round Trip Time} (RTT) e da ampiezze di banda asimmetriche, lo scambio continuo di gradienti o pesi sinaptici tipico dei protocolli federati può saturare la capacità della tratta, incrementando i tempi di vulnerabilità del sistema.} difficilmente sostenibile su nodi orbitali con severe limitazioni di risorsa.
+    \item \textbf{NIDS valutati prevalentemente in condizioni intra-domain:} una parte rilevante della letteratura relativa alle reti terrestri concentra la validazione su partizioni appartenenti al medesimo dominio utilizzato durante l'addestramento. 
+    Tale impostazione consente di caratterizzare le prestazioni in condizioni stazionarie, ma fornisce informazioni limitate sulla capacità del classificatore di mantenere proprietà discriminative in presenza di variazioni distributive;
+
+    \item \textbf{Soluzioni adattive per ambienti satellitari caratterizzate da architetture distribuite o altamente specializzate:} gli studi rivolti a contesti satellitari e SAGIN considerano frequentemente paradigmi quali Federated Learning, Graph Neural Networks e Deep Reinforcement Learning \cite{wan2025,alam2024}. 
+    Tali approcci affrontano aspetti rilevanti quali cooperazione distribuita, dinamismo topologico e orchestrazione delle risorse, ma non rispondono direttamente al problema di quantificare la trasferibilità di un classificatore NIDS supervisionato tra domini eterogenei e sotto differenti livelli di disponibilità della conoscenza target.
 \end{enumerate}
 
-Tale scenario rivela un chiaro \textit{Research Gap}: la letteratura scientifica manca di un'indagine sistematica e quantitativa sia sulla \textbf{trasferibilità diretta (\textit{zero-shot cross-domain})} dei modelli di Machine Learning addestrati su flussi terrestri verso il canale satellitare, sia sulle strategie trasversali di \textbf{\textit{Supervised Domain Adaptation}} concepite per operare in contesti di estrema scarsità di campioni etichettati \cite{kodheli2021, azar2023}. 
-L'assenza di dataset pubblici etichettati contenenti intrusioni reali registrate su tratte orbitali ha storicamente ostacolato questo filone di ricerca, favorendo l'impiego di tecniche di \textit{unsupervised domain adaptation} \cite{wilson2020} che tuttavia presuppongono un disallineamento distributivo contenuto e risentono dell'elevato rumore stocastico del canale radio spaziale.
+Da tale quadro emerge il \textit{research gap} di riferimento per il presente lavoro: risulta di interesse una valutazione sistematica della \textbf{trasferibilità cross-domain} di classificatori supervisionati addestrati a partire da conoscenza terrestre e della loro capacità di adattarsi a distribuzioni target eterogenee quando la disponibilità di osservazioni etichettate del nuovo dominio è fortemente limitata.
 
-In questo contesto, il presente lavoro di tesi si propone di colmare le lacune metodologiche riscontrate in letteratura, fornendo un quadro di analisi per la valutazione della robustezza discriminativa e della portabilità dei sistemi NIDS nel passaggio da ambienti di rete terrestri a segmenti satellitari. 
+La scarsità di dataset pubblici rappresentativi del traffico malevolo in infrastrutture satellitari rende inoltre rilevante l'analisi di regimi intermedi tra due condizioni estreme: l'assenza completa di conoscenza target, corrispondente alla valutazione diretta \textit{zero-shot}, e una maggiore esposizione del classificatore alle distribuzioni di destinazione. 
+In tale intervallo si colloca il problema dell'adattamento mediante conoscenza target sparsa, nel quale l'acquisizione di informazione sul nuovo dominio deve essere valutata congiuntamente alla capacità di preservare la conoscenza precedentemente acquisita sul sorgente.
 
-Nello specifico, l'opera intende offrire i seguenti contributi principali:
-\begin{itemize}
-\item \textbf{Analisi del Domain Shift Cross-Domain:} Caratterizzazione teorica e quantitativa delle deformazioni indotte dal canale trasmissivo spaziale sullo spazio delle \textit{feature} statistiche e sulla capacità di generalizzazione dei modelli terrestri.
-\item \textbf{Strategie di Adattamento di Dominio:} Valutazione di tecniche di \textit{domain adaptation} per la mitigazione dello scostamento distributivo in contesti caratterizzati da forte scarsità di dati etichettati.
-\item \textbf{Studio sulla Granularità di Classificazione:} Indagine comparativa sull'impatto che differenti livelli di dettaglio nella risposta del classificatore (binaria e multiclasse) esercitano sulla stabilità delle prestazioni e sulla gestione dei falsi allarmi.
-\item \textbf{Valutazione di Architetture Difensive Efficienti:} Analisi di soluzioni di monitoraggio adeguate ai vincoli operativi delle infrastrutture satellitari, in grado di garantire stabilità discriminativa senza introdurre elevati costi computazionali o comunicativi.
-\end{itemize}
+Il posizionamento sintetizzato nella Tabella~\ref{tab:stato_arte_nids} conduce pertanto a considerare la robustezza cross-domain come una proprietà distinta dalla sola prestazione intra-domain e dalla sola specializzazione sul dominio di destinazione. 
+La sua valutazione richiede un protocollo capace di confrontare sistematicamente differenti composizioni del training set, differenti granularità della componente malevola e differenti famiglie di classificatori, controllando contestualmente la variabilità associata al processo di apprendimento.
 
-Definito il quadro della letteratura e identificati i principali gap metodologici, il capitolo successivo introdurrà la formalizzazione teorica e la cornice metodologica generale adottata in questo lavoro. 
+Definito il contesto scientifico e circoscritto il relativo \textit{research gap}, il Capitolo~\ref{ch:metodologia} introduce la formulazione teorica e il framework metodologico adottati per tradurre tali problematiche in un protocollo sperimentale formalmente controllato.

@@ -1,8 +1,370 @@
+% ==============================================================================
+% CAPITOLO 1: INTRODUZIONE
+% ==============================================================================
+
 \chapter{Introduzione}
-\label{ch:introduction}
+\label{ch:introduzione}
 
-\section{Contesto generale}
-\label{sec:contesto}
+La crescente integrazione tra infrastrutture di telecomunicazione terrestri e segmenti spaziali sta progressivamente estendendo il perimetro operativo delle reti moderne, introducendo nuove opportunità in termini di copertura, continuità del servizio e interconnessione geografica, ma anche ulteriori criticità sotto il profilo della sicurezza. 
+La coesistenza di canali trasmissivi caratterizzati da proprietà fisiche, topologiche e operative differenti determina infatti un ambiente fortemente eterogeneo, nel quale i meccanismi di protezione devono essere in grado di mantenere la propria efficacia anche al variare delle condizioni di rete e delle distribuzioni statistiche del traffico.
 
-\section{Obiettivo dell'Elaborato}
-\label{sec:obiettivo}
+In tale scenario, i \textit{Network Intrusion Detection Systems} (NIDS) basati su Machine Learning costituiscono uno strumento rilevante per l'identificazione automatizzata di comportamenti anomali e attività malevole all'interno dei flussi di comunicazione. 
+La loro efficacia dipende tuttavia dalla capacità dei modelli appresi di mantenere proprietà discriminative anche quando il contesto operativo differisce da quello utilizzato durante la fase di addestramento. 
+Questo requisito assume particolare importanza nella transizione tra domini terrestri e satellitari, dove le differenze nelle caratteristiche del traffico e nelle dinamiche trasmissive possono produrre un significativo disallineamento tra le distribuzioni osservate durante il \textit{training} e quelle incontrate in fase di inferenza.
+
+Il presente lavoro affronta tale problematica mediante la definizione e la validazione sperimentale di un framework per l'analisi della robustezza e della trasferibilità cross-domain di classificatori supervisionati applicati a sistemi NIDS. 
+L'indagine considera differenti regimi di disponibilità della conoscenza target e differenti configurazioni della componente malevola, con l'obiettivo di valutare non soltanto la capacità di adattamento verso nuove distribuzioni, ma anche la conservazione dell'informazione precedentemente acquisita nel dominio sorgente.
+
+A partire da tali premesse, il presente lavoro definisce e valida sperimentalmente un framework per l'analisi della robustezza e della trasferibilità cross-domain di classificatori supervisionati applicati a sistemi NIDS. 
+Il capitolo introduce il contesto dell'indagine, formalizza il problema di ricerca e i relativi obiettivi, sintetizza l'approccio metodologico e identifica i principali contributi della tesi, concludendo con l'organizzazione della trattazione.
+
+% ==============================================================================
+% 1.1 CONTESTO E MOTIVAZIONI
+% ==============================================================================
+
+\section{Contesto e Motivazioni}
+\label{sec:intro_contesto}
+
+Le infrastrutture di telecomunicazione costituiscono un elemento fondamentale per il funzionamento dei moderni sistemi digitali, supportando l'interconnessione di servizi, dispositivi e infrastrutture distribuite su scala geografica. 
+La crescente dipendenza da tali reti rende la continuità e l'integrità delle comunicazioni requisiti essenziali non soltanto per applicazioni convenzionali, ma anche per servizi critici e scenari nei quali un'interruzione o una compromissione del canale può produrre conseguenze sistemiche \cite{tanenbaum2020,stallings2020}.
+
+L'estensione delle architetture di comunicazione verso il segmento spaziale amplia ulteriormente tale scenario. 
+Le infrastrutture satellitari consentono infatti di superare i limiti geografici e orografici delle reti di superficie, garantendo copertura su vaste aree e introducendo forme di ridondanza utili in contesti remoti o caratterizzati da limitata disponibilità di infrastrutture terrestri \cite{kodheli2021}. 
+Contestualmente, l'integrazione tra segmenti terrestri e orbitali determina un ambiente trasmissivo eterogeneo, nel quale coesistono canali caratterizzati da differenti condizioni di propagazione, latenza, disponibilità di banda e variabilità temporale.
+
+A tale complessità operativa corrisponde un ampliamento della superficie di attacco. 
+Le minacce tradizionalmente associate alle reti terrestri, quali attacchi volumetrici, scansioni, accessi non autorizzati e manipolazioni del traffico, si affiancano nei segmenti satellitari a ulteriori vulnerabilità derivanti dalla natura radio del mezzo trasmissivo e dalla maggiore esposizione fisica del canale \cite{nist2022}. 
+La protezione di infrastrutture integrate richiede pertanto meccanismi di monitoraggio capaci di osservare continuamente i flussi e identificare variazioni compatibili con attività malevole lungo contesti operativi differenti.
+
+In tale ambito, i NIDS basati su Machine Learning rappresentano un'evoluzione rispetto ai soli sistemi di rilevamento deterministici fondati su firme. 
+L'impiego di modelli di apprendimento consente infatti di caratterizzare statisticamente il comportamento dei flussi e di costruire funzioni decisionali capaci di discriminare tra traffico nominale e malevolo sulla base delle caratteristiche osservate \cite{khraisat2019,hindy2020}. 
+Tale proprietà risulta particolarmente rilevante quando le minacce non sono completamente descrivibili mediante pattern statici o quando la complessità del traffico rende impraticabile una codifica manuale esaustiva delle condizioni di attacco.
+
+L'efficacia di un classificatore supervisionato rimane tuttavia strettamente connessa alla rappresentatività dei dati utilizzati durante l'addestramento. 
+Le metodologie convenzionali di valutazione assumono implicitamente una sostanziale coerenza statistica tra il dominio sul quale viene appreso il modello e quello sul quale esso viene successivamente impiegato. 
+Quando tale ipotesi viene meno, la capacità di generalizzazione può essere compromessa dal fenomeno di \textit{domain shift}, ossia dalla variazione delle distribuzioni associate alle osservazioni tra il dominio sorgente e quello di destinazione \cite{pan2010}.
+
+La transizione tra traffico terrestre e traffico appartenente a infrastrutture integrate terrestre-spaziali costituisce un caso particolarmente significativo di tale problematica. 
+Le differenti condizioni trasmissive e le differenti modalità di generazione e acquisizione dei flussi possono riflettersi direttamente nello spazio delle caratteristiche utilizzato dal NIDS, determinando distribuzioni target non coincidenti con quelle osservate durante l'apprendimento. 
+Di conseguenza, prestazioni elevate ottenute in una valutazione esclusivamente intra-domain non costituiscono, di per sé, una garanzia di robustezza quando il medesimo classificatore viene trasferito verso un contesto differente.
+
+La problematica è ulteriormente aggravata dalla disponibilità limitata di traffico satellitare etichettato. 
+La raccolta di dataset rappresentativi del segmento spaziale risulta infatti più complessa rispetto al contesto terrestre, sia per i vincoli operativi associati alle infrastrutture considerate sia per la difficoltà di acquisire e rendere pubblicamente disponibili tracce realistiche di traffico malevolo \cite{kodheli2021,azar2023}. 
+L'addestramento di un classificatore completamente nativo per ogni nuovo dominio può quindi risultare difficilmente praticabile, rendendo rilevante lo studio di strategie capaci di sfruttare la conoscenza già disponibile nel dominio sorgente.
+
+Da tali considerazioni deriva la motivazione centrale del presente lavoro: analizzare sistematicamente il comportamento di classificatori NIDS supervisionati quando la conoscenza appresa su un dominio di riferimento viene trasferita verso distribuzioni differenti e valutare come differenti livelli di disponibilità dell'informazione target incidano sul compromesso tra adattamento e conservazione della conoscenza precedentemente acquisita. 
+L'interesse non è quindi limitato alla ricerca della massima prestazione su uno specifico dominio, ma riguarda più in generale la capacità del sistema di mantenere un comportamento discriminativo stabile attraverso scenari eterogenei.
+
+Questa prospettiva richiede di superare una valutazione circoscritta alla sola accuratezza intra-domain e di considerare congiuntamente la generalizzazione cross-domain, la stabilità rispetto alla componente stocastica dell'addestramento, la sensibilità alle differenti distribuzioni malevole e la struttura della funzione decisionale appresa. 
+Su tali presupposti viene formulato, nella sezione successiva, il problema di ricerca affrontato dalla tesi.
+
+
+
+% ==============================================================================
+% 1.2 PROBLEMA DI RICERCA
+% ==============================================================================
+
+\section{Problema di Ricerca}
+\label{sec:intro_problema}
+
+Il problema affrontato nel presente lavoro riguarda la capacità di un sistema NIDS supervisionato di preservare le proprie proprietà discriminative quando il dominio operativo differisce da quello utilizzato per l'addestramento. 
+In una valutazione convenzionale intra-domain, il modello viene infatti addestrato e verificato su partizioni appartenenti alla medesima distribuzione di riferimento. 
+Tale condizione consente di misurare l'efficacia del classificatore all'interno del contesto conosciuto, ma non permette di stabilire direttamente se la funzione decisionale appresa sia trasferibile verso distribuzioni di traffico differenti.
+
+Formalmente, il framework considera un dominio sorgente $\mathcal{D}_{S}$ e uno o più domini target $\mathcal{D}_{T}$, rappresentati all'interno di uno spazio condiviso delle caratteristiche $\mathcal{X}$. 
+Pur mantenendo una rappresentazione semanticamente omogenea delle osservazioni, le relative distribuzioni possono risultare differenti:
+\begin{equation}
+    P_{S}(\mathbf{x}) \neq P_{T}(\mathbf{x}),
+\end{equation}
+configurando una condizione di \textit{domain shift} nella quale le osservazioni incontrate durante la fase di inferenza non seguono necessariamente la stessa distribuzione dei dati utilizzati per l'apprendimento \cite{pan2010}.
+
+Nel contesto considerato, tale problema assume una particolare rilevanza poiché il dominio sorgente è rappresentativo di traffico di rete terrestre, mentre i domini di destinazione introducono distribuzioni provenienti da un'infrastruttura integrata terrestre-spaziale. 
+Il trasferimento viene pertanto studiato in presenza di sorgenti dati eterogenee, ricondotte a uno spazio comune mediante un processo di armonizzazione delle caratteristiche, senza assumere a priori che la conoscenza discriminativa acquisita nel dominio sorgente rimanga invariata nei differenti contesti target.
+
+Il problema sperimentale viene circoscritto alla variazione della componente malevola del traffico. 
+Nei benchmark cross-domain adottati, la componente nominale ($Y=0$) rimane derivata dal dominio sorgente, mentre le differenti configurazioni modificano la provenienza e la composizione delle osservazioni malevole ($Y=1$). 
+Di conseguenza, l'indagine consente di valutare la capacità dei classificatori di riconoscere famiglie di attacco caratterizzate da distribuzioni differenti da quelle osservate nel dominio sorgente, ma non costituisce una valutazione del \textit{domain shift} associato al traffico nominale.
+
+All'interno di tale perimetro, la sola valutazione di un modello addestrato sul sorgente non è sufficiente a caratterizzare l'intero problema. 
+La disponibilità di conoscenza target può infatti variare da una condizione di completa assenza fino alla disponibilità estesa di esempi provenienti dal nuovo dominio. 
+Il framework considera pertanto tre regimi principali di addestramento, concepiti come differenti livelli di esposizione del classificatore all'informazione target:
+\begin{enumerate}
+    \item \textbf{Modello sorgente ($\mathcal{M}_{S}$):} il classificatore viene addestrato esclusivamente sul dominio sorgente $\mathcal{D}_{S}^{(\text{train})}$. 
+    Tale configurazione rappresenta il caso privo di adattamento e consente di quantificare la trasferibilità diretta della conoscenza appresa verso distribuzioni non osservate durante il \textit{training};
+
+    \item \textbf{Modello baseline ($\mathcal{M}_{\text{base}}$):} il dominio sorgente viene integrato con una quantità fortemente limitata e controllata di osservazioni target. 
+    Questa configurazione rappresenta una condizione intermedia, nella quale il classificatore dispone di una conoscenza preventiva sparsa del dominio di destinazione senza sostituire la struttura informativa acquisita sul sorgente;
+
+    \item \textbf{Modelli ibridi ($\mathcal{M}_{H}^{(T)}$):} la componente nominale sorgente viene combinata con la componente malevola del dominio target considerato. 
+    Tali configurazioni rappresentano il caso di maggiore esposizione alla distribuzione di destinazione e consentono di osservare il comportamento di classificatori fortemente specializzati sul nuovo dominio.
+\end{enumerate}
+
+Il confronto tra questi tre regimi consente di trasformare il problema della trasferibilità in un problema più generale di equilibrio tra \textit{adaptation} e \textit{retention}. 
+Un sistema capace di ottenere prestazioni elevate sul solo dominio sorgente può infatti risultare poco sensibile alle distribuzioni target; simmetricamente, una forte specializzazione sul dominio di destinazione può compromettere la capacità di riconoscere configurazioni precedentemente apprese. 
+La robustezza cross-domain viene quindi interpretata non come la massimizzazione isolata delle prestazioni su uno specifico benchmark, ma come la capacità di acquisire informazione relativa al nuovo dominio preservando, per quanto possibile, la conoscenza discriminativa precedente.
+
+Una seconda dimensione del problema riguarda la granularità con cui viene rappresentata la componente malevola durante l'addestramento. 
+Lo spazio di uscita del classificatore rimane in ogni configurazione binario,
+\begin{equation}
+    \mathcal{Y} = \{0,1\},
+\end{equation}
+dove $Y=0$ identifica il traffico nominale e $Y=1$ quello malevolo. 
+La distinzione tra modelli aggregati e modelli biclasse non riguarda quindi la cardinalità dello spazio di output, bensì il numero di famiglie d'attacco simultaneamente rappresentate all'interno della classe positiva.
+
+I modelli aggregati apprendono una frontiera decisionale a partire da più famiglie di minaccia appartenenti al medesimo dominio, mentre i modelli biclasse specialistici sono costruiti isolando una singola famiglia d'attacco rispetto alla componente nominale. 
+Tale distinzione consente di analizzare se una rappresentazione malevola più ampia favorisca una maggiore tolleranza alle variazioni distributive oppure se una maggiore specializzazione migliori la discriminazione locale a costo di una minore capacità di generalizzazione.
+
+A questa componente si aggiunge infine l'effetto dell'architettura algoritmica. 
+Il protocollo confronta classificatori ad albero caratterizzati da differenti strategie di costruzione della funzione decisionale, verificando se il comportamento cross-domain dipenda prevalentemente dalla composizione del training set oppure venga modificato in misura sostanziale dalla famiglia di stimatore impiegata. 
+L'obiettivo non consiste tuttavia nell'identificare a priori un classificatore universalmente ottimale, bensì nel caratterizzare il compromesso tra sensibilità, specificità, stabilità e capacità di trasferimento nelle differenti condizioni sperimentali.
+
+Il problema di ricerca può pertanto essere sintetizzato nella valutazione sistematica di come \textbf{composizione del dominio di addestramento}, \textbf{quantità di conoscenza target}, \textbf{granularità della componente malevola} e \textbf{architettura del classificatore} concorrano a determinare la robustezza di un NIDS in condizioni cross-domain.
+
+Su tale formulazione vengono definite, nella sezione successiva, le domande di ricerca e gli obiettivi specifici che guidano il protocollo sperimentale.
+
+
+
+% ==============================================================================
+% 1.3 OBIETTIVI E DOMANDE DI RICERCA
+% ==============================================================================
+
+\section{Obiettivi e Domande di Ricerca}
+\label{sec:intro_obiettivi}
+
+Alla luce del problema delineato nella sezione precedente, l'obiettivo generale del presente lavoro consiste nel definire e validare un framework sperimentale per la valutazione della robustezza cross-domain di sistemi NIDS supervisionati, con particolare riferimento alla capacità di trasferire conoscenza da un dominio sorgente terrestre verso distribuzioni malevole appartenenti a contesti target eterogenei.
+
+L'indagine non mira esclusivamente a misurare la prestazione predittiva raggiunta all'interno di ciascun dominio, ma a caratterizzare il comportamento dei classificatori lungo differenti regimi di disponibilità dell'informazione target. 
+L'attenzione viene pertanto posta sul compromesso tra capacità di adattamento verso nuove distribuzioni e conservazione della conoscenza precedentemente acquisita, valutando contestualmente l'effetto della granularità della componente malevola, dell'architettura algoritmica e della variabilità stocastica del processo di addestramento.
+
+A partire da tale obiettivo generale, il lavoro persegue i seguenti obiettivi specifici:
+\begin{enumerate}
+    \item \textbf{Caratterizzare il disallineamento distributivo tra dominio sorgente e domini target}, analizzando come le differenti configurazioni di benchmark occupino lo spazio condiviso delle caratteristiche e individuando evidenze empiriche compatibili con la presenza di \textit{domain shift};
+
+    \item \textbf{Quantificare la trasferibilità diretta dei classificatori addestrati esclusivamente sul dominio sorgente}, verificando la variazione delle prestazioni quando i modelli vengono esposti a distribuzioni malevole non osservate durante la fase di addestramento;
+
+    \item \textbf{Valutare l'effetto dell'introduzione di conoscenza target nel processo di apprendimento}, confrontando una condizione di adattamento sparso con configurazioni caratterizzate da una maggiore esposizione alla componente malevola target e analizzando contestualmente la capacità di preservare la conoscenza sorgente;
+
+    \item \textbf{Analizzare l'impatto della granularità e dell'architettura di classificazione sulla robustezza cross-domain}, confrontando modelli aggregati e specialistici e differenti famiglie di classificatori rispetto a sensibilità, specificità, stabilità e organizzazione della funzione decisionale;
+
+    \item \textbf{Verificare la stabilità e la significatività delle differenze prestazionali osservate}, integrando valutazioni \textit{multi-seed} e analisi inferenziale per caratterizzare la variabilità associata all'addestramento, affiancate da strumenti diagnostici post-hoc per l'interpretazione delle variazioni distributive e decisionali.
+\end{enumerate}
+
+Gli obiettivi così definiti vengono tradotti nelle seguenti domande di ricerca (\textit{Research Questions}, RQ), che costituiscono il riferimento logico per la progettazione del protocollo sperimentale e per la successiva interpretazione dei risultati.
+
+\paragraph{RQ1 -- Trasferibilità diretta e Domain Shift.}
+\textit{In quale misura un NIDS supervisionato, addestrato esclusivamente sul dominio sorgente, mantiene la propria capacità discriminativa quando viene valutato su distribuzioni malevole appartenenti ai domini target?}
+
+La prima domanda considera il regime privo di adattamento, rappresentato dai modelli sorgente $\mathcal{M}_{S}$, e mira a determinare se prestazioni ottenute in condizioni intra-domain risultino trasferibili verso distribuzioni differenti. 
+Il confronto tra valutazioni sorgente e target consente quindi di quantificare il degrado associato al trasferimento cross-domain e di verificare se la sola conoscenza terrestre sia sufficiente a garantire robustezza rispetto a minacce appartenenti a contesti non osservati durante l'addestramento.
+
+\paragraph{RQ2 -- Adattamento mediante Conoscenza Target Sparsa.}
+\textit{In quale misura l'introduzione di una quantità limitata e controllata di conoscenza target consente di migliorare la capacità di generalizzazione cross-domain preservando contemporaneamente la conoscenza discriminativa acquisita sul dominio sorgente?}
+
+La seconda domanda riguarda il regime intermedio rappresentato dalla baseline $\mathcal{M}_{\mathrm{base}}$. 
+L'obiettivo è verificare se una conoscenza preventiva fortemente sparsa del dominio di destinazione possa modificare favorevolmente la funzione decisionale senza produrre una specializzazione tale da compromettere il riconoscimento delle distribuzioni precedentemente apprese. 
+Il comportamento della baseline viene pertanto confrontato sia con il regime privo di adattamento sia con le configurazioni caratterizzate da una maggiore esposizione al dominio target.
+
+\paragraph{RQ3 -- Granularità, Specializzazione e Generalizzazione.}
+\textit{Come incide la granularità della rappresentazione della componente malevola sulla capacità del classificatore di generalizzare in presenza di variazioni distributive?}
+
+La terza domanda confronta modelli aggregati, nei quali più famiglie d'attacco contribuiscono alla costruzione della regione decisionale positiva, e modelli biclasse specialistici, addestrati rispetto a una singola famiglia di minaccia. 
+L'analisi mira a verificare il compromesso tra ampiezza della conoscenza rappresentata durante l'apprendimento e specializzazione discriminativa, valutando se una frontiera costruita su un supporto malevolo più eterogeneo risulti maggiormente tollerante al \textit{domain shift} rispetto a una formulazione più ristretta.
+
+\paragraph{RQ4 -- Architettura, Stabilità e Struttura Decisionale.}
+\textit{In quale misura l'architettura del classificatore modifica il compromesso tra sensibilità, specificità, stabilità e robustezza cross-domain nei differenti regimi di addestramento?}
+
+La quarta domanda considera le differenti famiglie di classificatori adottate nel framework e analizza se le rispettive strategie di costruzione della funzione decisionale producano comportamenti sistematicamente differenti al variare della composizione del training set. 
+La valutazione viene estesa alla stabilità rispetto alle inizializzazioni stocastiche e alle caratteristiche maggiormente coinvolte nelle decisioni, al fine di confrontare il ruolo dell'architettura algoritmica con quello della composizione dei dati disponibili durante l'addestramento.
+
+Le quattro domande di ricerca definiscono pertanto una progressione che muove dalla verifica della trasferibilità diretta, introduce progressivamente la conoscenza del dominio target e analizza infine il ruolo della granularità e dell'architettura del classificatore. 
+La loro valutazione richiede un protocollo capace di integrare misure prestazionali, confronto cross-domain, analisi della variabilità stocastica e strumenti diagnostici dello spazio delle caratteristiche e della funzione decisionale.
+
+La sezione successiva sintetizza l'approccio metodologico adottato per tradurre tali obiettivi in una campagna sperimentale riproducibile.
+
+
+
+% ==============================================================================
+% 1.4 APPROCCIO METODOLOGICO
+% ==============================================================================
+
+\section{Approccio Metodologico}
+\label{sec:intro_approccio}
+
+Per rispondere alle domande di ricerca definite nella sezione precedente, il presente lavoro adotta un approccio sperimentale strutturato secondo una pipeline progressiva che integra armonizzazione dei dati, costruzione controllata dei benchmark, addestramento supervisionato, valutazione cross-domain e analisi diagnostica.
+
+L'impostazione metodologica è concepita per mantenere distinte le differenti sorgenti di variabilità che possono influenzare il comportamento dei classificatori. 
+In particolare, la composizione dei dataset, la disponibilità di conoscenza target, la granularità della componente malevola, l'architettura del modello e l'inizializzazione stocastica vengono analizzate secondo configurazioni controllate, consentendo di confrontarne sistematicamente l'associazione con le variazioni prestazionali osservate nel perimetro sperimentale considerato.
+
+L'approccio complessivo si articola nelle seguenti fasi principali.
+
+\paragraph{1) Definizione dei domini sorgente e target.}
+Il dominio sorgente $\mathcal{D}_{S}$ viene istanziato mediante il dataset \texttt{UNSW-NB15}~\cite{nb15}, utilizzato come rappresentazione del traffico terrestre di riferimento. 
+I domini target $\mathcal{D}_{T}$ vengono invece derivati dal dataset \texttt{STIN}~\cite{stin}, articolato nei segmenti \texttt{TER20} e \texttt{SAT20}, rappresentativi rispettivamente della componente terrestre e satellitare dell'infrastruttura integrata.
+
+Le sorgenti dati presentano strutture, tassonomie e insiemi di caratteristiche differenti. 
+Per consentirne il confronto, ciascun dominio viene pertanto sottoposto alle procedure di filtraggio e riorganizzazione necessarie a ottenere una rappresentazione coerente delle componenti nominali e malevole considerate dal protocollo.
+
+\paragraph{2) Armonizzazione dello spazio delle caratteristiche.}
+Le rappresentazioni grezze dei differenti domini vengono ricondotte a uno spazio condiviso
+\[
+    \mathcal{X} \subseteq \mathbb{R}^{16}
+\]
+mediante gli operatori di mappatura $\boldsymbol{\psi}_{S}$ e $\boldsymbol{\psi}_{T}$ formalizzati nel Capitolo~\ref{ch:metodologia}.
+
+Il processo mantiene esclusivamente caratteristiche semanticamente confrontabili tra le sorgenti dati, applicando, ove necessario, trasformazioni algebriche, conversioni dimensionali e armonizzazione delle unità di misura. 
+Gli identificatori locali e gli attributi non trasferibili tra domini vengono esclusi al fine di ridurre il rischio che il classificatore apprenda correlazioni specifiche del singolo dataset anziché proprietà generalizzabili del traffico.
+
+La pipeline principale di classificazione non applica una standardizzazione globale delle caratteristiche. 
+La trasformazione mediante $Z$-score viene mantenuta separata dal processo di addestramento e utilizzata esclusivamente nel ramo diagnostico dedicato alle analisi PCA e KDE, secondo la formulazione sviluppata nei Capitoli~\ref{ch:metodologia} e~\ref{ch:implementazione}.
+
+\paragraph{3) Costruzione dei benchmark sperimentali.}
+A partire dai domini armonizzati vengono generate differenti configurazioni di benchmark, mantenendo preventivamente separate le partizioni di addestramento e di test per evitare contaminazioni informative.
+
+La composizione dei dataset è regolata da un rapporto di proporzionamento
+\[
+    \rho_{\mathrm{ben}/\mathrm{mal}} = 10/1,
+\]
+con partizionamento $80\%/20\%$ tra training e test. 
+Il protocollo produce configurazioni aggregate, nelle quali la componente malevola comprende più famiglie d'attacco, e configurazioni biclasse specialistiche, nelle quali viene isolata una singola famiglia di minaccia.
+
+All'interno di tale struttura vengono istanziati i tre principali regimi di apprendimento descritti nella Sezione~\ref{sec:intro_problema}: modello sorgente $\mathcal{M}_{S}$, baseline $\mathcal{M}_{\mathrm{base}}$ con conoscenza target sparsa e modelli ibridi $\mathcal{M}_{H}^{(T)}$ caratterizzati da una maggiore esposizione alla componente malevola target.
+
+\paragraph{4) Addestramento multi-seed e famiglie di classificatori.}
+La valutazione viene condotta utilizzando tre famiglie di classificatori supervisionati basati su alberi di decisione:
+\begin{itemize}
+    \item \textit{Decision Tree} (DT);
+    \item \textit{Random Forest} (RF);
+    \item \textit{Histogram-based Gradient Boosting} (HGB).
+\end{itemize}
+
+Per evitare che le conclusioni dipendano da una singola inizializzazione stocastica, la campagna sperimentale viene replicata su un insieme di $K=10$ semi distinti:
+\begin{equation}
+    \mathcal{S} =
+    \{0,1,7,42,101,123,999,1337,2026,12345\}.
+\end{equation}
+
+I dataset pre-elaborati rimangono invariati tra le differenti esecuzioni, mentre il parametro \texttt{random\_state} dei classificatori viene modificato secondo il seme considerato. 
+Tale separazione permette di valutare la variabilità associata al processo di apprendimento senza modificare contestualmente la composizione dei benchmark.
+
+\paragraph{5) Cross-Evaluation e validazione statistica.}
+Una volta addestrati, i modelli vengono mantenuti fissi e valutati sulle differenti configurazioni di test previste dal protocollo. 
+La valutazione incrociata consente di confrontare il comportamento del medesimo classificatore sia rispetto alle distribuzioni coerenti con il proprio training set sia rispetto a benchmark appartenenti a domini differenti.
+
+Le prestazioni vengono analizzate attraverso metriche derivate dalla matrice di confusione, con particolare attenzione a \textit{Recall}/TPR, TNR, \textit{Precision} e \textit{F1-Score}, affiancate dalla PR-AUC per caratterizzare la qualità della graduatoria probabilistica indipendentemente dalla singola soglia operativa.
+
+I risultati ottenuti sui differenti seed vengono successivamente aggregati per caratterizzare media e dispersione delle prestazioni. 
+Il confronto tra la baseline e le altre configurazioni viene inoltre supportato mediante il test $t$ di Welch applicato all'\textit{F1-Score}, al fine di verificare se gli scostamenti osservati risultino compatibili con la sola variabilità inter-seed oppure rappresentino differenze statisticamente significative secondo il criterio adottato.
+
+\paragraph{6) Diagnostica distributiva e spiegabilità.}
+Parallelamente al percorso principale di addestramento e valutazione viene mantenuto un ramo diagnostico separato, finalizzato a caratterizzare sia la struttura dei dati sia la funzione decisionale dei classificatori.
+
+L'analisi utilizza tre strumenti complementari:
+\begin{itemize}
+    \item \textbf{Principal Component Analysis (PCA):} impiegata per osservare la disposizione dei benchmark all'interno di una rappresentazione latente comune e individuare variazioni geometriche associate al cambio di dominio;
+
+    \item \textbf{Kernel Density Estimation (KDE):} utilizzata per confrontare le distribuzioni delle caratteristiche maggiormente rilevanti e analizzare traslazioni, variazioni di dispersione e sovrapposizioni tra traffico nominale e malevolo;
+
+    \item \textbf{SHAP/TreeSHAP:} impiegato come strumento post-hoc di spiegabilità per identificare le caratteristiche maggiormente coinvolte nelle decisioni dei modelli e confrontarne l'organizzazione nei differenti regimi di addestramento.
+\end{itemize}
+
+La combinazione di valutazione predittiva, analisi statistica e diagnostica post-hoc consente di affrontare le Research Questions da prospettive complementari. 
+Le metriche quantificano la capacità di discriminazione dei modelli, la valutazione multi-seed ne caratterizza la stabilità, il test statistico qualifica le differenze globali tra configurazioni e gli strumenti PCA, KDE e SHAP forniscono elementi interpretativi sulle variazioni distributive e decisionali associate al trasferimento cross-domain.
+
+La formalizzazione completa del framework viene sviluppata nel Capitolo~\ref{ch:metodologia}, mentre il Capitolo~\ref{ch:implementazione} ne descrive l'istanziazione software, i dataset, i parametri sperimentali e le procedure operative. 
+I risultati prodotti mediante tale protocollo costituiscono infine l'oggetto dell'analisi quantitativa e interpretativa presentata nel Capitolo~\ref{ch:risultati}.
+
+
+
+% ==============================================================================
+% 1.5 CONTRIBUTI DELLA TESI
+% ==============================================================================
+
+\section{Contributi della Tesi}
+\label{sec:intro_contributi}
+
+Il presente lavoro fornisce un insieme di contributi metodologici, sperimentali e implementativi orientati allo studio della robustezza cross-domain dei sistemi NIDS supervisionati. 
+Il contributo complessivo non consiste nella proposta di una nuova architettura di classificazione, bensì nella definizione di un quadro sistematico attraverso il quale modelli esistenti possano essere addestrati, trasferiti e confrontati in presenza di distribuzioni di traffico eterogenee e differenti livelli di disponibilità della conoscenza target.
+
+I principali contributi della tesi possono essere sintetizzati nei seguenti punti.
+
+\begin{enumerate}
+
+    \item \textbf{Definizione di un framework metodologico per la valutazione cross-domain dei NIDS.}
+    
+    È stato formalizzato un modello generale per rappresentare domini sorgente e target eterogenei all'interno di uno spazio condiviso delle caratteristiche, introducendo operatori di mappatura specifici per ciascuna sorgente dati e criteri comuni di filtraggio, armonizzazione semantica e prevenzione del \textit{data leakage}.
+    
+    Il framework separa esplicitamente la composizione dei domini, la granularità della componente malevola, la strategia di addestramento e il protocollo di valutazione, permettendo di analizzare il fenomeno di \textit{domain shift} senza vincolare la formulazione teorica alle peculiarità implementative di un singolo dataset.
+
+    \item \textbf{Definizione di un protocollo controllato di addestramento e cross-evaluation.}
+    
+    Sono stati formalizzati e confrontati tre differenti regimi di disponibilità della conoscenza target: il modello sorgente $\mathcal{M}_{S}$, privo di adattamento; la baseline $\mathcal{M}_{\mathrm{base}}$, caratterizzata da conoscenza target sparsa; e i modelli ibridi $\mathcal{M}_{H}^{(T)}$, maggiormente esposti alla distribuzione malevola del dominio di destinazione.
+    
+    Ciascun modello viene mantenuto immutato dopo l'addestramento e valutato su un insieme comune di benchmark eterogenei. 
+    Tale impostazione consente di studiare simultaneamente trasferibilità, specializzazione e conservazione della conoscenza precedentemente acquisita, superando una valutazione limitata alla sola prestazione sul dominio utilizzato durante il training.
+
+    \item \textbf{Valutazione sperimentale dell'adattamento mediante conoscenza target sparsa.}
+    
+    La configurazione \texttt{INJECTION} introduce nel training set una quantità controllata e fortemente minoritaria di osservazioni appartenenti al dominio target, mantenendo dominante la struttura informativa del dominio sorgente.
+    
+    Tale configurazione viene utilizzata come riferimento sperimentale intermedio tra l'assenza di adattamento e la sostituzione estesa della componente malevola con osservazioni target. 
+    Il protocollo permette quindi di valutare sistematicamente se una conoscenza preventiva limitata del nuovo dominio possa modificare la generalizzazione cross-domain senza richiedere l'addestramento completo su una distribuzione target integralmente disponibile.
+
+    \item \textbf{Analisi congiunta di granularità, architettura e stabilità della funzione decisionale.}
+    
+    Il framework introduce una distinzione esplicita tra modelli aggregati e modelli biclasse specialistici, mantenendo invariato lo spazio decisionale binario $\mathcal{Y}=\{0,1\}$ ma variando il numero di famiglie d'attacco rappresentate all'interno della classe positiva.
+    
+    Tale dimensione viene studiata congiuntamente all'architettura del classificatore mediante il confronto tra Decision Tree, Random Forest e Histogram-based Gradient Boosting. 
+    La valutazione viene replicata su $K=10$ semi stocastici e integrata con il test $t$ di Welch sull'\textit{F1-Score}, consentendo di caratterizzare non soltanto le prestazioni puntuali ma anche la loro stabilità e la significatività degli scostamenti osservati tra le differenti configurazioni.
+
+    \item \textbf{Integrazione di un apparato diagnostico e realizzazione di una pipeline software riproducibile.}
+    
+    Alla valutazione predittiva viene affiancato un ramo diagnostico indipendente dal processo di addestramento, composto da PCA, KDE e SHAP/TreeSHAP. 
+    Questi strumenti vengono impiegati rispettivamente per caratterizzare la geometria dei benchmark, analizzare le variazioni distributive delle caratteristiche e identificare le feature maggiormente coinvolte nelle decisioni dei classificatori.
+    
+    L'intero protocollo è stato inoltre tradotto in una pipeline software modulare che separa acquisizione e preprocessing dei dati, costruzione dei benchmark, addestramento, inferenza, valutazione statistica, diagnostica e persistenza degli artefatti. 
+    La struttura è progettata per garantire riproducibilità delle esecuzioni e consentire l'estensione del framework mediante l'integrazione di ulteriori dataset target o famiglie di classificatori senza modificare la logica centrale del processo sperimentale.
+
+\end{enumerate}
+
+Nel loro insieme, tali contributi permettono di affrontare la robustezza cross-domain dei sistemi NIDS come un problema multidimensionale, nel quale la sola prestazione predittiva non costituisce un criterio sufficiente di valutazione. 
+La metodologia proposta considera invece congiuntamente provenienza e composizione dei dati di addestramento, quantità di conoscenza target disponibile, granularità della rappresentazione delle minacce, architettura del classificatore, stabilità stocastica e struttura informativa della funzione decisionale.
+
+Il perimetro dei contributi rimane circoscritto alle grandezze effettivamente valutate nel protocollo sperimentale. 
+In particolare, il lavoro non fornisce una caratterizzazione quantitativa dei costi computazionali di deployment, quali latenza di inferenza, occupazione di memoria o consumo energetico, né valuta il trasferimento cross-domain della componente di traffico nominale. 
+Tali aspetti costituiscono pertanto dimensioni complementari rispetto ai contributi sviluppati nella presente tesi e vengono demandati alle successive considerazioni sui limiti e sulle possibili estensioni del lavoro.
+
+
+
+% ==============================================================================
+% 1.6 ORGANIZZAZIONE DELLA TESI
+% ==============================================================================
+
+\section{Organizzazione della Tesi}
+\label{sec:intro_organizzazione}
+
+La trattazione è organizzata secondo una progressione che muove dalla definizione del contesto applicativo e del problema di ricerca alla formalizzazione metodologica, alla relativa implementazione e alla successiva validazione sperimentale. 
+Il lavoro si articola complessivamente in sei capitoli, cui si aggiunge un'appendice dedicata alla raccolta dei risultati numerici completi.
+
+Il \textbf{Capitolo~\ref{ch:bck_rltd_wrks}}, \textit{Contesto di Riferimento e Stato dell'Arte}, introduce il quadro tecnologico e scientifico nel quale si colloca il lavoro. 
+Vengono analizzate le caratteristiche delle infrastrutture di telecomunicazione terrestri e satellitari, le principali problematiche di sicurezza associate alla loro integrazione e il ruolo dei sistemi NIDS basati su Machine Learning. 
+La trattazione approfondisce inoltre il fenomeno del \textit{domain shift}, la scarsità di dati etichettati nel dominio target e le principali strategie di adattamento considerate in letteratura, culminando nell'identificazione del \textit{research gap} affrontato dalla tesi.
+
+Il \textbf{Capitolo~\ref{ch:metodologia}}, \textit{Formulazione Teorica e Framework Metodologico}, traduce il problema individuato in una struttura formale indipendente dalle specificità implementative dei dataset. 
+Vengono definiti i domini sorgente e target, lo spazio condiviso delle caratteristiche, gli operatori di mappatura, le differenti configurazioni di benchmark e la tassonomia dei modelli di classificazione. 
+Il capitolo introduce inoltre il protocollo di valutazione cross-domain, la gestione della variabilità stocastica mediante repliche \textit{multi-seed}, la nozione di granularità della componente malevola e gli strumenti statistici e diagnostici adottati per l'interpretazione dei risultati.
+
+Il \textbf{Capitolo~\ref{ch:implementazione}}, \textit{Implementazione del Framework Metodologico}, descrive la trasposizione operativa della formulazione teorica in una pipeline software concreta e riproducibile. 
+Sono presentati l'ambiente sperimentale, i dataset utilizzati, le procedure di preprocessing e armonizzazione, la costruzione dei benchmark, l'istanziazione dei classificatori e l'orchestrazione del ciclo di addestramento e valutazione. 
+La trattazione comprende inoltre l'implementazione delle procedure statistiche e degli strumenti diagnostici PCA, KDE e SHAP/TreeSHAP, mantenuti funzionalmente separati dal flusso principale di training e inferenza.
+
+Il \textbf{Capitolo~\ref{ch:risultati}}, \textit{Analisi dei Risultati e Discussione Sperimentale}, presenta la validazione empirica del framework. 
+L'analisi prende inizialmente in esame la struttura geometrica e distributiva dei benchmark, per poi confrontare le prestazioni della baseline \texttt{INJECTION} con quelle dei modelli addestrati esclusivamente sul dominio sorgente e delle configurazioni ibride. 
+I risultati puntuali vengono integrati con le statistiche aggregate sulle repliche \textit{multi-seed}, con il test $t$ di Welch e con l'analisi post-hoc delle caratteristiche maggiormente coinvolte nelle decisioni dei classificatori. 
+La parte conclusiva del capitolo ricompone le evidenze quantitative, distributive e interpretative al fine di caratterizzare i differenti regimi di generalizzazione osservati.
+
+Il \textbf{Capitolo~6}, \textit{Conclusioni Finali}, ricondurrà le evidenze sperimentali alle domande di ricerca formulate nella Sezione~\ref{sec:intro_obiettivi}. 
+La trattazione sintetizzerà i principali risultati ottenuti, discuterà il contributo complessivo del framework rispetto al problema della robustezza cross-domain e distinguerà le conclusioni direttamente supportate dal protocollo dai relativi limiti sperimentali. 
+Saranno infine delineate le principali direzioni di sviluppo futuro, con particolare riferimento alle dimensioni non investigate nella presente campagna sperimentale.
+
+L'\textbf{Appendice~\ref{app:risultati_completi}}, \textit{Risultati Numerici Completi}, raccoglie infine il dettaglio numerico delle valutazioni sviluppate nel Capitolo~\ref{ch:risultati}. 
+Le matrici di confusione, le metriche complementari e gli esiti completi delle verifiche statistiche vengono mantenuti separati dalla discussione principale al fine di preservarne la leggibilità, garantendo contestualmente la tracciabilità quantitativa delle analisi presentate.
