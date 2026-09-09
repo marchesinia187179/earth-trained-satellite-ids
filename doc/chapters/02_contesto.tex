@@ -160,7 +160,7 @@ Ai fini di un'adeguata contestualizzazione del ruolo di tali strumenti nell'infr
 Muovendo da tali premesse, l'evoluzione delle minacce informatiche all'interno delle moderne infrastrutture di rete ha confermato l'inadeguatezza delle sole difese perimetrali e dei controlli d'accesso, rendendo indispensabile l'adozione di sistemi di rilevamento delle intrusioni basati su rete (\textit{Network Intrusion Detection Systems}, NIDS) per il monitoraggio profondo e continuo del traffico logico.
 A differenza delle architetture \textit{Host-based} (HIDS), progettate per analizzare i log locali e le chiamate di sistema del singolo dispositivo, un NIDS opera nei punti snodo dell'infrastruttura, ispezionando i flussi di dati per identificare tentativi di accesso non autorizzato, violazioni delle politiche di sicurezza o compromissioni dell'integrità del canale \cite{hindy2020}.
 
-Tradizionalmente, la rilevazione delle intrusioni nei NIDS si articola in due macro-approcci: l'ispezione basata sulle firme (\textit{Signature-based Detection}) e la rilevazione basata sulle anomalie (\textit{Anomaly-based Detection}).
+Tradizionalmente, la rilevazione delle intrusioni nei NIDS si articola in due macro-approcci: l'\textbf{ispezione basata sulle firme} (\textit{Signature-based Detection}) e la \textbf{rilevazione basata sulle anomalie} (\textit{Anomaly-based Detection}).
 Sebbene il primo garantisca un'elevata accuratezza nel riconoscere minacce note confrontando il traffico con un database di pattern malevoli predefiniti, esso mostra un'intrinseca inefficacia di fronte ad attacchi inediti (\textit{Zero-Day}) e a varianti strutturali concepite per eludere i controlli \cite{khraisat2019}.
 Tale limite ha orientato la ricerca verso modelli analitici capaci di apprendere la profilazione comportamentale del traffico nominale. 
 
@@ -191,7 +191,7 @@ Successivamente, Sharafaldin et al.~\cite{sharafaldin2018} hanno esteso la carat
 Sebbene tale contributo costituisca un riferimento consolidato per la modellazione del traffico moderno, la relativa valutazione rimane prevalentemente circoscritta a un singolo dominio di riferimento.
 
 Il presente lavoro considera invece il comportamento dei classificatori in condizioni cross-domain e introduce un confronto tra differenti livelli di granularità della rappresentazione della componente malevola.
-Lo spazio di uscita rimane binario, mentre varia il numero di famiglie d'attacco rappresentate simultaneamente all'interno della classe positiva, consentendo di confrontare configurazioni aggregate e rilevatori specialistici rispetto alla rispettiva capacità di generalizzazione.
+Lo spazio di uscita rimane binario, mentre varia il numero di famiglie d'attacco rappresentate simultaneamente all'interno della classe positiva, consentendo di confrontare \textbf{configurazioni aggregate} e \textbf{rilevatori specialistici} rispetto alla rispettiva capacità di generalizzazione.
 
 \subsection{NIDS in Machine Learning per le telecomunicazioni satellitari}
 \label{subsec:ids_satellitari}
@@ -402,8 +402,8 @@ Lo stato dell'arte esaminato mette tuttavia in evidenza due criticità metodolog
 
 Da tale quadro emerge il \textit{research gap} di riferimento per il presente lavoro: risulta di interesse una valutazione sistematica della \textbf{trasferibilità cross-domain} di classificatori supervisionati addestrati a partire da conoscenza terrestre e della loro capacità di adattarsi a distribuzioni target eterogenee quando la disponibilità di osservazioni etichettate del nuovo dominio è fortemente limitata.
 
-La scarsità di dataset pubblici rappresentativi del traffico malevolo in infrastrutture satellitari rende inoltre rilevante l'analisi di regimi intermedi tra due condizioni estreme: l'assenza completa di conoscenza target, corrispondente alla valutazione diretta \textit{zero-shot}, e una maggiore esposizione del classificatore alle distribuzioni di destinazione. 
-In tale intervallo si colloca il problema dell'adattamento mediante conoscenza target sparsa, nel quale l'acquisizione di informazione sul nuovo dominio deve essere valutata congiuntamente alla capacità di preservare la conoscenza precedentemente acquisita sul sorgente.
+La scarsità di dataset pubblici rappresentativi del traffico malevolo in infrastrutture satellitari rende inoltre rilevante l'analisi di regimi intermedi tra due condizioni estreme: l'\textbf{assenza completa di conoscenza target}, corrispondente alla valutazione diretta \textit{zero-shot}, e una \textbf{maggiore esposizione del classificatore alle distribuzioni di destinazione}. 
+In tale intervallo si colloca il problema dell'\textbf{adattamento mediante conoscenza target sparsa}, nel quale l'acquisizione di informazione sul nuovo dominio deve essere valutata congiuntamente alla capacità di preservare la conoscenza precedentemente acquisita sul sorgente.
 
 Il posizionamento sintetizzato nella Tabella~\ref{tab:stato_arte_nids} conduce pertanto a considerare la robustezza cross-domain come una proprietà distinta dalla sola prestazione intra-domain e dalla sola specializzazione sul dominio di destinazione. 
 La sua valutazione richiede un protocollo capace di confrontare sistematicamente differenti composizioni del training set, differenti granularità della componente malevola e differenti famiglie di classificatori, controllando contestualmente la variabilità associata al processo di apprendimento.

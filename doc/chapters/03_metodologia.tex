@@ -173,23 +173,23 @@ I dettagli analitici di composizione per ciascuna delle cinque categorie, opport
     \textbf{Categoria} & \textbf{Componente Benevola} & \textbf{Componente Malevola} \\[-5pt]
     \textbf{Benchmark} & ($\bf{Y=0}$) & ($\bf{Y = 1}$) \\
     \midrule
-    Set Nativo Sorgente Aggregato &
+    \textbf{Set Nativo Sorgente Aggregato} &
     Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ &
     Tutte le minacce sorgente $P_S(\mathbf{x} \mid Y=1, A \in \mathcal{A}_S)$ con distribuzioni \textit{a priori} naturali. \\
     \addlinespace
-    Set Nativo Sorgente Biclasse &
+    \textbf{Set Nativo Sorgente Biclasse} &
     Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ &
     Singola minaccia sorgente $P_S(\mathbf{x} \mid Y=1, A = a)$ isolata ($a \in \mathcal{A}_S$). \\
     \addlinespace
-    Set Ibrido Aggregato &
+    \textbf{Set Ibrido Aggregato} &
     Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ &
     Tutte le minacce target $P_T(\mathbf{x} \mid Y=1, A \in \mathcal{A}_T)$ con distribuzioni \textit{a priori} naturali. \\
     \addlinespace
-    Set Ibrido Biclasse &
+    \textbf{Set Ibrido Biclasse} &
     Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ &
     Singola minaccia target $P_T(\mathbf{x} \mid Y=1, A = a)$ isolata ($a \in \mathcal{A}_T$). \\
     \addlinespace
-    Set di Iniezione di Riferimento &
+    \textbf{Set di Iniezione di Riferimento} &
     Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ &
     Minacce sorgente in aggregato $P_S(\mathbf{x} \mid Y=1, A \in \mathcal{A}_S)$ \\
     & & + iniezione altamente sparsa da $\mathcal{D}_T$ ($A \in \mathcal{A}_T$). \\
@@ -285,7 +285,7 @@ Poiché l'indicatore di partizione $\mathbb{I}(\cdot)$ è rigorosamente invarian
 \end{equation}
 Di conseguenza, la topologia dell'albero di decisione e la costruzione dei confini di separazione risultano algebricamente identiche sia operando sulle componenti nello spazio nativo $\mathbf{x}$, sia applicando una trasformazione di scala $h(\mathbf{x})$. Omettendo la fase di normalizzazione esplicita, il framework preserva la geometria naturale dei dati senza alterare la capacità discriminativa dei modelli, riducendo l'overhead computazionale nello stadio di parsificazione iniziale.
 
-\`E opportuno precisare che tale omissione riguarda esclusivamente lo stadio di addestramento e inferenza dei classificatori. Qualora strumenti diagnostici non invarianti alla scala (es. \textit{Principal Component Analysis} o stime di densità kernel, \textit{KDE}) vengano impiegati a valle per l'ispezione visiva del \textit{covariate shift} o per finalità di spiegabilità, essi richiedono una normalizzazione dedicata, applicata unicamente a scopo diagnostico-visivo e non reintrodotta nello stadio di classificazione.
+\`E opportuno precisare che tale omissione riguarda \textbf{esclusivamente lo stadio di addestramento e inferenza dei classificatori}. Qualora strumenti diagnostici non invarianti alla scala (es. \textit{Principal Component Analysis} o stime di densità kernel, \textit{KDE}) vengano impiegati a valle per l'ispezione visiva del \textit{covariate shift} o per finalità di spiegabilità, essi richiedono una normalizzazione dedicata, applicata \textbf{unicamente a scopo diagnostico-visivo} e non reintrodotta nello stadio di classificazione.
 
 \section[Tassonomia delle Architetture di Classificazione e Valutazione Multi-Modello]{Tassonomia delle Architetture di Classificazione e \\\ Valutazione Multi-Modello}
 \label{sec:tassonomia_modelli}
@@ -330,7 +330,7 @@ Per agevolare la consultazione, i formalismi architetturali e i parametri funzio
 \subsection{Modello di Riferimento (Baseline) e Modelli Aggregati}
 \label{subsec:modelli_aggregati}
 
-In questa sezione si formalizza lo spazio dei classificatori supervisionati operanti all'interno del framework analitico. Indipendentemente dalle specifiche architetture algoritmiche impiegate per la stima dei parametri, il problema di rilevamento delle intrusioni viene modellato in chiave rigorosamente binaria. Sebbene i sottoinsiemi malevoli racchiudano al loro interno un insieme eterogeneo di famiglie d'attacco $A \in \mathcal{A}$, la funzione di decisione appresa mappa lo spazio delle \textit{feature} $\mathcal{X} \subseteq \mathbb{R}^d$ direttamente sulla natura del flusso $\mathcal{Y} = \{0, 1\}$, isolando le componenti lecite ($Y = 0$) da qualsiasi manifestazione anomala o minaccia ($Y = 1$).
+In questa sezione si formalizza lo spazio dei classificatori supervisionati operanti all'interno del framework analitico. Indipendentemente dalle specifiche architetture algoritmiche impiegate per la stima dei parametri, il problema di rilevamento delle intrusioni viene modellato in chiave \textbf{rigorosamente binaria}. Sebbene i sottoinsiemi malevoli racchiudano al loro interno un insieme eterogeneo di famiglie d'attacco $A \in \mathcal{A}$, la funzione di decisione appresa mappa lo spazio delle \textit{feature} $\mathcal{X} \subseteq \mathbb{R}^d$ direttamente sulla natura del flusso $\mathcal{Y} = \{0, 1\}$, isolando le componenti lecite ($Y = 0$) da qualsiasi manifestazione anomala o minaccia ($Y = 1$).
 
 \subsubsection{Formulazione Matematica Astratta dell'Apprendimento Supervisionato}
 \label{subsubsec:formulazione_erm}
@@ -362,7 +362,7 @@ La decisione binaria finale $\hat{Y} \in \{0, 1\}$ per un generico vettore di te
 
 \subsubsection{Il Modello Baseline Proposto ($\mathcal{M}_{\text{base}}$)}
 \label{subsubsec:modello_baseline}
-Contrariamente agli approcci convenzionali della letteratura che adottano come baseline modelli addestrati su sole distribuzioni stazionarie native, il framework metodologico propone come unico modello baseline di riferimento ($\mathcal{M}_{\text{base}}$) un classificatore addestrato sulla partizione di train del \textit{Set di Iniezione di Riferimento} ($\mathcal{D}_{\text{inj}}^{(\text{train})}$).
+Contrariamente agli approcci convenzionali della letteratura che adottano come baseline modelli addestrati su sole distribuzioni stazionarie native, il framework metodologico propone come \textbf{unico modello baseline di riferimento} ($\mathcal{M}_{\text{base}}$) un classificatore addestrato sulla partizione di train del \textbf{\textit{Set di Iniezione di Riferimento}} ($\mathcal{D}_{\text{inj}}^{(\text{train})}$).
 
 Questo modello definisce un'ancora di prestazione per contesti affetti da transizione trasmissiva (es. il passaggio da reti terrestri a canali satellitari). In tale ruolo, $\mathcal{M}_{\text{base}}$ fornisce un riferimento stabilizzante per la valutazione dei modelli e consente di confrontare le prestazioni lungo una traiettoria di cambiamento di canale reale. $\mathcal{M}_{\text{base}}$ è un sistema NIDS ad elevata capacità adattiva, in grado di generalizzare non solo su minacce non viste della medesima distribuzione, ma anche su distribuzioni eterogenee grazie alla conoscenza preventiva sparsa. Il vettore dei parametri ottimali $\theta_{\text{base}}^*$ viene ottenuto mediante:
 \begin{equation}
@@ -499,7 +499,7 @@ Ciascun dataset biclasse viene generato rispettando rigorosamente il medesimo pr
 
 \subsubsection{Tassonomia dei Modelli Biclasse}
 \label{subsubsec:tassonomia_biclasse}
-A differenza della caratterizzazione adottata per i classificatori aggregati, la famiglia dei modelli biclasse esclude la formulazione di architetture basate su iniezione sparsa (ovvero non è definita alcuna variante biclasse analoga a $\mathcal{M}_{\text{base}}$)\footnote{L'assenza di modelli biclasse con iniezione deriva dalla volontà di valutare la risposta specialistica o nella condizione di assoluta assenza di adattamento (sorgente pura) o nella condizione di visibilità integrale della minaccia nel dominio target (ibrido/oracle).}. Lo spazio dei modelli biclasse si articola pertanto nelle seguenti due categorie:
+A differenza della caratterizzazione adottata per i classificatori aggregati, la famiglia dei modelli biclasse \textbf{esclude la formulazione di architetture basate su iniezione sparsa} (ovvero non è definita alcuna variante biclasse analoga a $\mathcal{M}_{\text{base}}$)\footnote{L'assenza di modelli biclasse con iniezione deriva dalla volontà di valutare la risposta specialistica o nella condizione di assoluta assenza di adattamento (sorgente pura) o nella condizione di visibilità integrale della minaccia nel dominio target (ibrido/oracle).}. Lo spazio dei modelli biclasse si articola pertanto nelle seguenti due categorie:
 \begin{enumerate}
     \item \textbf{Modelli Biclasse Sorgente ($\mathcal{M}_{S, a}$):}
     specializzati sulle singole famiglie d'attacco $a \in \mathcal{A}_S$ appartenenti al dominio sorgente nativo. La relativa partizione di addestramento $\mathcal{D}_{S, a}^{(\text{train})}$ è definita come:
@@ -699,13 +699,13 @@ dove $\nu \in (0, 1]$ rappresenta il tasso di apprendimento (\textit{learning ra
 \toprule
 \textbf{Caratteristica} & \textbf{Bagging} & \textbf{Gradient Boosting} \\
 \midrule
-Costruzione & Parallela, stimatori indipendenti & Sequenziale, additiva \\
+\textbf{Costruzione} & Parallela, stimatori indipendenti & Sequenziale, additiva \\
 \addlinespace
-Obiettivo primario & Riduzione della varianza & Riduzione del bias \\
+\textbf{Obiettivo primario} & Riduzione della varianza & Riduzione del bias \\
 \addlinespace
-Combinazione & Media: $\bar{f} = \frac{1}{B}\sum f_b$ & Somma pesata: $F_b = F_{b-1} + \nu f_b$ \\
+\textbf{Combinazione} & Media: $\bar{f} = \frac{1}{B}\sum f_b$ & Somma pesata: $F_b = F_{b-1} + \nu f_b$ \\
 \addlinespace
-Target addestramento per $f_b$ & Etichette originali su campionamenti bootstrap $\mathcal{D}_b^*$ & Pseudo-residui $r_{i,b}$ valutati al passo $b-1$ \\
+\textbf{Target addestramento per $f_b$} & Etichette originali su campionamenti bootstrap $\mathcal{D}_b^*$ & Pseudo-residui $r_{i,b}$ valutati al passo $b-1$ \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -851,8 +851,8 @@ Le famiglie di classificatori adottate nel framework (Sezione~\ref{subsec:famigl
 \label{subsubsec:seed_separation}
 Per isolare la stocasticità algoritmica dei classificatori da qualsivoglia variabilità indotta dalla composizione dei dati, il framework distingue rigorosamente due categorie di seed pseudo-casuali, aventi ruolo e ambito di applicazione disgiunti:
 \begin{itemize}
-    \item un seed deterministico $s_0$, fissato una tantum e impiegato esclusivamente nelle procedure di split stratificato e di sintesi dei benchmark descritte nella Sezione~\ref{subsec:composizione_domini}. Tale seed determina univocamente le partizioni $\mathcal{D}_k^{(\text{train})}, \mathcal{D}_k^{(\text{test})}$ e la composizione di ciascun benchmark derivato, mantenendole identiche e invarianti per l'intero protocollo sperimentale;
-    \item un insieme di $K$ seed indipendenti $\mathcal{S} = \{s_1, s_2, \dots, s_K\}$, impiegati esclusivamente nelle fasi di addestramento dei classificatori (inizializzazione degli stimatori, campionamento bootstrap, selezione casuale delle caratteristiche), con $K$ inteso come parametro simbolico del framework teorico.
+    \item \textbf{un seed deterministico $\bf{s_0}$}, fissato una tantum e impiegato esclusivamente nelle procedure di split stratificato e di sintesi dei benchmark descritte nella Sezione~\ref{subsec:composizione_domini}. Tale seed determina univocamente le partizioni $\mathcal{D}_k^{(\text{train})}, \mathcal{D}_k^{(\text{test})}$ e la composizione di ciascun benchmark derivato, mantenendole identiche e invarianti per l'intero protocollo sperimentale;
+    \item \textbf{un insieme di $\bf{K}$ seed indipendenti $\bf{\mathcal{S} = \{s_1, s_2, \dots, s_K\}}$}, impiegati esclusivamente nelle fasi di addestramento dei classificatori (inizializzazione degli stimatori, campionamento bootstrap, selezione casuale delle caratteristiche), con $K$ inteso come parametro simbolico del framework teorico.
 \end{itemize}
 
 \begin{figure}[H]
@@ -1026,7 +1026,7 @@ Sebbene lo spazio di uscita del framework rimanga rigorosamente binario ($\mathc
     \Gamma(M) = \left| \mathcal{A}_m(M) \right|, \qquad \mathcal{A}_m(M) \subseteq \mathcal{A}
     \label{eq:granularity_index}
 \end{equation}
-dove $\mathcal{A}_m(M)$ denota l'insieme delle famiglie d'attacco osservate in addestramento dal modello $M$. Per i modelli aggregati (Sezione~\ref{subsec:modelli_aggregati}) si ha $\Gamma(\mathcal{M}_S) = |\mathcal{A}_S|$ e $\Gamma(\mathcal{M}_H^{(T)}) = |\mathcal{A}_T|$, ossia l'intera tassonomia disponibile nel rispettivo dominio; per i modelli biclasse (Sezione~\ref{subsec:modelli_biclasse}) si ha invece $\Gamma(\mathcal{M}_{S,a}) = \Gamma(\mathcal{M}_{H,T,a}) = 1$ per costruzione. In questo senso, i modelli aggregati costituiscono l'estremo a granularità grossolana (\textit{``multiclasse''}, in quanto la loro frontiera deve generalizzare simultaneamente su una molteplicità eterogenea di segnature d'attacco), mentre i modelli biclasse costituiscono l'estremo a granularità fine (\textit{``biclasse''} propriamente detto, con una frontiera dedicata alla singola famiglia).
+dove $\mathcal{A}_m(M)$ denota l'insieme delle famiglie d'attacco osservate in addestramento dal modello $M$. Per i modelli aggregati (Sezione~\ref{subsec:modelli_aggregati}) si ha $\Gamma(\mathcal{M}_S) = |\mathcal{A}_S|$ e $\Gamma(\mathcal{M}_H^{(T)}) = |\mathcal{A}_T|$, ossia l'intera tassonomia disponibile nel rispettivo dominio; per i modelli biclasse (Sezione~\ref{subsec:modelli_biclasse}) si ha invece $\Gamma(\mathcal{M}_{S,a}) = \Gamma(\mathcal{M}_{H,T,a}) = 1$ per costruzione. In questo senso, i modelli aggregati costituiscono l'estremo a \textbf{granularità grossolana} (\textit{``multiclasse''}, in quanto la loro frontiera deve generalizzare simultaneamente su una molteplicità eterogenea di segnature d'attacco), mentre i modelli biclasse costituiscono l'estremo a \textbf{granularità fine} (\textit{``biclasse''} propriamente detto, con una frontiera dedicata alla singola famiglia).
 
 \subsubsection{Regione Decisionale e Copertura del Supporto Malevolo}
 \label{subsubsec:regione_decisionale}
@@ -1192,7 +1192,7 @@ Prima dell'estrazione delle proiezioni e della stima densometrica, viene applica
 
 \subsubsection{Standardizzazione Diagnostica Dipendente dal Sorgente}
 \label{subsubsec:zscore_sorgente}
-Per evitare fenomeni di contaminazione informativa (\textit{data leakage}), derivati dall'estrazione di statistiche da domini target incogniti, e per preservare la reale ampiezza del \textit{domain shift}, i dati di ciascun benchmark $D \in \mathcal{B}$ vengono standardizzati utilizzando esclusivamente la media $\boldsymbol{\mu}_S$ e la deviazione standard $\boldsymbol{\sigma}_S$ calcolate sul benchmark sorgente di riferimento $S$.
+Per evitare fenomeni di contaminazione informativa (\textit{data leakage}), derivati dall'estrazione di statistiche da domini target incogniti, e per preservare la reale ampiezza del \textit{domain shift}, i dati di ciascun benchmark $D \in \mathcal{B}$ vengono standardizzati \textbf{utilizzando esclusivamente la media $\boldsymbol{\mu}_S$ e la deviazione standard $\boldsymbol{\sigma}_S$ calcolate sul benchmark sorgente} di riferimento $S$.
 
 Sia $\mathbf{X}_D \in \mathbb{R}^{N_D \times d}$ la matrice dei dati grezzi del generico benchmark $D$. Il generico elemento della matrice trasformata $\mathbf{Z}_D \in \mathbb{R}^{N_D \times d}$ è definito come:
 \begin{equation}
@@ -1260,17 +1260,17 @@ Il ruolo e l'impatto della standardizzazione dipendente dal sorgente sulle diver
 \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X }
 \toprule
 \textbf{Strumento}  & \textbf{Natura del Requisito} & \textbf{Impatto Tecnico e Motivazione} \\[-5pt]
-                    &                               & \textbf{Metodologica} \\
+ & & \textbf{Metodologica} \\
 \midrule
-Classificatori (Tree-Based) &
+\textbf{Classificatori (Tree-Based)} &
 Nessuno (Nessuna Trasformazione) &
 Invarianza Monotonica: gli algoritmi basati su albero operano su ordinamenti relativi dei dati. Nessun impatto sulle metriche di accuratezza. \\
 \addlinespace
-Proiezioni Latenti (PCA) &
+\textbf{Proiezioni Latenti (PCA)} &
 Matematicamente Indispensabile &
 Prevenzione della Dominanza delle Scale: la matrice di covarianza $\boldsymbol{\Sigma}_D$ richiede unità adimensionali; in caso contrario, le componenti principali catturano solo la scala numerica grezza più ampia. \\
 \addlinespace
-Stima di Densità (KDE) &
+\textbf{Stima di Densità (KDE)} &
 Metodologico e Visivo &
 Preservazione del Shift e Omogeneità: non altera la forma intrinseca della stima 1D, ma rende visibile lo spostamento di media dal sorgente $z=0$, rende i grafici affiancati comparabili e stabilizza la \textit{bandwidth} $h_{\text{KDE}}$. \\
 \bottomrule

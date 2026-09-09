@@ -105,10 +105,10 @@ Per azzerare l'overhead della virtualizzazione e garantire un controllo diretto 
 Il controllo della variabilità stocastica negli algoritmi di apprendimento automatico costituisce un requisito imprescindibile del framework. 
 L'aleatorietà viene gestita separando nettamente la fase di preparazione deterministica del dato dall'addestramento dei classificatori.
 
-La fase di pulizia e trasformazione del dataset originale è vincolata in modo univoco al seme stocastico primario $s_0 = 127001$. 
+La fase di pulizia e trasformazione del dataset originale è vincolata in modo univoco al \textbf{seme stocastico primario $\bf{s_0 = 127001}$}. 
 Tale vincolo assicura che la generazione dei metadati e il salvataggio dei dati pre-elaborati in \texttt{data/preprocessed/} avvengano in maniera deterministica e immutabile.
 
-La campagna di addestramento e validazione si sviluppa invece su un insieme di $K=10$ semi stocastici distinti:
+La campagna di addestramento e validazione si sviluppa invece su un \textbf{insieme di $\bf{K=10}$ semi stocastici distinti}:
 \begin{equation}
     \label{eq:random_seeds}
     \mathcal{S} = \{0, 1, 7, 42, 101, 123, 999, 1337, 2026, 12345\}
@@ -170,7 +170,7 @@ Il successivo campionamento e la scalatura in funzione del parametro $\rho$ veng
 \label{subsec:dataset_target}
 
 I domini di destinazione $\mathcal{D}_T$ sono stati formalizzati a partire dal dataset \texttt{STIN} (\textit{Satellite-Terrestrial Integrated Network})~\cite{stin}\footnote{\url{https://github.com/kun9717/STIN-data-set/}}, focalizzato sull'identificazione di minacce informatiche in architetture di rete e infrastrutture spaziali integrate. 
-Acquisiti nella formulazione tabulare in formato CSV, a differenza del dominio sorgente $\mathcal{D}_S$, i dataset target considerati contengono esclusivamente traffico malevolo, con una totale assenza di campioni appartenenti alla classe di traffico lecito (\textit{Normal})\footnote{La composizione asimmetrica dei dataset STIN è determinata dalla struttura del testbed di cattura originario, progettato unicamente per isolare ed etichettare flussi di attacco in scenari operativi reali. Di conseguenza, per la costruzione dei benchmark di valutazione biclasse cross-dominio, la componente di traffico benigno ($Y=0$) viene estratta in modo coerente dal dominio sorgente UNSW-NB15, garantendo l'omogeneità del traffico lecito e preservando il rapporto di sbilanciamento prefissato ($\rho = 10$).}.
+Acquisiti nella formulazione tabulare in formato CSV, a differenza del dominio sorgente $\mathcal{D}_S$, i dataset target considerati \textbf{contengono esclusivamente traffico malevolo}, con una totale assenza di campioni appartenenti alla classe di traffico lecito (\textit{Normal})\footnote{La composizione asimmetrica dei dataset STIN è determinata dalla struttura del testbed di cattura originario, progettato unicamente per isolare ed etichettare flussi di attacco in scenari operativi reali. Di conseguenza, per la costruzione dei benchmark di valutazione biclasse cross-dominio, la componente di traffico benigno ($Y=0$) viene estratta in modo coerente dal dominio sorgente UNSW-NB15, garantendo l'omogeneità del traffico lecito e preservando il rapporto di sbilanciamento prefissato ($\rho = 10$).}.
 
 La caratterizzazione del target si articola su due segmenti operativi distinti:
 \begin{itemize}
@@ -239,9 +239,9 @@ Il parametro di scalatura e proporzione tra classi, definito formalmente come $\
 
 Il processo di istanziazione opera mediante un campionamento stratificato senza reinserimento (\textit{without-replacement stratified sampling}). 
 Poiché l'operatore di cardinalità applicato alla componente benevola del dominio sorgente restituisce $N(\mathbf{x} \in \mathcal{D}_S \mid Y=0) = 93.000$ record, l'algoritmo vincola l'estrazione della componente anomala a esattamente $9.300$ istanze complessive per ciascun benchmark. 
-La partizione dei domini in insiemi di addestramento e collaudo ($\mathcal{D}_k^{(train)}$ e $\mathcal{D}_k^{(test)}$) è mantenuta costante attraverso uno \textit{split} dell'80\% per il training e del 20\% per il test.
+La partizione dei domini in insiemi di addestramento e collaudo ($\mathcal{D}_k^{(train)}$ e $\mathcal{D}_k^{(test)}$) è mantenuta costante attraverso uno \textit{split} dell'\textbf{80\% per il training e del 20\% per il test}.
 
-La realizzazione pratica del vincolo di bilanciamento $\rho = 10$ e del campionamento senza reinserimento è affidata alle routine ausiliarie implementate nel modulo \texttt{file\_preprocessing.py}. 
+La realizzazione pratica del vincolo di bilanciamento $\bf{\rho = 10}$ e del campionamento senza reinserimento è affidata alle routine ausiliarie implementate nel modulo \texttt{file\_preprocessing.py}. 
 
 In particolare, la funzione \texttt{\_get\_correct\_normal\_and\_anomaly\_data\_samples} valuta le cardinalità relative delle componenti lecite e anomale, determinando dinamicamente il volume di campioni da estrarre per rispettare la costante \texttt{MLConstants.NORMAL\_ANOMALY\_RATIO}. 
 Successivamente, la funzione \texttt{\_safe\_stratified\_sample} garantisce che il campionamento mantenga inalterata la proporzione originaria tra le partizioni di addestramento e collaudo (\texttt{split\_type}), prevenendo fenomeni di sbilanciamento tra i sotto-insiemi \textit{train} e \textit{test}.
@@ -614,14 +614,14 @@ Per garantire l'interoperabilità e la generalizzabilità dei modelli di apprend
     \toprule
     \textbf{Dominio} & \textbf{Categoria} & \textbf{Feature Rimosse} \\
     \midrule
-    Sorgente ($\mathcal{D}_S$) 
+    \textbf{Sorgente ($\mathcal{D}_S$)} 
     & Protocolli Applicativi & \texttt{service}, \texttt{trans\_depth}, \texttt{response\_body\_len}, \texttt{is\_ftp\_login}, \texttt{ct\_ftp\_cmd}, \texttt{ct\_flw\_http\_mthd} \\
     & Contatori Aggregati & \texttt{ct\_srv\_src}, \texttt{ct\_state\_ttl}, \texttt{ct\_dst\_ltm}, \texttt{ct\_src\_dport\_ltm}, \texttt{ct\_dst\_sport\_ltm}, \texttt{ct\_dst\_src\_ltm}, \texttt{ct\_src\_ltm}, \texttt{ct\_srv\_dst} \\
     & TTL e Perdita Pacchetti & \texttt{sttl}, \texttt{dttl}, \texttt{sloss}, \texttt{dloss}, \texttt{is\_sm\_ips\_ports} \\
     & Jitter, TCP e Metriche & \texttt{sjit}, \texttt{djit}, \texttt{sinpkt}, \texttt{dinpkt}, \texttt{tcprtt}, \texttt{synack}, \texttt{ackdat}, \texttt{stcpb}, \texttt{dtcpb} \\
     & Metriche Ridondanti & \texttt{smean}, \texttt{dmean}, \texttt{rate} \\
     \addlinespace
-    Target ($\mathcal{D}_T$) 
+    \textbf{Target ($\mathcal{D}_T$)} 
     & Statistiche Lunghezza & \texttt{pkt\_len\_min}, \texttt{pkt\_len\_max}, \texttt{pkt\_len\_std}, \texttt{fw\_hdr\_len} \\
     & Flag TCP & \texttt{bw\_psh\_flag}, \texttt{fw\_urg\_flag}, \texttt{bw\_urg\_flag}, \texttt{fin\_cnt}, \texttt{syn\_cnt}, \texttt{psh\_cnt}, \texttt{urg\_cnt}, \texttt{ece\_cnt} \\
     & Intervalli Inter-arrivo & \texttt{fl\_iat\_min}, \texttt{bw\_iat\_tot}, \texttt{bw\_iat\_min} \\
@@ -635,9 +635,9 @@ Per garantire l'interoperabilità e la generalizzabilità dei modelli di apprend
     Tale scelta è stata motivata dall'assenza di attributi categoriali equivalenti nei dataset STIN e dall'impossibilità di stabilire una mappatura biunivoca senza introdurre codifiche arbitrarie che avrebbero distorto lo spazio delle feature.
 \end{enumerate}
 
-A seguito dell'applicazione di tali criteri di scarto, in entrambi i domini si isola un sottoinsieme condiviso di 9 feature predittive di base. A partire da queste, mediante operazioni algebriche calcolate a tempo di esecuzione (quali somme, rapporti e differenze dirette), vengono derivate 7 ulteriori feature sintetiche (es. \texttt{total\_bytes}, \texttt{pkts\_per\_sec}, \texttt{byte\_ratio}). Si ottiene così uno spazio condiviso armonizzato finale composto da $d = 16$ feature predittive continue e quantitative. 
+A seguito dell'applicazione di tali criteri di scarto, in entrambi i domini si isola un sottoinsieme condiviso di 9 feature predittive di base. A partire da queste, mediante operazioni algebriche calcolate a tempo di esecuzione (quali somme, rapporti e differenze dirette), vengono derivate 7 ulteriori feature sintetiche (es. \texttt{total\_bytes}, \texttt{pkts\_per\_sec}, \texttt{byte\_ratio}). Si ottiene così uno spazio condiviso armonizzato finale composto da \textbf{$\bf{d = 16}$ feature predittive continue} e quantitative. 
 
-Nei dataset pre-processati finali, a questo vettore di 16 dimensioni si affiancano 3 variabili di controllo e destinazione (\texttt{class} per la macro/micro tassonomia della minaccia, \texttt{label} per la classificazione binaria, e \texttt{split\_type} per l'indicazione della partizione di addestramento o collaudo), portando la cardinalità complessiva delle tabelle a 19 colonne. 
+Nei dataset pre-processati finali, a questo vettore di 16 dimensioni si affiancano \textbf{3 variabili di controllo e destinazione} (\texttt{class} per la macro/micro tassonomia della minaccia, \texttt{label} per la classificazione binaria, e \texttt{split\_type} per l'indicazione della partizione di addestramento o collaudo), portando la cardinalità complessiva delle tabelle a 19 colonne. 
 La Tabella~\ref{tab:feature_filtering_summary} riassume il processo logico di riduzione, derivazione e allineamento dimensionale.
 
 \begin{table}[H]
@@ -847,7 +847,7 @@ def _align_stin(data):
 \subsection{Verifica dell'Omissione della Scalatura Esplicita}
 \label{subsec:verifica_no_scaling}
 
-Un elemento caratterizzante dell'architettura della pipeline di preprocessing risiede nella scelta metodologica di omettere qualsiasi operazione di normalizzazione o re-scalatura globale dei dati (quali la standardizzazione $z$-score o il ridimensionamento Min-Max) dalle fasi di addestramento e inferenza valutativa cross-dominio.
+Un elemento caratterizzante dell'architettura della pipeline di preprocessing risiede nella scelta metodologica di \textbf{omettere qualsiasi operazione di normalizzazione o re-scalatura globale} dei dati (quali la standardizzazione $z$-score o il ridimensionamento Min-Max) dalle fasi di addestramento e inferenza valutativa cross-dominio.
 
 Tale impostazione si giustifica formalmente sulla base di tre considerazioni teorico-applicative:
 
@@ -866,7 +866,7 @@ Tale impostazione si giustifica formalmente sulla base di tre considerazioni teo
     In contesti di \textit{domain shift}, la proiezione di parametri di scala estratti da sorgenti eterogenee rischia di introdurre distorsioni o anomalie numeriche dovute a valori fuori scala (\textit{outliers}) non previsti.
 \end{enumerate}
 
-Si evidenzia che l'utilizzo di algoritmi di normalizzazione è stato rigorosamente limitato alle sole procedure di diagnostica ed esplorazione delle distribuzioni, analizzate sul piano teorico nel Capitolo~\ref{ch:metodologia}. 
+Si evidenzia che l'utilizzo di algoritmi di normalizzazione è stato rigorosamente \textbf{limitato alle sole procedure di diagnostica ed esplorazione delle distribuzioni}, analizzate sul piano teorico nel Capitolo~\ref{ch:metodologia}. 
 In particolare, la classe \texttt{StandardScaler} del modulo \texttt{sklearn.preprocessing} è stata impiegata unicamente all'interno del modulo di supporto \texttt{plotting.py} per standardizzare le feature a media nulla e varianza unitaria prima dell'esecuzione dell'Analisi delle Componenti Principali (\textit{PCA}) e della stima della densità di kernel (\textit{KDE}). 
 Tali trasformazioni diagnostiche sono state isolate all'interno delle routine di visualizzazione e non sono mai state integrate nel grafo computazionale di addestramento e inferenza dei classificatori.
 
@@ -894,10 +894,10 @@ Coerentemente con le premesse metodologiche discusse nella Sezione~\ref{subsec:f
     \item \textbf{Histogram-based Gradient Boosting (HGB):} Algoritmo d'insieme di tipo \textit{boosting} ottimizzato per dataset di grandi dimensioni, implementato tramite la classe \newline \texttt{HistGradientBoostingClassifier}\footnote{\href{https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.HistGradientBoostingClassifier}{Link alla documentazione del classificatore HGB}}.
 \end{itemize}
 
-Al fine di valutare la capacità intrinseca di generalizzazione cross-dominio delle diverse famiglie di modelli ed evitare fenomeni di adattamento spurio (\textit{overfitting}) delle configurazioni alle specificità statistiche del solo dominio sorgente $\mathcal{D}_S$, non sono state applicate procedure di ricerca ed ottimizzazione automatica degli iperparametri (quali \textit{GridSearchCV} o \textit{RandomizedSearchCV}). 
+Al fine di valutare la capacità intrinseca di generalizzazione cross-dominio delle diverse famiglie di modelli ed evitare fenomeni di adattamento spurio (\textit{overfitting}) delle configurazioni alle specificità statistiche del solo dominio sorgente $\mathcal{D}_S$, \textbf{non sono state applicate procedure di ricerca ed ottimizzazione automatica degli iperparametri} (quali \textit{GridSearchCV} o \textit{RandomizedSearchCV}). 
 Tutti i modelli sono stati pertanto istanziati mantenendo i valori di iperparametri predefiniti (\textit{default}) forniti dall'API di \texttt{scikit-learn}. 
 
-L'unico parametro esplicitamente vincolato in fase di inizializzazione è il seme di determinismo numerico (\texttt{random\_state}), il quale viene impostato in modo dinamico iterando su un pool di seed predefiniti (es. \texttt{seed = 42}) per garantire la perfetta riproducibilità statistica degli esperimenti. 
+\textbf{L'unico parametro esplicitamente vincolato in fase di inizializzazione è il seme di determinismo numerico (\texttt{random\_state})}, il quale viene impostato in modo dinamico iterando su un pool di seed predefiniti (es. \texttt{seed = 42}) per garantire la perfetta riproducibilità statistica degli esperimenti. 
 La Tabella~\ref{tab:hyperparameters_summary} sintetizza la corrispondenza tra le classi Python adottate e la configurazione degli iperparametri operativi associati.
 
 \begin{table}[H]
@@ -943,13 +943,13 @@ Tale meccanismo di tracciamento memorizza per ogni modello un record identificat
 \toprule
 \textbf{Categoria Logica} & \textbf{Campi Registrati} \\
 \midrule
-Metadati di Identificazione & 
+\textbf{Metadati di Identificazione} & 
 \texttt{id}, \texttt{timestamp}, \texttt{model\_name}, \texttt{dataset\_type}, \texttt{random\_state} \\
-Proprietà Struttura Dati & 
+\textbf{Proprietà Struttura Dati} & 
 \texttt{samples}, \texttt{train\_split}, \texttt{n\_features\_in}, \texttt{n\_classes} \\
-Config. Iperparametrica & 
+\textbf{Config. Iperparametrica} & 
 \texttt{n\_estimators}, \texttt{max\_depth}, \texttt{max\_features}, \texttt{criterion}, \texttt{min\_samples\_split}, \texttt{learning\_rate}, \texttt{max\_iter} \\
-Valutazione In-Sample & 
+\textbf{Valutazione In-Sample} & 
 Matrice di confusione grezza (\texttt{TP}, \texttt{TN}, \texttt{FP}, \texttt{FN}) e metriche derivate di addestramento (\texttt{Accuracy}, \texttt{Precision}, \texttt{Recall}, \texttt{F1-Score}, \texttt{ROC-AUC}, \texttt{PR-AUC}, \texttt{TPR}, \texttt{FPR}) \\
 \bottomrule
 \end{tabularx}
@@ -961,7 +961,7 @@ L'archiviazione sistematica in \texttt{models\_metadata.csv} assicura la complet
 \label{subsec:istanziazione_aggregati}
 
 La strategia di istanziazione dei classificatori aggregati prevede la generazione di tre distinte classi di modelli per ciascun seed stocastico, corrispondenti alla formalizzazione teorica discussa nella Sezione~\ref{subsec:modelli_aggregati}. 
-Nonostante i dataset integrino l'etichettatura multi-classe (identificando la specifica tipologia di attacco), le architetture aggregate sono addestrate a risolvere un task di rilevamento binario, discriminando il traffico benevolo (\texttt{Normal}) dal generico traffico ostile (\texttt{Attack}).
+Nonostante i dataset integrino l'etichettatura multi-classe (identificando la specifica tipologia di attacco), le architetture aggregate sono addestrate a risolvere un \textbf{task di rilevamento binario}, discriminando il traffico benevolo (\texttt{Normal}) dal generico traffico ostile (\texttt{Attack}).
 
 La composizione dei \textit{training set} per l'addestramento segue precise regole di proporzionalità e campionamento, ancorate al parametro di \textit{Injection Ratio} $\rho_{ben/mal} = 10/1$:
 \begin{enumerate}
@@ -1072,18 +1072,18 @@ In perfetta simmetria con la suddivisione concettuale tra dominio sorgente e dom
 \toprule
 \textbf{Categoria} & \textbf{Dominio} & \textbf{Istanze Modello Biclasse} \\
 \midrule
-Modelli Sorgente & UNSW-NB15 & 
+\textbf{Modelli Sorgente} & UNSW-NB15 & 
 \texttt{nb15\_dos} \newline
 \texttt{nb15\_exploits} \newline
 \texttt{nb15\_fuzzers} \newline
 \texttt{nb15\_generic} \newline
 \texttt{nb15\_reconnaissance} \\
 \addlinespace
-Modelli Ibridi Target & SAT20 & 
+\textbf{Modelli Ibridi Target} & SAT20 & 
 \texttt{nb15\_sat20\_syn\_ddos} \newline
 \texttt{nb15\_sat20\_udp\_ddos} \\
 \addlinespace
-Modelli Ibridi Target & TER20 & 
+\textbf{Modelli Ibridi Target} & TER20 & 
 \texttt{nb15\_ter20\_botnet} \newline
 \texttt{nb15\_ter20\_ddos} \newline
 \texttt{nb15\_ter20\_syn\_ddos} \newline
@@ -1272,13 +1272,13 @@ In questo modo, la fase di classificazione successiva opera esclusivamente in mo
 \subsection{Calcolo delle Metriche e Costruzione della Matrice di Valutazione}
 \label{subsec:calcolo_metriche_hk}
 
-La valutazione dei classificatori è stata implementata mediante una procedura comune a tutte le configurazioni sperimentali, così da garantire uniformità nel calcolo delle metriche e nella successiva organizzazione dei risultati. La fase di classificazione opera esclusivamente sugli insiemi di collaudo, identificati tramite il campo \texttt{split\_type}, mentre le informazioni relative alle feature e alle etichette vengono separate prima dell'esecuzione dell'inferenza. 
+La valutazione dei classificatori è stata implementata mediante una procedura comune a tutte le configurazioni sperimentali, così da garantire uniformità nel calcolo delle metriche e nella successiva organizzazione dei risultati. La fase di classificazione \textbf{opera esclusivamente sugli insiemi di collaudo}, identificati tramite il campo \texttt{split\_type}, mentre le informazioni relative alle feature e alle etichette vengono separate prima dell'esecuzione dell'inferenza. 
 Per ciascun modello precedentemente serializzato, l'artefatto \texttt{.joblib} viene ricaricato da disco e utilizzato senza apportare modifiche al suo stato interno.
 
 La procedura è centralizzata nella funzione \texttt{classification\_processing()} del modulo \newline \texttt{classification.py}, che delega il calcolo delle predizioni alla propria funzione interna \newline \texttt{\_classification()}. 
 Una volta isolato il sottoinsieme associato a \texttt{split\_type = test}, vengono eliminate dalle feature le colonne \texttt{label}, \texttt{class} e \texttt{split\_type}, mentre la variabile \texttt{label} viene mantenuta separatamente come vettore delle classi reali. 
 L'inferenza viene quindi effettuata mediante i metodi \texttt{predict()} e \texttt{predict\_proba()}, utilizzando quest'ultimo per estrarre il punteggio associato alla classe positiva. 
-Non viene applicata una soglia decisionale personalizzata: le etichette predette sono pertanto quelle direttamente restituite dall'estimatore secondo il comportamento predefinito del classificatore.
+\textbf{Non viene applicata una soglia decisionale personalizzata}: le etichette predette sono pertanto quelle direttamente restituite dall'estimatore secondo il comportamento predefinito del classificatore.
 
 Il calcolo delle metriche è stato incapsulato nella funzione \texttt{calculate\_metrics()} del modulo \texttt{src/utils/metrics.py}, con l'impiego delle funzioni messe a disposizione da \texttt{sklearn.metrics}. 
 In particolare, vengono utilizzate le metriche descritte in Tabella~\ref{tab:evaluation_metrics}.
@@ -1584,14 +1584,14 @@ Tale organizzazione costituisce la trasposizione operativa della matrice di valu
 \label{subsec:implementazione_welch}
 
 La verifica statistica della variabilità associata alle diverse configurazioni di addestramento è stata implementata mediante il test $t$ di Welch, applicato separatamente a ciascuna tipologia di classificatore e al relativo gruppo di modelli. 
-La procedura è stata progettata per confrontare le prestazioni del modello \textit{INJECTION}, assunto come configurazione di riferimento, con quelle dei restanti modelli generati durante la campagna multi-seed. 
+La procedura è stata progettata per confrontare le prestazioni del \textbf{modello \textit{INJECTION}, assunto come configurazione di riferimento}, con quelle dei restanti modelli generati durante la campagna multi-seed. 
 L'analisi viene eseguita indipendentemente per i gruppi \texttt{nb15\_models} e \texttt{hybrid\_models}, mantenendo pertanto la distinzione architetturale già adottata nella struttura di persistenza dei risultati.
 
 L'esecuzione della procedura è orchestrata dalla funzione \texttt{\_welch\_ttest()} del punto di ingresso \texttt{main.py}. 
 Per una specifica tipologia di classificatore, vengono innanzitutto raccolti i file \texttt{classifications.csv} prodotti dalle precedenti fasi di valutazione per tutti i seed appartenenti all'insieme $\mathcal{S}$. 
 I risultati vengono quindi forniti alla funzione \newline \texttt{aggregate\_welch\_ttest\_feature\_scores\_by\_seed()}, che costituisce il primo livello di aggregazione dei dati destinati all'analisi statistica.
 
-La funzione di aggregazione opera esclusivamente sulla metrica \textit{F1-Score}, il cui utilizzo è definito tramite il parametro di configurazione \texttt{MLConstants.WELCH\_TTEST\_FEATURE}. 
+La funzione di aggregazione opera \textbf{esclusivamente sulla metrica \textit{F1-Score}}, il cui utilizzo è definito tramite il parametro di configurazione \texttt{MLConstants.WELCH\_TTEST\_FEATURE}. 
 Per ciascun file di classificazione vengono selezionate le colonne \texttt{model\_name} e \texttt{F1-Score}, mentre il seed viene ricavato dalla directory che contiene il file \texttt{classifications.csv}. 
 I dati provenienti dalle diverse esecuzioni vengono successivamente concatenati in un unico \textit{DataFrame}.
 
@@ -1802,7 +1802,7 @@ p < \alpha,
 \end{equation}
 
 mentre in caso contrario il confronto viene classificato come non significativo. 
-Non viene applicata alcuna procedura di correzione per confronti multipli ai \textit{p-value} ottenuti dai diversi confronti tra modelli\footnote{L'assenza di correzioni per test multipli (quali Bonferroni o Benjamini-Hochberg) è stata adottata in modo deliberato per preservare la sensibilità esplorativa dell'analisi. In tale contesto, ridurre la probabilità di errori di II tipo (falsi negativi) è stato ritenuto prioritario rispetto al controllo rigido del \textit{Family-Wise Error Rate} (FWER), evitando così di smorzare prematuramente deviazioni prestazionali potenzialmente rilevanti indotte dalle diverse configurazioni di addestramento.}.
+\textbf{Non viene applicata alcuna procedura di correzione per confronti multipli} ai \textit{p-value} ottenuti dai diversi confronti tra modelli\footnote{L'assenza di correzioni per test multipli (quali Bonferroni o Benjamini-Hochberg) è stata adottata in modo deliberato per preservare la sensibilità esplorativa dell'analisi. In tale contesto, ridurre la probabilità di errori di II tipo (falsi negativi) è stato ritenuto prioritario rispetto al controllo rigido del \textit{Family-Wise Error Rate} (FWER), evitando così di smorzare prematuramente deviazioni prestazionali potenzialmente rilevanti indotte dalle diverse configurazioni di addestramento.}.
 
 Il confronto del modello \textit{INJECTION} con sé stesso viene esplicitamente escluso dalla procedura, poiché non costituisce un confronto statistico tra configurazioni differenti. 
 Per ciascuno degli altri modelli vengono invece registrati il valore della statistica $t$, il relativo \textit{p-value}, il livello $\alpha$ adottato e l'esito della verifica mediante il campo \texttt{is\_significant}.
@@ -1827,7 +1827,7 @@ La struttura complessiva del registro finale e la descrizione semantica dei sing
 \texttt{Compared\_Model} & Denominazione del modello di confronto sottoposto a verifica statistica. \\
 \texttt{t\_statistic} & Valore numerico della statistica $t$ di Welch calcolato tra i campioni di \textit{F1-Score}. \\
 \texttt{p\_value} & Probabilità osservata di ottenere un valore uguale o più estremo sotto l'ipotesi nulla $H_0$. \\
-\texttt{alpha} & Livello di significatività stabilito \textit{a priori} per la decisione statistica ($\alpha = 0{,}05$). \\
+\texttt{alpha} & Livello di significatività stabilito \textit{a priori} per la decisione statistica ($\bf{\alpha = 0{,}05}$). \\
 \texttt{is\_significant} & Indicatore booleano dell'esito della verifica (\texttt{True} se $p < \alpha$, \texttt{False} altrimenti). \\
 \bottomrule
 \end{tabularx}
@@ -1841,7 +1841,7 @@ In tal modo, la pipeline mantiene formalmente separati il livello di aggregazion
 
 La presente sezione formalizza l'implementazione degli strumenti di analisi diagnostica e di spiegabilità introdotti dal punto di vista metodologico nel Capitolo~\ref{ch:metodologia}.
 L'infrastruttura software integra procedure dedicate alla caratterizzazione geometrica e distributiva dei benchmark, mediante proiezioni \textit{Principal Component Analysis} (PCA) e stime di densità \textit{Kernel Density Estimation} (KDE), nonché strumenti di interpretabilità post-hoc basati sui valori di Shapley per l'analisi del contributo delle singole caratteristiche alle decisioni dei classificatori.
-Tali componenti sono concepiti esclusivamente come strumenti diagnostici e non intervengono né nella fase di addestramento né nella modifica degli stimatori precedentemente serializzati.
+Tali componenti sono concepiti esclusivamente come strumenti diagnostici e \textbf{non intervengono né nella fase di addestramento né nella modifica degli stimatori} precedentemente serializzati.
 
 Particolare attenzione viene dedicata alla coerenza del sistema di riferimento utilizzato nelle analisi diagnostiche.
 In accordo con il principio di standardizzazione dipendente dal sorgente introdotto nella Sezione~\ref{subsubsec:zscore_sorgente}, le statistiche di posizione e scala vengono ancorate al benchmark sorgente e successivamente riutilizzate per la trasformazione dei benchmark considerati, evitando il ricalcolo locale dei parametri di standardizzazione.
@@ -1862,11 +1862,11 @@ La Tabella~\ref{tab:confronto_strumenti_diagnostici} sintetizza le caratteristic
 \toprule
 \textbf{Strumento} & \textbf{Obiettivo} & \textbf{Spazio Input} & \textbf{Interpretabilità} \\
 \midrule
-PCA & Ispezione geometrica della separabilità globale e variabilità nello spazio 2D & Scalato (Z-Score ancorato al benchmark sorgente $S$) & Globale (riduzione dimensionale per componenti principali) \\
+\textbf{PCA} & Ispezione geometrica della separabilità globale e variabilità nello spazio 2D & Scalato (Z-Score ancorato al benchmark sorgente $S$) & Globale (riduzione dimensionale per componenti principali) \\
 \addlinespace
-KDE & Analisi densometrica univariata del \textit{domain shift} sulle feature chiave & Scalato (Z-Score ancorato sulle Top-3 feature di $S$) & Distribuzionale (stima della densità per classe in scala \texttt{symlog}) \\
+\textbf{KDE} & Analisi densometrica univariata del \textit{domain shift} sulle feature chiave & Scalato (Z-Score ancorato sulle Top-3 feature di $S$) & Distribuzionale (stima della densità per classe in scala \texttt{symlog}) \\
 \addlinespace
-TreeSHAP & Spiegabilità post-hoc del contributo delle feature alle predizioni dei classificatori & Originale (matrice delle caratteristiche del test set $X_{\mathrm{test}}$) & Locale e Aggregata (valori di Shapley e \textit{summary plot}) \\
+\textbf{TreeSHAP} & Spiegabilità post-hoc del contributo delle feature alle predizioni dei classificatori & Originale (matrice delle caratteristiche del test set $X_{\mathrm{test}}$) & Locale e Aggregata (valori di Shapley e \textit{summary plot}) \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -1981,7 +1981,7 @@ La procedura \texttt{save\_all\_pca\_plots()} carica ciascun benchmark indicato 
 Dalla matrice delle caratteristiche vengono rimosse le colonne \texttt{label}, \texttt{class} e \texttt{split\_type}, mentre la variabile \texttt{label} viene conservata separatamente per la successiva caratterizzazione delle classi nel grafico.
 
 Per realizzare la standardizzazione diagnostica viene istanziato uno \texttt{StandardScaler} di \newline \texttt{scikit-learn}. 
-Nel caso della PCA, il modello di scaling viene adattato esclusivamente al sottoinsieme \texttt{test} del benchmark sorgente. 
+Nel caso della PCA, il modello di scaling viene \textbf{adattato esclusivamente al sottoinsieme \texttt{test} del benchmark sorgente}. 
 Indicando con $\mathbf{X}_{S,\mathrm{test}}$ tale matrice, l'operazione è implementata mediante:
 
 \begin{lstlisting}[
@@ -2016,7 +2016,7 @@ pca.fit(X_source_scaled)
 
 La configurazione \texttt{PCA\_COMPONENTS=2} vincola la trasformazione alla costruzione di un sottospazio bidimensionale, coerentemente con la finalità esclusivamente visuale dell'analisi. 
 Gli autovettori principali sono quindi determinati una sola volta sul riferimento sorgente e successivamente riutilizzati per tutti i benchmark. 
-Per ciascun dataset, la matrice delle caratteristiche viene trasformata mediante \texttt{scaler.transform()} e \texttt{pca.transform()}, evitando un nuovo adattamento locale:
+Per ciascun dataset, la matrice delle caratteristiche viene trasformata mediante \texttt{scaler.transform()} e \texttt{pca.transform()}, \textbf{evitando un nuovo adattamento locale}:
 
 \begin{lstlisting}[
     language=Python,
@@ -2166,7 +2166,7 @@ I grafici vengono salvati a $300$ dpi nella directory
 con nomenclatura determinata dall'identificativo del benchmark e dal nome del dataset.
 
 Nel complesso, le due procedure costituiscono istanze distinte del medesimo principio di standardizzazione diagnostica dipendente dal sorgente: la PCA utilizza il riferimento sorgente per costruire una trasformazione geometrica comune a tutti i benchmark, mentre la KDE utilizza il medesimo riferimento per rendere confrontabili, su scala adimensionale, le distribuzioni delle tre caratteristiche selezionate. 
-La standardizzazione rimane in entrambi i casi confinata alla componente diagnostico-visiva del framework e non modifica i dati impiegati dall'addestramento dei classificatori, in accordo con la separazione metodologica stabilita nel Capitolo~3.
+La standardizzazione rimane in entrambi i casi confinata alla componente diagnostico-visiva del framework e \textbf{non modifica i dati impiegati dall'addestramento dei classificatori}, in accordo con la separazione metodologica stabilita nel Capitolo~3.
 
 A completamento dell'analisi implementativa, la Tabella~\ref{tab:confronto_pca_kde} riassume in modo sinottico le principali differenze operative e concettuali che intercorrono tra la procedura di proiezione PCA e la stima della densità KDE. 
 Sebbene entrambe le funzioni condividano la medesima filosofia di standardizzazione ancorata al benchmark sorgente $S$, esse operano su granularità differenti: la PCA offre una vista spazio-geometrica ad ampio spettro sull'intero set di caratteristiche, mentre la KDE consente un'ispezione analitica e mirata sul comportamento distributivo delle singole variabili a più alto impatto decisionale.
@@ -2180,31 +2180,31 @@ Sebbene entrambe le funzioni condividano la medesima filosofia di standardizzazi
 \textbf{Dimensione di} & \textbf{Procedura} & \textbf{Procedura} \\[-5pt]
 \textbf{Confronto} & \textbf{\texttt{save\_all\_pca\_plots()}} & \textbf{\texttt{save\_all\_kde\_plots()}} \\
 \midrule
-Obiettivo Diagnostico & 
+\textbf{Obiettivo Diagnostico} & 
 Ispezione geometrica della separabilità globale e variabilità nello spazio 2D & 
 Analisi densometrica univariata del \textit{domain shift} sulle feature chiave \\
 \addlinespace
-Partizione Input & 
+\textbf{Partizione Input} & 
 Filtraggio esplicito della sola partizione di \texttt{test} & 
 Dataset completo senza filtraggio sulla colonna \texttt{split\_type} \\
 \addlinespace
-Feature Considerate & 
+\textbf{Feature Considerate} & 
 Tutto lo spazio vettoriale (escluse colonne target e meta-dati) & 
 Sottoinsieme ridotto Top-3 SHAP (\texttt{pkts\_per\_sec}, \texttt{total\_bytes}, \texttt{dst\_win\_byt}) \\
 \addlinespace
-Ancoraggio Statistico & 
+\textbf{Ancoraggio Statistico} & 
 Fit di \texttt{StandardScaler} e \texttt{PCA(n\_components=2)} su $\mathbf{X}_{S,\mathrm{test}}$ & 
 Fit di \texttt{StandardScaler} sulle sole 3 feature del sorgente $S$ \\
 \addlinespace
-Trasformazione Target & 
+\textbf{Trasformazione Target} & 
 Applica \texttt{scaler.transform()} e \texttt{pca.transform()} congelati & 
 Mappatura vettoriale ancorata: $Z_D = (X_D - \mu_S)/(\sigma_S + \epsilon)$ \\
 \addlinespace
-Spazio di Rappresentazione & 
+\textbf{Spazio di Rappresentazione} & 
 Spazio proiettato bidimensionale (PC1 vs PC2) con \% varianza spiegata & 
 Asse orizzontale in Z-Score adimensionale; asse verticale in scala \texttt{symlog} \\
 \addlinespace
-Output Grafico & 
+\textbf{Output Grafico} & 
 Scatter plot 2D con distinzione cromatica binaria per classe & 
 Pannelli affiancati di stime KDE riempite (\texttt{fill=True}) \\
 \bottomrule
@@ -2562,15 +2562,15 @@ A completamento della descrizione implementativa, la Tabella \ref{tab:shap_confi
 \toprule
 \textbf{Parametro = Impostazione} & \textbf{Scopo Ingegneristico e Funzionale} \\
 \midrule
-\texttt{SHAP\_MAX\_SAMPLES = 500} & 
+\textbf{\texttt{SHAP\_MAX\_SAMPLES = 500}} & 
 Contenimento del costo computazionale e della complessità temporale $O(N)$ nel calcolo dei valori SHAP. \\
-\texttt{NORMAL\_ANOMALY\_RATIO = 10} & 
+\textbf{\texttt{NORMAL\_ANOMALY\_RATIO = 10}} & 
 Preservazione del rapporto di sbilanciamento nativo ($\rho = 10:1$) tra la classe nominale e quella anomala. \\
-\texttt{feature\_perturbation = "tree\_path\_dependent"} & 
+\textbf{\texttt{feature\_perturbation = "tree\_path\_dependent"}} & 
 Calcolo rapido delle aspettative condizionali lungo i percorsi degli alberi senza dipendenza da un dataset di \textit{background} esplicito. \\
-\texttt{plot\_type = "dot"} & 
+\textbf{\texttt{plot\_type = "dot"}} & 
 Visualizzazione ad alta densità che mostra simultaneamente ampiezza, verso e dispersione dei contributi di ciascuna caratteristica. \\
-\texttt{check\_additivity = False} & 
+\textbf{\texttt{check\_additivity = False}} & 
 Prevenzione dell'interruzione della pipeline causata da microscopiche discrepanze numeriche di precisione in virgola mobile (\textit{floating-point}). \\
 \bottomrule
 \end{tabularx}
@@ -2582,8 +2582,8 @@ Questa separazione mantiene coerente l'analisi con il principio metodologico sec
 \subsection{Pipeline di Aggregazione SHAP--KDE}
 \label{subsec:pipeline_shap_kde}
 
-Il raccordo tra l'analisi di spiegabilità SHAP e la successiva analisi densometrica KDE non è implementato mediante una procedura automatizzata all'interno del framework software\footnote{La scelta di non automatizzare tale raccordo previene la propagazione non controllata di rumore transitorio o di instabilità di \textit{ranking} tra i differenti \textit{seed} sperimentali.}. 
-La selezione delle caratteristiche destinate alla rappresentazione KDE viene infatti effettuata attraverso un passaggio di analisi manuale dei grafici SHAP prodotti dalla pipeline diagnostica.
+Il raccordo tra l'analisi di spiegabilità SHAP e la successiva analisi densometrica KDE \textbf{non è implementato mediante una procedura automatizzata} all'interno del framework software\footnote{La scelta di non automatizzare tale raccordo previene la propagazione non controllata di rumore transitorio o di instabilità di \textit{ranking} tra i differenti \textit{seed} sperimentali.}. 
+La selezione delle caratteristiche destinate alla rappresentazione KDE viene infatti effettuata attraverso un \textbf{passaggio di analisi manuale dei grafici SHAP} prodotti dalla pipeline diagnostica.
 
 Al fine di formalizzare la natura ibrida di tale procedura, la Figura~\ref{fig:shap_kde_workflow} illustra l'architettura logica del raccordo \textit{Human-in-the-Loop}. Il diagramma evidenzia la scomposizione del flusso di lavoro in tre fasi sequenziali: una prima fase di automazione diagnostica, una fase intermedia di supervisione umana in cui avviene l'estrazione quantitativa del parametro empirico, e una successiva fase di esecuzione densometrica automatizzata.
 
@@ -2723,7 +2723,7 @@ KDE_TOP_FEATURES = ['pkts_per_sec', 'total_bytes', 'dst_win_byt']
 \end{lstlisting}
 
 La funzione \texttt{save\_all\_kde\_plots()} utilizza successivamente tale lista come insieme di caratteristiche da analizzare, senza ricalcolare automaticamente il conteggio $C_j$ né eseguire una nuova selezione sulla base dei grafici SHAP. 
-Il passaggio SHAP--KDE deve pertanto essere inteso come una procedura di selezione supervisionata manualmente dall'analista: SHAP fornisce il criterio diagnostico per individuare le caratteristiche più ricorrenti nelle posizioni di maggiore rilevanza, mentre la KDE costituisce lo strumento successivo per l'ispezione delle rispettive distribuzioni.
+Il passaggio SHAP--KDE deve pertanto essere inteso come una \textbf{procedura di selezione supervisionata manualmente dall'analista}: SHAP fornisce il criterio diagnostico per individuare le caratteristiche più ricorrenti nelle posizioni di maggiore rilevanza, mentre la KDE costituisce lo strumento successivo per l'ispezione delle rispettive distribuzioni.
 
 Nel protocollo adottato non si è verificata alcuna situazione di parità tra caratteristiche nei valori del contatore $C_j$\footnote{In caso di parità nel contatore $C_j$, la regola formale di spareggio avrebbe previsto un ordinamento secondario decrescente basato sull'impatto medio assoluto di Shapley $\bar{|\phi_j|} = \frac{1}{R} \sum_{r=1}^{R} |\phi_{j,r}|$, calcolato esclusivamente sulle esecuzioni che hanno generato l'ex aequo.} tali da richiedere una regola di spareggio. 
 La lista finale \texttt{KDE\_TOP\_FEATURES} rappresenta pertanto la selezione conclusiva utilizzata nella fase di analisi densometrica descritta nella Sezione~\ref{subsec:implementazione_pca_kde}.
