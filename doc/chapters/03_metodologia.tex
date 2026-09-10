@@ -27,33 +27,34 @@ Per facilitare la lettura della trattazione successiva, i principali simboli e c
 
 \begin{table}[H]
     \centering
+    \small
     \caption{Sintesi della notazione matematica e dei simboli del framework.}
     \label{tab:notazione_matematica}
     \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3cm} >{\raggedright\arraybackslash}X }
-    \toprule
-    \textbf{Simbolo} & \textbf{Descrizione e Significato Concettuale} \\
-    \midrule
-    $\mathcal{D} = (\mathcal{X}, P(\mathbf{x}))$ &
-    Dominio di traffico (spazio delle \textit{feature} e distribuzione marginale) \\
-    $\mathcal{X} \subseteq \mathbb{R}^d$ &
-    Spazio delle caratteristiche $d$-dimensionale omogeneizzato \\
-    $\mathbf{x} = (x_1, \dots, x_d)^\top$ &
-    Vettore delle \textit{feature} del singolo flusso di rete \\
-    $\mathcal{Y} = \{0,1\}$ &
-    Spazio discreto delle etichette primarie ($0$: Normal, $1$: Malevolo) \\
-    $A \in \mathcal{A}$ &
-    Variabile descrittiva per la specifica famiglia di attacco (definita per $Y=1$) \\
-    $\mathcal{A}_S, \mathcal{A}_T$ &
-    Insiemi delle tipologie di minaccia presenti nei domini sorgente e target \\
-    $\mathcal{D}_S, \mathcal{D}_T$ &
-    Dominio Terrestre Sorgente e Domini Target di Destinazione \\
-    $\mathcal{D}_k^{(train)}, \mathcal{D}_k^{(test)}$ &
-    Partizioni disgiunte di addestramento e test per il generico dominio $k$ \\
-    $\boldsymbol{\psi}_k(\cdot)$ &
-    Operatore di proiezione e combinazione dalle \textit{feature} grezze allo spazio $\mathcal{X}$, specifico per il dominio $k \in \{S,T\}$ \\
-    $N(\cdot)$ &
-    Operatore di cardinalità (numero di campioni estratti) \\
-    \bottomrule
+        \toprule
+        \textbf{Simbolo} & \textbf{Descrizione e Significato Concettuale} \\
+        \midrule
+        $\mathcal{D} = (\mathcal{X}, P(\mathbf{x}))$ &
+        Dominio di traffico (spazio delle \textit{feature} e distribuzione marginale) \\
+        $\mathcal{X} \subseteq \mathbb{R}^d$ &
+        Spazio delle caratteristiche $d$-dimensionale omogeneizzato \\
+        $\mathbf{x} = (x_1, \dots, x_d)^\top$ &
+        Vettore delle \textit{feature} del singolo flusso di rete \\
+        $\mathcal{Y} = \{0,1\}$ &
+        Spazio discreto delle etichette primarie ($0$: Normal, $1$: Malevolo) \\
+        $A \in \mathcal{A}$ &
+        Variabile descrittiva per la specifica famiglia di attacco (definita per $Y=1$) \\
+        $\mathcal{A}_S, \mathcal{A}_T$ &
+        Insiemi delle tipologie di minaccia presenti nei domini sorgente e target \\
+        $\mathcal{D}_S, \mathcal{D}_T$ &
+        Dominio Terrestre Sorgente e Domini Target di Destinazione \\
+        $\mathcal{D}_k^{(train)}, \mathcal{D}_k^{(test)}$ &
+        Partizioni disgiunte di addestramento e test per il generico dominio $k$ \\
+        $\boldsymbol{\psi}_k(\cdot)$ &
+        Operatore di proiezione e combinazione dalle \textit{feature} grezze allo spazio $\mathcal{X}$, specifico per il dominio $k \in \{S,T\}$ \\
+        $N(\cdot)$ &
+        Operatore di cardinalità (numero di campioni estratti) \\
+        \bottomrule
     \end{tabularx}
 \end{table}
 
@@ -166,34 +167,35 @@ I dettagli analitici di composizione per ciascuna delle cinque categorie, opport
 
 \begin{table}[H]
     \centering
+    \small
     \caption{Tassonomia astratta delle cinque categorie di benchmark sperimentali istanziate dinamicamente.}
     \label{tab:tassonomia_benchmark}
     \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3.5cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X }
-    \toprule
-    \textbf{Categoria} & \textbf{Componente Benevola} & \textbf{Componente Malevola} \\[-5pt]
-    \textbf{Benchmark} & ($\bf{Y=0}$) & ($\bf{Y = 1}$) \\
-    \midrule
-    \textbf{Set Nativo Sorgente Aggregato} &
-    Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ &
-    Tutte le minacce sorgente $P_S(\mathbf{x} \mid Y=1, A \in \mathcal{A}_S)$ con distribuzioni \textit{a priori} naturali. \\
-    \addlinespace
-    \textbf{Set Nativo Sorgente Biclasse} &
-    Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ &
-    Singola minaccia sorgente $P_S(\mathbf{x} \mid Y=1, A = a)$ isolata ($a \in \mathcal{A}_S$). \\
-    \addlinespace
-    \textbf{Set Ibrido Aggregato} &
-    Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ &
-    Tutte le minacce target $P_T(\mathbf{x} \mid Y=1, A \in \mathcal{A}_T)$ con distribuzioni \textit{a priori} naturali. \\
-    \addlinespace
-    \textbf{Set Ibrido Biclasse} &
-    Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ &
-    Singola minaccia target $P_T(\mathbf{x} \mid Y=1, A = a)$ isolata ($a \in \mathcal{A}_T$). \\
-    \addlinespace
-    \textbf{Set di Iniezione di Riferimento} &
-    Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ &
-    Minacce sorgente in aggregato $P_S(\mathbf{x} \mid Y=1, A \in \mathcal{A}_S)$ \\
-    & & + iniezione altamente sparsa da $\mathcal{D}_T$ ($A \in \mathcal{A}_T$). \\
-    \bottomrule
+        \toprule
+        \textbf{Categoria} & \textbf{Componente Benevola} & \textbf{Componente Malevola} \\[-5pt]
+        \textbf{Benchmark} & ($\bf{Y=0}$) & ($\bf{Y = 1}$) \\
+        \midrule
+        \textbf{Set Nativo Sorgente Aggregato} &
+        Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ &
+        Tutte le minacce sorgente $P_S(\mathbf{x} \mid Y=1, A \in \mathcal{A}_S)$ con distribuzioni \textit{a priori} naturali. \\
+        \addlinespace
+        \textbf{Set Nativo Sorgente Biclasse} &
+        Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ &
+        Singola minaccia sorgente $P_S(\mathbf{x} \mid Y=1, A = a)$ isolata ($a \in \mathcal{A}_S$). \\
+        \addlinespace
+        \textbf{Set Ibrido Aggregato} &
+        Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ &
+        Tutte le minacce target $P_T(\mathbf{x} \mid Y=1, A \in \mathcal{A}_T)$ con distribuzioni \textit{a priori} naturali. \\
+        \addlinespace
+        \textbf{Set Ibrido Biclasse} &
+        Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ &
+        Singola minaccia target $P_T(\mathbf{x} \mid Y=1, A = a)$ isolata ($a \in \mathcal{A}_T$). \\
+        \addlinespace
+        \textbf{Set di Iniezione di Riferimento} &
+        Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ &
+        Minacce sorgente in aggregato $P_S(\mathbf{x} \mid Y=1, A \in \mathcal{A}_S)$ \\
+        & & + iniezione altamente sparsa da $\mathcal{D}_T$ ($A \in \mathcal{A}_T$). \\
+        \bottomrule
     \end{tabularx}
 \end{table}
 
@@ -299,31 +301,32 @@ Per agevolare la consultazione, i formalismi architetturali e i parametri funzio
 
 \begin{table}[H]
     \centering
+    \small
     \caption{Sintesi della notazione relativa alle architetture e ai parametri di classificazione.}
     \label{tab:notazione_modelli}
     \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X}
-    \toprule
-    \textbf{Simbolo} & \textbf{Descrizione e Significato Concettuale} \\
-    \midrule
-    $f_\theta(\mathbf{x}) \approx P(Y=1 \mid \mathbf{x})$ &
-    Funzione decisionale parametrica: stima della probabilità a posteriori che il campione appartenga alla classe malevola \\
-    $\hat{Y} \in \{0, 1\}$ &
-    Decisione binaria finale predetta dal classificatore \\
-    $\tau \in (0, 1)$ &
-    Soglia decisionale parametrica, tarabile lungo la curva ROC per il bilanciamento dei falsi positivi \\
-    $\mathcal{M}_{\text{base}}$ &
-    Modello baseline, addestrato sul \textit{Set di Iniezione} $\mathcal{D}_{\text{inj}}^{(\text{train})}$ includendo conoscenza target sparsa \\
-    $\mathcal{M}_{S}$ &
-    Modello aggregato nativo sorgente, addestrato esclusivamente sulle distribuzioni stazionarie originarie $\mathcal{D}_{S}^{(\text{train})}$ \\
-    $\mathcal{M}_{H}^{(T)}$ &
-    Modello aggregato ibrido (\textit{Oracle}), addestrato unendo la componente lecita sorgente con la totalità degli attacchi target \\
-    $\mathcal{M}_{S,a}$, $\mathcal{M}_{H,T,a}$ &
-    Modelli biclasse (sorgente e ibridi), focalizzati analiticamente sulla rilevabilità della singola famiglia d'attacco $a \in \mathcal{A}$ \\
-    $\mathcal{L}$ &
-    Funzione di perdita \textit{Binary Cross-Entropy} (BCE) per l'ottimizzazione della stima parametrica \\
-    $I(R_m)$ &
-    Criterio di impurità (es. indice di Gini o entropia) per la scissione ottima dei nodi nello spazio delle caratteristiche \\
-    \bottomrule
+        \toprule
+        \textbf{Simbolo} & \textbf{Descrizione e Significato Concettuale} \\
+        \midrule
+        $f_\theta(\mathbf{x}) \approx P(Y=1 \mid \mathbf{x})$ &
+        Funzione decisionale parametrica: stima della probabilità a posteriori che il campione appartenga alla classe malevola \\
+        $\hat{Y} \in \{0, 1\}$ &
+        Decisione binaria finale predetta dal classificatore \\
+        $\tau \in (0, 1)$ &
+        Soglia decisionale parametrica, tarabile lungo la curva ROC per il bilanciamento dei falsi positivi \\
+        $\mathcal{M}_{\text{base}}$ &
+        Modello baseline, addestrato sul \textit{Set di Iniezione} $\mathcal{D}_{\text{inj}}^{(\text{train})}$ includendo conoscenza target sparsa \\
+        $\mathcal{M}_{S}$ &
+        Modello aggregato nativo sorgente, addestrato esclusivamente sulle distribuzioni stazionarie originarie $\mathcal{D}_{S}^{(\text{train})}$ \\
+        $\mathcal{M}_{H}^{(T)}$ &
+        Modello aggregato ibrido (\textit{Oracle}), addestrato unendo la componente lecita sorgente con la totalità degli attacchi target \\
+        $\mathcal{M}_{S,a}$, $\mathcal{M}_{H,T,a}$ &
+        Modelli biclasse (sorgente e ibridi), focalizzati analiticamente sulla rilevabilità della singola famiglia d'attacco $a \in \mathcal{A}$ \\
+        $\mathcal{L}$ &
+        Funzione di perdita \textit{Binary Cross-Entropy} (BCE) per l'ottimizzazione della stima parametrica \\
+        $I(R_m)$ &
+        Criterio di impurità (es. indice di Gini o entropia) per la scissione ottima dei nodi nello spazio delle caratteristiche \\
+        \bottomrule
     \end{tabularx}
 \end{table}
 
@@ -405,24 +408,25 @@ in cui la classe nominale $Y=0$ di origine è unita alla totalità dei vettori d
 
 \begin{table}[H]
     \centering
+    \small
     \caption{Sintesi comparativa dei modelli di riferimento e aggregati: composizione del training set e finalità concettuale.}
     \label{tab:modelli_aggregati}
     \begin{tabularx}{\textwidth}{l l >{\raggedright\arraybackslash}X}
-    \toprule
-    \textbf{Modello} & \textbf{Composizione del \textit{Training Set}} & \textbf{Finalità Concettuale} \\
-    \midrule
-    $\mathcal{M}_{\text{base}}$ &
-    $\mathcal{D}_{\text{inj}}^{(\text{train})} = \mathcal{D}_{S}^{(\text{train})} \cup \Delta \mathcal{D}_{T}^{(\text{train})}$ &
-    Baseline proposta: ancora di prestazione con conoscenza preventiva sparsa (\textit{few-shot}) sul canale target. \\
-    \addlinespace
-    $\mathcal{M}_{S}$ &
-    $\mathcal{D}_{S}^{(\text{train})}$ &
-    NIDS tradizionale addestrato su sole distribuzioni stazionarie; misura la degradazione da \textit{domain shift} senza adattamento. \\
-    \addlinespace
-    $\mathcal{M}_{H}^{(T)}$ &
-    $\mathcal{D}_{H,T}^{(\text{train})} = \mathcal{D}_{S}^{(\text{train})}\big|_{Y=0} \cup \mathcal{D}_{T}^{(\text{train})}$ &
-    Limite teorico (\textit{upper bound}, paradigma \textit{Oracle} supervised) con piena visibilità della componente malevola target. \\
-    \bottomrule
+        \toprule
+        \textbf{Modello} & \textbf{Composizione del \textit{Training Set}} & \textbf{Finalità Concettuale} \\
+        \midrule
+        $\mathcal{M}_{\text{base}}$ &
+        $\mathcal{D}_{\text{inj}}^{(\text{train})} = \mathcal{D}_{S}^{(\text{train})} \cup \Delta \mathcal{D}_{T}^{(\text{train})}$ &
+        Baseline proposta: ancora di prestazione con conoscenza preventiva sparsa (\textit{few-shot}) sul canale target. \\
+        \addlinespace
+        $\mathcal{M}_{S}$ &
+        $\mathcal{D}_{S}^{(\text{train})}$ &
+        NIDS tradizionale addestrato su sole distribuzioni stazionarie; misura la degradazione da \textit{domain shift} senza adattamento. \\
+        \addlinespace
+        $\mathcal{M}_{H}^{(T)}$ &
+        $\mathcal{D}_{H,T}^{(\text{train})} = \mathcal{D}_{S}^{(\text{train})}\big|_{Y=0} \cup \mathcal{D}_{T}^{(\text{train})}$ &
+        Limite teorico (\textit{upper bound}, paradigma \textit{Oracle} supervised) con piena visibilità della componente malevola target. \\
+        \bottomrule
     \end{tabularx}
 \end{table}
 
@@ -530,20 +534,21 @@ Le caratteristiche essenziali e le finalità concettuali delle due categorie di 
 
 \begin{table}[H]
     \centering
+    \small
     \caption{Sintesi dei modelli biclasse specializzati: composizione del \textit{training set} e finalità concettuale.}
     \label{tab:modelli_biclasse}
     \begin{tabularx}{\textwidth}{l l >{\raggedright\arraybackslash}X }
-    \toprule
-    \textbf{Modello} & \textbf{Composizione del \textit{Training Set}} & \textbf{Finalità Concettuale} \\
-    \midrule
-    $\mathcal{M}_{S, a}$ &
-    $\mathcal{D}_{S, a}^{(\text{train})} = \mathcal{D}_{S}^{(\text{train})}\big|_{Y=0} \cup \mathcal{D}_{S}^{(\text{train})}\big|_{Y=1, A=a}$ &
-    Rilevatore specialistico addestrato su una singola minaccia sorgente $a \in \mathcal{A}_S$; valuta la selettività senza distorsioni di canale. \\
-    \addlinespace
-    $\mathcal{M}_{H, T, a}$ &
-    $\mathcal{D}_{H, T, a}^{(\text{train})} = \mathcal{D}_{S}^{(\text{train})}\big|_{Y=0} \cup \mathcal{D}_{T}^{(\text{train})}\big|_{Y=1, A=a}$ &
-    Limite teorico (\textit{Oracle} specialistico) per la singola minaccia $a \in \mathcal{A}_T$ nel dominio target $T$. \\
-    \bottomrule
+        \toprule
+        \textbf{Modello} & \textbf{Composizione del \textit{Training Set}} & \textbf{Finalità Concettuale} \\
+        \midrule
+        $\mathcal{M}_{S, a}$ &
+        $\mathcal{D}_{S, a}^{(\text{train})} = \mathcal{D}_{S}^{(\text{train})}\big|_{Y=0} \cup \mathcal{D}_{S}^{(\text{train})}\big|_{Y=1, A=a}$ &
+        Rilevatore specialistico addestrato su una singola minaccia sorgente $a \in \mathcal{A}_S$; valuta la selettività senza distorsioni di canale. \\
+        \addlinespace
+        $\mathcal{M}_{H, T, a}$ &
+        $\mathcal{D}_{H, T, a}^{(\text{train})} = \mathcal{D}_{S}^{(\text{train})}\big|_{Y=0} \cup \mathcal{D}_{T}^{(\text{train})}\big|_{Y=1, A=a}$ &
+        Limite teorico (\textit{Oracle} specialistico) per la singola minaccia $a \in \mathcal{A}_T$ nel dominio target $T$. \\
+        \bottomrule
     \end{tabularx}
 \end{table}
 
@@ -692,22 +697,20 @@ L'aggiornamento del modello aggregato avviene secondo la regola:
 dove $\nu \in (0, 1]$ rappresenta il tasso di apprendimento (\textit{learning rate}). Tale approccio garantisce una minimizzazione progressiva del bias dell'errore di classificazione, consentendo di catturare sottili pattern di attacco ad alta dimensionalità tipici delle minacce cibernetiche complesse.
 
 \begin{table}[H]
-\centering
-\caption{Confronto delle proprietà architetturali e degli obiettivi di ottimizzazione tra i paradigmi di \textit{ensembling} Bagging e Gradient Boosting.}
-\label{tab:bagging_vs_boosting}
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{4cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X }
-\toprule
-\textbf{Caratteristica} & \textbf{Bagging} & \textbf{Gradient Boosting} \\
-\midrule
-\textbf{Costruzione} & Parallela, stimatori indipendenti & Sequenziale, additiva \\
-\addlinespace
-\textbf{Obiettivo primario} & Riduzione della varianza & Riduzione del bias \\
-\addlinespace
-\textbf{Combinazione} & Media: $\bar{f} = \frac{1}{B}\sum f_b$ & Somma pesata: $F_b = F_{b-1} + \nu f_b$ \\
-\addlinespace
-\textbf{Target addestramento per $f_b$} & Etichette originali su campionamenti bootstrap $\mathcal{D}_b^*$ & Pseudo-residui $r_{i,b}$ valutati al passo $b-1$ \\
-\bottomrule
-\end{tabularx}
+    \centering
+    \small
+    \caption{Confronto delle proprietà architetturali e degli obiettivi di ottimizzazione tra i paradigmi di \textit{ensembling} Bagging e Gradient Boosting.}
+    \label{tab:bagging_vs_boosting}
+    \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X }
+        \toprule
+        \textbf{Caratteristica} & \textbf{Bagging} & \textbf{Gradient Boosting} \\
+        \midrule
+        \textbf{Costruzione} & Parallela, stimatori indipendenti & Sequenziale, additiva \\
+        \textbf{Obiettivo primario} & Riduzione della varianza & Riduzione del bias \\
+        \textbf{Combinazione} & Media: $\bar{f} = \frac{1}{B}\sum f_b$ & Somma pesata: $F_b = F_{b-1} + \nu f_b$ \\
+        \textbf{Target addestramento per $f_b$} & Etichette originali su campionamenti bootstrap $\mathcal{D}_b^*$ & Pseudo-residui $r_{i,b}$ valutati al passo $b-1$ \\
+        \bottomrule
+    \end{tabularx}
 \end{table}
 
 \begin{figure}[H]
@@ -816,29 +819,30 @@ Per agevolare la consultazione delle metriche e dei parametri statistici discuss
 
 \begin{table}[H]
     \centering
+    \small
     \caption{Sintesi della notazione relativa al framework di valutazione e alla stabilità statistica.}
     \label{tab:notazione_valutazione}
     \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X }
-    \toprule
-    \textbf{Simbolo} & \textbf{Descrizione e Significato Concettuale} \\
-    \midrule
-    $s_0$ &
-    Seed deterministico utilizzato per il partizionamento dei dati e la generazione invariante dei benchmark \\
-    $\mathcal{S} = \{s_1, \dots, s_K\}$ &
-    Insieme di $K$ seed pseudo-casuali per l'inizializzazione stocastica e l'addestramento dei classificatori \\
-    $H_k(M, D)$ &
-    Matrice delle prestazioni (es. TPR, TNR) ottenute dal modello $M$ sul benchmark $D$ con il seed $s_k$ \\
-    $\hat{\mu}(M, D), \hat{\sigma}^2(M, D)$ &
-    Stima puntuale del valore atteso e della varianza campionaria delle metriche prestazionali marginalizzate sui $K$ seed \\
-    $t, \nu_{\text{eff}}$ &
-    Statistica del test e gradi di libertà effettivi nel test $t$ di Welch per la significatività rispetto al baseline \\
-    $\Gamma(M) = |\mathcal{A}_m(M)|$ &
-    Indice di granularità: cardinalità delle famiglie d'attacco osservate in addestramento dal modello $M$ \\
-    $R_1(M)$ &
-    Regione decisionale positiva nello spazio $\mathcal{X}$, corrispondente alla previsione dell'etichetta malevola ($Y=1$) \\
-    $\operatorname{supp} P(\mathbf{x} \mid Y=1, A=a)$ &
-    Supporto spaziale effettivo della distribuzione condizionata associata a una singola famiglia di attacco $a$ \\
-    \bottomrule
+        \toprule
+        \textbf{Simbolo} & \textbf{Descrizione e Significato Concettuale} \\
+        \midrule
+        $s_0$ &
+        Seed deterministico utilizzato per il partizionamento dei dati e la generazione invariante dei benchmark \\
+        $\mathcal{S} = \{s_1, \dots, s_K\}$ &
+        Insieme di $K$ seed pseudo-casuali per l'inizializzazione stocastica e l'addestramento dei classificatori \\
+        $H_k(M, D)$ &
+        Matrice delle prestazioni (es. TPR, TNR) ottenute dal modello $M$ sul benchmark $D$ con il seed $s_k$ \\
+        $\hat{\mu}(M, D), \hat{\sigma}^2(M, D)$ &
+        Stima puntuale del valore atteso e della varianza campionaria delle metriche prestazionali marginalizzate sui $K$ seed \\
+        $t, \nu_{\text{eff}}$ &
+        Statistica del test e gradi di libertà effettivi nel test $t$ di Welch per la significatività rispetto al baseline \\
+        $\Gamma(M) = |\mathcal{A}_m(M)|$ &
+        Indice di granularità: cardinalità delle famiglie d'attacco osservate in addestramento dal modello $M$ \\
+        $R_1(M)$ &
+        Regione decisionale positiva nello spazio $\mathcal{X}$, corrispondente alla previsione dell'etichetta malevola ($Y=1$) \\
+        $\operatorname{supp} P(\mathbf{x} \mid Y=1, A=a)$ &
+        Supporto spaziale effettivo della distribuzione condizionata associata a una singola famiglia di attacco $a$ \\
+        \bottomrule
     \end{tabularx}
 \end{table}
 
@@ -969,19 +973,20 @@ L'impianto metodologico fin qui descritto culmina nella definizione della matric
 
 \begin{table}[H]
     \centering
+    \small
     \caption{Rappresentazione concettuale della matrice di valutazione incrociata $H_k \in \mathbb{R}^{|\mathcal{M}| \times |\mathcal{B}|}$.}
     \label{tab:matrice_incrociata}
     \begin{tabular}{l c c c}
-    \toprule
-    \multirow{2}{*}{$\bf{H_k \in \mathbb{R}^{|\mathcal{M}| \times |\mathcal{B}|}}$} & $\bf{\mathcal{D}^{(\text{\bfseries test})}}$ & $\bf{\mathcal{D}_a^{(\text{\bfseries test})}}$ & $\bf{\mathcal{D}_{b\neq a}^{(\text{\bfseries test})}}$ \\
-    & \textbf{(Aggregati)} & \textbf{(Biclasse In-Domain)} & \textbf{(Biclasse Cross)} \\
-    \midrule
-    $\mathcal{M}_{\text{base}}$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
-    $\mathcal{M}_S$            & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
-    $\mathcal{M}_H^{(T)}$      & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
-    $\mathcal{M}_{S,a}$        & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
-    $\mathcal{M}_{H,T,a}$      & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
-    \bottomrule
+        \toprule
+        \multirow{2}{*}{$\bf{H_k \in \mathbb{R}^{|\mathcal{M}| \times |\mathcal{B}|}}$} & $\bf{\mathcal{D}^{(\text{\bfseries test})}}$ & $\bf{\mathcal{D}_a^{(\text{\bfseries test})}}$ & $\bf{\mathcal{D}_{b\neq a}^{(\text{\bfseries test})}}$ \\
+        & \textbf{(Aggregati)} & \textbf{(Biclasse In-Domain)} & \textbf{(Biclasse Cross)} \\
+        \midrule
+        $\mathcal{M}_{\text{base}}$ & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+        $\mathcal{M}_S$            & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+        $\mathcal{M}_H^{(T)}$      & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+        $\mathcal{M}_{S,a}$        & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+        $\mathcal{M}_{H,T,a}$      & $\checkmark$ & $\checkmark$ & $\checkmark$ \\
+        \bottomrule
     \end{tabular}
 \end{table}
 
@@ -1155,31 +1160,32 @@ Per agevolare la consultazione della trattazione, i simboli matematici, i costru
 
 \begin{table}[H]
     \centering
+    \small
     \caption{Sintesi della notazione relativa al framework analitico, all'interpretabilità e alla valutazione statistica.}
     \label{tab:notazione_framework}
-    \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X }
-    \toprule
-    \textbf{Simbolo} & \textbf{Descrizione e Significato Concettuale} \\
-    \midrule
-    $\mathbf{Z}_D$ &
-    Matrice dei dati del benchmark $D$ standardizzata mediante la media $\boldsymbol{\mu}_S$ e la deviazione standard $\boldsymbol{\sigma}_S$ del solo dominio sorgente \\
-    $\boldsymbol{\Sigma}_D, \mathbf{W}_D$ &
-    Matrice di covarianza campionaria e matrice di proiezione ortogonale sui primi due assi della PCA \\
-    $\hat{f}_y(z), h_{\text{KDE}}$ &
-    Stima di densità univariata KDE per la classe $y$ e relativo parametro di lisciamento (\textit{bandwidth}) con kernel gaussiano $\kappa(\cdot)$ \\
-    $\phi_j(\mathbf{x})$ &
-    Valore SHAP associato alla $j$-esima caratteristica del vettore $\mathbf{x}$, rappresentante il suo contributo marginale esatto \\
-    $I_j^{(D)}, C_j$ &
-    Importanza media assoluta SHAP della $j$-esima caratteristica sul benchmark $D$ e frequenza globale di inclusione nella \textit{top-3} \\
-    $TP(\tau), FP(\tau), \newline TN(\tau), FN(\tau)$ &
-    Cardinalità della matrice di confusione determinate in funzione della soglia decisionale parametrica $\tau$ \\
-    $AUC_{ROC}, AUC_{PR}$ &
-    Area sottesa alle curve \textit{Receiver Operating Characteristic} e \textit{Precision-Recall} per la caratterizzazione al variare di $\tau \in [0,1]$ \\
-    $\Delta F_1$ &
-    Variazione prestazionale in termini di $F_1$-score per la quantificazione del degrado da \textit{covariate shift} tra sorgente $\mathcal{D}_S$ e target $\mathcal{D}_T$ \\
-    $t, \nu, H_0$ &
-    Statistica del test $t$ di Welch, gradi di libertà effettivi di Welch--Satterthwaite e ipotesi nulla di equivalenza delle medie prestazionali \\
-    \bottomrule
+    \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X}
+        \toprule
+        \textbf{Simbolo} & \textbf{Descrizione e Significato Concettuale} \\
+        \midrule
+        $\mathbf{Z}_D$ &
+        Matrice dei dati del benchmark $D$ standardizzata mediante la media $\boldsymbol{\mu}_S$ e la deviazione standard $\boldsymbol{\sigma}_S$ del solo dominio sorgente \\
+        $\boldsymbol{\Sigma}_D, \mathbf{W}_D$ &
+        Matrice di covarianza campionaria e matrice di proiezione ortogonale sui primi due assi della PCA \\
+        $\hat{f}_y(z), h_{\text{KDE}}$ &
+        Stima di densità univariata KDE per la classe $y$ e relativo parametro di lisciamento (\textit{bandwidth}) con kernel gaussiano $\kappa(\cdot)$ \\
+        $\phi_j(\mathbf{x})$ &
+        Valore SHAP associato alla $j$-esima caratteristica del vettore $\mathbf{x}$, rappresentante il suo contributo marginale esatto \\
+        $I_j^{(D)}, C_j$ &
+        Importanza media assoluta SHAP della $j$-esima caratteristica sul benchmark $D$ e frequenza globale di inclusione nella \textit{top-3} \\
+        $TP(\tau), FP(\tau), \newline TN(\tau), FN(\tau)$ &
+        Cardinalità della matrice di confusione determinate in funzione della soglia decisionale parametrica $\tau$ \\
+        $AUC_{ROC}, AUC_{PR}$ &
+        Area sottesa alle curve \textit{Receiver Operating Characteristic} e \textit{Precision-Recall} per la caratterizzazione al variare di $\tau \in [0,1]$ \\
+        $\Delta F_1$ &
+        Variazione prestazionale in termini di $F_1$-score per la quantificazione del degrado da \textit{covariate shift} tra sorgente $\mathcal{D}_S$ e target $\mathcal{D}_T$ \\
+        $t, \nu, H_0$ &
+        Statistica del test $t$ di Welch, gradi di libertà effettivi di Welch--Satterthwaite e ipotesi nulla di equivalenza delle medie prestazionali \\
+        \bottomrule
     \end{tabularx}
 \end{table}
 
@@ -1254,27 +1260,28 @@ dove $\epsilon > 0$ è una costante infinitesima di stabilizzazione numerica. La
 Il ruolo e l'impatto della standardizzazione dipendente dal sorgente sulle diverse componenti diagnostiche del framework sono sintetizzati nella Tabella~\ref{tab:confronto_scaling_pca_kde}.
 
 \begin{table}[H]
-\centering
-\caption{Sintesi del ruolo e dell'impatto della standardizzazione dipendente dal sorgente $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S)$ sulle componenti diagnostiche del framework.}
-\label{tab:confronto_scaling_pca_kde}
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X }
-\toprule
-\textbf{Strumento}  & \textbf{Natura del Requisito} & \textbf{Impatto Tecnico e Motivazione} \\[-5pt]
- & & \textbf{Metodologica} \\
-\midrule
-\textbf{Classificatori (Tree-Based)} &
-Nessuno (Nessuna Trasformazione) &
-Invarianza Monotonica: gli algoritmi basati su albero operano su ordinamenti relativi dei dati. Nessun impatto sulle metriche di accuratezza. \\
-\addlinespace
-\textbf{Proiezioni Latenti (PCA)} &
-Matematicamente Indispensabile &
-Prevenzione della Dominanza delle Scale: la matrice di covarianza $\boldsymbol{\Sigma}_D$ richiede unità adimensionali; in caso contrario, le componenti principali catturano solo la scala numerica grezza più ampia. \\
-\addlinespace
-\textbf{Stima di Densità (KDE)} &
-Metodologico e Visivo &
-Preservazione del Shift e Omogeneità: non altera la forma intrinseca della stima 1D, ma rende visibile lo spostamento di media dal sorgente $z=0$, rende i grafici affiancati comparabili e stabilizza la \textit{bandwidth} $h_{\text{KDE}}$. \\
-\bottomrule
-\end{tabularx}
+    \centering
+    \small
+    \caption{Sintesi del ruolo e dell'impatto della standardizzazione dipendente dal sorgente $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S)$ sulle componenti diagnostiche del framework.}
+    \label{tab:confronto_scaling_pca_kde}
+    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X }
+        \toprule
+        \textbf{Strumento}  & \textbf{Natura del Requisito} & \textbf{Impatto Tecnico e Motivazione} \\[-5pt]
+        & & \textbf{Metodologica} \\
+        \midrule
+        \textbf{Classificatori (Tree-Based)} &
+        Nessuno (Nessuna Trasformazione) &
+        Invarianza Monotonica: gli algoritmi basati su albero operano su ordinamenti relativi dei dati. Nessun impatto sulle metriche di accuratezza. \\
+        \addlinespace
+        \textbf{Proiezioni Latenti (PCA)} &
+        Matematicamente Indispensabile &
+        Prevenzione della Dominanza delle Scale: la matrice di covarianza $\boldsymbol{\Sigma}_D$ richiede unità adimensionali; in caso contrario, le componenti principali catturano solo la scala numerica grezza più ampia. \\
+        \addlinespace
+        \textbf{Stima di Densità (KDE)} &
+        Metodologico e Visivo &
+        Preservazione del Shift e Omogeneità: non altera la forma intrinseca della stima 1D, ma rende visibile lo spostamento di media dal sorgente $z=0$, rende i grafici affiancati comparabili e stabilizza la \textit{bandwidth} $h_{\text{KDE}}$. \\
+        \bottomrule
+    \end{tabularx}
 \end{table}
 
 \subsection{Spiegabilità e Attribuzione delle Feature}
@@ -1348,7 +1355,8 @@ Le quattro quantità rappresentano rispettivamente il numero di veri positivi, f
 
 \begin{table}[H]
     \centering
-    \caption{Struttura della Matrice di Confusione parametrizzata rispetto alla soglia decisionale $\tau$.}
+    \small
+    \caption{Struttura della Matrice di Confusione parametrizzata rispetto alla soglia $\tau$.}
     \label{tab:matrice_confusione}
 
     \newlength{\confusionwidth}

@@ -76,24 +76,51 @@ Per isolare il runtime e prevenire conflitti con librerie di sistema, le dipende
 Le librerie e i pacchetti impiegati per la manipolazione dati, l'addestramento dei modelli e le verifiche statistiche sono riassunti nella Tabella~\ref{tab:stack_tecnologico}.
 
 \begin{table}[H]
-\centering
-\caption{Stack tecnologico, librerie e relative versioni vincolate nell'ambiente di runtime.}
-\label{tab:stack_tecnologico}
-\begin{tabular}{lll}
-\toprule
-\textbf{Libreria} & \textbf{Versione} & \textbf{Scopo Applicativo} \\
-\midrule
-\texttt{Python}\tablefootnote{\href{https://www.python.org/}{Link alla documentazione ufficiale della libreria \texttt{python}}} & \texttt{3.14.4} & Ambiente di esecuzione e interprete base \\
-\texttt{pandas}\tablefootnote{\href{https://pandas.pydata.org/}{Link alla documentazione ufficiale della libreria \texttt{pandas}}} & \texttt{3.0.3} & Manipolazione ed elaborazione di strutture dati tabulari \\
-\texttt{numpy}\tablefootnote{\href{https://numpy.org/}{Link alla documentazione ufficiale della libreria \texttt{numpy}}} & \texttt{2.5.1} & Calcolo scientifico e operazioni vettoriali ad alte prestazioni \\
-\texttt{scikit-learn}\tablefootnote{\href{https://scikit-learn.org/}{Link alla documentazione ufficiale della libreria \texttt{scikit-learn}}} & \texttt{1.9.0} & Pre-elaborazione \textit{feature} e addestramento classificatori \\
-\texttt{scipy}\tablefootnote{\href{https://scipy.org/}{Link alla documentazione ufficiale della libreria \texttt{scipy}}} & \texttt{1.18.0} & Verifiche di significatività statistica (es. test $t$ di Welch) \\
-\texttt{shap}\tablefootnote{\href{https://github.com/slundberg/shap}{Link alla documentazione ufficiale della libreria \texttt{shap}}} & \texttt{0.52.0} & Calcolo dei valori Shapley per l'analisi di \textit{explainability} (XAI) \\
-\texttt{joblib}\tablefootnote{\href{https://joblib.readthedocs.io/}{Link alla documentazione ufficiale della libreria \texttt{joblib}}} & \texttt{1.5.3} & Serializzazione e caricamento efficiente dei modelli su disco \\
-\texttt{matplotlib}\tablefootnote{\href{https://matplotlib.org/}{Link alla documentazione ufficiale della libreria \texttt{matplotlib}}} & \texttt{3.11.1} & Generazione di grafici e diagrammi prestazionali \\
-\texttt{seaborn}\tablefootnote{\href{https://seaborn.pydata.org/}{Link alla documentazione ufficiale della libreria \texttt{seaborn}}} & \texttt{0.13.2} & Visualizzazione avanzata e mappe di calore comparative \\
-\bottomrule
-\end{tabular}
+    \centering
+    \small
+    \caption{Stack tecnologico, librerie e relative versioni vincolate nell'ambiente di runtime.}
+    \label{tab:stack_tecnologico}
+    \begin{tabular}{l l l}
+        \toprule
+        \textbf{Libreria} & \textbf{Versione} & \textbf{Scopo Applicativo} \\
+        \midrule
+        \href{https://www.python.org/}{\texttt{Python}} 
+        & \texttt{3.14.4} 
+        & Ambiente di esecuzione e interprete base \\
+
+        \href{https://pandas.pydata.org/}{\texttt{pandas}} 
+        & \texttt{3.0.3} 
+        & Manipolazione ed elaborazione di strutture dati tabulari \\
+
+        \href{https://numpy.org/}{\texttt{numpy}} 
+        & \texttt{2.5.1} 
+        & Calcolo scientifico e operazioni vettoriali ad alte prestazioni \\
+
+        \href{https://scikit-learn.org/}{\texttt{scikit-learn}} 
+        & \texttt{1.9.0} 
+        & Pre-elaborazione \textit{feature} e addestramento classificatori \\
+
+        \href{https://scipy.org/}{\texttt{scipy}} 
+        & \texttt{1.18.0} 
+        & Verifiche di significatività statistica (es. test $t$ di Welch) \\
+
+        \href{https://github.com/slundberg/shap}{\texttt{shap}} 
+        & \texttt{0.52.0} 
+        & Calcolo dei valori Shapley per l'analisi di \textit{explainability} (XAI) \\
+
+        \href{https://joblib.readthedocs.io/}{\texttt{joblib}} 
+        & \texttt{1.5.3} 
+        & Serializzazione e caricamento efficiente dei modelli su disco \\
+
+        \href{https://matplotlib.org/}{\texttt{matplotlib}} 
+        & \texttt{3.11.1} 
+        & Generazione di grafici e diagrammi prestazionali \\
+
+        \href{https://seaborn.pydata.org/}{\texttt{seaborn}} 
+        & \texttt{0.13.2} 
+        & Visualizzazione avanzata e mappe di calore comparative \\
+        \bottomrule
+    \end{tabular}
 \end{table}
 
 La suite sperimentale è stata eseguita su un calcolatore Apple MacBook Air 2020 (modello A2179), equipaggiato con un processore quad-core Intel Core i5, una GPU Intel Iris Plus Graphics e con 8\,GB di memoria RAM unificata\footnote{Tale configurazione impone un vincolo operativo sull'impronta mnemonica (\textit{memory footprint}) dell'ambiente di calcolo, richiedendo un'ottimizzazione accurata delle strutture dati \texttt{pandas.DataFrame} e la profilazione dei vettori \texttt{numpy} durante la fase di allineamento e trasformazione delle feature.}.
@@ -147,23 +174,24 @@ La distribuzione dettagliata delle istanze per le sei classi residue è riassunt
 Il successivo campionamento e la scalatura in funzione del parametro $\rho$ vengono formalizzati nella Sezione~\ref{subsec:parametrizzazione_benchmark}.
 
 \begin{table}[H]
-\centering
-\caption{Distribuzione delle istanze del dataset UNSW-NB15 a seguito della procedura di \textit{minority removal}.}
-\label{tab:unsw_distribution}
-\begin{tabular}{llr}
-\toprule
-\textbf{Classe Nativa} & \textbf{Tipologia} & \textbf{Conteggio Istanze} \\
-\midrule
-\textit{Normal} & Traffico Lecito & $93.000$ \\
-\textit{Generic} & Attacco Malevolo & $58.871$ \\
-\textit{Exploits} & Attacco Malevolo & $44.525$ \\
-\textit{Fuzzers} & Attacco Malevolo & $24.246$ \\
-\textit{DoS} & Attacco Malevolo & $16.353$ \\
-\textit{Reconnaissance} & Attacco Malevolo & $13.987$ \\
-\hline
-\textbf{Totale} & & $\mathbf{250.982}$ \\
-\bottomrule
-\end{tabular}
+    \centering
+    \small
+    \caption{Distribuzione delle istanze del dataset UNSW-NB15 a seguito della procedura di \textit{minority removal}.}
+    \label{tab:unsw_distribution}
+    \begin{tabular}{llr}
+        \toprule
+        \textbf{Classe Nativa} & \textbf{Tipologia} & \textbf{Conteggio Istanze} \\
+        \midrule
+        \textit{Normal} & Traffico Lecito & $93.000$ \\
+        \textit{Generic} & Attacco Malevolo & $58.871$ \\
+        \textit{Exploits} & Attacco Malevolo & $44.525$ \\
+        \textit{Fuzzers} & Attacco Malevolo & $24.246$ \\
+        \textit{DoS} & Attacco Malevolo & $16.353$ \\
+        \textit{Reconnaissance} & Attacco Malevolo & $13.987$ \\
+        \hline
+        \textbf{Totale} & & $\mathbf{250.982}$ \\
+        \bottomrule
+    \end{tabular}
 \end{table}
 
 \subsection{Domini di Destinazione: Segmento Satellitare/Terrestre STIN}
@@ -190,21 +218,22 @@ In linea con la metodologia di accorpamento delle classi minoritarie (\textit{mi
 A seguito del processo di \textit{minority merge}, la volumetria complessiva rimane invariata a $127.244$ record, strutturata nelle quattro macro-classi risultanti riportate nella Tabella~\ref{tab:ter20_distribution}.
 
 \begin{table}[H]
-\centering
-\caption{Distribuzione delle istanze del dataset \texttt{TER20} a seguito del processo di \textit{minority merge}.}
-\label{tab:ter20_distribution}
-\begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X r}
-\toprule
-\textbf{Macro-Classe Target ($\mathcal{A}_T$)} & \textbf{Classi Native Accorpate} & \textbf{Conteggio Istanze} \\
-\midrule
-\textit{DDoS} & \textit{DDoS}, \textit{LDAP\_DDoS}, \textit{MSSQL\_DDoS}, \textit{NetBIOS\_DDoS}, \textit{Portmap\_DDoS} & $57.292$ \\
-\textit{Botnet} & \textit{Botnet}, \textit{Web Attack}, \textit{Backdoor} & $40.401$ \\
-\textit{Syn\_DDoS} & \textit{Syn\_DDoS} & $15.713$ \\
-\textit{UDP\_DDoS} & \textit{UDP\_DDoS} & $13.838$ \\
-\hline
-\textbf{Totale} & & $\mathbf{127.244}$ \\
-\bottomrule
-\end{tabularx}
+    \centering
+    \small
+    \caption{Distribuzione delle istanze del dataset \texttt{TER20} a seguito del processo di \textit{minority merge}.}
+    \label{tab:ter20_distribution}
+    \begin{tabular}{l p{6cm} r}
+        \toprule
+        \textbf{Macro-Classe Target ($\mathcal{A}_T$)} & \textbf{Classi Native Accorpate} & \textbf{Conteggio Istanze} \\
+        \midrule
+        \textit{DDoS} & \textit{DDoS}, \textit{LDAP\_DDoS}, \textit{MSSQL\_DDoS}, \textit{NetBIOS\_DDoS}, \textit{Portmap\_DDoS} & $57.292$ \\
+        \textit{Botnet} & \textit{Botnet}, \textit{Web Attack}, \textit{Backdoor} & $40.401$ \\
+        \textit{Syn\_DDoS} & \textit{Syn\_DDoS} & $15.713$ \\
+        \textit{UDP\_DDoS} & \textit{UDP\_DDoS} & $13.838$ \\
+        \hline
+        \textbf{Totale} & & $\mathbf{127.244}$ \\
+        \bottomrule
+    \end{tabular}
 \end{table}
 
 \subsubsection{Segmento Satellitare (\texttt{SAT20})}
@@ -214,19 +243,20 @@ Vista l'assenza di classi marginali o fortemente sbilanciate, non è stata appli
 La distribuzione finale del segmento \texttt{SAT20} è dettagliata nella Tabella~\ref{tab:sat20_distribution}.
 
 \begin{table}[H]
-\centering
-\caption{Distribuzione delle istanze del dataset \texttt{SAT20}.}
-\label{tab:sat20_distribution}
-\begin{tabular}{llr}
-\toprule
-\textbf{Classe Target ($\mathcal{A}_T$)} & \textbf{Tipologia Minaccia} & \textbf{Conteggio Istanze} \\
-\midrule
-\textit{UDP\_DDoS} & Attacco Volumetrico Satellitare & $43.244$ \\
-\textit{Syn\_DDoS} & Attacco Volumetrico Satellitare & $39.076$ \\
-\hline
-\textbf{Totale} & & $\mathbf{82.320}$ \\
-\bottomrule
-\end{tabular}
+    \centering
+    \small
+    \caption{Distribuzione delle istanze del dataset \texttt{SAT20}.}
+    \label{tab:sat20_distribution}
+    \begin{tabular}{llr}
+        \toprule
+        \textbf{Classe Target ($\mathcal{A}_T$)} & \textbf{Tipologia Minaccia} & \textbf{Conteggio Istanze} \\
+        \midrule
+        \textit{UDP\_DDoS} & Attacco Volumetrico Satellitare & $43.244$ \\
+        \textit{Syn\_DDoS} & Attacco Volumetrico Satellitare & $39.076$ \\
+        \hline
+        \textbf{Totale} & & $\mathbf{82.320}$ \\
+        \bottomrule
+    \end{tabular}
 \end{table}
 
 Per entrambi i dataset target, il successivo campionamento e la scalatura in funzione del parametro $\rho$ vengono formalizzati nella Sezione~\ref{subsec:parametrizzazione_benchmark}.
@@ -266,22 +296,23 @@ La differenziazione degli scenari avviene modulando la componente malevola ($Y=1
 Grazie al vincolo imposto da $\rho$, i cinque benchmark aggregati presentano un'architettura dimensionale e un partizionamento perfettamente identici, come esposto nella Tabella~\ref{tab:benchmark_cardinality}. Tale standardizzazione volumetrica neutralizza il rischio di divergenze prestazionali derivanti dalle variazioni della mole campionaria.
 
 \begin{table}[H]
-\centering
-\caption{Riepilogo delle cardinalità finali per i benchmark aggregati.}
-\label{tab:benchmark_cardinality}
-\resizebox{\textwidth}{!}{
-\begin{tabular}{lcccccc}
-\toprule
-\textbf{Benchmark} & \textbf{Istanze Normali} & \textbf{Istanze Anomale} & \textbf{Totale} & \textbf{Training Set} & \textbf{Test Set} \\[-5pt]
-                   & \textbf{\textit{Normal $Y=0$}} & \textbf{\textit{$Y=1$}} & \textbf{Istanze} & \textbf{\textit{(80\%)}} & \textbf{\textit{(20\%)}} \\
-\midrule
-\texttt{INJECTION} (Baseline) & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
-\texttt{NB15} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
-\texttt{NB15\_SAT20} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
-\texttt{NB15\_TER20} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
-\texttt{NB15\_STIN} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
-\bottomrule
-\end{tabular}}
+    \centering
+    \small
+    \caption{Riepilogo delle cardinalità finali per i benchmark aggregati.}
+    \label{tab:benchmark_cardinality}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{lcccccc}
+        \toprule
+        \textbf{Benchmark} & \textbf{Istanze Normali} & \textbf{Istanze Anomale} & \textbf{Totale} & \textbf{Training Set} & \textbf{Test Set} \\[-5pt]
+                        & \textbf{\textit{Normal $Y=0$}} & \textbf{\textit{$Y=1$}} & \textbf{Istanze} & \textbf{\textit{(80\%)}} & \textbf{\textit{(20\%)}} \\
+        \midrule
+        \texttt{INJECTION} (Baseline) & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+        \texttt{NB15} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+        \texttt{NB15\_SAT20} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+        \texttt{NB15\_TER20} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+        \texttt{NB15\_STIN} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+        \bottomrule
+    \end{tabular}}
 \end{table}
 
 Infine, a partire dai macro-dataset aggregati e scalati finora descritti, la pipeline di pre-elaborazione procede alla derivazione sistematica dei Set Nativi Sorgente Biclasse e dei Set Ibridi Biclasse. 
@@ -292,36 +323,37 @@ La struttura dettagliata degli $11$ benchmark biclasse così generati — $5$ pe
 Come si evince dai dati di partizionamento, l'applicazione rigorosa del rapporto $\rho = 10$ garantisce che ciascun rilevatore specialistico ($\mathcal{M}_{S,a}$ o $\mathcal{M}_{H,T,a}$) venga addestrato su una distribuzione uniforme composta da esattamente $93.000$ campioni leciti ($Y=0$) e $9.300$ campioni malevoli ($Y=1$) dedicati alla singola famiglia d'attacco $a$, mantenendo costante lo \textit{split} 80/20 tra training ($81.840$ record) e test set ($20.460$ record).
 
 \begin{table}[H]
-\centering
-\caption{Prospetto sintetico della cardinalità e del partizionamento per i Set Nativi Sorgente Biclasse e Ibridi Biclasse.}
-\label{tab:biclass_benchmark_cardinality}
-\resizebox{\textwidth}{!}{
-\begin{tabular}{llccccc}
-\toprule
-\textbf{Dominio} & \textbf{Nome Dataset Biclasse} & \textbf{Istanze Normali} & \textbf{Istanze Attacco} & \textbf{Totale} & \textbf{Train Set} & \textbf{Test Set} \\[-5pt]
- & \textbf{\textit{(File CSV)}} & \textbf{\textit{Normal ($\bf{Y=0}$)}} & \textbf{\textit{Classe $\bf{a}$ ($\bf{Y=1}$)}} & \textbf{Istanze} & \textbf{\textit{(80\%)}} & \textbf{\textit{(20\%)}} \\
-\midrule
-\multicolumn{7}{c}{\textbf{\textit{Set Nativi Sorgente Biclasse}}} \\
-\hline
-\texttt{NB15} & \texttt{Normal\_Generic.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
-\texttt{NB15} & \texttt{Normal\_Exploits.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
-\texttt{NB15} & \texttt{Normal\_Fuzzers.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
-\texttt{NB15} & \texttt{Normal\_DoS.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
-\texttt{NB15} & \texttt{Normal\_Reconnaissance.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
-\hline
-\multicolumn{7}{c}{\textbf{\textit{Set Ibridi Biclasse Terrestri}}} \\
-\hline
-\texttt{TER20} & \texttt{Normal\_DDoS.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
-\texttt{TER20} & \texttt{Normal\_Botnet.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
-\texttt{TER20} & \texttt{Normal\_Syn\_DDoS.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
-\texttt{TER20} & \texttt{Normal\_UDP\_DDoS.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
-\hline
-\multicolumn{7}{c}{\textbf{\textit{Set Ibridi Biclasse Satellitari}}} \\
-\hline
-\texttt{SAT20} & \texttt{Normal\_UDP\_DDoS.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
-\texttt{SAT20} & \texttt{Normal\_Syn\_DDoS.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
-\bottomrule
-\end{tabular}}
+    \centering
+    \small
+    \caption{Prospetto sintetico della cardinalità e del partizionamento per i Set Nativi Sorgente Biclasse e Ibridi Biclasse.}
+    \label{tab:biclass_benchmark_cardinality}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{llccccc}
+        \toprule
+        \textbf{Dominio} & \textbf{Nome Dataset Biclasse} & \textbf{Istanze Normali} & \textbf{Istanze Attacco} & \textbf{Totale} & \textbf{Train Set} & \textbf{Test Set} \\[-5pt]
+        & \textbf{\textit{(File CSV)}} & \textbf{\textit{Normal ($\bf{Y=0}$)}} & \textbf{\textit{Classe $\bf{a}$ ($\bf{Y=1}$)}} & \textbf{Istanze} & \textbf{\textit{(80\%)}} & \textbf{\textit{(20\%)}} \\
+        \midrule
+        \multicolumn{7}{c}{\textbf{Set Nativi Sorgente Biclasse}} \\
+        \hline
+        \texttt{NB15} & \texttt{Normal\_Generic.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+        \texttt{NB15} & \texttt{Normal\_Exploits.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+        \texttt{NB15} & \texttt{Normal\_Fuzzers.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+        \texttt{NB15} & \texttt{Normal\_DoS.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+        \texttt{NB15} & \texttt{Normal\_Reconnaissance.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+        \hline
+        \multicolumn{7}{c}{\textbf{Set Ibridi Biclasse Terrestri}} \\
+        \hline
+        \texttt{TER20} & \texttt{Normal\_DDoS.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+        \texttt{TER20} & \texttt{Normal\_Botnet.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+        \texttt{TER20} & \texttt{Normal\_Syn\_DDoS.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+        \texttt{TER20} & \texttt{Normal\_UDP\_DDoS.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+        \hline
+        \multicolumn{7}{c}{\textbf{Set Ibridi Biclasse Satellitari}} \\
+        \hline
+        \texttt{SAT20} & \texttt{Normal\_UDP\_DDoS.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+        \texttt{SAT20} & \texttt{Normal\_Syn\_DDoS.csv} & $93.000$ & $9.300$ & $102.300$ & $81.840$ & $20.460$ \\
+        \bottomrule
+    \end{tabular}}
 \end{table}
 
 \begin{figure}[H]
@@ -498,27 +530,28 @@ Per garantire l'interoperabilità e la generalizzabilità dei modelli di apprend
     La classificazione dettagliata delle feature eliminate per ciascun dominio in questa fase è sintetizzata nella Tabella~\ref{tab:removed_features}.
 
     \begin{table}[H]
-    \centering
-    \caption{Feature eliminate durante la fase di pre-processing nei domini sorgente e target.}
-    \label{tab:removed_features}
-    \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}p{4cm} >{\raggedright\arraybackslash}X}
-    \toprule
-    \textbf{Dominio} & \textbf{Categoria} & \textbf{Feature Rimosse} \\
-    \midrule
-    \textbf{Sorgente ($\mathcal{D}_S$)} 
-    & Protocolli Applicativi & \texttt{service}, \texttt{trans\_depth}, \texttt{response\_body\_len}, \texttt{is\_ftp\_login}, \texttt{ct\_ftp\_cmd}, \texttt{ct\_flw\_http\_mthd} \\
-    & Contatori Aggregati & \texttt{ct\_srv\_src}, \texttt{ct\_state\_ttl}, \texttt{ct\_dst\_ltm}, \texttt{ct\_src\_dport\_ltm}, \texttt{ct\_dst\_sport\_ltm}, \texttt{ct\_dst\_src\_ltm}, \texttt{ct\_src\_ltm}, \texttt{ct\_srv\_dst} \\
-    & TTL e Perdita Pacchetti & \texttt{sttl}, \texttt{dttl}, \texttt{sloss}, \texttt{dloss}, \texttt{is\_sm\_ips\_ports} \\
-    & Jitter, TCP e Metriche & \texttt{sjit}, \texttt{djit}, \texttt{sinpkt}, \texttt{dinpkt}, \texttt{tcprtt}, \texttt{synack}, \texttt{ackdat}, \texttt{stcpb}, \texttt{dtcpb} \\
-    & Metriche Ridondanti & \texttt{smean}, \texttt{dmean}, \texttt{rate} \\
-    \addlinespace
-    \textbf{Target ($\mathcal{D}_T$)} 
-    & Statistiche Lunghezza & \texttt{pkt\_len\_min}, \texttt{pkt\_len\_max}, \texttt{pkt\_len\_std}, \texttt{fw\_hdr\_len} \\
-    & Flag TCP & \texttt{bw\_psh\_flag}, \texttt{fw\_urg\_flag}, \texttt{bw\_urg\_flag}, \texttt{fin\_cnt}, \texttt{syn\_cnt}, \texttt{psh\_cnt}, \texttt{urg\_cnt}, \texttt{ece\_cnt} \\
-    & Intervalli Inter-arrivo & \texttt{fl\_iat\_min}, \texttt{bw\_iat\_tot}, \texttt{bw\_iat\_min} \\
-    & Contatori Burst & \texttt{fw\_byt\_blk\_avg}, \texttt{fw\_pkt\_blk\_avg}, \texttt{fw\_blk\_rate\_avg}, \texttt{bw\_byt\_blk\_avg}, \texttt{bw\_pkt\_blk\_avg}, \texttt{bw\_blk\_rate\_avg} \\
-    \bottomrule
-    \end{tabularx}
+        \centering
+        \small
+        \caption{Feature eliminate durante la fase di pre-processing nei domini sorgente e target.}
+        \label{tab:removed_features}
+        \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}p{4cm} >{\raggedright\arraybackslash}X}
+            \toprule
+            \textbf{Dominio} & \textbf{Categoria} & \textbf{Feature Rimosse} \\
+            \midrule
+            \textbf{Sorgente ($\mathcal{D}_S$)} 
+            & Protocolli Applicativi & \texttt{service}, \texttt{trans\_depth}, \texttt{response\_body\_len}, \texttt{is\_ftp\_login}, \texttt{ct\_ftp\_cmd}, \texttt{ct\_flw\_http\_mthd} \\
+            & Contatori Aggregati & \texttt{ct\_srv\_src}, \texttt{ct\_state\_ttl}, \texttt{ct\_dst\_ltm}, \texttt{ct\_src\_dport\_ltm}, \texttt{ct\_dst\_sport\_ltm}, \texttt{ct\_dst\_src\_ltm}, \texttt{ct\_src\_ltm}, \texttt{ct\_srv\_dst} \\
+            & TTL e Perdita Pacchetti & \texttt{sttl}, \texttt{dttl}, \texttt{sloss}, \texttt{dloss}, \texttt{is\_sm\_ips\_ports} \\
+            & Jitter, TCP e Metriche & \texttt{sjit}, \texttt{djit}, \texttt{sinpkt}, \texttt{dinpkt}, \texttt{tcprtt}, \texttt{synack}, \texttt{ackdat}, \texttt{stcpb}, \texttt{dtcpb} \\
+            & Metriche Ridondanti & \texttt{smean}, \texttt{dmean}, \texttt{rate} \\
+            \addlinespace
+            \textbf{Target ($\mathcal{D}_T$)} 
+            & Statistiche Lunghezza & \texttt{pkt\_len\_min}, \texttt{pkt\_len\_max}, \texttt{pkt\_len\_std}, \texttt{fw\_hdr\_len} \\
+            & Flag TCP & \texttt{bw\_psh\_flag}, \texttt{fw\_urg\_flag}, \texttt{bw\_urg\_flag}, \texttt{fin\_cnt}, \texttt{syn\_cnt}, \texttt{psh\_cnt}, \texttt{urg\_cnt}, \texttt{ece\_cnt} \\
+            & Intervalli Inter-arrivo & \texttt{fl\_iat\_min}, \texttt{bw\_iat\_tot}, \texttt{bw\_iat\_min} \\
+            & Contatori Burst & \texttt{fw\_byt\_blk\_avg}, \texttt{fw\_pkt\_blk\_avg}, \texttt{fw\_blk\_rate\_avg}, \texttt{bw\_byt\_blk\_avg}, \texttt{bw\_pkt\_blk\_avg}, \texttt{bw\_blk\_rate\_avg} \\
+            \bottomrule
+        \end{tabularx}
     \end{table}
 
     \item \textbf{Criterio di incompatibilità e impossibilità di armonizzazione:}
@@ -532,19 +565,20 @@ Nei dataset pre-processati finali, a questo vettore di 16 dimensioni si affianca
 La Tabella~\ref{tab:feature_filtering_summary} riassume il processo logico di riduzione, derivazione e allineamento dimensionale.
 
 \begin{table}[H]
-\centering
-\caption{Sintesi del processo di selezione e allineamento dimensionale tra il dominio sorgente ($\mathcal{D}_S$) e i domini di destinazione ($\mathcal{D}_T$).}
-\label{tab:feature_filtering_summary}
-\begin{tabularx}{\textwidth}{Xccc}
-\toprule
-\textbf{Dominio / Sorgente} & \textbf{Colonne Totali} & \textbf{Feature Predittive Grezze} & \textbf{Feature Scartate} \\
-\midrule
-Sorgente ($\mathcal{D}_S$) & 45 & $d_S = 42$ & 33 \\
-Target ($\mathcal{D}_T$) & 32 & $d_T = 30$ & 21 \\
-\hline
-\textbf{Spazio Allineato Finale} & \textbf{19} & $\mathbf{d = 16}$ & -- \\
-\bottomrule
-\end{tabularx}
+    \centering
+    \small
+    \caption{Sintesi del processo di selezione e allineamento dimensionale tra il dominio sorgente ($\mathcal{D}_S$) e i domini di destinazione ($\mathcal{D}_T$).}
+    \label{tab:feature_filtering_summary}
+    \begin{tabular}{lccc}
+        \toprule
+        \textbf{Dominio / Sorgente} & \textbf{Colonne Totali} & \textbf{Feature Predittive Grezze} & \textbf{Feature Scartate} \\
+        \midrule
+        Sorgente ($\mathcal{D}_S$) & 45 & $d_S = 42$ & 33 \\
+        Target ($\mathcal{D}_T$) & 32 & $d_T = 30$ & 21 \\
+        \hline
+        \textbf{Spazio Allineato Finale} & \textbf{19} & $\mathbf{d = 16}$ & -- \\
+        \bottomrule
+    \end{tabular}
 \end{table}
 
 \subsection{Implementazione dell'Operatore di Mappatura}
@@ -556,63 +590,65 @@ Tale operatore agisce sui vettori grezzi applicando trasformazioni algebriche, c
 La Tabella~\ref{tab:mapping_operator} formalizza le trasformazioni scalari $\psi_{k,j}$ applicate a ciascuna feature condivisa $j$, mettendo a confronto il dominio sorgente (UNSW-NB15) e il dominio target (STIN/TER20/SAT20).
 
 \begin{table}[H]
-\centering
-\caption{Formulazione algebrica dell'operatore di mappatura vettoriale nei domini $\mathcal{D}_S$ e $\mathcal{D}_T$.}
-\label{tab:mapping_operator}
-\resizebox{\textwidth}{!}{
-\begin{tabular}{lllc}
-\toprule
-\textbf{Feature Coordinata ($\bf{x_j}$)} & \textbf{Dominio Sorgente ($\bf{\psi_{S,j}}$)} & \textbf{Dominio Target ($\bf{\psi_{T,j}}$)} & \textbf{Unità di Misura} \\
-\midrule
-\texttt{duration} & $\texttt{dur} \cdot 10^6$ & \texttt{fl\_dur} & $\mu$s \\
-\texttt{src\_bytes} & \texttt{sbytes} & \texttt{l\_fw\_pkt} & Byte \\
-\texttt{dst\_bytes} & \texttt{dbytes} & \texttt{l\_bw\_pkt} & Byte \\
-\texttt{src\_pkts} & \texttt{spkts} & \texttt{fw\_pk} & Adimensionale \\
-\texttt{dst\_pkts} & \texttt{dpkts} & $(\texttt{bw\_pkt\_s} \cdot \texttt{fl\_dur}) / 10^6$ & Adimensionale \\
-\texttt{src\_win\_byt} & \texttt{swin} & \texttt{fw\_win\_byt} & Byte \\
-\texttt{dst\_win\_byt} & \texttt{dwin} & \texttt{bw\_win\_byt} & Byte \\
-\texttt{load\_s} & $(\texttt{sload} + \texttt{dload}) / 8$ & \texttt{fl\_byt\_s} & Byte/s \\
-\texttt{down\_up\_ratio} & $\texttt{dpkts} / (\texttt{spkts} + \epsilon)$ & \texttt{down\_up\_ratio} & Adimensionale \\
-\hline
-\texttt{total\_bytes} & \multicolumn{2}{c}{\texttt{src\_bytes} + \texttt{dst\_bytes}} & Byte \\
-\texttt{total\_pkts} & \multicolumn{2}{c}{\texttt{src\_pkts} + \texttt{dst\_pkts}} & Adimensionale \\
-\texttt{src\_mean\_pkt\_size} & \multicolumn{2}{c}{$\texttt{src\_bytes} / (\texttt{src\_pkts} + \epsilon)$} & Byte \\
-\texttt{dst\_mean\_pkt\_size} & \multicolumn{2}{c}{$\texttt{dst\_bytes} / (\texttt{dst\_pkts} + \epsilon)$} & Byte \\
-\texttt{win\_diff} & \multicolumn{2}{c}{$\texttt{src\_win\_byt} - \texttt{dst\_win\_byt}$} & Byte \\
-\texttt{byte\_ratio} & \multicolumn{2}{c}{$\texttt{dst\_bytes} / (\texttt{src\_bytes} + \epsilon)$} & Adimensionale \\
-\hline
-\texttt{pkts\_per\_sec} & $\texttt{total\_pkts} / (\texttt{dur} + \epsilon)$ & $[\texttt{total\_pkts} / (\texttt{duration} + \epsilon)] \cdot 10^6$ & 1/s \\
-\bottomrule
-\end{tabular}
-}
+    \centering
+    \small
+    \caption{Formulazione algebrica dell'operatore di mappatura vettoriale nei domini $\mathcal{D}_S$ e $\mathcal{D}_T$.}
+    \label{tab:mapping_operator}
+    \resizebox{\textwidth}{!}{
+    \begin{tabular}{lllc}
+        \toprule
+        \textbf{Feature Coordinata ($\bf{x_j}$)} & \textbf{Dominio Sorgente ($\bf{\psi_{S,j}}$)} & \textbf{Dominio Target ($\bf{\psi_{T,j}}$)} & \textbf{Unità di Misura} \\
+        \midrule
+        \texttt{duration} & $\texttt{dur} \cdot 10^6$ & \texttt{fl\_dur} & $\mu$s \\
+        \texttt{src\_bytes} & \texttt{sbytes} & \texttt{l\_fw\_pkt} & Byte \\
+        \texttt{dst\_bytes} & \texttt{dbytes} & \texttt{l\_bw\_pkt} & Byte \\
+        \texttt{src\_pkts} & \texttt{spkts} & \texttt{fw\_pk} & Adimensionale \\
+        \texttt{dst\_pkts} & \texttt{dpkts} & $(\texttt{bw\_pkt\_s} \cdot \texttt{fl\_dur}) / 10^6$ & Adimensionale \\
+        \texttt{src\_win\_byt} & \texttt{swin} & \texttt{fw\_win\_byt} & Byte \\
+        \texttt{dst\_win\_byt} & \texttt{dwin} & \texttt{bw\_win\_byt} & Byte \\
+        \texttt{load\_s} & $(\texttt{sload} + \texttt{dload}) / 8$ & \texttt{fl\_byt\_s} & Byte/s \\
+        \texttt{down\_up\_ratio} & $\texttt{dpkts} / (\texttt{spkts} + \epsilon)$ & \texttt{down\_up\_ratio} & Adimensionale \\
+        \hline
+        \texttt{total\_bytes} & \multicolumn{2}{c}{\texttt{src\_bytes} + \texttt{dst\_bytes}} & Byte \\
+        \texttt{total\_pkts} & \multicolumn{2}{c}{\texttt{src\_pkts} + \texttt{dst\_pkts}} & Adimensionale \\
+        \texttt{src\_mean\_pkt\_size} & \multicolumn{2}{c}{$\texttt{src\_bytes} / (\texttt{src\_pkts} + \epsilon)$} & Byte \\
+        \texttt{dst\_mean\_pkt\_size} & \multicolumn{2}{c}{$\texttt{dst\_bytes} / (\texttt{dst\_pkts} + \epsilon)$} & Byte \\
+        \texttt{win\_diff} & \multicolumn{2}{c}{$\texttt{src\_win\_byt} - \texttt{dst\_win\_byt}$} & Byte \\
+        \texttt{byte\_ratio} & \multicolumn{2}{c}{$\texttt{dst\_bytes} / (\texttt{src\_bytes} + \epsilon)$} & Adimensionale \\
+        \hline
+        \texttt{pkts\_per\_sec} & $\texttt{total\_pkts} / (\texttt{dur} + \epsilon)$ & $[\texttt{total\_pkts} / (\texttt{duration} + \epsilon)] \cdot 10^6$ & 1/s \\
+        \bottomrule
+    \end{tabular}
+    }
 \end{table}
 
 \begin{table}[H]
-\centering
-\caption{Descrizione semantica delle feature coordinate.}
-\label{tab:feature_descriptions}
-\begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X}
-\toprule
-\textbf{Feature Coordinata ($\mathbf{x_j}$)} & \textbf{Descrizione} \\
-\midrule
-\texttt{duration} & Durata di esecuzione \\
-\texttt{src\_bytes} & Lunghezza totale dei pacchetti in direzione forward \\
-\texttt{dst\_bytes} & Lunghezza totale dei pacchetti in direzione backward \\
-\texttt{src\_pkts} & Numero totale di pacchetti in direzione forward \\
-\texttt{dst\_pkts} & Numero totale di pacchetti in direzione backward \\
-\texttt{src\_win\_byt} & Lunghezza finestra iniziale in direzione forward \\
-\texttt{dst\_win\_byt} & Lunghezza finestra iniziale in direzione backward \\
-\texttt{load\_s} & Throughput totale \\
-\texttt{down\_up\_ratio} & Asimmetria dei pacchetti \\
-\texttt{total\_bytes} & Bytes totali \\
-\texttt{total\_pkts} & Pacchetti totali \\
-\texttt{src\_mean\_pkt\_size} & Dimensione media dei pacchetti in direzione forward \\
-\texttt{dst\_mean\_pkt\_size} & Dimensione media dei pacchetti in direzione backward \\
-\texttt{win\_diff} & Differenza di finestra \\
-\texttt{byte\_ratio} & Rapporto di byte \\
-\texttt{pkts\_per\_sec} & Tasso di pacchetti per secondo \\
-\bottomrule
-\end{tabularx}
+    \centering
+    \small
+    \caption{Descrizione semantica delle feature coordinate.}
+    \label{tab:feature_descriptions}
+    \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X}
+        \toprule
+        \textbf{Feature Coordinata ($\mathbf{x_j}$)} & \textbf{Descrizione} \\
+        \midrule
+        \texttt{duration} & Durata di esecuzione \\
+        \texttt{src\_bytes} & Lunghezza totale dei pacchetti in direzione forward \\
+        \texttt{dst\_bytes} & Lunghezza totale dei pacchetti in direzione backward \\
+        \texttt{src\_pkts} & Numero totale di pacchetti in direzione forward \\
+        \texttt{dst\_pkts} & Numero totale di pacchetti in direzione backward \\
+        \texttt{src\_win\_byt} & Lunghezza finestra iniziale in direzione forward \\
+        \texttt{dst\_win\_byt} & Lunghezza finestra iniziale in direzione backward \\
+        \texttt{load\_s} & Throughput totale \\
+        \texttt{down\_up\_ratio} & Asimmetria dei pacchetti \\
+        \texttt{total\_bytes} & Bytes totali \\
+        \texttt{total\_pkts} & Pacchetti totali \\
+        \texttt{src\_mean\_pkt\_size} & Dimensione media dei pacchetti in direzione forward \\
+        \texttt{dst\_mean\_pkt\_size} & Dimensione media dei pacchetti in direzione backward \\
+        \texttt{win\_diff} & Differenza di finestra \\
+        \texttt{byte\_ratio} & Rapporto di byte \\
+        \texttt{pkts\_per\_sec} & Tasso di pacchetti per secondo \\
+        \bottomrule
+    \end{tabularx}
 \end{table}
 
 Nel processo di mappatura emergono tre aspetti architetturali critici:
@@ -762,33 +798,34 @@ Tutti i modelli sono stati pertanto istanziati mantenendo i valori di iperparame
 La Tabella~\ref{tab:hyperparameters_summary} sintetizza la corrispondenza tra le classi Python adottate e la configurazione degli iperparametri operativi associati.
 
 \begin{table}[H]
-\centering
-\caption{Configurazione degli iperparametri di default e classi \texttt{scikit-learn} utilizzate per ciascuna famiglia di classificatori.}
-\label{tab:hyperparameters_summary}
-\begin{tabularx}{\textwidth}{l >{\ttfamily}l >{\raggedright\arraybackslash}X}
-\toprule
-\textbf{Algoritmo} & \textbf{\textrm{Classe} \texttt{scikit-learn}} & \textbf{Iperparametri di Default} \\
-\midrule
-Decision Tree (DT) & DecisionTreeClassifier & 
-\texttt{criterion='gini'}, 
-\texttt{max\_depth=None}, 
-\texttt{min\_samples\_split=2} \\
-\addlinespace
-Random Forest (RF) & RandomForestClassifier & 
-\texttt{n\_estimators=100}, 
-\texttt{criterion='gini'}, 
-\texttt{max\_depth=None}, 
-\texttt{max\_features='sqrt'}, 
-\texttt{min\_samples\_split=2} \\
-\addlinespace
-Hist. Gradient Boosting & HistGradientBoostingClassifier & 
-\texttt{learning\_rate=0.1}, 
-\texttt{max\_iter=100}, 
-\texttt{max\_depth=None}, 
-\texttt{max\_leaf\_nodes=31}, 
-\texttt{l2\_regularization=0.0} \\
-\bottomrule
-\end{tabularx}
+    \centering
+    \small
+    \caption{Configurazione degli iperparametri di default e classi \texttt{scikit-learn} utilizzate per ciascuna famiglia di classificatori.}
+    \label{tab:hyperparameters_summary}
+    \begin{tabularx}{\textwidth}{l >{\ttfamily}l >{\raggedright\arraybackslash}X}
+        \toprule
+        \textbf{Algoritmo} & \textbf{\textrm{Classe} \texttt{scikit-learn}} & \textbf{Iperparametri di Default} \\
+        \midrule
+        Decision Tree (DT) & DecisionTreeClassifier & 
+        \texttt{criterion='gini'}, 
+        \texttt{max\_depth=None}, 
+        \texttt{min\_samples\_split=2} \\
+        \addlinespace
+        Random Forest (RF) & RandomForestClassifier & 
+        \texttt{n\_estimators=100}, 
+        \texttt{criterion='gini'}, 
+        \texttt{max\_depth=None}, 
+        \texttt{max\_features='sqrt'}, 
+        \texttt{min\_samples\_split=2} \\
+        \addlinespace
+        Hist. Gradient Boosting & HistGradientBoostingClassifier & 
+        \texttt{learning\_rate=0.1}, 
+        \texttt{max\_iter=100}, 
+        \texttt{max\_depth=None}, 
+        \texttt{max\_leaf\_nodes=31}, 
+        \texttt{l2\_regularization=0.0} \\
+        \bottomrule
+    \end{tabularx}
 \end{table}
 
 Per garantire un tracciamento rigoroso del ciclo di vita dei modelli, l'istanziamento e l'addestramento non disperdono lo stato interno degli stimatori. 
@@ -797,23 +834,24 @@ Al termine del fitting di ciascun classificatore su uno specifico dataset di add
 Tale meccanismo di tracciamento memorizza per ogni modello un record identificativo univoco, la cui struttura logica e i relativi attributi sono riepilogati nella Tabella~\ref{tab:models_metadata_schema}.
 
 \begin{table}[H]
-\centering
-\caption{Struttura e campi del record di tracciamento persistito nel registro \texttt{models\_metadata}.}
-\label{tab:models_metadata_schema}
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{5cm} >{\raggedright\arraybackslash}X}
-\toprule
-\textbf{Categoria Logica} & \textbf{Campi Registrati} \\
-\midrule
-\textbf{Metadati di Identificazione} & 
-\texttt{id}, \texttt{timestamp}, \texttt{model\_name}, \texttt{dataset\_type}, \texttt{random\_state} \\
-\textbf{Proprietà Struttura Dati} & 
-\texttt{samples}, \texttt{train\_split}, \texttt{n\_features\_in}, \texttt{n\_classes} \\
-\textbf{Config. Iperparametrica} & 
-\texttt{n\_estimators}, \texttt{max\_depth}, \texttt{max\_features}, \texttt{criterion}, \texttt{min\_samples\_split}, \texttt{learning\_rate}, \texttt{max\_iter} \\
-\textbf{Valutazione In-Sample} & 
-Matrice di confusione grezza (\texttt{TP}, \texttt{TN}, \texttt{FP}, \texttt{FN}) e metriche derivate di addestramento (\texttt{Accuracy}, \texttt{Precision}, \texttt{Recall}, \texttt{F1-Score}, \texttt{ROC-AUC}, \texttt{PR-AUC}, \texttt{TPR}, \texttt{FPR}) \\
-\bottomrule
-\end{tabularx}
+    \centering
+    \small
+    \caption{Struttura e campi del record di tracciamento persistito nel registro \texttt{models\_metadata}.}
+    \label{tab:models_metadata_schema}
+    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{5cm} >{\raggedright\arraybackslash}X}
+        \toprule
+        \textbf{Categoria Logica} & \textbf{Campi Registrati} \\
+        \midrule
+        \textbf{Metadati di Identificazione} & 
+        \texttt{id}, \texttt{timestamp}, \texttt{model\_name}, \texttt{dataset\_type}, \texttt{random\_state} \\
+        \textbf{Proprietà Struttura Dati} & 
+        \texttt{samples}, \texttt{train\_split}, \texttt{n\_features\_in}, \texttt{n\_classes} \\
+        \textbf{Config. Iperparametrica} & 
+        \texttt{n\_estimators}, \texttt{max\_depth}, \texttt{max\_features}, \texttt{criterion}, \texttt{min\_samples\_split}, \texttt{learning\_rate}, \texttt{max\_iter} \\
+        \textbf{Valutazione In-Sample} & 
+        Matrice di confusione grezza (\texttt{TP}, \texttt{TN}, \texttt{FP}, \texttt{FN}) e metriche derivate di addestramento (\texttt{Accuracy}, \texttt{Precision}, \texttt{Recall}, \texttt{F1-Score}, \texttt{ROC-AUC}, \texttt{PR-AUC}, \texttt{TPR}, \texttt{FPR}) \\
+        \bottomrule
+    \end{tabularx}
 \end{table}
 
 L'archiviazione sistematica in \texttt{models\_metadata.csv} assicura la completa uditabilità dell'infrastruttura di addestramento, fornendo la base informativa per le successive fasi di inferenza e valutazione cross-dominio sui dataset di test target.
@@ -926,31 +964,32 @@ Contestualmente, viene preservata e fissata la partizione logica dei dati tramit
 In perfetta simmetria con la suddivisione concettuale tra dominio sorgente e domini target ibridizzati, la pipeline ha generato le istanze biclasse riepilogate nella Tabella~\ref{tab:biclass_models_summary}.
 
 \begin{table}[H]
-\centering
-\caption{Istanze dei modelli biclasse generati per il dominio sorgente e i domini target ibridizzati.}
-\label{tab:biclass_models_summary}
-\begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
-\toprule
-\textbf{Categoria} & \textbf{Dominio} & \textbf{Istanze Modello Biclasse} \\
-\midrule
-\textbf{Modelli Sorgente} & UNSW-NB15 & 
-\texttt{nb15\_dos} \newline
-\texttt{nb15\_exploits} \newline
-\texttt{nb15\_fuzzers} \newline
-\texttt{nb15\_generic} \newline
-\texttt{nb15\_reconnaissance} \\
-\addlinespace
-\textbf{Modelli Ibridi Target} & SAT20 & 
-\texttt{nb15\_sat20\_syn\_ddos} \newline
-\texttt{nb15\_sat20\_udp\_ddos} \\
-\addlinespace
-\textbf{Modelli Ibridi Target} & TER20 & 
-\texttt{nb15\_ter20\_botnet} \newline
-\texttt{nb15\_ter20\_ddos} \newline
-\texttt{nb15\_ter20\_syn\_ddos} \newline
-\texttt{nb15\_ter20\_udp\_ddos} \\
-\bottomrule
-\end{tabularx}
+    \centering
+    \small
+    \caption{Istanze dei modelli biclasse generati per il dominio sorgente e i domini target ibridizzati.}
+    \label{tab:biclass_models_summary}
+    \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+        \toprule
+        \textbf{Categoria} & \textbf{Dominio} & \textbf{Istanze Modello Biclasse} \\
+        \midrule
+        \textbf{Modelli Sorgente} & UNSW-NB15 & 
+        \texttt{nb15\_dos} \newline
+        \texttt{nb15\_exploits} \newline
+        \texttt{nb15\_fuzzers} \newline
+        \texttt{nb15\_generic} \newline
+        \texttt{nb15\_reconnaissance} \\
+        \addlinespace
+        \textbf{Modelli Ibridi Target} & SAT20 & 
+        \texttt{nb15\_sat20\_syn\_ddos} \newline
+        \texttt{nb15\_sat20\_udp\_ddos} \\
+        \addlinespace
+        \textbf{Modelli Ibridi Target} & TER20 & 
+        \texttt{nb15\_ter20\_botnet} \newline
+        \texttt{nb15\_ter20\_ddos} \newline
+        \texttt{nb15\_ter20\_syn\_ddos} \newline
+        \texttt{nb15\_ter20\_udp\_ddos} \\
+        \bottomrule
+    \end{tabularx}
 \end{table}
 
 L'integrazione di questa logica all'interno del codice sorgente sfrutta elevati livelli di automazione. 
@@ -1108,22 +1147,23 @@ Il calcolo delle metriche è stato incapsulato nella funzione \texttt{calculate\
 In particolare, vengono utilizzate le metriche descritte in Tabella~\ref{tab:evaluation_metrics}.
 
 \begin{table}[H]
-\centering
-\caption{Metriche di valutazione delle prestazioni utilizzate per la caratterizzazione dei modelli di apprendimento automatico.}
-\label{tab:evaluation_metrics}
-\begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X}
-\toprule
-\textbf{Funzione Scikit-Learn} & \textbf{Descrizione Operativa} \\
-\midrule
-\texttt{confusion\_matrix} & Matrice di confusione per il conteggio delle predizioni binarie. \\
-\texttt{accuracy\_score} & Proporzione complessiva di predizioni corrette rispetto al totale delle istanze. \\
-\texttt{precision\_score} & Frazione di istanze malevole identificate correttamente rispetto a tutte quelle classificate come tali. \\
-\texttt{recall\_score} & Sensibilità o tasso di veri positivi ($TPR$): frazione di anomalie rilevate rispetto al totale reale. \\
-\texttt{f1\_score} & Media armonica tra Precision e Recall, indicatore sintetico in presenza di sbilanciamento delle classi. \\
-\texttt{roc\_auc\_score} & Area sotto la curva ROC (True Positive Rate vs False Positive Rate) al variare della soglia decisionale. \\
-\texttt{average\_precision\_score} & Area sotto la curva Precision-Recall, pesata sull'incremento della Recall ad ogni soglia. \\
-\bottomrule
-\end{tabularx}
+    \centering
+    \small
+    \caption{Metriche di valutazione delle prestazioni utilizzate per la caratterizzazione dei modelli di apprendimento automatico.}
+    \label{tab:evaluation_metrics}
+    \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X}
+        \toprule
+        \textbf{Funzione Scikit-Learn} & \textbf{Descrizione Operativa} \\
+        \midrule
+        \texttt{confusion\_matrix} & Matrice di confusione per il conteggio delle predizioni binarie. \\
+        \texttt{accuracy\_score} & Proporzione complessiva di predizioni corrette rispetto al totale delle istanze. \\
+        \texttt{precision\_score} & Frazione di istanze malevole identificate correttamente rispetto a tutte quelle classificate come tali. \\
+        \texttt{recall\_score} & Sensibilità o tasso di veri positivi ($TPR$): frazione di anomalie rilevate rispetto al totale reale. \\
+        \texttt{f1\_score} & Media armonica tra Precision e Recall, indicatore sintetico in presenza di sbilanciamento delle classi. \\
+        \texttt{roc\_auc\_score} & Area sotto la curva ROC (True Positive Rate vs False Positive Rate) al variare della soglia decisionale. \\
+        \texttt{average\_precision\_score} & Area sotto la curva Precision-Recall, pesata sull'incremento della Recall ad ogni soglia. \\
+        \bottomrule
+    \end{tabularx}
 \end{table}
 
 La matrice di confusione viene esplicitamente calcolata imponendo l'ordine delle classi \texttt{[0, 1]} e successivamente scomposta nei quattro termini fondamentali:
@@ -1155,46 +1195,47 @@ Ogni record contiene i metadati identificativi della classificazione, il tipo di
 La struttura complessiva del record e la relativa suddivisione funzionale dei campi sono dettagliate nella Tabella~\ref{tab:record_structure}.
 
 \begin{table}[H]
-\centering
-\caption{Tassonomia e suddivisione concettuale dei campi costituenti il record di tracciamento delle prestazioni.}
-\label{tab:record_structure}
-\begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X}
-\toprule
-\textbf{Campo} & \textbf{Descrizione Operativa} \\
-\midrule
-\multicolumn{2}{c}{\textbf{Metadati ed Esecuzione Sperimentale}} \\
-\hline
-\texttt{id} & Identificatore univoco progressivo della singola esecuzione. \\
-\texttt{timestamp} & Marca temporale di completamento della valutazione. \\
-\texttt{model\_name} & Architettura o denominazione del modello di apprendimento valutato. \\
-\texttt{dataset\_type} & Tipologia di partizione o dominio di test utilizzato. \\
-\texttt{classes} & Cardinalità o identificativi delle classi analizzate. \\
-\texttt{samples} & Numero totale di campioni elaborati nella sessione. \\
-\hline
-\multicolumn{2}{c}{\textbf{Conteggi della Matrice di Confusione}} \\
-\hline
-\texttt{TP} & Conteggio dei Veri Positivi (\textit{True Positives}). \\
-\texttt{TN} & Conteggio dei Veri Negativi (\textit{True Negatives}). \\
-\texttt{FP} & Conteggio dei Falsi Positivi (\textit{False Positives}). \\
-\texttt{FN} & Conteggio dei Falsi Negativi (\textit{False Negatives}). \\
-\hline
-\multicolumn{2}{c}{\textbf{Metriche di Prestazione Sintetiche}} \\
-\hline
-\texttt{Accuracy} & Tasso di accuratezza globale sul totale dei campioni. \\
-\texttt{Precision} & Frazione di predizioni positive risultate corrette. \\
-\texttt{Recall} & Sensibilità o tasso di rilevamento delle anomalie. \\
-\texttt{F1-Score} & Media armonica bilanciata tra Precision e Recall. \\
-\texttt{ROC-AUC} & Area sotto la curva \textit{Receiver Operating Characteristic}. \\
-\texttt{PR-AUC} & Area sotto la curva \textit{Precision-Recall} (\textit{Average Precision}). \\
-\hline
-\multicolumn{2}{c}{\textbf{Tassi e Proporzioni Operative}} \\
-\hline
-\texttt{TPR} & \textit{True Positive Rate}, coincidente con la Recall. \\
-\texttt{FNR} & \textit{False Negative Rate}, o tasso di mancato allarme. \\
-\texttt{TNR} & \textit{True Negative Rate}, o specificità del sistema. \\
-\texttt{FPR} & \textit{False Positive Rate}, o tasso di falso allarme. \\
-\bottomrule
-\end{tabularx}
+    \centering
+    \small
+    \caption{Tassonomia e suddivisione concettuale dei campi costituenti il record di tracciamento delle prestazioni.}
+    \label{tab:record_structure}
+    \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X}
+        \toprule
+        \textbf{Campo} & \textbf{Descrizione Operativa} \\
+        \midrule
+        \multicolumn{2}{c}{\textbf{Metadati ed Esecuzione Sperimentale}} \\
+        \hline
+        \texttt{id} & Identificatore univoco progressivo della singola esecuzione. \\
+        \texttt{timestamp} & Marca temporale di completamento della valutazione. \\
+        \texttt{model\_name} & Architettura o denominazione del modello di apprendimento valutato. \\
+        \texttt{dataset\_type} & Tipologia di partizione o dominio di test utilizzato. \\
+        \texttt{classes} & Cardinalità o identificativi delle classi analizzate. \\
+        \texttt{samples} & Numero totale di campioni elaborati nella sessione. \\
+        \hline
+        \multicolumn{2}{c}{\textbf{Conteggi della Matrice di Confusione}} \\
+        \hline
+        \texttt{TP} & Conteggio dei Veri Positivi (\textit{True Positives}). \\
+        \texttt{TN} & Conteggio dei Veri Negativi (\textit{True Negatives}). \\
+        \texttt{FP} & Conteggio dei Falsi Positivi (\textit{False Positives}). \\
+        \texttt{FN} & Conteggio dei Falsi Negativi (\textit{False Negatives}). \\
+        \hline
+        \multicolumn{2}{c}{\textbf{Metriche di Prestazione Sintetiche}} \\
+        \hline
+        \texttt{Accuracy} & Tasso di accuratezza globale sul totale dei campioni. \\
+        \texttt{Precision} & Frazione di predizioni positive risultate corrette. \\
+        \texttt{Recall} & Sensibilità o tasso di rilevamento delle anomalie. \\
+        \texttt{F1-Score} & Media armonica bilanciata tra Precision e Recall. \\
+        \texttt{ROC-AUC} & Area sotto la curva \textit{Receiver Operating Characteristic}. \\
+        \texttt{PR-AUC} & Area sotto la curva \textit{Precision-Recall} (\textit{Average Precision}). \\
+        \hline
+        \multicolumn{2}{c}{\textbf{Tassi e Proporzioni Operative}} \\
+        \hline
+        \texttt{TPR} & \textit{True Positive Rate}, coincidente con la Recall. \\
+        \texttt{FNR} & \textit{False Negative Rate}, o tasso di mancato allarme. \\
+        \texttt{TNR} & \textit{True Negative Rate}, o specificità del sistema. \\
+        \texttt{FPR} & \textit{False Positive Rate}, o tasso di falso allarme. \\
+        \bottomrule
+    \end{tabularx}
 \end{table}
 
 La persistenza viene effettuata mediante \texttt{update\_or\_append\_csv()}, che individua un'eventuale voce preesistente sulla base delle chiavi di corrispondenza (\texttt{model\_name}, \texttt{dataset\_type} e \texttt{classes}) e, in caso contrario, assegna un identificatore al nuovo record. 
@@ -1323,26 +1364,27 @@ con una sottocartella dedicata alla metrica considerata. Per ciascuna metrica ve
 La struttura organizzativa e la composizione tabellare dei file CSV generati per rappresentare le matrici aggregate di media ($\overline{h}_{ij}$) e varianza ($\sigma^2_{ij}$) sono descritte nella Tabella~\ref{tab:aggregated_metrics_csv_structure}.
 
 \begin{table}[H]
-\centering
-\caption{Struttura e descrizione dei campi costituenti i file CSV per le matrici delle metriche individuali e aggregate ($M \times D$).}
-\label{tab:aggregated_metrics_csv_structure}
-\begin{tabularx}{\textwidth}{l l >{\raggedright\arraybackslash}X}
-\toprule
-\textbf{Colonna} & \textbf{Tipo Dati} & \textbf{Descrizione Operativa} \\
-\midrule
-\texttt{model\_label} & Stringa & Architettura o denominazione del modello valutato ($i$-esima riga della matrice). \\
-\addlinespace
-\texttt{<dataset\_1>} & Float & Valore (puntuale, medio $\overline{h}_{ij}$ o varianza $\sigma^2_{ij}$) della metrica sul primo dataset. \\
-\addlinespace
-\texttt{<dataset\_2>} & Float & Valore (puntuale, medio $\overline{h}_{ij}$ o varianza $\sigma^2_{ij}$) della metrica sul secondo dataset. \\
-\addlinespace
-\dots & \dots & Valori associati ai restanti dataset di valutazione di test $j \in \{1, \dots, D\}$. \\
-\addlinespace
-\texttt{<dataset\_D>} & Float & Valore (puntuale, medio $\overline{h}_{ij}$ o varianza $\sigma^2_{ij}$) della metrica sull'ultimo dataset. \\
-\addlinespace
-\texttt{Average} & Float & Media complessiva della metrica calcolata per la riga del modello su tutti i $D$ dataset. \\
-\bottomrule
-\end{tabularx}
+    \centering
+    \small
+    \caption{Struttura e descrizione dei campi costituenti i file CSV per le matrici delle metriche individuali e aggregate ($M \times D$).}
+    \label{tab:aggregated_metrics_csv_structure}
+    \begin{tabularx}{\textwidth}{l l >{\raggedright\arraybackslash}X}
+        \toprule
+        \textbf{Colonna} & \textbf{Tipo Dati} & \textbf{Descrizione Operativa} \\
+        \midrule
+        \texttt{model\_label} & Stringa & Architettura o denominazione del modello valutato ($i$-esima riga della matrice). \\
+        \addlinespace
+        \texttt{<dataset\_1>} & Float & Valore (puntuale, medio $\overline{h}_{ij}$ o varianza $\sigma^2_{ij}$) della metrica sul primo dataset. \\
+        \addlinespace
+        \texttt{<dataset\_2>} & Float & Valore (puntuale, medio $\overline{h}_{ij}$ o varianza $\sigma^2_{ij}$) della metrica sul secondo dataset. \\
+        \addlinespace
+        \dots & \dots & Valori associati ai restanti dataset di valutazione di test $j \in \{1, \dots, D\}$. \\
+        \addlinespace
+        \texttt{<dataset\_D>} & Float & Valore (puntuale, medio $\overline{h}_{ij}$ o varianza $\sigma^2_{ij}$) della metrica sull'ultimo dataset. \\
+        \addlinespace
+        \texttt{Average} & Float & Media complessiva della metrica calcolata per la riga del modello su tutti i $D$ dataset. \\
+        \bottomrule
+    \end{tabularx}
 \end{table}
 
 La separazione tra risultati per singolo seed e risultati aggregati consente pertanto di mantenere distinti due livelli di organizzazione implementativa: il primo conserva integralmente la configurazione associata a ciascuna realizzazione stocastica, mentre il secondo sintetizza le osservazioni relative alla stessa coppia modello--dataset lungo l'insieme dei seed. 
@@ -1552,21 +1594,22 @@ I risultati vengono infine serializzati mediante la funzione \texttt{create\_csv
 La struttura complessiva del registro finale e la descrizione semantica dei singoli campi sono dettagliate nella Tabella~\ref{tab:welch_csv_structure}. Tale schematizzazione consente di associare univocamente ogni confronto alla configurazione di riferimento, al modello sottoposto a verifica e ai parametri descrittivi restituiti dal test.
 
 \begin{table}[H]
-\centering
-\caption{Struttura e descrizione semantica dei campi costituenti il file di registro statistico \texttt{welch\_ttest}.}
-\label{tab:welch_csv_structure}
-\begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X}
-\toprule
-\textbf{Campo} & \textbf{Descrizione Operativa} \\
-\midrule
-\texttt{Reference\_Model} & Denominazione del modello di riferimento assunto come baseline (variante \textit{INJECTION}). \\
-\texttt{Compared\_Model} & Denominazione del modello di confronto sottoposto a verifica statistica. \\
-\texttt{t\_statistic} & Valore numerico della statistica $t$ di Welch calcolato tra i campioni di \textit{F1-Score}. \\
-\texttt{p\_value} & Probabilità osservata di ottenere un valore uguale o più estremo sotto l'ipotesi nulla $H_0$. \\
-\texttt{alpha} & Livello di significatività stabilito \textit{a priori} per la decisione statistica ($\bf{\alpha = 0{,}05}$). \\
-\texttt{is\_significant} & Indicatore booleano dell'esito della verifica (\texttt{True} se $p < \alpha$, \texttt{False} altrimenti). \\
-\bottomrule
-\end{tabularx}
+    \centering
+    \small
+    \caption{Struttura e descrizione semantica dei campi costituenti il file di registro statistico \texttt{welch\_ttest}.}
+    \label{tab:welch_csv_structure}
+    \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X}
+        \toprule
+        \textbf{Campo} & \textbf{Descrizione Operativa} \\
+        \midrule
+        \texttt{Reference\_Model} & Denominazione del modello di riferimento assunto come baseline (variante \textit{INJECTION}). \\
+        \texttt{Compared\_Model} & Denominazione del modello di confronto sottoposto a verifica statistica. \\
+        \texttt{t\_statistic} & Valore numerico della statistica $t$ di Welch calcolato tra i campioni di \textit{F1-Score}. \\
+        \texttt{p\_value} & Probabilità osservata di ottenere un valore uguale o più estremo sotto l'ipotesi nulla $H_0$. \\
+        \texttt{alpha} & Livello di significatività stabilito \textit{a priori} per la decisione statistica ($\bf{\alpha = 0{,}05}$). \\
+        \texttt{is\_significant} & Indicatore booleano dell'esito della verifica (\texttt{True} se $p < \alpha$, \texttt{False} altrimenti). \\
+        \bottomrule
+    \end{tabularx}
 \end{table}
 
 In tal modo, la pipeline mantiene formalmente separati il livello di aggregazione delle prestazioni sui singoli seed, memorizzato in \texttt{F1-Score\_means.csv}, e il livello di diagnostica statistica inferenziale, rappresentato da \texttt{welch\_ttest.csv}.
@@ -1591,20 +1634,21 @@ Infine, la Sottosezione~\ref{subsec:pipeline_shap_kde} illustra il raccordo tra 
 La Tabella~\ref{tab:confronto_strumenti_diagnostici} sintetizza le caratteristiche operative, lo spazio di input e i moduli software associati a ciascuno degli strumenti considerati.
 
 \begin{table}[H]
-\centering
-\caption{Confronto sinottico tra gli strumenti diagnostici (PCA, KDE) e di spiegabilità (TreeSHAP) integrati nell'architettura software.}
-\label{tab:confronto_strumenti_diagnostici}
-\begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
-\toprule
-\textbf{Strumento} & \textbf{Obiettivo} & \textbf{Spazio Input} & \textbf{Interpretabilità} \\
-\midrule
-\textbf{PCA} & Ispezione geometrica della separabilità globale e variabilità nello spazio 2D & Scalato (Z-Score ancorato al benchmark sorgente $S$) & Globale (riduzione dimensionale per componenti principali) \\
-\addlinespace
-\textbf{KDE} & Analisi densometrica univariata del \textit{domain shift} sulle feature chiave & Scalato (Z-Score ancorato sulle Top-3 feature di $S$) & Distribuzionale (stima della densità per classe in scala \texttt{symlog}) \\
-\addlinespace
-\textbf{TreeSHAP} & Spiegabilità post-hoc del contributo delle feature alle predizioni dei classificatori & Originale (matrice delle caratteristiche del test set $X_{\mathrm{test}}$) & Locale e Aggregata (valori di Shapley e \textit{summary plot}) \\
-\bottomrule
-\end{tabularx}
+    \centering
+    \small
+    \caption{Confronto sinottico tra gli strumenti diagnostici (PCA, KDE) e di spiegabilità (TreeSHAP) integrati nell'architettura software.}
+    \label{tab:confronto_strumenti_diagnostici}
+    \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+        \toprule
+        \textbf{Strumento} & \textbf{Obiettivo} & \textbf{Spazio Input} & \textbf{Interpretabilità} \\
+        \midrule
+        \textbf{PCA} & Ispezione geometrica della separabilità globale e variabilità nello spazio 2D & Scalato (Z-Score ancorato al benchmark sorgente $S$) & Globale (riduzione dimensionale per componenti principali) \\
+        \addlinespace
+        \textbf{KDE} & Analisi densometrica univariata del \textit{domain shift} sulle feature chiave & Scalato (Z-Score ancorato sulle Top-3 feature di $S$) & Distribuzionale (stima della densità per classe in scala \texttt{symlog}) \\
+        \addlinespace
+        \textbf{TreeSHAP} & Spiegabilità post-hoc del contributo delle feature alle predizioni dei classificatori & Originale (matrice delle caratteristiche del test set $X_{\mathrm{test}}$) & Locale e Aggregata (valori di Shapley e \textit{summary plot}) \\
+        \bottomrule
+    \end{tabularx}
 \end{table}
 
 
@@ -1716,7 +1760,7 @@ Successivamente, tali parametri congelati vengono applicati per via diretta sia 
 La procedura \texttt{save\_all\_pca\_plots()} carica ciascun benchmark indicato nel file di configurazione ed estrae preliminarmente il sottoinsieme associato alla partizione \texttt{test}, identificata tramite la colonna \texttt{split\_type}. 
 Dalla matrice delle caratteristiche vengono rimosse le colonne \texttt{label}, \texttt{class} e \texttt{split\_type}, mentre la variabile \texttt{label} viene conservata separatamente per la successiva caratterizzazione delle classi nel grafico.
 
-Per realizzare la standardizzazione diagnostica viene istanziato uno \texttt{StandardScaler} di \texttt{scikit-learn}. 
+Per realizzare la standardizzazione diagnostica viene istanziato uno \texttt{StandardScaler} di \newline \texttt{scikit-learn}. 
 Nel caso della PCA, il modello di scaling viene \textbf{adattato esclusivamente al sottoinsieme \texttt{test} del benchmark sorgente}. 
 Indicando con $\mathbf{X}_{S,\mathrm{test}}$ tale matrice, l'operazione di adattamento dello standardizzatore e della PCA è seguita dall'applicazione dei medesimi trasformatori ai benchmark considerati, senza eseguire nuovi adattamenti locali.
 
@@ -1817,43 +1861,44 @@ A completamento dell'analisi implementativa, la Tabella~\ref{tab:confronto_pca_k
 Sebbene entrambe le funzioni condividano la medesima filosofia di standardizzazione ancorata al benchmark sorgente $S$, esse operano su granularità differenti: la PCA offre una vista spazio-geometrica ad ampio spettro sull'intero set di caratteristiche, mentre la KDE consente un'ispezione analitica e mirata sul comportamento distributivo delle singole variabili a più alto impatto decisionale.
 
 \begin{table}[H]
-\centering
-\caption{Confronto sinottico tra le procedure diagnostiche di proiezione PCA e stima della densità KDE nel modulo \texttt{plotting}.}
-\label{tab:confronto_pca_kde}
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{4cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
-\toprule
-\textbf{Dimensione di} & \textbf{Procedura} & \textbf{Procedura} \\[-5pt]
-\textbf{Confronto} & \textbf{\texttt{save\_all\_pca\_plots()}} & \textbf{\texttt{save\_all\_kde\_plots()}} \\
-\midrule
-\textbf{Obiettivo Diagnostico} & 
-Ispezione geometrica della separabilità globale e variabilità nello spazio 2D & 
-Analisi densometrica univariata del \textit{domain shift} sulle feature chiave \\
-\addlinespace
-\textbf{Partizione Input} & 
-Filtraggio esplicito della sola partizione di \texttt{test} & 
-Dataset completo senza filtraggio sulla colonna \texttt{split\_type} \\
-\addlinespace
-\textbf{Feature Considerate} & 
-Tutto lo spazio vettoriale (escluse colonne target e meta-dati) & 
-Sottoinsieme ridotto Top-3 SHAP (\texttt{pkts\_per\_sec}, \texttt{total\_bytes}, \texttt{dst\_win\_byt}) \\
-\addlinespace
-\textbf{Ancoraggio Statistico} & 
-Fit di \texttt{StandardScaler} e \texttt{PCA(n\_components=2)} su $\mathbf{X}_{S,\mathrm{test}}$ & 
-Fit di \texttt{StandardScaler} sulle sole 3 feature del sorgente $S$ \\
-\addlinespace
-\textbf{Trasformazione Target} & 
-Applica \texttt{scaler.transform()} e \texttt{pca.transform()} congelati & 
-Mappatura vettoriale ancorata: $Z_D = (X_D - \mu_S)/(\sigma_S + \epsilon)$ \\
-\addlinespace
-\textbf{Spazio di Rappresentazione} & 
-Spazio proiettato bidimensionale (PC1 vs PC2) con \% varianza spiegata & 
-Asse orizzontale in Z-Score adimensionale; asse verticale in scala \texttt{symlog} \\
-\addlinespace
-\textbf{Output Grafico} & 
-Scatter plot 2D con distinzione cromatica binaria per classe & 
-Pannelli affiancati di stime KDE riempite (\texttt{fill=True}) \\
-\bottomrule
-\end{tabularx}
+    \centering
+    \small
+    \caption{Confronto sinottico tra le procedure diagnostiche di proiezione PCA e stima della densità KDE nel modulo \texttt{plotting}.}
+    \label{tab:confronto_pca_kde}
+    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{4cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+        \toprule
+        \textbf{Dimensione di} & \textbf{Procedura} & \textbf{Procedura} \\[-5pt]
+        \textbf{Confronto} & \textbf{\texttt{save\_all\_pca\_plots()}} & \textbf{\texttt{save\_all\_kde\_plots()}} \\
+        \midrule
+        \textbf{Obiettivo Diagnostico} & 
+        Ispezione geometrica della separabilità globale e variabilità nello spazio 2D & 
+        Analisi densometrica univariata del \textit{domain shift} sulle feature chiave \\
+        \addlinespace
+        \textbf{Partizione Input} & 
+        Filtraggio esplicito della sola partizione di \texttt{test} & 
+        Dataset completo senza filtraggio sulla colonna \texttt{split\_type} \\
+        \addlinespace
+        \textbf{Feature Considerate} & 
+        Tutto lo spazio vettoriale (escluse colonne target e meta-dati) & 
+        Sottoinsieme ridotto Top-3 SHAP (\texttt{pkts\_per\_sec}, \texttt{total\_bytes}, \texttt{dst\_win\_byt}) \\
+        \addlinespace
+        \textbf{Ancoraggio Statistico} & 
+        Fit di \texttt{StandardScaler} e \texttt{PCA(n\_components=2)} su $\mathbf{X}_{S,\mathrm{test}}$ & 
+        Fit di \texttt{StandardScaler} sulle sole 3 feature del sorgente $S$ \\
+        \addlinespace
+        \textbf{Trasformazione Target} & 
+        Applica \texttt{scaler.transform()} e \texttt{pca.transform()} congelati & 
+        Mappatura vettoriale ancorata: $Z_D = (X_D - \mu_S)/(\sigma_S + \epsilon)$ \\
+        \addlinespace
+        \textbf{Spazio di Rappresentazione} & 
+        Spazio proiettato bidimensionale (PC1 vs PC2) con \% varianza spiegata & 
+        Asse orizzontale in Z-Score adimensionale; asse verticale in scala \texttt{symlog} \\
+        \addlinespace
+        \textbf{Output Grafico} & 
+        Scatter plot 2D con distinzione cromatica binaria per classe & 
+        Pannelli affiancati di stime KDE riempite (\texttt{fill=True}) \\
+        \bottomrule
+    \end{tabularx}
 \end{table}
 
 \subsection{Implementazione di SHAP e TreeSHAP}
@@ -2067,25 +2112,26 @@ La procedura consente pertanto di mantenere separati gli artefatti di spiegabili
 A completamento della descrizione implementativa, la Tabella \ref{tab:shap_config_parameters} sintetizza i parametri principali definiti all'interno del modulo, esplicitando le configurazioni adottate e le rispettive motivazioni ingegneristiche.
 
 \begin{table}[H]
-\centering
-\caption{Sintesi dei parametri di configurazione e delle scelte ingegneristiche della pipeline SHAP.}
-\label{tab:shap_config_parameters}
-\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{6cm} >{\raggedright\arraybackslash}X}
-\toprule
-\textbf{Parametro = Impostazione} & \textbf{Scopo Ingegneristico e Funzionale} \\
-\midrule
-\textbf{\texttt{SHAP\_MAX\_SAMPLES = 500}} & 
-Contenimento del costo computazionale e della complessità temporale $O(N)$ nel calcolo dei valori SHAP. \\
-\textbf{\texttt{NORMAL\_ANOMALY\_RATIO = 10}} & 
-Preservazione del rapporto di sbilanciamento nativo ($\rho = 10:1$) tra la classe nominale e quella anomala. \\
-\textbf{\texttt{feature\_perturbation = "tree\_path\_dependent"}} & 
-Calcolo rapido delle aspettative condizionali lungo i percorsi degli alberi senza dipendenza da un dataset di \textit{background} esplicito. \\
-\textbf{\texttt{plot\_type = "dot"}} & 
-Visualizzazione ad alta densità che mostra simultaneamente ampiezza, verso e dispersione dei contributi di ciascuna caratteristica. \\
-\textbf{\texttt{check\_additivity = False}} & 
-Prevenzione dell'interruzione della pipeline causata da microscopiche discrepanze numeriche di precisione in virgola mobile (\textit{floating-point}). \\
-\bottomrule
-\end{tabularx}
+    \centering
+    \small
+    \caption{Sintesi dei parametri di configurazione e delle scelte ingegneristiche della pipeline SHAP.}
+    \label{tab:shap_config_parameters}
+    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{6cm} >{\raggedright\arraybackslash}X}
+        \toprule
+        \textbf{Parametro = Impostazione} & \textbf{Scopo Ingegneristico e Funzionale} \\
+        \midrule
+        \textbf{\texttt{SHAP\_MAX\_SAMPLES = 500}} & 
+        Contenimento del costo computazionale e della complessità temporale $O(N)$ nel calcolo dei valori SHAP. \\
+        \textbf{\texttt{NORMAL\_ANOMALY\_RATIO = 10}} & 
+        Preservazione del rapporto di sbilanciamento nativo ($\rho = 10:1$) tra la classe nominale e quella anomala. \\
+        \textbf{\texttt{feature\_perturbation = "tree\_path\_dependent"}} & 
+        Calcolo rapido delle aspettative condizionali lungo i percorsi degli alberi senza dipendenza da un dataset di \textit{background} esplicito. \\
+        \textbf{\texttt{plot\_type = "dot"}} & 
+        Visualizzazione ad alta densità che mostra simultaneamente ampiezza, verso e dispersione dei contributi di ciascuna caratteristica. \\
+        \textbf{\texttt{check\_additivity = False}} & 
+        Prevenzione dell'interruzione della pipeline causata da microscopiche discrepanze numeriche di precisione in virgola mobile (\textit{floating-point}). \\
+        \bottomrule
+    \end{tabularx}
 \end{table}
 
 Nel complesso, l'implementazione realizza una pipeline di spiegabilità indipendente dalla fase di addestramento: il modello già addestrato viene utilizzato come input per \texttt{TreeExplainer} o, quando necessario, per l'explainer generico di \texttt{shap}, mentre le spiegazioni vengono calcolate su un campione controllato del test set. 
@@ -2194,6 +2240,7 @@ I risultati del conteggio empirico effettuato sulle spiegazioni diagnostiche son
 
 \begin{table}[H]
     \centering
+    \small
     \caption{Distribuzione delle frequenze di occorrenza $C_j$ delle caratteristiche registrate nelle prime tre posizioni dei grafici SHAP.}
     \label{tab:shap_feature_frequencies}
     \begin{tabular}{l c r}
@@ -2234,62 +2281,64 @@ La Tabella~\ref{tab:architettura_software_e2e} riassume la mappa dei moduli Pyth
 \newpage
  
 \begin{table}[H]
-\centering
-\caption{Riepilogo dell'architettura software end-to-end.}
-\label{tab:architettura_software_e2e}
-\resizebox{\textwidth}{!}{
-\begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
-\toprule
-\textbf{File Sorgente} & \textbf{Responsabilità Principale} & \textbf{Input / Output} \\
-\midrule
-\multicolumn{3}{c}{\textbf{Punto di Ingresso}} \\
-\hline
-main.py & Gestione CLI interattiva e orchestrazione del ciclo esecutivo multi-seed ($s_0$ e $\mathcal{S}$). & \textbf{In:} Comandi CLI, parametri \newline \textbf{Out:} Trigger pipeline esecutive \\
-\hline
-\multicolumn{3}{c}{\textbf{Allineamento Feature}} \\
-\hline
-src/data\_preprocessing.py & Mappatura $\boldsymbol{\psi}_k$, derivazione metriche e allineamento allo spazio coordinato ($d=16$). & \textbf{In:} Dataframe parziali \newline \textbf{Out:} Dataframe coordinati (16 feature) \\
-\hline
-\multicolumn{3}{c}{\textbf{Core Preprocessing}} \\
-\hline
-src/file\_preprocessing.py & Pulizia, campionamento stratificato ($\rho=10$), bilanciamento e split 80/20 train/test. & \textbf{In:} Dataframe coordinati \newline \textbf{Out:} Benchmark (\texttt{data/preprocessed/}) \\
-\hline
-\multicolumn{3}{c}{\textbf{Gestione Modelli}} \\
-\hline
-src/models.py & Istanziazione, fitting dei classificatori (DT, RF, HGB), naming e serializzazione pesi. & \textbf{In:} Dataset pre-processati \newline \textbf{Out:} Pesi \texttt{.joblib}, update \texttt{models\_metadata.csv} \\
-\hline
-\multicolumn{3}{c}{\textbf{Inferenza \& Valutazione}} \\
-\hline
-src/classification.py & Inferenza sui test set, generazione matrici di confusione e calcolo metriche. & \textbf{In:} Modelli \texttt{.joblib} e test set \newline \textbf{Out:} CSV risultati in \texttt{runs/.../results/} \\
-\end{tabularx}
-}
+    \centering
+    \small
+    \caption{Riepilogo dell'architettura software end-to-end.}
+    \label{tab:architettura_software_e2e}
+    \resizebox{\textwidth}{!}{
+    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{4cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+        \toprule
+        \textbf{File Sorgente} & \textbf{Responsabilità Principale} & \textbf{Input / Output} \\
+        \midrule
+        \multicolumn{3}{c}{\textbf{Punto di Ingresso}} \\
+        \hline
+        main.py & Gestione CLI interattiva e orchestrazione del ciclo esecutivo multi-seed ($s_0$ e $\mathcal{S}$). & \textbf{In:} Comandi CLI, parametri \newline \textbf{Out:} Trigger pipeline esecutive \\
+        \hline
+        \multicolumn{3}{c}{\textbf{Allineamento Feature}} \\
+        \hline
+        src/data\_preprocessing.py & Mappatura $\boldsymbol{\psi}_k$, derivazione metriche e allineamento allo spazio coordinato ($d=16$). & \textbf{In:} Dataframe parziali \newline \textbf{Out:} Dataframe coordinati (16 feature) \\
+        \hline
+        \multicolumn{3}{c}{\textbf{Core Preprocessing}} \\
+        \hline
+        src/file\_preprocessing.py & Pulizia, campionamento stratificato ($\rho=10$), bilanciamento e split 80/20 train/test. & \textbf{In:} Dataframe coordinati \newline \textbf{Out:} Benchmark (\texttt{data/preprocessed/}) \\
+        \hline
+        \multicolumn{3}{c}{\textbf{Gestione Modelli}} \\
+        \hline
+        src/models.py & Istanziazione, fitting dei classificatori (DT, RF, HGB), naming e serializzazione pesi. & \textbf{In:} Dataset pre-processati \newline \textbf{Out:} Pesi \texttt{.joblib}, update \texttt{models\_metadata.csv} \\
+        \hline
+        \multicolumn{3}{c}{\textbf{Inferenza \& Valutazione}} \\
+        \hline
+        src/classification.py & Inferenza sui test set, generazione matrici di confusione e calcolo metriche. & \textbf{In:} Modelli \texttt{.joblib} e test set \newline \textbf{Out:} CSV risultati in \texttt{runs/.../results/} \\
+        \hline
+        \multicolumn{3}{c}{\textbf{Diagnostica \& Visualizzazione}} \\
+        \hline
+        src/plotting.py & Mappe di calore, diagnostica spaziale (PCA, KDE con \texttt{StandardScaler}) e XAI (TreeSHAP). & \textbf{In:} Matrici, log e dataset \newline \textbf{Out:} Grafici e diagrammi (PNG/PDF) \\
+        \hline
+        \multicolumn{3}{c}{\textbf{Configurazione}} \\
+        \hline
+        src/utils/config.py & Centralizzazione costanti (\texttt{MLConstants}, $\rho=10$, semi stocastici, path). & \textbf{In:} N.D. \newline \textbf{Out:} Parametri globali di runtime \\
+    \end{tabularx}
+    }
 \end{table}
  
 \newpage
  
 \begin{table}[H]
-\centering
-\resizebox{\textwidth}{!}{
-\begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
-\hline
-\multicolumn{3}{c}{\textbf{Diagnostica \& Visualizzazione}} \\
-\hline
-src/plotting.py & Mappe di calore, diagnostica spaziale (PCA, KDE con \texttt{StandardScaler}) e XAI (TreeSHAP). & \textbf{In:} Matrici, log e dataset \newline \textbf{Out:} Grafici e diagrammi (PNG/PDF) \\
-\hline
-\multicolumn{3}{c}{\textbf{Configurazione}} \\
-\hline
-src/utils/config.py & Centralizzazione costanti (\texttt{MLConstants}, $\rho=10$, semi stocastici, path). & \textbf{In:} N.D. \newline \textbf{Out:} Parametri globali di runtime \\
-\hline
-\multicolumn{3}{c}{\textbf{I/O \& Persistenza}} \\
-\hline
-src/utils/file\_utils.py & Gestione I/O su disco, salvataggio/caricamento sicuro di artefatti e registri CSV. & \textbf{In:} Oggetti Python, file dati \newline \textbf{Out:} Persistenza strutturata su disco \\
-\hline
-\multicolumn{3}{c}{\textbf{Metriche Spiegabili}} \\
-\hline
-src/utils/metrics.py & Formalizzazione e calcolo sintetico delle metriche (Accuracy, F1, ROC-AUC, ecc.). & \textbf{In:} Vettori etichette $y$ e $\hat{y}$ \newline \textbf{Out:} Dizionari/Dataframe di metriche \\
-\bottomrule
-\end{tabularx}
-}
+    \centering
+    \small
+    \resizebox{\textwidth}{!}{
+    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{4cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+        \hline
+        \multicolumn{3}{c}{\textbf{I/O \& Persistenza}} \\
+        \hline
+        src/utils/file\_utils.py & Gestione I/O su disco, salvataggio/caricamento sicuro di artefatti e registri CSV. & \textbf{In:} Oggetti Python, file dati \newline \textbf{Out:} Persistenza strutturata su disco \\
+        \hline
+        \multicolumn{3}{c}{\textbf{Metriche Spiegabili}} \\
+        \hline
+        src/utils/metrics.py & Formalizzazione e calcolo sintetico delle metriche (Accuracy, F1, ROC-AUC, ecc.). & \textbf{In:} Vettori etichette $y$ e $\hat{y}$ \newline \textbf{Out:} Dizionari/Dataframe di metriche \\
+        \bottomrule
+    \end{tabularx}
+    }
 \end{table}
  
 Il processo ha origine dai domini sorgente e target, i cui dati vengono sottoposti alle procedure di filtraggio e allineamento descritte nella Sezione~\ref{sec:preprocessing_implementazione}.

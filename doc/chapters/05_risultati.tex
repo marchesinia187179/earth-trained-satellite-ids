@@ -186,12 +186,13 @@ I valori descrivono le popolazioni di classe originarie dalle quali sono costrui
 
 \begin{table}[H]
     \centering
+    \small
     \caption{Statistiche descrittive delle tre feature KDE per il traffico nominale sorgente e per le componenti malevole di \texttt{NB15}, \texttt{INJECTION} e \texttt{NB15\_STIN}.}
     \label{tab:kde_feature_statistics}
     \resizebox{\textwidth}{!}{
     \begin{tabular}{llcccccc}
         \toprule
-        & & \multicolumn{2}{c}{\texttt{pkts\_per\_sec}} & \multicolumn{2}{c}{\texttt{total\_bytes}} & \multicolumn{2}{c}{\texttt{dst\_win\_byt}} \\
+        & & \multicolumn{2}{c}{\textbf{\texttt{pkts\_per\_sec}}} & \multicolumn{2}{c}{\textbf{\texttt{total\_bytes}}} & \multicolumn{2}{c}{\textbf{\texttt{dst\_win\_byt}}} \\
         \cmidrule(lr){3-4} \cmidrule(lr){5-6} \cmidrule(lr){7-8}
         \textbf{Configurazione} & \textbf{Componente} & $\boldsymbol{\mu}$ & $\boldsymbol{\sigma^{2}}$ & $\boldsymbol{\mu}$ & $\boldsymbol{\sigma^{2}}$ & $\boldsymbol{\mu}$ & $\boldsymbol{\sigma^{2}}$ \\
         \midrule
@@ -337,6 +338,7 @@ La Tabella~\ref{tab:baseline_rates_seed42} riporta Precision, TPR e TNR per l'in
 
 \begin{table}[H]
     \centering
+    \small
     \caption{Precision, TPR e TNR della baseline \texttt{INJECTION} con DT, HGB e RF sui $16$ test set per il seed $s=42$.}
     \label{tab:baseline_rates_seed42}
     \resizebox{\textwidth}{!}{
@@ -504,6 +506,7 @@ Tabella~\ref{tab:baseline_shap_top5}.
 
 \begin{table}[H]
     \centering
+    \small
     \caption{Prime cinque feature nella graduatoria SHAP della baseline \texttt{INJECTION} per DT, HGB e RF al seed $s=42$.}
     \label{tab:baseline_shap_top5}
     \begin{tabular}{c|lll}
@@ -566,9 +569,9 @@ La Tabella~\ref{tab:sorgente_matched_seed42} riporta TPR, TNR e F1-Score ottenut
 
 \begin{table}[H]
     \centering
+    \small
     \caption{Prestazioni dei modelli sorgente sui rispettivi test set omologhi per il seed $s=42$.} \label{tab:sorgente_matched_seed42}
-    \resizebox{\textwidth}{!}{
-    \begin{tabular}{lccc|ccc|ccc}
+    \begin{tabularx}{\textwidth}{l >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X | >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X | >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X}
         \toprule
         & \multicolumn{3}{c|}{\textbf{DT}} & \multicolumn{3}{c|}{\textbf{HGB}} & \multicolumn{3}{c}{\textbf{RF}} \\
         \textbf{Modello Sorgente} & \textbf{TPR} & \textbf{TNR} & \textbf{F1} & \textbf{TPR} & \textbf{TNR} & \textbf{F1} & \textbf{TPR} & \textbf{TNR} & \textbf{F1} \\
@@ -580,8 +583,7 @@ La Tabella~\ref{tab:sorgente_matched_seed42} riporta TPR, TNR e F1-Score ottenut
         Generic & 0.9876 & 0.9995 & 0.9914 & 0.9882 & 0.9997 & 0.9924 & 0.9866 & 0.9997 & 0.9916 \\
         Reconnaissance & 0.9414 & 0.9954 & 0.9473 & 0.9425 & 0.9956 & 0.9488 & 0.9409 & 0.9960 & 0.9501 \\
         \bottomrule
-    \end{tabular}
-    }
+    \end{tabularx}
 \end{table}
 
 La difficoltà di classificazione varia sensibilmente tra le famiglie sorgente. 
@@ -670,12 +672,12 @@ La Tabella~\ref{tab:source_vs_base_summary_tpr} sintetizza il confronto separand
 
 \begin{table}[H]
     \centering
+    \small
     \caption{Confronto multi-seed tra modello aggregato sorgente e baseline. Le differenze $\Delta$ sono calcolate come baseline meno modello sorgente.}
     \label{tab:source_vs_base_summary_tpr}
-    \resizebox{\textwidth}{!}{
-    \begin{tabular}{cccc|ccc|cc}
+    \begin{tabular}{lccc|ccc|cc}
         \toprule
-        & \multicolumn{3}{c|}{\textbf{TPR media -- benchmark NB15}} & \multicolumn{3}{c|}{\textbf{TPR media -- benchmark target}} & \multicolumn{2}{c}{\textbf{TNR media}} \\
+        & \multicolumn{3}{c|}{\textbf{TPR media -- (NB15)}} & \multicolumn{3}{c|}{\textbf{TPR media -- (target)}} & \multicolumn{2}{c}{\textbf{TNR media}} \\
         \textbf{Alg.} & $\boldsymbol{\mathcal{M}_{S}}$ & $\boldsymbol{\mathcal{M}_{\mathrm{base}}}$ & $\boldsymbol{\Delta}$ & $\boldsymbol{\mathcal{M}_{S}}$ & $\boldsymbol{\mathcal{M}_{\mathrm{base}}}$ & $\boldsymbol{\Delta}$ & $\boldsymbol{\mathcal{M}_{S}}$ & $\boldsymbol{\mathcal{M}_{\mathrm{base}}}$ \\
         \midrule
         DT & 0.7870 & 0.7860 & $-0.0011$ & 0.3234 & 0.9661 & $+0.6427$ & 0.98317 & 0.98460 \\
@@ -683,7 +685,6 @@ La Tabella~\ref{tab:source_vs_base_summary_tpr} sintetizza il confronto separand
         RF & 0.7833 & 0.7820 & $-0.0013$ & 0.3035 & 0.9882 & $+0.6847$ & 0.99150 & 0.99057 \\
         \bottomrule
     \end{tabular}
-    }
 \end{table}
 
 L'asimmetria tra comportamento sorgente e cross-domain è netta. 
@@ -813,6 +814,7 @@ La Tabella~\ref{tab:sorgente_shap_top5} sintetizza le cinque feature principali 
 
 \begin{table}[H]
     \centering
+    \small
     \caption{Prime cinque feature nella graduatoria SHAP del modello aggregato sorgente \texttt{NB15} per DT, HGB e RF al seed $s=42$.}
     \label{tab:sorgente_shap_top5}
     \begin{tabular}{c|lll}
@@ -1100,9 +1102,9 @@ La Tabella~\ref{tab:hybrid_vs_base_aggregate_delta} sintetizza il confronto mult
 
 \begin{table}[H]
     \centering
+    \small
     \caption{Differenze di TPR e TNR tra i modelli aggregati ibridi e la baseline \texttt{INJECTION}. I valori sono calcolati come modello ibrido meno baseline.}
     \label{tab:hybrid_vs_base_aggregate_delta}
-    \resizebox{\textwidth}{!}{
     \begin{tabular}{lccccc}
         \toprule
         \textbf{Modello Ibrido} & $\boldsymbol{\Delta TPR_{\text{NB15}}}$ & $\boldsymbol{\Delta TPR_{\text{INJ}}}$ & $\boldsymbol{\Delta TPR_{\text{Target}}}$ & $\boldsymbol{\Delta TPR_{16}}$ & $\boldsymbol{\Delta TNR}$ \\
@@ -1126,7 +1128,6 @@ La Tabella~\ref{tab:hybrid_vs_base_aggregate_delta} sintetizza il confronto mult
         \texttt{nb15\_ter20\_aggregate} & $-0.78198$ & $-0.82238$ & $+0.01169$ & $-0.33806$ & $+0.00943$ \\
         \bottomrule
     \end{tabular}
-    }
 \end{table}
 
 Il segno delle differenze evidenzia una netta inversione del vantaggio in funzione del dominio. 
@@ -1259,6 +1260,7 @@ La Tabella~\ref{tab:ibridi_shap_top5} sintetizza le prime cinque feature delle t
 
 \begin{table}[H]
     \centering
+    \small
     \caption[Prime cinque feature nella graduatoria SHAP del modello aggregato ibrido \newline \texttt{NB15\_STIN} per DT, HGB e RF al seed $s=42$.]{Prime cinque feature nella graduatoria SHAP del modello aggregato ibrido \texttt{NB15\_STIN} per DT, HGB e RF al seed $s=42$.}
     \label{tab:ibridi_shap_top5}
     \begin{tabular}{c|lll}
@@ -1415,6 +1417,7 @@ La Tabella~\ref{tab:global_paradigm_comparison} costituisce il riferimento quant
 
 \begin{table}[H]
     \centering
+    \small
     \caption{Quadro comparativo globale dei modelli aggregati sorgente, baseline e ibridi.  Per $\mathcal{M}_{H}$ gli intervalli rappresentano i valori minimo e massimo osservati tra i tre modelli aggregati ibridi.}
     \label{tab:global_paradigm_comparison}
     \resizebox{\textwidth}{!}{
@@ -1660,6 +1663,7 @@ La Tabella~\ref{tab:cap5_classifier_tradeoff} riassume il confronto senza attrib
 
 \begin{table}[H]
     \centering
+    \small
     \caption{Sintesi qualitativa del compromesso tra articolazione del modello e prestazioni osservate nella configurazione \texttt{INJECTION}.}
     \label{tab:cap5_classifier_tradeoff}
     \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
