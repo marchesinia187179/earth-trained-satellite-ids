@@ -111,23 +111,6 @@
 
 
 % ==============================================================================
-% CODICE SORGENTE
-% ==============================================================================
-
-\usepackage{listings}
-
-\lstset{
-    literate=
-        {è}{{\`e}}1
-        {à}{{\`a}}1
-        {ò}{{\`o}}1
-        {ù}{{\`u}}1
-        {ì}{{\`i}}1
-        {É}{{\'E}}1
-}
-
-
-% ==============================================================================
 % ALGORITMI
 % ==============================================================================
 
@@ -163,6 +146,7 @@
 % COLORI
 % ==============================================================================
 
+\usepackage{color}
 \usepackage{xcolor}
 
 % Colori per il codice
@@ -209,21 +193,35 @@
 
 
 % ==============================================================================
+% CODICE SORGENTE
+% ==============================================================================
+
+\usepackage{listings}
+
+\lstset{
+    literate=
+        {è}{{\`e}}1
+        {à}{{\`a}}1
+        {ò}{{\`o}}1
+        {ù}{{\`u}}1
+        {ì}{{\`i}}1
+        {É}{{\'E}}1
+}
+
+% Stili dei listati personalizzati
+\input{listing_styles.tex}
+
+
+% ==============================================================================
 % FORMATTAZIONE TITOLI
 % ==============================================================================
 
 \usepackage{titlesec}
 
 \titleformat{\chapter}[block]
-    {\normalfont\LARGE\bfseries}
-    {\thechapter.}
-    {0.5em}
-    {\LARGE}
+  {\normalfont\LARGE\bfseries}{\thechapter.}{0.5em}{\LARGE}
 
-\titlespacing*{\chapter}
-    {0pt}
-    {-20pt}
-    {25pt}
+\titlespacing*{\chapter}{0pt}{-20pt}{25pt}
 
 
 % ==============================================================================
@@ -357,6 +355,7 @@
 % ==============================================================================
 
 \begin{document}
+\raggedbottom
 
 
 % ==============================================================================
@@ -364,64 +363,35 @@
 % ==============================================================================
 
 \begin{titlepage}
-
     \begin{center}
-
         \includegraphics[width=8cm]{images/unimore/Sigillo2015.png}
-
         \vspace{1cm}
 
-        {\LARGE
-            UNIVERSITÀ DEGLI STUDI DI MODENA\\
-            E REGGIO EMILIA\\
-        }
-
-        {\large
-            Dipartimento di Ingegneria ``Enzo Ferrari''\\
-        }
-
-        {\large
-            Corso di Laurea Triennale in Ingegneria Informatica (L-08)\\
-        }
-
+        {\LARGE{ UNIVERSITÀ DEGLI STUDI DI MODENA\\ E REGGIO EMILIA \\}}
+        {\large{ Dipartimento di Ingegneria ``Enzo Ferrari'' \\}}
+        {\large{ Corso di Laurea Triennale in Ingegneria Informatica (L-08) \\}}
         \vspace{3cm}
-
-        {\Large
-            \textbf{<Titolo dell'Elaborato>}
-        }
-
+        {\Large { \textbf{<Titolo dell'Elaborato>} }}\\
         \vspace{3cm}
-
     \end{center}
 
-
     \begin{minipage}[t]{0.47\textwidth}
-
         {\large\textbf{Relatore:}\\}
-        {\large Prof. Mirco Marchetti\\[5pt]}
-
+        {\large Prof. Mirco Marchetti\\}
+        
         {\large\textbf{Correlatore:}\\}
         {\large Dott. Dimitri Galli}
-
     \end{minipage}
     \hfill
-    \begin{minipage}[t]{0.47\textwidth}
-        \raggedleft
-
+    \begin{minipage}[t]{0.47\textwidth}\raggedleft
         {\large\textbf{Candidato:}\\}
         {\large Alessandro Marchesini\\}
         {\large Matricola 187179}
-
     \end{minipage}
 
-
     \vfill
-
     \hrulefill\\
-
-    \centering
-    {\large\textbf{ANNO ACCADEMICO 2025/2026}}
-
+    \centering{\large\textbf{ANNO ACCADEMICO 2025/2026}}
 \end{titlepage}
 
 
@@ -458,38 +428,23 @@
 
 
 % ------------------------------------------------------------------------------
-% INDICE GENERALE
+% INDICI
 % ------------------------------------------------------------------------------
 
+% Generale
 \tableofcontents
 
-
-% ------------------------------------------------------------------------------
-% ELENCO DELLE FIGURE
-% ------------------------------------------------------------------------------
-
+% Figure
 \renewcommand{\listfigurename}{Elenco delle Figure}
-
 \listoffigures
 
-
-% ------------------------------------------------------------------------------
-% ELENCO DELLE TABELLE
-% ------------------------------------------------------------------------------
-
+% Tabelle
 \renewcommand{\listtablename}{Elenco delle Tabelle}
-
 \listoftables
 
-
-% ------------------------------------------------------------------------------
-% ELENCO DEI CODICI
-% ------------------------------------------------------------------------------
-
+% Codici
 \renewcommand{\lstlistingname}{Codice}
-
 \renewcommand{\lstlistlistingname}{Elenco dei Codici}
-
 \lstlistoflistings
 
 
@@ -506,46 +461,11 @@
 
 \pagestyle{scrplain}
 
-
-% ------------------------------------------------------------------------------
-% CAPITOLO 1 -- INTRODUZIONE
-% ------------------------------------------------------------------------------
-
 \input{chapters/01_introduzione.tex}
-
-
-% ------------------------------------------------------------------------------
-% CAPITOLO 2 -- CONTESTO
-% ------------------------------------------------------------------------------
-
 \input{chapters/02_contesto.tex}
-
-
-% ------------------------------------------------------------------------------
-% CAPITOLO 3 -- METODOLOGIA
-% ------------------------------------------------------------------------------
-
 \input{chapters/03_metodologia.tex}
-
-
-% ------------------------------------------------------------------------------
-% CAPITOLO 4 -- IMPLEMENTAZIONE
-% ------------------------------------------------------------------------------
-
 \input{chapters/04_dimostrazione.tex}
-
-
-% ------------------------------------------------------------------------------
-% CAPITOLO 5 -- RISULTATI
-% ------------------------------------------------------------------------------
-
 \input{chapters/05_risultati.tex}
-
-
-% ------------------------------------------------------------------------------
-% CAPITOLO 6 -- CONCLUSIONI
-% ------------------------------------------------------------------------------
-
 \input{chapters/06_conclusioni.tex}
 
 

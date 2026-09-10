@@ -1,6 +1,13 @@
 \chapter{Dettagli Implementativi e Listati del Framework}
 \label{app:implementazione}
 
+La presente appendice raccoglie i principali dettagli implementativi del framework che, per estensione e livello di granularità, non sono stati riportati integralmente nel Capitolo~\ref{ch:implementazione}.
+L'obiettivo è documentare le componenti software necessarie a completare la descrizione della pipeline sperimentale, preservando nel corpo principale dell'elaborato l'attenzione sulle scelte architetturali, metodologiche e implementative maggiormente rilevanti.
+
+Sono pertanto riportate le routine relative al campionamento e all'istanziazione dei benchmark, alla nomenclatura automatica dei modelli, alla gestione dei casi limite nel calcolo delle metriche, all'esecuzione del test $t$ di Welch e alle componenti ausiliarie della pipeline SHAP.
+I listati costituiscono un'integrazione della trattazione sviluppata nel Capitolo~\ref{ch:implementazione} e ne documentano la trasposizione operativa nel framework software realizzato.
+
+L'organizzazione dell'appendice segue la medesima progressione logica adottata nella descrizione implementativa: preparazione dei benchmark, identificazione dei modelli, valutazione delle prestazioni, verifica statistica e analisi di spiegabilità.
 
 
 \section{Campionamento e Istanziazione dei Benchmark}
@@ -10,26 +17,10 @@ A completamento della procedura di parametrizzazione e istanziazione dei benchma
 
 Il Listato~\ref{lst:correct_normal_anomaly_sampling} implementa la determinazione dinamica delle cardinalità da estrarre in funzione del parametro \texttt{MLConstants.NORMAL\_ANOMALY\_RATIO}, mentre il Listato~\ref{lst:stratified_sampling} riporta la procedura di campionamento che preserva la proporzione tra le partizioni identificate dalla variabile \texttt{split\_type}.
 
-
 \begin{lstlisting}[
-    language=Python,
+    style=python_thesis,
     caption={Routine di campionamento per l'istanziazione dei benchmark.},
-    label={lst:correct_normal_anomaly_sampling},
-    frame=single,
-    rulecolor=\color{mygray},
-    backgroundcolor=\color{backcolour},
-    basicstyle=\ttfamily\footnotesize,
-    commentstyle=\color{mygreen},
-    keywordstyle=\color{purple}\bfseries,
-    stringstyle=\color{mymauve},
-    emph={[2]None,True,False},
-    emphstyle={[2]\color{mymauve}\bfseries},
-    breaklines=false,
-    keepspaces=true,
-    showstringspaces=false,
-    numbers=left,
-    numberstyle=\footnotesize\color{mygray},
-    numbersep=8pt
+    label={lst:correct_normal_anomaly_sampling}
 ]
 def _get_correct_normal_and_anomaly_data_samples(normal_data, anomaly_data, 
                                             normal_samples, anomaly_samples):
@@ -54,26 +45,12 @@ def _get_correct_normal_and_anomaly_data_samples(normal_data, anomaly_data,
     return normal_data_sample, anomaly_data_sample
 \end{lstlisting}
 
+A completamento della procedura di campionamento, il Listato~\ref{lst:stratified_sampling} riporta la routine utilizzata per ripartire le osservazioni tra le partizioni \texttt{train} e \texttt{test}, preservandone la proporzione relativa e gestendo esplicitamente gli eventuali limiti di capienza delle due partizioni.
 
 \begin{lstlisting}[
-    language=Python,
+    style=python_thesis,
     caption={Routine di bilanciamento stratificato per l'istanziazione dei benchmark.},
-    label={lst:stratified_sampling},
-    frame=single,
-    rulecolor=\color{mygray},
-    backgroundcolor=\color{backcolour},
-    basicstyle=\ttfamily\footnotesize,
-    commentstyle=\color{mygreen},
-    keywordstyle=\color{purple}\bfseries,
-    stringstyle=\color{mymauve},
-    emph={[2]None,True,False},
-    emphstyle={[2]\color{mymauve}\bfseries},
-    breaklines=false,
-    keepspaces=true,
-    showstringspaces=false,
-    numbers=left,
-    numberstyle=\footnotesize\color{mygray},
-    numbersep=8pt
+    label={lst:stratified_sampling}
 ]
 def _safe_stratified_sample(data, n_samples):
     # Se la colonna 'split_type' non è presente, 
@@ -134,24 +111,9 @@ Nel caso di una configurazione contenente più di due classi viene generato l'id
 Il Listato~\ref{lst:get_model_name} riporta l'implementazione completa della procedura.
 
 \begin{lstlisting}[
-    language=Python,
+    style=python_thesis,
     caption={Estrazione procedurale dell'etichetta di attacco per la generazione dinamica della nomenclatura del modello.},
-    label={lst:get_model_name},
-    frame=single,
-    rulecolor=\color{mygray},
-    backgroundcolor=\color{backcolour},
-    basicstyle=\ttfamily\footnotesize,
-    commentstyle=\color{mygreen},
-    keywordstyle=\color{purple}\bfseries,
-    stringstyle=\color{mymauve},
-    emph={[2]None,True,False},
-    emphstyle={[2]\color{mymauve}\bfseries},
-    breaklines=false,
-    keepspaces=true,
-    showstringspaces=false,
-    numbers=left,
-    numberstyle=\footnotesize\color{mygray},
-    numbersep=8pt
+    label={lst:get_model_name}
 ]
 def _get_standardized_model_name(dataset_type, unique_classes):
     # Cancella gli spazi bianchi e converte in minuscolo per coerenza
@@ -191,24 +153,9 @@ Il Listato~\ref{lst:calculate_metrics_edge_cases} riporta il frammento
 implementativo completo utilizzato per tale gestione difensiva.
 
 \begin{lstlisting}[
-    language=Python,
+    style=python_thesis,
     caption={Gestione difensiva dei casi limite e calcolo delle metriche in \texttt{calculate\_metrics()}.},
-    label={lst:calculate_metrics_edge_cases},
-    frame=single,
-    rulecolor=\color{mygray},
-    backgroundcolor=\color{backcolour},
-    basicstyle=\ttfamily\footnotesize, % Dimensione proporzionata che evita il wrap delle righe
-    commentstyle=\color{mygreen}, % Commenti in verde corsivo
-    keywordstyle=\color{purple}\bfseries, % Parole chiave (if, else, not) in viola
-    stringstyle=\color{mymauve}, % Stringhe in mauve/rosso
-    emph={[2]None,True,False}, % Evidenziazione valori booleani/nulli
-    emphstyle={[2]\color{mymauve}\bfseries},
-    breaklines=false, % Disattiva l'andata a capo automatica per mantenere la struttura originale
-    keepspaces=true, % Mantiene gli spazi e le rientranze corrette
-    showstringspaces=false,
-    numbers=left, % Opzionale: numeri di riga a sinistra
-    numberstyle=\footnotesize\color{mygray},
-    numbersep=8pt
+    label={lst:calculate_metrics_edge_cases}
 ]
 has_classes = len(np.unique(y_test)) > 1
 # [Controllo di sicurezza sul numero di classi...]
@@ -247,7 +194,7 @@ else:
 
 
 
-\section{Implementazione del Test $t$ di Welch}
+\section{Implementazione del Test t di Welch}
 \label{app:welch_implementation}
 
 A completamento del protocollo inferenziale descritto nella Sottosezione~\ref{subsec:implementazione_welch}, si riporta l'implementazione completa della procedura utilizzata per il confronto statistico tra il modello di riferimento \texttt{INJECTION} e le configurazioni sottoposte a valutazione.
@@ -258,24 +205,9 @@ L'esito viene successivamente classificato rispetto al livello di significativit
 Il Listato~\ref{lst:welch_implementation} riporta l'implementazione completa della procedura.
 
 \begin{lstlisting}[
-    language=Python,
+    style=python_thesis,
     caption={Estrazione dei campioni ed esecuzione del Test $t$ di Welch.},
-    label={lst:welch_implementation},
-    frame=single,
-    rulecolor=\color{mygray},
-    backgroundcolor=\color{backcolour},
-    basicstyle=\ttfamily\footnotesize,
-    commentstyle=\color{mygreen},
-    keywordstyle=\color{purple}\bfseries,
-    stringstyle=\color{mymauve},
-    emph={[2]None,True,False},
-    emphstyle={[2]\color{mymauve}\bfseries},
-    breaklines=false,
-    keepspaces=true,
-    showstringspaces=false,
-    numbers=left,
-    numberstyle=\footnotesize\color{mygray},
-    numbersep=8pt
+    label={lst:welch_implementation}
 ]
 # Estrazione dei valori di F1-Score medi per il modello 
 # di riferimento (INJECTION) su tutti i seed
@@ -311,4 +243,101 @@ for _, row in data.iterrows():
         "alpha": alpha,
         "is_significant": is_significant
     })
+\end{lstlisting}
+
+
+
+\section{Dettagli Implementativi della Pipeline SHAP}
+\label{app:shap_implementation}
+
+A completamento della pipeline di spiegabilità descritta nella Sottosezione~\ref{subsec:implementazione_shap}, si riportano le componenti implementative relative al campionamento controllato del test set e alla successiva normalizzazione della struttura dei valori SHAP restituiti dagli \textit{explainer}.
+
+Il Listato~\ref{lst:shap_sampling} riporta la procedura utilizzata per costruire il campione destinato all'analisi SHAP, preservando le quote assegnate alle classi e prevedendo un campionamento di fallback qualora non risultino disponibili indici validi.
+
+\begin{lstlisting}[
+    style=python_thesis,
+    caption={Campionamento stratificato del test set per l'analisi SHAP.},
+    label={lst:shap_sampling}
+]
+# Allineamento delle etichette con le caratteristiche
+y_series = pd.Series(
+    y_test, index=X_test.index if hasattr(X_test, 'index') else None
+)
+
+# Calcola le quote di campionamento per le due classi
+n_anomaly = MLConstants.SHAP_MAX_SAMPLES // MLConstants.NORMAL_ANOMALY_RATIO
+n_normal = MLConstants.SHAP_MAX_SAMPLES - n_anomaly
+
+# Estrazione degli indici campionati per entrambe le classi, 
+# limitando al numero di istanze disponibili
+idx_normal = pd.Index([])
+if sum(y_series == 0) > 0:
+    idx_normal = y_series[y_series == 0].sample(
+        n=min(n_normal, sum(y_series == 0)), 
+        random_state=MLConstants.MAIN_SEED
+    ).index
+idx_anomaly = pd.Index([])
+if sum(y_series == 1) > 0:
+    idx_anomaly = y_series[y_series == 1].sample(
+        n=min(n_anomaly, sum(y_series == 1)), 
+        random_state=MLConstants.MAIN_SEED
+    ).index
+
+sampled_idx = idx_normal.append(idx_anomaly)
+
+# Filtra il test set originale utilizzando gli indici stratificati
+# (o fallback a un campionamento casuale standard)
+if not sampled_idx.empty:
+    X_test_sampled = X_test.loc[sampled_idx]
+else:
+    X_test_sampled = X_test.sample(
+        n=min(MLConstants.SHAP_MAX_SAMPLES, len(X_test)), 
+        random_state=MLConstants.MAIN_SEED
+    )
+\end{lstlisting}
+
+Successivamente al calcolo dei valori SHAP, l'implementazione gestisce le differenti strutture dati che possono essere restituite dalla libreria, isolando quando necessario la componente associata alla classe positiva e predisponendo la rappresentazione mediante \texttt{shap.summary\_plot()}.
+
+Il Listato~\ref{lst:shap_rendering} riporta la relativa implementazione.
+
+\begin{lstlisting}[
+    style=python_thesis,
+    caption={Calcolo, normalizzazione dimensionale e rendering dei valori SHAP.},
+    label={lst:shap_rendering}
+]
+# Calcolo dei valori SHAP con gestione del controllo di additività
+try:
+    shap_values = explainer.shap_values(
+        X_test_sampled, check_additivity=False
+    )
+except TypeError:
+    shap_values = explainer.shap_values(X_test_sampled)
+
+# Gestire le disparità di output
+if hasattr(shap_values, "values"):
+    shap_values_raw = shap_values.values
+else:
+    shap_values_raw = shap_values
+
+# Estrazione dei valori della classe Anomaly in base alla struttura dei dati
+if isinstance(shap_values_raw, list) and len(shap_values_raw) == 2:
+    shap_values_raw = shap_values_raw[1]
+elif hasattr(shap_values_raw, 'shape') and len(shap_values_raw.shape) == 3:
+    shap_values_raw = shap_values_raw[:, :, 1]
+elif hasattr(shap_values_raw, 'shape') and len(shap_values_raw.shape) == 2:
+    pass
+
+# Genera e configura dinamicamente il grafico
+n_features = X_test_sampled.shape[1]
+plt.figure(figsize=(8, max(6, n_features * 0.4)))
+
+# Forza la visualizzazione "dot" per mostrare 
+# gli impatti individuali delle feature
+shap.summary_plot(
+    shap_values_raw, 
+    X_test_sampled, 
+    show=False, 
+    max_display=n_features, 
+    plot_type="dot"
+)
 \end{lstlisting}

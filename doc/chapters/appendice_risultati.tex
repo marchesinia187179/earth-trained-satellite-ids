@@ -19,6 +19,8 @@ Sono riportate separatamente le cardinalità complete delle matrici di confusion
 
 \subsection{Matrici di Confusione}
 
+La Tabella~\ref{tab:baseline_confusion_seed42} riporta le cardinalità complete delle matrici di confusione ottenute dalla baseline \texttt{INJECTION} con i classificatori DT, HGB e RF sui $16$ test set considerati per il seed $s=42$.
+
 \begin{table}[H]
     \centering
     \caption{Cardinalità complete delle matrici di confusione della baseline \texttt{INJECTION} con DT, HGB e RF sui $16$ test set per il seed $s=42$.}
@@ -51,6 +53,8 @@ Sono riportate separatamente le cardinalità complete delle matrici di confusion
 \end{table}
 
 \subsection{Metriche Complementari}
+
+La Tabella~\ref{tab:baseline_f1_prauc_seed42} completa la caratterizzazione della baseline riportando i valori di \textit{F1-Score} e PR-AUC ottenuti dai tre classificatori sui medesimi $16$ test set per il seed $s=42$.
 
 \begin{table}[H]
     \centering
@@ -101,6 +105,8 @@ I risultati sono organizzati distinguendo le prestazioni sul dominio sorgente, l
 
 \subsection{Prestazioni sul Dominio Sorgente e su INJECTION}
 
+La Tabella~\ref{tab:sorgente_mean_tpr_source_tests} sintetizza la TPR media calcolata sui $10$ seed per i modelli sorgente, considerando le valutazioni effettuate sui benchmark appartenenti al dominio sorgente e sul test set \texttt{INJECTION}.
+
 \begin{table}[H]
     \centering
     \caption{TPR media sui $10$ seed dei modelli sorgente valutati sui benchmark sorgente e sul test set \texttt{INJECTION}.}
@@ -143,6 +149,8 @@ I risultati sono organizzati distinguendo le prestazioni sul dominio sorgente, l
 
 
 \subsection{Prestazioni Cross-Domain}
+
+La Tabella~\ref{tab:sorgente_mean_tpr_target_tests} riporta la TPR media sui $10$ seed ottenuta dai modelli sorgente nella valutazione cross-domain sui benchmark target, distinguendo le configurazioni aggregate da quelle biclasse.
 
 \begin{table}[H]
     \centering
@@ -187,6 +195,8 @@ I risultati sono organizzati distinguendo le prestazioni sul dominio sorgente, l
 
 \subsection{Specificità Multi-Seed}
 
+La Tabella~\ref{tab:sorgente_tnr_multiseed} riporta la media e la varianza della TNR calcolate sui $10$ seed per ciascuna configurazione sorgente e per i tre classificatori considerati.
+
 \begin{table}[H]
     \centering
     \caption{Media e varianza della TNR sui $10$ seed per i modelli sorgente. Il valore è indipendente dal test set malevolo poiché la componente nominale rimane invariata all'interno del protocollo sperimentale.}
@@ -210,6 +220,8 @@ I risultati sono organizzati distinguendo le prestazioni sul dominio sorgente, l
 
 
 \subsection{Confronto Completo con la Baseline INJECTION}
+
+La Tabella~\ref{tab:source_vs_base_target_variance} confronta la media e la varianza della TPR ottenute sui benchmark target aggregati dal modello sorgente aggregato e dalla baseline \texttt{INJECTION}, separatamente per DT, HGB e RF.
 
 \begin{table}[H]
     \centering
@@ -242,6 +254,7 @@ I risultati sono organizzati distinguendo le prestazioni sul dominio sorgente, l
     \end{tabularx}
 \end{table}
 
+A completamento del confronto, la Tabella~\ref{tab:source_vs_base_best_source_delta} quantifica, per ciascun benchmark target, la differenza di TPR tra la baseline \texttt{INJECTION} e il migliore modello sorgente disponibile per ciascun classificatore.
 
 \begin{table}[H]
     \centering
@@ -340,6 +353,8 @@ Sono riportate separatamente le prestazioni sui benchmark target omologhi e i ri
 
 \subsection{Prestazioni sui Benchmark Omologhi}
 
+La Tabella~\ref{tab:ibridi_matched_seed42} riporta i valori di TPR e \textit{F1-Score} ottenuti dai modelli ibridi sui rispettivi benchmark target omologhi per il seed $s=42$.
+
 \begin{table}[H]
     \centering
     \caption{TPR e F1-Score dei modelli ibridi sui rispettivi test set target omologhi per il seed $s=42$.}
@@ -370,6 +385,8 @@ Sono riportate separatamente le prestazioni sui benchmark target omologhi e i ri
 % ==============================================================================
 
 \subsection{Cross-Evaluation dei Modelli Ibridi}
+
+La Tabella~\ref{tab:ibridi_domain_transfer_tpr} sintetizza la TPR media multi-seed dei modelli ibridi nella cross-evaluation sui benchmark sorgente, sulla configurazione \texttt{INJECTION} e sui benchmark target.
 
 \begin{table}[H]
     \centering
@@ -471,6 +488,8 @@ I confronti sono organizzati separatamente per i modelli sorgente e per i modell
 
 \subsection{Modelli Sorgente rispetto alla Baseline INJECTION}
 
+Prima dell'applicazione del test inferenziale, la Tabella~\ref{tab:sorgente_welch_descriptive} riporta le statistiche descrittive dei valori medi di \textit{F1-Score} ottenuti sui $10$ seed dalla baseline \texttt{INJECTION} e dai modelli sorgente.
+
 \begin{table}[H]
     \centering
     \caption{Media e deviazione standard campionaria dei valori $\overline{F1}_{i}^{(k)}$ sui $10$ seed per la baseline e i modelli sorgente. $\Delta F1$ è calcolato come baseline meno modello sorgente.}
@@ -492,6 +511,8 @@ I confronti sono organizzati separatamente per i modelli sorgente e per i modell
     \end{tabular}
     }
 \end{table}
+
+Sulla base dei campioni così caratterizzati, la Tabella~\ref{tab:sorgente_welch_results} riporta, per ciascun modello sorgente e classificatore, la statistica $t$, il corrispondente $p$-value e l'esito della verifica di significatività rispetto alla soglia $\alpha=0{,}05$.
 
 \begin{table}[H]
     \centering
@@ -517,6 +538,8 @@ I confronti sono organizzati separatamente per i modelli sorgente e per i modell
 
 \subsection{Modelli Ibridi rispetto alla Baseline INJECTION}
 
+Analogamente al confronto precedente, la Tabella~\ref{tab:ibridi_welch_descriptive} riporta le statistiche descrittive dei valori medi di \textit{F1-Score} ottenuti sui $10$ seed dalla baseline \texttt{INJECTION} e dalle differenti configurazioni dei modelli ibridi.
+
 \begin{table}[H]
     \centering
     \caption{Media e deviazione standard campionaria dei valori medi di F1-Score sui $10$ seed per la baseline e i modelli ibridi. $\Delta F1$ è calcolato come baseline meno modello ibrido.}
@@ -541,6 +564,8 @@ I confronti sono organizzati separatamente per i modelli sorgente e per i modell
     \end{tabular}
     }
 \end{table}
+
+La Tabella~\ref{tab:ibridi_welch_results} completa l'analisi inferenziale riportando, per ciascun modello ibrido e classificatore, la statistica $t$, il corrispondente $p$-value e l'esito della verifica di significatività rispetto alla soglia $\alpha=0{,}05$.
 
 \begin{table}[H]
     \centering

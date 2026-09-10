@@ -628,24 +628,9 @@ Tali funzioni costituiscono la trasposizione operativa diretta degli operatori $
 \newpage
 
 \begin{lstlisting}[
-    language=Python,
+    style=python_thesis,
     caption={Trasposizione operativa dell'operatore di mappatura $\boldsymbol{\psi}_k$ tramite vettorializzazione \texttt{pandas} per il dominio UNSW-NB15.},
-    label={lst:align_nb15},
-    frame=single,
-    rulecolor=\color{mygray},
-    backgroundcolor=\color{backcolour},
-    basicstyle=\ttfamily\footnotesize,
-    commentstyle=\color{mygreen},
-    keywordstyle=\color{purple}\bfseries,
-    stringstyle=\color{mymauve},
-    emph={[2]None,True,False},
-    emphstyle={[2]\color{mymauve}\bfseries},
-    breaklines=false,
-    keepspaces=true,
-    showstringspaces=false,
-    numbers=left,
-    numberstyle=\footnotesize\color{mygray},
-    numbersep=8pt
+    label={lst:align_nb15}
 ]
 def _align_nb15(data):
     required_columns = ['dur', 'sbytes', 'dbytes', 'spkts', 'dpkts', 'swin', 
@@ -681,24 +666,9 @@ def _align_nb15(data):
 \end{lstlisting}
 
 \begin{lstlisting}[
-    language=Python,
+    style=python_thesis,
     caption={Trasposizione operativa dell'operatore di mappatura $\boldsymbol{\psi}_k$ tramite vettorializzazione \texttt{pandas} per il dominio STIN.},
-    label={lst:align_stin},
-    frame=single,
-    rulecolor=\color{mygray},
-    backgroundcolor=\color{backcolour},
-    basicstyle=\ttfamily\footnotesize,
-    commentstyle=\color{mygreen},
-    keywordstyle=\color{purple}\bfseries,
-    stringstyle=\color{mymauve},
-    emph={[2]None,True,False},
-    emphstyle={[2]\color{mymauve}\bfseries},
-    breaklines=false,
-    keepspaces=true,
-    showstringspaces=false,
-    numbers=left,
-    numberstyle=\footnotesize\color{mygray},
-    numbersep=8pt
+    label={lst:align_stin}
 ]
 def _align_stin(data):
     required_columns = ['fl_dur', 'l_fw_pkt', 'l_bw_pkt', 'fw_pk', 
@@ -1530,24 +1500,9 @@ La valutazione viene eseguita a due code, secondo la configurazione predefinita 
 L'implementazione completa della procedura, comprensiva della gestione iterativa dei modelli confrontati e della costruzione dei record di risultato, è riportata nel Listato~\ref{lst:welch_implementation}, raccolto nell'Appendice~\ref{app:welch_implementation}. 
 
 \begin{lstlisting}[
-    language=Python,
+    style=python_thesis,
     caption={Nucleo implementativo per l'estrazione dei campioni e l'esecuzione del Test $t$ di Welch.},
-    label={lst:welch_core},
-    frame=single,
-    rulecolor=\color{mygray},
-    backgroundcolor=\color{backcolour},
-    basicstyle=\ttfamily\footnotesize,
-    commentstyle=\color{mygreen},
-    keywordstyle=\color{purple}\bfseries,
-    stringstyle=\color{mymauve},
-    emph={[2]None,True,False},
-    emphstyle={[2]\color{mymauve}\bfseries},
-    breaklines=false,
-    keepspaces=true,
-    showstringspaces=false,
-    numbers=left,
-    numberstyle=\footnotesize\color{mygray},
-    numbersep=8pt
+    label={lst:welch_core}
 ]
 ref_row = data[data["model_name"] == reference_model]
 ref_scores = (
@@ -1770,24 +1725,9 @@ Gli autovettori principali sono quindi determinati una sola volta sul riferiment
 Il Listato~\ref{lst:pca_source_scaling} sintetizza entrambe le fasi, evidenziando la distinzione tra le operazioni di \texttt{fit} sul riferimento sorgente e le successive operazioni di sola trasformazione.
 
 \begin{lstlisting}[
-    language=Python,
+    style=python_thesis,
     caption={Standardizzazione, adattamento e trasformazione PCA ancorati al benchmark sorgente.},
-    label={lst:pca_source_scaling},
-    frame=single,
-    rulecolor=\color{mygray},
-    backgroundcolor=\color{backcolour},
-    basicstyle=\ttfamily\footnotesize,
-    commentstyle=\color{mygreen},
-    keywordstyle=\color{purple}\bfseries,
-    stringstyle=\color{mymauve},
-    emph={[2]None,True,False},
-    emphstyle={[2]\color{mymauve}\bfseries},
-    breaklines=false,
-    keepspaces=true,
-    showstringspaces=false,
-    numbers=left,
-    numberstyle=\footnotesize\color{mygray},
-    numbersep=8pt
+    label={lst:pca_source_scaling}
 ]
 scaler = StandardScaler()
 pca = PCA(
@@ -1838,24 +1778,9 @@ così ottenute ai benchmark considerati e la successiva generazione delle
 stime KDE.
 
 \begin{lstlisting}[
-    language=Python,
+    style=python_thesis,
     caption={Standardizzazione dipendente dal sorgente, trasformazione delle feature e generazione delle stime KDE.},
-    label={lst:kde_source_scaling},
-    frame=single,
-    rulecolor=\color{mygray},
-    backgroundcolor=\color{backcolour},
-    basicstyle=\ttfamily\footnotesize,
-    commentstyle=\color{mygreen},
-    keywordstyle=\color{purple}\bfseries,
-    stringstyle=\color{mymauve},
-    emph={[2]None,True,False},
-    emphstyle={[2]\color{mymauve}\bfseries},
-    breaklines=false,
-    keepspaces=true,
-    showstringspaces=false,
-    numbers=left,
-    numberstyle=\footnotesize\color{mygray},
-    numbersep=8pt
+    label={lst:kde_source_scaling}
 ]
 scaler = StandardScaler()
 scaler.fit(df_source[valid_source_features])
@@ -1958,66 +1883,7 @@ Nel codice il valore effettivamente assegnato a \texttt{NORMAL\_ANOMALY\_RATIO} 
 Gli indici estratti per il traffico nominale e per quello anomalo vengono successivamente concatenati e utilizzati per selezionare le corrispondenti righe di \texttt{X\_test}. 
 Nel caso in cui non sia disponibile alcun campione valido, viene applicato un campionamento casuale del test set, anch'esso limitato a \texttt{SHAP\_MAX\_SAMPLES} e controllato dallo stesso seed.
 
-Nel Listato \ref{lst:shap_sampling} è riportata la porzione di codice responsabile dell'estrazione stratificata, che bilancia i vincoli prestazionali con la necessità di mantenere una corretta rappresentatività di entrambe le classi.
-
-\newpage
-
-\begin{lstlisting}[
-    language=Python,
-    caption={Campionamento stratificato del test set per l'analisi SHAP.},
-    label={lst:shap_sampling},
-    frame=single,
-    rulecolor=\color{mygray},
-    backgroundcolor=\color{backcolour},
-    basicstyle=\ttfamily\footnotesize,
-    commentstyle=\color{mygreen},
-    keywordstyle=\color{purple}\bfseries,
-    stringstyle=\color{mymauve},
-    emph={[2]None,True,False},
-    emphstyle={[2]\color{mymauve}\bfseries},
-    breaklines=false,
-    keepspaces=true,
-    showstringspaces=false,
-    numbers=left,
-    numberstyle=\footnotesize\color{mygray},
-    numbersep=8pt
-]
-# Allineamento delle etichette con le caratteristiche
-y_series = pd.Series(
-    y_test, index=X_test.index if hasattr(X_test, 'index') else None
-)
-
-# Calcola le quote di campionamento per le due classi
-n_anomaly = MLConstants.SHAP_MAX_SAMPLES // MLConstants.NORMAL_ANOMALY_RATIO
-n_normal = MLConstants.SHAP_MAX_SAMPLES - n_anomaly
-
-# Estrazione degli indici campionati per entrambe le classi, 
-# limitando al numero di istanze disponibili
-idx_normal = pd.Index([])
-if sum(y_series == 0) > 0:
-    idx_normal = y_series[y_series == 0].sample(
-        n=min(n_normal, sum(y_series == 0)), 
-        random_state=MLConstants.MAIN_SEED
-    ).index
-idx_anomaly = pd.Index([])
-if sum(y_series == 1) > 0:
-    idx_anomaly = y_series[y_series == 1].sample(
-        n=min(n_anomaly, sum(y_series == 1)), 
-        random_state=MLConstants.MAIN_SEED
-    ).index
-
-sampled_idx = idx_normal.append(idx_anomaly)
-
-# Filtra il test set originale utilizzando gli indici stratificati
-# (o fallback a un campionamento casuale standard)
-if not sampled_idx.empty:
-    X_test_sampled = X_test.loc[sampled_idx]
-else:
-    X_test_sampled = X_test.sample(
-        n=min(MLConstants.SHAP_MAX_SAMPLES, len(X_test)), 
-        random_state=MLConstants.MAIN_SEED
-    )
-\end{lstlisting}
+L'implementazione completa della procedura di campionamento è riportata nel Listato~\ref{lst:shap_sampling}, raccolto nell'Appendice~\ref{app:shap_implementation}.
 
 La costruzione dello spiegatore viene effettuata dinamicamente in funzione del classificatore ricevuto. 
 L'implementazione tenta inizialmente di utilizzare \texttt{shap.TreeExplainer}, configurato con \texttt{feature\_perturbation="tree\_path\_dependent"}\footnote{La modalità \texttt{tree\_path\_dependent} calcola le aspettative condizionali seguendo la struttura trasversale dei nodi degli alberi senza richiedere un dataset di \textit{background} esplicito (a differenza dell'approccio \textit{interventional}). Ciò riduce drasticamente il costo computazionale e gestisce la correlazione tra le variabili.} e \texttt{model\_output="raw"}, opzioni orientate all'analisi di modelli ad albero quali \texttt{RandomForestClassifier} e \texttt{DecisionTreeClassifier}. 
@@ -2026,24 +1892,9 @@ Qualora anche questa inizializzazione fallisca, viene utilizzato il costrutto ge
 Tale meccanismo consente di mantenere un'unica interfaccia di generazione delle spiegazioni anche in presenza delle differenti modalità di supporto offerte dalla libreria SHAP ai classificatori considerati, come evidenziato dalla struttura condizionale \texttt{try-except} del Listato \ref{lst:shap_explainer}. 
 
 \begin{lstlisting}[
-    language=Python,
+    style=python_thesis,
     caption={Inizializzazione dinamica dello spiegatore SHAP con catena di fallback.},
-    label={lst:shap_explainer},
-    frame=single,
-    rulecolor=\color{mygray},
-    backgroundcolor=\color{backcolour},
-    basicstyle=\ttfamily\footnotesize,
-    commentstyle=\color{mygreen},
-    keywordstyle=\color{purple}\bfseries,
-    stringstyle=\color{mymauve},
-    emph={[2]None,True,False},
-    emphstyle={[2]\color{mymauve}\bfseries},
-    breaklines=false,
-    keepspaces=true,
-    showstringspaces=false,
-    numbers=left,
-    numberstyle=\footnotesize\color{mygray},
-    numbersep=8pt
+    label={lst:shap_explainer}
 ]
 # Inizializzazione dinamica dello spiegatore per supportare RF, DT e HGB
 try:
@@ -2207,66 +2058,7 @@ Tale rappresentazione associa a ciascuna caratteristica i valori SHAP osservati 
 Il numero massimo di caratteristiche visualizzate viene impostato dinamicamente al numero di colonne della matrice \texttt{X\_test\_sampled}, mediante il parametro \texttt{max\_display=n\_features}. 
 La dimensione verticale della figura viene inoltre adattata al numero complessivo di feature, secondo una dimensione minima di $6$ pollici e un incremento proporzionale pari a $0.4$ pollici per caratteristica.
 
-Il Listato \ref{lst:shap_rendering} illustra la sequenza logica che, partendo dall'estrazione tensoriale tramite l'oggetto \texttt{explainer}, normalizza la struttura dati e ne adatta il rendering in funzione della dimensione del \textit{feature space}.
-
-\newpage
-
-\begin{lstlisting}[
-    language=Python,
-    caption={Calcolo, normalizzazione dimensionale e rendering dei valori SHAP.},
-    label={lst:shap_rendering},
-    frame=single,
-    rulecolor=\color{mygray},
-    backgroundcolor=\color{backcolour},
-    basicstyle=\ttfamily\footnotesize,
-    commentstyle=\color{mygreen},
-    keywordstyle=\color{purple}\bfseries,
-    stringstyle=\color{mymauve},
-    emph={[2]None,True,False},
-    emphstyle={[2]\color{mymauve}\bfseries},
-    breaklines=false,
-    keepspaces=true,
-    showstringspaces=false,
-    numbers=left,
-    numberstyle=\footnotesize\color{mygray},
-    numbersep=8pt
-]
-# Calcolo dei valori SHAP con gestione del controllo di additività
-try:
-    shap_values = explainer.shap_values(
-        X_test_sampled, check_additivity=False
-    )
-except TypeError:
-    shap_values = explainer.shap_values(X_test_sampled)
-
-# Gestire le disparità di output
-if hasattr(shap_values, "values"):
-    shap_values_raw = shap_values.values
-else:
-    shap_values_raw = shap_values
-
-# Estrazione dei valori della classe Anomaly in base alla struttura dei dati
-if isinstance(shap_values_raw, list) and len(shap_values_raw) == 2:
-    shap_values_raw = shap_values_raw[1]
-elif hasattr(shap_values_raw, 'shape') and len(shap_values_raw.shape) == 3:
-    shap_values_raw = shap_values_raw[:, :, 1]
-elif hasattr(shap_values_raw, 'shape') and len(shap_values_raw.shape) == 2:
-    pass
-
-# Genera e configura dinamicamente il grafico
-n_features = X_test_sampled.shape[1]
-plt.figure(figsize=(8, max(6, n_features * 0.4)))
-
-# Forza la visualizzazione "dot" per mostrare 
-# gli impatti individuali delle feature
-shap.summary_plot(
-    shap_values_raw, 
-    X_test_sampled, 
-    show=False, 
-    max_display=n_features, 
-    plot_type="dot"
-)
-\end{lstlisting}
+L'implementazione completa della sequenza di calcolo, normalizzazione dimensionale e rendering è riportata nel Listato~\ref{lst:shap_rendering}, raccolto nell'Appendice~\ref{app:shap_implementation}.
 
 Il grafico SHAP prodotto viene salvato con risoluzione pari a $300$ dpi nella directory \texttt{shap} e organizzata per modello. 
 Il nome del file png viene costruito combinando il tipo di dataset, il nome del dataset. 
@@ -2417,30 +2209,10 @@ I risultati del conteggio empirico effettuato sulle spiegazioni diagnostiche son
 
 La frequenza così ottenuta viene utilizzata come criterio empirico di selezione delle caratteristiche da sottoporre alla successiva stima KDE. 
 Le tre caratteristiche caratterizzate dai valori di $C_j$ più elevati sono risultate essere \texttt{pkts\_per\_sec}, \texttt{total\_bytes} e \texttt{dst\_win\_byt}. 
-La selezione viene quindi trasferita manualmente nella configurazione del framework mediante la costante:
-
-\begin{lstlisting}[
-    language=Python,
-    caption={Configurazione delle feature selezionate per l'analisi KDE.},
-    label={lst:kde_top_features},
-    frame=single,
-    rulecolor=\color{mygray},
-    backgroundcolor=\color{backcolour},
-    basicstyle=\ttfamily\footnotesize,
-    commentstyle=\color{mygreen},
-    keywordstyle=\color{purple}\bfseries,
-    stringstyle=\color{mymauve},
-    emph={[2]None,True,False},
-    emphstyle={[2]\color{mymauve}\bfseries},
-    breaklines=false,
-    keepspaces=true,
-    showstringspaces=false,
-    numbers=left,
-    numberstyle=\footnotesize\color{mygray},
-    numbersep=8pt
-]
-KDE_TOP_FEATURES = ['pkts_per_sec', 'total_bytes', 'dst_win_byt']
-\end{lstlisting}
+La selezione viene quindi trasferita manualmente nella configurazione del framework mediante la costante
+\begin{center}
+    \texttt{KDE\_TOP\_FEATURES = ['pkts\_per\_sec', 'total\_bytes', 'dst\_win\_byt']}    
+\end{center}
 
 La funzione \texttt{save\_all\_kde\_plots()} utilizza successivamente tale lista come insieme di caratteristiche da analizzare, senza ricalcolare automaticamente il conteggio $C_j$ né eseguire una nuova selezione sulla base dei grafici SHAP. 
 Il passaggio SHAP--KDE deve pertanto essere inteso come una \textbf{procedura di selezione supervisionata manualmente dall'analista}: SHAP fornisce il criterio diagnostico per individuare le caratteristiche più ricorrenti nelle posizioni di maggiore rilevanza, mentre la KDE costituisce lo strumento successivo per l'ispezione delle rispettive distribuzioni.
