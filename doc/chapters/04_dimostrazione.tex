@@ -246,116 +246,7 @@ La realizzazione pratica del vincolo di bilanciamento $\bf{\rho = 10}$ e del cam
 In particolare, la funzione \texttt{\_get\_correct\_normal\_and\_anomaly\_data\_samples} valuta le cardinalità relative delle componenti lecite e anomale, determinando dinamicamente il volume di campioni da estrarre per rispettare la costante \texttt{MLConstants.NORMAL\_ANOMALY\_RATIO}. 
 Successivamente, la funzione \texttt{\_safe\_stratified\_sample} garantisce che il campionamento mantenga inalterata la proporzione originaria tra le partizioni di addestramento e collaudo (\texttt{split\_type}), prevenendo fenomeni di sbilanciamento tra i sotto-insiemi \textit{train} e \textit{test}.
 
-\begin{lstlisting}[
-    language=Python,
-    caption={Routine di campionamento per l'istanziazione dei benchmark.},
-    label={lst:correct_normal_anomaly_sampling},
-    frame=single,
-    rulecolor=\color{mygray},
-    backgroundcolor=\color{backcolour},
-    basicstyle=\ttfamily\footnotesize,
-    commentstyle=\color{mygreen},
-    keywordstyle=\color{purple}\bfseries,
-    stringstyle=\color{mymauve},
-    emph={[2]None,True,False},
-    emphstyle={[2]\color{mymauve}\bfseries},
-    breaklines=false,
-    keepspaces=true,
-    showstringspaces=false,
-    numbers=left,
-    numberstyle=\footnotesize\color{mygray},
-    numbersep=8pt
-]
-def _get_correct_normal_and_anomaly_data_samples(normal_data, anomaly_data, 
-                                            normal_samples, anomaly_samples):
-    # Calcola il corretto numero di campioni da estrarre dalle distribuzioni
-    if normal_samples < anomaly_samples * MLConstants.NORMAL_ANOMALY_RATIO:
-        n_anomaly_target = int(
-            normal_samples / MLConstants.NORMAL_ANOMALY_RATIO
-        )
-        anomaly_data_sample = _safe_stratified_sample(
-            anomaly_data, n_anomaly_target
-        )
-        normal_data_sample = normal_data
-    else:
-        n_normal_target = int(
-            anomaly_samples * MLConstants.NORMAL_ANOMALY_RATIO
-        )
-        normal_data_sample = _safe_stratified_sample(
-            normal_data, n_normal_target
-        )
-        anomaly_data_sample = anomaly_data
-
-    return normal_data_sample, anomaly_data_sample
-\end{lstlisting}
-
-\newpage
-
-\begin{lstlisting}[
-    language=Python,
-    caption={Routine di bilanciamento stratificato per l'istanziazione dei benchmark.},
-    label={lst:stratified_sampling},
-    frame=single,
-    rulecolor=\color{mygray},
-    backgroundcolor=\color{backcolour},
-    basicstyle=\ttfamily\footnotesize,
-    commentstyle=\color{mygreen},
-    keywordstyle=\color{purple}\bfseries,
-    stringstyle=\color{mymauve},
-    emph={[2]None,True,False},
-    emphstyle={[2]\color{mymauve}\bfseries},
-    breaklines=false,
-    keepspaces=true,
-    showstringspaces=false,
-    numbers=left,
-    numberstyle=\footnotesize\color{mygray},
-    numbersep=8pt
-]
-def _safe_stratified_sample(data, n_samples):
-    # Se la colonna 'split_type' non è presente, 
-    #esegue un campionamento casuale semplice
-    if 'split_type' not in data.columns:
-        return data.sample(n=n_samples, random_state=MLConstants.MAIN_SEED)
-    
-    # Suddivide il dataset in partizioni di train e test
-    data_train = data[data['split_type'] == 'train']
-    data_test = data[data['split_type'] == 'test']
-    
-    # Calcola la lunghezza totale del dataset
-    total_len = len(data)
-    if total_len == 0 or n_samples == 0:
-        return pd.DataFrame(columns=data.columns)
-    
-    train_ratio = len(data_train) / total_len
-    n_train = round(n_samples * train_ratio)
-    n_test = n_samples - n_train
-    
-    # Gestione difensiva dei limiti di capienza delle partizioni
-    if n_test > len(data_test):
-        diff = n_test - len(data_test)
-        n_test = len(data_test)
-        n_train += diff
-    elif n_train > len(data_train):
-        diff = n_train - len(data_train)
-        n_train = len(data_train)
-        n_test += diff
-    
-    # Campionamento stratificato senza reinserimento
-    sampled_parts = []
-    if n_train > 0 and not data_train.empty:
-        sampled_parts.append(data_train.sample(
-            n=n_train, random_state=MLConstants.MAIN_SEED
-            ))
-    if n_test > 0 and not data_test.empty:
-        sampled_parts.append(data_test.sample(
-            n=n_test, random_state=MLConstants.MAIN_SEED
-            ))
-        
-    if not sampled_parts:
-        return pd.DataFrame(columns=data.columns)
-        
-    return concat_and_shuffle(sampled_parts)
-\end{lstlisting}
+Le implementazioni complete delle due routine sono riportate nei Listati~\ref{lst:correct_normal_anomaly_sampling} e \ref{lst:stratified_sampling}, raccolti nell'Appendice~\ref{app:campionamento_benchmark}.
 
 L'applicazione di questa logica ha permesso di istanziare i dataset aggregati previsti dal framework teorico. 
 In tutte le configurazioni, la componente benevola corrisponde invariabilmente alle distribuzioni stazionarie originarie del dominio sorgente, $P_S(\mathbf{x} \mid Y = 0)$. 
@@ -731,8 +622,8 @@ Nel processo di mappatura emergono tre aspetti architetturali critici:
     \item \textbf{Stabilizzazione Numerica:} Durante il calcolo di indici razionali (come \texttt{down\_up\_ratio}, \texttt{byte\_ratio}, le densità di pacchetti e il \textit{packet rate}), è stata introdotta una costante di regolarizzazione $\epsilon = 10^{-6}$ ai denominatori. Questo accorgimento previene singolarità algebriche causate da divisioni per zero indotte da flussi anomali o malformati.
 \end{itemize}
 
-A completamento della trattazione teorica, i Listati~\ref{lst:align_nb15} e ~\ref{lst:align_stin} riportano l'implementazione in linguaggio Python delle funzioni \texttt{\_align\_nb15} e \texttt{\_align\_stin}. 
-Tali funzioni costituiscono la trasposizione operativa diretta degli operatori $\boldsymbol{\psi}_S$ e $\boldsymbol{\psi}_T$, sfruttando l'esecuzione vettorializzata su strutture dati \textit{DataFrame} della libreria \texttt{pandas} per massimizzare le prestazioni computazionali su dataset ad alta dimensionalità.
+A completamento della trattazione teorica, i Listati~\ref{lst:align_nb15} e~\ref{lst:align_stin} riportano l'implementazione in linguaggio Python delle funzioni \texttt{\_align\_nb15} e \texttt{\_align\_stin}.
+Tali funzioni costituiscono la trasposizione operativa diretta degli operatori $\boldsymbol{\psi}_S$ e $\boldsymbol{\psi}_T$, sfruttando l'esecuzione vettorializzata su strutture dati \textit{DataFrame} della libreria \texttt{pandas} per applicare in modo uniforme le trasformazioni definite sull'insieme delle osservazioni.
 
 \newpage
 
@@ -1094,46 +985,9 @@ In perfetta simmetria con la suddivisione concettuale tra dominio sorgente e dom
 
 L'integrazione di questa logica all'interno del codice sorgente sfrutta elevati livelli di automazione. 
 L'assegnazione della nomenclatura ai file serializzati e ai registri di metadati è gestita in maniera trasparente dalla subroutine \texttt{\_get\_standardized\_model\_name()} del modulo \texttt{models.py}. 
-La funzione elabora il vettore delle classi uniche del dataset in input: verificata l'esatta cardinalità binaria, estrae computazionalmente l'etichetta divergente dalla stringa \texttt{Normal} e la concatena in modo canonico alla tipologia del dataset (generando dinamicamente stringhe come \texttt{dataset\_attackname}). 
-Tale soluzione ingegneristica ha garantito la standardizzazione dei log per tutti i successivi processi di inferenza. Il Listato~\ref{lst:get_model_name} riporta il frammento di codice responsabile di tale elaborazione logica.
-
-\newpage
-
-\begin{lstlisting}[
-    language=Python,
-    caption={Estrazione procedurale dell'etichetta di attacco per la generazione dinamica della nomenclatura del modello.},
-    label={lst:get_model_name},
-    frame=single,
-    rulecolor=\color{mygray},
-    backgroundcolor=\color{backcolour},
-    basicstyle=\ttfamily\footnotesize,
-    commentstyle=\color{mygreen},
-    keywordstyle=\color{purple}\bfseries,
-    stringstyle=\color{mymauve},
-    emph={[2]None,True,False},
-    emphstyle={[2]\color{mymauve}\bfseries},
-    breaklines=false,
-    keepspaces=true,
-    showstringspaces=false,
-    numbers=left,
-    numberstyle=\footnotesize\color{mygray},
-    numbersep=8pt
-]
-def _get_standardized_model_name(dataset_type, unique_classes):
-    # Cancella gli spazi bianchi e converte in minuscolo per coerenza
-    classes = [str(c).strip() for c in unique_classes if str(c).strip()]
-
-    # Se len(classes) > 2, restituisce un nome generico
-    if len(classes) > 2:
-        return f"{dataset_type}_aggregate"
-    
-    # Identifica la classe di attacco
-    # (assumendo che 'normal' sia la classe benevola)
-    attack_classes = [c for c in classes if c.lower() != 'normal']
-    attack_name = attack_classes[0].lower() if attack_classes else "normal"
-    
-    return f"{dataset_type}_{attack_name}"
-\end{lstlisting}
+La funzione elabora il vettore delle classi uniche del dataset in input: verificata l'esatta cardinalità binaria, estrae computazionalmente l'etichetta divergente dalla stringa \texttt{Normal} e la concatena in modo canonico alla tipologia del dataset, generando dinamicamente identificativi quali \texttt{dataset\_attackname}. 
+Tale soluzione consente di mantenere una nomenclatura uniforme degli artefatti persistiti e dei relativi record di tracciamento. 
+L'implementazione completa della procedura è riportata nel Listato~\ref{lst:get_model_name}, raccolto nell'Appendice~\ref{app:nomenclatura_modelli}.
 
 
 \section{Protocollo di Addestramento e Valutazione}
@@ -1323,64 +1177,8 @@ Particolare attenzione è stata riservata ai casi nei quali il vettore delle eti
 Prima del calcolo delle metriche viene pertanto verificata la presenza di almeno due classi distinte mediante il numero di valori univoci presenti in \texttt{y\_test}. 
 Qualora tale condizione non sia soddisfatta, le metriche \textit{Accuracy}, \textit{Precision}, \textit{Recall}, \textit{F1-Score}, \textit{ROC-AUC} e \textit{PR-AUC} vengono impostate a \texttt{None}. 
 I quattro elementi della matrice di confusione vengono invece sempre ricavati imponendo le classi \texttt{[0, 1]}, mentre TPR, FNR, TNR e FPR vengono calcolati separatamente e assumono valore \texttt{None} esclusivamente quando il denominatore della relativa espressione risulta nullo\footnote{Questa guardia condizionale esplicita sui denominatori ($(TP + FN) > 0$ e $(FP + TN) > 0$) e sul conteggio delle classi univoche previene eccezioni di divisione per zero e avvisi a runtime (\textit{RuntimeWarning}/\textit{UndefinedMetricWarning}), garantendo la continuità dell'esecuzione e la tracciabilità dei casi degeneri nei report salvati.}. 
-La struttura logica di tale gestione difensiva è sintetizzata nel Listing~\ref{lst:calculate_metrics_edge_cases}.
 
-\newpage
-
-\begin{lstlisting}[
-    language=Python,
-    caption={Gestione difensiva dei casi limite e calcolo delle metriche in \texttt{calculate\_metrics()}.},
-    label={lst:calculate_metrics_edge_cases},
-    frame=single,
-    rulecolor=\color{mygray},
-    backgroundcolor=\color{backcolour},
-    basicstyle=\ttfamily\footnotesize, % Dimensione proporzionata che evita il wrap delle righe
-    commentstyle=\color{mygreen}, % Commenti in verde corsivo
-    keywordstyle=\color{purple}\bfseries, % Parole chiave (if, else, not) in viola
-    stringstyle=\color{mymauve}, % Stringhe in mauve/rosso
-    emph={[2]None,True,False}, % Evidenziazione valori booleani/nulli
-    emphstyle={[2]\color{mymauve}\bfseries},
-    breaklines=false, % Disattiva l'andata a capo automatica per mantenere la struttura originale
-    keepspaces=true, % Mantiene gli spazi e le rientranze corrette
-    showstringspaces=false,
-    numbers=left, % Opzionale: numeri di riga a sinistra
-    numberstyle=\footnotesize\color{mygray},
-    numbersep=8pt
-]
-has_classes = len(np.unique(y_test)) > 1
-# [Controllo di sicurezza sul numero di classi...]
-
-# Calcolo delle metriche
-tn, fp, fn, tp = confusion_matrix(y_test, y_pred, labels=[0, 1]).ravel()
-
-if has_classes:
-    accuracy = round(accuracy_score(y_test, y_pred), 
-        MLConstants.DECIMAL_DIGITS)
-    precision = round(precision_score(y_test, y_pred), 
-        MLConstants.DECIMAL_DIGITS)
-    recall = round(recall_score(y_test, y_pred), 
-        MLConstants.DECIMAL_DIGITS)
-    f1 = round(f1_score(y_test, y_pred), 
-        MLConstants.DECIMAL_DIGITS)
-    roc = round(roc_auc_score(y_test, y_scores), 
-        MLConstants.DECIMAL_DIGITS)
-    pr = round(average_precision_score(y_test, y_scores), 
-        MLConstants.DECIMAL_DIGITS)
-else:
-    accuracy = precision = recall = f1 = roc = pr = None
-    
-if (tp + fn) > 0:
-    tpr = round(tp / (tp + fn), MLConstants.DECIMAL_DIGITS)
-    fnr = round(fn / (tp + fn), MLConstants.DECIMAL_DIGITS)
-else:
-    tpr, fnr = None, None
-
-if (fp + tn) > 0: 
-    tnr = round(tn / (fp + tn), MLConstants.DECIMAL_DIGITS)
-    fpr = round(fp / (fp + tn), MLConstants.DECIMAL_DIGITS)
-else:
-    tnr, fpr = None, None
-\end{lstlisting}
+L'implementazione della logica di gestione difensiva e del calcolo delle metriche è riportata nel Listato~\ref{lst:calculate_metrics_edge_cases}, raccolto nell'Appendice~\ref{app:calcolo_metriche}.
 
 L'insieme completo dei risultati viene quindi organizzato all'interno del file nominato come \newline \texttt{classifications.csv}, generato separatamente per ciascuna combinazione di \texttt{model\_type} e seed. 
 Ogni record contiene i metadati identificativi della classificazione, il tipo di dataset e la relativa composizione delle classi, oltre alle quantità della matrice di confusione e alle metriche derivate. 
@@ -1724,15 +1522,17 @@ H_1:
 
 dove $\mu_{\text{base}}$ e $\mu_m$ rappresentano i valori medi teorici della \textit{F1-Score} delle rispettive popolazioni campionarie. 
 
-La traduzione di tale impianto teorico nella sua controparte implementativa è riportata nel Listing~\ref{lst:welch_implementation}, il quale illustra la procedura di estrazione dei campioni vettoriali dal \textit{DataFrame} matriciale e l'invocazione del modulo \texttt{scipy.stats}. 
-L'utilizzo del parametro \texttt{equal\_var=False} applica rigorosamente la formulazione di Welch e la valutazione viene eseguita a due code (configurazione predefinita), senza introdurre una direzione privileged per l'ipotesi alternativa.
+La traduzione dell'impianto teorico nella controparte implementativa è sintetizzata nel Listato~\ref{lst:welch_core}, nel quale vengono evidenziate l'estrazione dei campioni di \textit{F1-Score} dal \textit{DataFrame} di sintesi e la successiva invocazione della funzione \texttt{scipy.stats.ttest\_ind()}.
 
-\newpage
+L'utilizzo del parametro \texttt{equal\_var=False} applica la formulazione di Welch senza assumere l'uguaglianza delle varianze delle due popolazioni campionarie. 
+La valutazione viene eseguita a due code, secondo la configurazione predefinita della funzione utilizzata.
+
+L'implementazione completa della procedura, comprensiva della gestione iterativa dei modelli confrontati e della costruzione dei record di risultato, è riportata nel Listato~\ref{lst:welch_implementation}, raccolto nell'Appendice~\ref{app:welch_implementation}. 
 
 \begin{lstlisting}[
     language=Python,
-    caption={Estrazione dei campioni ed esecuzione del Test $t$ di Welch.},
-    label={lst:welch_implementation},
+    caption={Nucleo implementativo per l'estrazione dei campioni e l'esecuzione del Test $t$ di Welch.},
+    label={lst:welch_core},
     frame=single,
     rulecolor=\color{mygray},
     backgroundcolor=\color{backcolour},
@@ -1749,40 +1549,21 @@ L'utilizzo del parametro \texttt{equal\_var=False} applica rigorosamente la form
     numberstyle=\footnotesize\color{mygray},
     numbersep=8pt
 ]
-# Estrazione dei valori di F1-Score medi per il modello 
-# di riferimento (INJECTION) su tutti i seed
 ref_row = data[data["model_name"] == reference_model]
 ref_scores = (
     ref_row.drop(columns=["id", "model_name"]).values.flatten().astype(float)
 )
 
-results_list = []
-# Itera su ciascun modello presente nel DataFrame di sintesi 
-# per eseguire i confronti incrociati
 for _, row in data.iterrows():
     current_model = row["model_name"]
 
     if current_model == reference_model: continue
 
-    # Isola i valori numerici di test per il modello confrontato
     current_scores = row.drop(["id", "model_name"]).values.astype(float)
 
-    # Esegue il test t di Welch assumendo varianze non uguali
     t_stat, p_value = stats.ttest_ind(
         ref_scores, current_scores, equal_var=False
     )
-
-    # Valuta la significatività statistica
-    is_significant = "YES" if p_value < alpha else "NO"
-
-    results_list.append({
-        "Reference_Model": reference_model,
-        "Compared_Model": current_model,
-        "t_statistic": t_stat,
-        "p_value": p_value,
-        "alpha": alpha,
-        "is_significant": is_significant
-    })
 \end{lstlisting}
 
 Il livello di significatività è stabilito \textit{a priori} al valore di primo tipo
@@ -1980,13 +1761,17 @@ Successivamente, tali parametri congelati vengono applicati per via diretta sia 
 La procedura \texttt{save\_all\_pca\_plots()} carica ciascun benchmark indicato nel file di configurazione ed estrae preliminarmente il sottoinsieme associato alla partizione \texttt{test}, identificata tramite la colonna \texttt{split\_type}. 
 Dalla matrice delle caratteristiche vengono rimosse le colonne \texttt{label}, \texttt{class} e \texttt{split\_type}, mentre la variabile \texttt{label} viene conservata separatamente per la successiva caratterizzazione delle classi nel grafico.
 
-Per realizzare la standardizzazione diagnostica viene istanziato uno \texttt{StandardScaler} di \newline \texttt{scikit-learn}. 
+Per realizzare la standardizzazione diagnostica viene istanziato uno \texttt{StandardScaler} di \texttt{scikit-learn}. 
 Nel caso della PCA, il modello di scaling viene \textbf{adattato esclusivamente al sottoinsieme \texttt{test} del benchmark sorgente}. 
-Indicando con $\mathbf{X}_{S,\mathrm{test}}$ tale matrice, l'operazione è implementata mediante:
+Indicando con $\mathbf{X}_{S,\mathrm{test}}$ tale matrice, l'operazione di adattamento dello standardizzatore e della PCA è seguita dall'applicazione dei medesimi trasformatori ai benchmark considerati, senza eseguire nuovi adattamenti locali.
+
+La configurazione \texttt{PCA\_COMPONENTS=2} vincola la trasformazione alla costruzione di un sottospazio bidimensionale, coerentemente con la finalità esclusivamente visuale dell'analisi. 
+Gli autovettori principali sono quindi determinati una sola volta sul riferimento sorgente e successivamente riutilizzati per tutti i benchmark. 
+Il Listato~\ref{lst:pca_source_scaling} sintetizza entrambe le fasi, evidenziando la distinzione tra le operazioni di \texttt{fit} sul riferimento sorgente e le successive operazioni di sola trasformazione.
 
 \begin{lstlisting}[
     language=Python,
-    caption={Standardizzazione e adattamento della PCA sul benchmark sorgente.},
+    caption={Standardizzazione, adattamento e trasformazione PCA ancorati al benchmark sorgente.},
     label={lst:pca_source_scaling},
     frame=single,
     rulecolor=\color{mygray},
@@ -2012,32 +1797,7 @@ pca = PCA(
 
 X_source_scaled = scaler.fit_transform(X_source)
 pca.fit(X_source_scaled)
-\end{lstlisting}
 
-La configurazione \texttt{PCA\_COMPONENTS=2} vincola la trasformazione alla costruzione di un sottospazio bidimensionale, coerentemente con la finalità esclusivamente visuale dell'analisi. 
-Gli autovettori principali sono quindi determinati una sola volta sul riferimento sorgente e successivamente riutilizzati per tutti i benchmark. 
-Per ciascun dataset, la matrice delle caratteristiche viene trasformata mediante \texttt{scaler.transform()} e \texttt{pca.transform()}, \textbf{evitando un nuovo adattamento locale}:
-
-\begin{lstlisting}[
-    language=Python,
-    caption={Applicazione della trasformazione diagnostica ancorata al benchmark sorgente.},
-    label={lst:pca_transform},
-    frame=single,
-    rulecolor=\color{mygray},
-    backgroundcolor=\color{backcolour},
-    basicstyle=\ttfamily\footnotesize,
-    commentstyle=\color{mygreen},
-    keywordstyle=\color{purple}\bfseries,
-    stringstyle=\color{mymauve},
-    emph={[2]None,True,False},
-    emphstyle={[2]\color{mymauve}\bfseries},
-    breaklines=false,
-    keepspaces=true,
-    showstringspaces=false,
-    numbers=left,
-    numberstyle=\footnotesize\color{mygray},
-    numbersep=8pt
-]
 X_scaled = scaler.transform(X_test)
 X_pca = pca.transform(X_scaled)
 \end{lstlisting}
@@ -2060,11 +1820,26 @@ La procedura \texttt{save\_all\_kde\_plots()} realizza invece l'analisi densomet
 La selezione coincide quindi con il sottoinsieme di caratteristiche individuato a livello metodologico mediante l'aggregazione dei valori SHAP, come previsto nella Sezione~\ref{subsubsec:kde_features}.
 
 A differenza della procedura PCA, nella funzione \texttt{save\_all\_kde\_plots()} non viene applicato un filtraggio esplicito sulla colonna \texttt{split\_type}: le caratteristiche selezionate vengono caricate direttamente dai file dei benchmark e utilizzate per la costruzione delle distribuzioni. 
-Il riferimento statistico è nuovamente individuato tramite \texttt{SOURCE\_IDENTIFIER}; uno \texttt{StandardScaler} viene adattato alle sole feature disponibili nel dataset sorgente:
+Il riferimento statistico è nuovamente individuato tramite \texttt{SOURCE\_IDENTIFIER}; uno \texttt{StandardScaler} viene adattato alle sole feature disponibili nel dataset sorgente.
+
+Per ciascun benchmark, la trasformazione viene quindi applicata feature per feature utilizzando la media e il fattore di scala memorizzati nello scaler sorgente. 
+La procedura implementa operativamente l'ancoraggio a $(\boldsymbol{\mu}_S,\boldsymbol{\sigma}_S)$ previsto dall'Equazione~\eqref{eq:z_score_source}, mantenendo invariato il riferimento statistico anche per i benchmark target\footnote{Il vettore \texttt{scaler.scale\_} calcolato da \texttt{StandardScaler} contiene la deviazione standard per ciascuna caratteristica, comprensiva del fattore di tolleranza $\epsilon > 0$ introdotto automaticamente dalla libreria per garantire la stabilità numerica ed evitare divisioni per zero in presenza di varianza nulla.}.
+
+La stima della densità viene effettuata mediante \texttt{seaborn.kdeplot()}, con separazione delle curve sulla base della classe binaria e con normalizzazione indipendente delle densità \newline (\texttt{common\_norm=False}). 
+La regione sottostante le curve viene riempita mediante \texttt{fill=True}, mentre il parametro \texttt{cut=0} limita la rappresentazione all'intervallo definito dai dati osservati. Non viene specificato esplicitamente alcun parametro di \textit{bandwidth}: la larghezza del kernel è quindi determinata mediante il comportamento predefinito della procedura KDE utilizzata da \texttt{seaborn}.
+
+Poiché l'implementazione deve consentire l'ispezione di distribuzioni caratterizzate da scale molto differenti e da possibili forti sbilanciamenti nella densità, l'asse verticale dei grafici viene rappresentato mediante una scala \textit{symlog}, con parametro \texttt{linthresh=1e-5}\footnote{La scala \texttt{symlog} (Symmetric Logarithmic) applica una trasformazione logaritmica all'asse $y$ mantenendo un intervallo puramente lineare all'interno della soglia $[-\text{\texttt{linthresh}}, +\text{\texttt{linthresh}}]$. Ciò previene divergenze verso $-\infty$ per densità prossime o pari a zero.}. 
+Questa configurazione è distinta dalla formulazione teorica della proiezione logaritmica della densità riportata nella Sezione~\ref{subsubsec:log_scale_kde}: nel codice non viene calcolato esplicitamente $\log_{10}(\hat f_y+\epsilon)$, ma viene modificata direttamente la scala dell'asse mediante le funzionalità grafiche di Matplotlib.
+
+Le principali operazioni implementative della procedura sono sintetizzate
+nel Listato~\ref{lst:kde_source_scaling}, che evidenzia l'adattamento dello
+standardizzatore sul benchmark sorgente, l'applicazione delle statistiche
+così ottenute ai benchmark considerati e la successiva generazione delle
+stime KDE.
 
 \begin{lstlisting}[
     language=Python,
-    caption={Adattamento dello standardizzatore sulle feature utilizzate per la KDE.},
+    caption={Standardizzazione dipendente dal sorgente, trasformazione delle feature e generazione delle stime KDE.},
     label={lst:kde_source_scaling},
     frame=single,
     rulecolor=\color{mygray},
@@ -2084,69 +1859,14 @@ Il riferimento statistico è nuovamente individuato tramite \texttt{SOURCE\_IDEN
 ]
 scaler = StandardScaler()
 scaler.fit(df_source[valid_source_features])
-\end{lstlisting}
 
-Per ciascun benchmark, la trasformazione viene quindi applicata feature per feature utilizzando la media e il fattore di scala memorizzati nello scaler sorgente. 
-La procedura implementa operativamente l'ancoraggio a $(\boldsymbol{\mu}_S,\boldsymbol{\sigma}_S)$ previsto dall'Equazione~\eqref{eq:z_score_source}, mantenendo invariato il riferimento statistico anche per i benchmark target\footnote{Il vettore \texttt{scaler.scale\_} calcolato da \texttt{StandardScaler} contiene la deviazione standard per ciascuna caratteristica, comprensiva del fattore di tolleranza $\epsilon > 0$ introdotto automaticamente dalla libreria per garantire la stabilità numerica ed evitare divisioni per zero in presenza di varianza nulla.}.
-
-\newpage
-
-\begin{lstlisting}[
-    language=Python,
-    caption={Trasformazione diagnostica feature-per-feature ancorata ai parametri dello scaler sorgente.},
-    label={lst:kde_feature_transform},
-    frame=single,
-    rulecolor=\color{mygray},
-    backgroundcolor=\color{backcolour},
-    basicstyle=\ttfamily\footnotesize,
-    commentstyle=\color{mygreen},
-    keywordstyle=\color{purple}\bfseries,
-    stringstyle=\color{mymauve},
-    emph={[2]None,True,False},
-    emphstyle={[2]\color{mymauve}\bfseries},
-    breaklines=false,
-    keepspaces=true,
-    showstringspaces=false,
-    numbers=left,
-    numberstyle=\footnotesize\color{mygray},
-    numbersep=8pt
-]
 for feature in valid_features:
     if feature in scaler.feature_names_in_:
         idx = list(scaler.feature_names_in_).index(feature)
         mu_s = scaler.mean_[idx]
         sigma_s = scaler.scale_[idx]
         X_test_scaled[feature] = (X_test_raw[feature] - mu_s) / sigma_s
-\end{lstlisting}
 
-La stima della densità viene effettuata mediante \texttt{seaborn.kdeplot()}, con separazione delle curve sulla base della classe binaria e con normalizzazione indipendente delle densità \newline (\texttt{common\_norm=False}). 
-La regione sottostante le curve viene riempita mediante \texttt{fill=True}, mentre il parametro \texttt{cut=0} limita la rappresentazione all'intervallo definito dai dati osservati. Non viene specificato esplicitamente alcun parametro di \textit{bandwidth}: la larghezza del kernel è quindi determinata mediante il comportamento predefinito della procedura KDE utilizzata da \texttt{seaborn}.
-
-Poiché l'implementazione deve consentire l'ispezione di distribuzioni caratterizzate da scale molto differenti e da possibili forti sbilanciamenti nella densità, l'asse verticale dei grafici viene rappresentato mediante una scala \textit{symlog}, con parametro \texttt{linthresh=1e-5}\footnote{La scala \texttt{symlog} (Symmetric Logarithmic) applica una trasformazione logaritmica all'asse $y$ mantenendo un intervallo puramente lineare all'interno della soglia $[-\text{\texttt{linthresh}}, +\text{\texttt{linthresh}}]$. Ciò previene divergenze verso $-\infty$ per densità prossime o pari a zero.}. 
-Questa configurazione è distinta dalla formulazione teorica della proiezione logaritmica della densità riportata nella Sezione~\ref{subsubsec:log_scale_kde}: nel codice non viene calcolato esplicitamente $\log_{10}(\hat f_y+\epsilon)$, ma viene modificata direttamente la scala dell'asse mediante le funzionalità grafiche di Matplotlib.
-
-\newpage
-
-\begin{lstlisting}[
-    language=Python,
-    caption={Generazione delle stime KDE ed impostazione della scala logaritmica simmetrica su asse $y$.},
-    label={lst:kde_plotting_symlog},
-    frame=single,
-    rulecolor=\color{mygray},
-    backgroundcolor=\color{backcolour},
-    basicstyle=\ttfamily\footnotesize,
-    commentstyle=\color{mygreen},
-    keywordstyle=\color{purple}\bfseries,
-    stringstyle=\color{mymauve},
-    emph={[2]None,True,False},
-    emphstyle={[2]\color{mymauve}\bfseries},
-    breaklines=false,
-    keepspaces=true,
-    showstringspaces=false,
-    numbers=left,
-    numberstyle=\footnotesize\color{mygray},
-    numbersep=8pt
-]
 sns.kdeplot(
     data=X_test_scaled, x=feature, hue=labels, fill=True, alpha=0.3,
     common_norm=False, linewidth=2,

@@ -1,88 +1,183 @@
-% Elaborato della prova finale per il conseguimento della laurea triennale in Ingegneria Informatica presso il dipartimento di Ingegneria "Enzo Ferrari" dell'università di Modena e Reggio Emilia
+% ==============================================================================
+% ELABORATO DELLA PROVA FINALE
+% ==============================================================================
+% Elaborato della prova finale per il conseguimento della Laurea Triennale
+% in Ingegneria Informatica presso il Dipartimento di Ingegneria
+% "Enzo Ferrari" dell'Università degli Studi di Modena e Reggio Emilia.
+% ==============================================================================
 
-% Carattere dimensione 12
-\documentclass[12pt]{report}
 
-% Margini (2.5cm su tutti i lati)
-\usepackage[top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm, head=21.75pt, centering]{geometry}
+% ==============================================================================
+% CLASSE DEL DOCUMENTO
+% ==============================================================================
+
+\documentclass[
+    12pt,
+    twoside,
+    openright
+]{report}
+
+
+% ==============================================================================
+% IMPOSTAZIONI GENERALI DEL DOCUMENTO
+% ==============================================================================
+
+% Margini
+\usepackage[
+    top=2.5cm,
+    bottom=2.5cm,
+    left=2.5cm,
+    right=2.5cm,
+    head=21.75pt,
+    centering
+]{geometry}
 
 % Interlinea
 \linespread{1.5}
-\usepackage[italian]{babel} % applicazione regole di scrittura per la lingua italiana
-\usepackage[utf8]{inputenc} % codifica UTF-8
-\usepackage{scrlayer-scrpage} % stili pagina per il frontespizio
+
+% Lingua e codifica
+\usepackage[italian]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+% Font
+\usepackage{inconsolata}
+\usepackage{newtxtext,newtxmath} % Font simile a Times New Roman
+
+
+% ==============================================================================
+% GESTIONE DELLE PAGINE
+% ==============================================================================
+
+% Stili di pagina
+\usepackage{scrlayer-scrpage}
+
 \ifoot[]{}
 \cfoot[]{}
 \ofoot[\pagemark]{\pagemark}
-\pagestyle{scrplain} 
-\usepackage[hidelinks]{hyperref} % pacchetto per l'utilizzo dei link
-\usepackage[T1]{fontenc}
-\usepackage{inconsolata}
-\usepackage{newtxtext,newtxmath} % font Times New Roman (simile)
-\usepackage{graphicx} % inserimento di immagini
-\usepackage{csquotes} % per le citazioni "in blocco"
-\usepackage{booktabs}    
-\usepackage{adjustbox}  
-\usepackage{filehook}
-\usepackage{makecell}    
-\usepackage{pifont}  
-\usepackage[utf8]{inputenc} 
-\usepackage[T1]{fontenc} 
-\usepackage[italian]{babel}
-\usepackage{graphicx} % inserimento di immagini
-\usepackage{subcaption} % per le sottofigure
-\usepackage[bottom]{footmisc}
-\usepackage[backend=biber, sorting=nty, defernumbers=true]{biblatex} % bibliografia con pacchetto biblatex
-\usepackage{verbatim} % per usare \begin{comment} \end{comment}
+
+\pagestyle{scrplain}
+
+% Rende completamente bianche le pagine inserite automaticamente
+% da openright / cleardoublepage
+\usepackage{emptypage}
+
+
+% ==============================================================================
+% IMMAGINI, FIGURE E TABELLE
+% ==============================================================================
+
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{float}
+
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
 \usepackage{multirow}
+\usepackage{makecell}
+\usepackage{adjustbox}
+\usepackage{varwidth}
+\usepackage{ragged2e}
+\usepackage{tablefootnote}
+
+% Figure / tabelle in landscape
+\usepackage{pdflscape}
+
+
+% ==============================================================================
+% CITAZIONI E BIBLIOGRAFIA
+% ==============================================================================
+
+\usepackage{csquotes}
+\usepackage{etoolbox}
+
+\usepackage[
+    backend=biber,
+    style=ieee,
+    sorting=none
+]{biblatex}
+
 \appto{\bibsetup}{\raggedright}
-\addbibresource{bibliography.bib} % Collega il file della bibliografia
 
-\usepackage{titlesec} % per la formattazione dei titoli delle sezioni, capitoli etc.
-\usepackage{float} % per il posizionamento delle immagini
+\addbibresource{bibliography.bib}
 
-\usepackage{listings} % per il codice di programmazione
+
+% ==============================================================================
+% NOTE A PIÈ DI PAGINA
+% ==============================================================================
+
+\usepackage[bottom]{footmisc}
+
+
+% ==============================================================================
+% CODICE SORGENTE
+% ==============================================================================
+
+\usepackage{listings}
+
 \lstset{
-  literate={è}{{\`e}}1
-           {à}{{\`a}}1
-           {ò}{{\`o}}1
-           {ù}{{\`u}}1
-           {ì}{{\`i}}1
-           {É}{{\'E}}1
+    literate=
+        {è}{{\`e}}1
+        {à}{{\`a}}1
+        {ò}{{\`o}}1
+        {ù}{{\`u}}1
+        {ì}{{\`i}}1
+        {É}{{\'E}}1
 }
-\usepackage{color}
-\usepackage{xurl}
-\usepackage{tikz}
-\usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit, backgrounds, calc, shadows}
-\usepackage{booktabs, tabularx} % for \toprule, \midrule, \bottomrule in tables
+
+
+% ==============================================================================
+% ALGORITMI
+% ==============================================================================
+
 \usepackage{algorithm}
 \usepackage{algpseudocode}
-\usepackage{ragged2e} % Gestisce in modo impeccabile l'allineamento a sinistra nelle tabelle
 
-\usepackage{dirtree}  % per la visualizzazione della struttura delle cartelle
-\usepackage{tablefootnote}  % per le note a piè di pagina nelle tabelle
+
+% ==============================================================================
+% MATEMATICA
+% ==============================================================================
+
+\usepackage{bm}
+
+
+% ==============================================================================
+% STRUTTURA DELLE CARTELLE
+% ==============================================================================
+
+\usepackage{dirtree}
+
+
+% ==============================================================================
+% ALTRI PACCHETTI
+% ==============================================================================
+
+\usepackage{verbatim} % Per \begin{comment} ... \end{comment}
+\usepackage{filehook}
+\usepackage{pifont}
+\usepackage{enumitem}
+
+
+% ==============================================================================
+% COLORI
+% ==============================================================================
 
 \usepackage{xcolor}
 
-\usepackage{array}
-\usepackage{varwidth}
-\usepackage{bm}
-
-\usepackage{pdflscape}
-
-% Definizione dei colori per il codice
+% Colori per il codice
 \definecolor{lightgray}{rgb}{.9,.9,.9}
 \definecolor{darkgray}{rgb}{.4,.4,.4}
-\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+\definecolor{purple}{rgb}{0.65,0.12,0.82}
 \definecolor{mygreen}{rgb}{0,0.6,0}
 \definecolor{mygray}{rgb}{0.5,0.5,0.5}
 \definecolor{mymauve}{rgb}{0.58,0,0.82}
 \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
 
-% Definizione dei colori per i grafici tikz
-\definecolor{indigo}{RGB}{75, 0, 130}
+% Colori per i grafici TikZ
+\definecolor{indigo}{RGB}{75,0,130}
 
-% Definizione palette colori coordinata
+% Palette colori coordinata
 \definecolor{sourceblue}{HTML}{1F77B4}
 \definecolor{sourcelight}{HTML}{E8F1F5}
 \definecolor{targetorange}{HTML}{FF7F0E}
@@ -92,51 +187,124 @@
 \definecolor{paramgreen}{HTML}{2E7D32}
 \definecolor{paramlight}{HTML}{E8F5E9}
 
-% Stili per i linguaggi di programmazione
-\lstdefinelanguage{JavaScript}{
-  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, let, const, if, in, while, do, else, case, break},
-  keywordstyle=\color{blue}\bfseries,
-  ndkeywords={class, export, boolean, throw, implements, import, this},
-  ndkeywordstyle=\color{darkgray}\bfseries,
-  identifierstyle=\color{black},
-  sensitive=false,
-  comment=[l]{//},
-  morecomment=[s]{/*}{*/},
-  morestring=[b]',
-  morestring=[b]",
-  commentstyle=\color{mygreen}\ttfamily,
-  stringstyle=\color{mymauve}\ttfamily,
-  backgroundcolor=\color{backcolour},
-  basicstyle=\footnotesize\ttfamily,
-  showstringspaces=false,
-  extendedchars=true,
-  showspaces=false,
-  numbers=left,
-  numberstyle=\footnotesize,
-  numbersep=9pt,
-  tabsize=2,
-  breaklines=true,
-  showtabs=false,
-  captionpos=b
+
+% ==============================================================================
+% TIKZ
+% ==============================================================================
+
+\usepackage{tikz}
+
+\usetikzlibrary{
+    shapes.geometric,
+    arrows.meta,
+    positioning,
+    fit,
+    backgrounds,
+    calc,
+    shadows
 }
 
-\lstdefinelanguage{MyPython}{
-  language=Python,
-  morekeywords={with, as},
-  keywordstyle=\bfseries\color{blue},
-  commentstyle=\color{mygreen},
-  stringstyle=\color{mymauve},
-  backgroundcolor=\color{backcolour},
-  basicstyle=\footnotesize\ttfamily,
-  showstringspaces=false,
-  numbers=left,
-  numberstyle=\footnotesize,
-  numbersep=9pt,
-  tabsize=2,
-  breaklines=true,
-  showtabs=false,
-  captionpos=t
+% Stili TikZ personalizzati
+\input{tikz_styles.tex}
+
+
+% ==============================================================================
+% FORMATTAZIONE TITOLI
+% ==============================================================================
+
+\usepackage{titlesec}
+
+\titleformat{\chapter}[block]
+    {\normalfont\LARGE\bfseries}
+    {\thechapter.}
+    {0.5em}
+    {\LARGE}
+
+\titlespacing*{\chapter}
+    {0pt}
+    {-20pt}
+    {25pt}
+
+
+% ==============================================================================
+% STILI DEI LINGUAGGI DI PROGRAMMAZIONE
+% ==============================================================================
+
+\lstdefinelanguage{JavaScript}{
+    keywords={
+        typeof,
+        new,
+        true,
+        false,
+        catch,
+        function,
+        return,
+        null,
+        catch,
+        switch,
+        var,
+        let,
+        const,
+        if,
+        in,
+        while,
+        do,
+        else,
+        case,
+        break
+    },
+    keywordstyle=\color{blue}\bfseries,
+    ndkeywords={
+        class,
+        export,
+        boolean,
+        throw,
+        implements,
+        import,
+        this
+    },
+    ndkeywordstyle=\color{darkgray}\bfseries,
+    identifierstyle=\color{black},
+    sensitive=false,
+    comment=[l]{//},
+    morecomment=[s]{/*}{*/},
+    morestring=[b]',
+    morestring=[b]",
+    commentstyle=\color{mygreen}\ttfamily,
+    stringstyle=\color{mymauve}\ttfamily,
+    backgroundcolor=\color{backcolour},
+    basicstyle=\footnotesize\ttfamily,
+    showstringspaces=false,
+    extendedchars=true,
+    showspaces=false,
+    numbers=left,
+    numberstyle=\footnotesize,
+    numbersep=9pt,
+    tabsize=2,
+    breaklines=true,
+    showtabs=false,
+    captionpos=b
 }
+
+
+\lstdefinelanguage{MyPython}{
+    language=Python,
+    morekeywords={with,as},
+    keywordstyle=\bfseries\color{blue},
+    commentstyle=\color{mygreen},
+    stringstyle=\color{mymauve},
+    backgroundcolor=\color{backcolour},
+    basicstyle=\footnotesize\ttfamily,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\footnotesize,
+    numbersep=9pt,
+    tabsize=2,
+    breaklines=true,
+    showtabs=false,
+    captionpos=t
+}
+
 
 \lstdefinestyle{bash}{
     basicstyle=\ttfamily\small,
@@ -149,116 +317,275 @@
     numberstyle=\footnotesize,
     numbersep=9pt,
     columns=fixed,
-    keepspaces=true,
+    keepspaces=true
 }
+
 
 \lstdefinestyle{Prompt}{
-  breaklines=true,
-  basicstyle=\ttfamily,
+    breaklines=true,
+    basicstyle=\ttfamily
 }
+
 
 \lstdefinestyle{Myyaml}{
-  basicstyle=\ttfamily\small,
-  breaklines=true,
-  numbers=left,
-  numberstyle=\footnotesize,
-  numbersep=9pt,
-  showstringspaces=false,
-  tabsize=2,
-  backgroundcolor=\color{backcolour},
-  columns=fixed,
-  keepspaces=true,
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    numbers=left,
+    numberstyle=\footnotesize,
+    numbersep=9pt,
+    showstringspaces=false,
+    tabsize=2,
+    backgroundcolor=\color{backcolour},
+    columns=fixed,
+    keepspaces=true
 }
 
-% Formato delle intestazioni
-\titleformat{\chapter}[block]
-  {\normalfont\LARGE\bfseries}{\thechapter.}{0.5em}{\LARGE}
-\titlespacing*{\chapter}{0pt}{-20pt}{25pt}
 
-\usepackage{enumitem}
+% ==============================================================================
+% URL E COLLEGAMENTI IPERTESTUALI
+% ==============================================================================
 
-\input{tikz_styles.tex}
+\usepackage{xurl}
+
+% Hyperref viene caricato verso la fine del preambolo per ridurre
+% possibili conflitti con gli altri pacchetti
+\usepackage[hidelinks]{hyperref}
+
+
+% ==============================================================================
+% INIZIO DEL DOCUMENTO
+% ==============================================================================
 
 \begin{document}
 
-    \begin{titlepage}
-         
-        \begin{center}
-            \includegraphics[width=8cm]{images/unimore/Sigillo2015.png}
-            \vspace{1cm}
-    
-            {\LARGE{ UNIVERSITÀ DEGLI STUDI DI MODENA \\E REGGIO EMILIA \\}}
-            {\large{ Dipartimento di Ingegneria "Enzo Ferrari" \\}}
-            {\large{ Corso di Laurea Triennale in Ingegneria Informatica (L-08) \\}}
-            \vspace{3cm}
-            {\Large { \textbf{<Titolo dell'Elaborato>} }}\\
-            \vspace{3cm}
-        \end{center}
-        
-        \begin{minipage}[t]{0.47\textwidth}
-        	{\large{\bf Tutor:}\\} 
-        	{\large Prof. Mirco Marchetti}
-        \end{minipage}\hfill\begin{minipage}[t]{0.47\textwidth}\raggedleft
-        	{\large{\bf Candidato:}\\}
-            {\large Alessandro Marchesini}\\
-            {\large Matricola 187179}
-        \end{minipage}
-        
-        \vfill
-        \hrulefill\\
-        \centering{\large{\bf ANNO ACCADEMICO 2025/2026 }}
-    \end{titlepage}
-    
-    \pagestyle{empty}
-    \input{chapters/00_dedication} 
-    \clearpage
-    
-    \tableofcontents      % Genera l'Indice
-    \renewcommand{\listfigurename}{Elenco delle Figure}   % Cambia il titolo della Lista delle Figure
-    \listoffigures        % Genera la Lista delle Figure
-    \renewcommand{\listtablename}{Elenco delle Tabelle}   % Cambia il titolo della Lista delle Tabelle
-    \listoftables         % Genera la Lista delle Tabelle
-    \renewcommand{\lstlistingname}{Codice}  % Cambia il titolo della Lista dei Codici
-    \renewcommand{\lstlistlistingname}{Elenco dei Codici}   % Cambia il titolo della Lista dei Codici
-    \lstlistoflistings    % Genera la Lista dei Codici
-    
-    \clearpage
-    \pagestyle{scrplain} % Ripristina lo stile di pagina normale (con numero di pagina)
-    \setcounter{page}{1} % Fa ripartire la numerazione da 1
 
-    % ==============================================================================
-    % CORPO PRINCIPALE
-    % ==============================================================================
-    \input{chapters/01_introduzione.tex}
-    \input{chapters/02_contesto.tex}
-    \input{chapters/03_metodologia.tex}
-    \input{chapters/04_dimostrazione.tex}
-    \input{chapters/05_risultati.tex}
-    \input{chapters/06_conclusioni.tex} TODO
-    
-    % ==============================================================================
-    % APPENDICI
-    % ==============================================================================
+% ==============================================================================
+% FRONTESPIZIO
+% ==============================================================================
 
-    \clearpage 
-    \appendix
+\begin{titlepage}
 
-    \input{chapters/appendice_risultati.tex}
+    \begin{center}
 
-    % ==============================================================================
-    % BIBLIOGRAFIA
-    % ==============================================================================
+        \includegraphics[width=8cm]{images/unimore/Sigillo2015.png}
 
-    \clearpage
-    \addcontentsline{toc}{chapter}{Riferimenti}
-    \printbibliography[heading=subbibliography, title=Bibliografia]
+        \vspace{1cm}
 
-    % \nocite{*}
+        {\LARGE
+            UNIVERSITÀ DEGLI STUDI DI MODENA\\
+            E REGGIO EMILIA\\
+        }
 
-    % ==============================================================================
-    % RINGRAZIAMENTI
-    % ==============================================================================
+        {\large
+            Dipartimento di Ingegneria ``Enzo Ferrari''\\
+        }
 
-    %\input{chapters/99_acknowledgements} TODO
-   
+        {\large
+            Corso di Laurea Triennale in Ingegneria Informatica (L-08)\\
+        }
+
+        \vspace{3cm}
+
+        {\Large
+            \textbf{<Titolo dell'Elaborato>}
+        }
+
+        \vspace{3cm}
+
+    \end{center}
+
+
+    \begin{minipage}[t]{0.47\textwidth}
+
+        {\large\textbf{Relatore:}\\}
+        {\large Prof. Mirco Marchetti\\[5pt]}
+
+        {\large\textbf{Correlatore:}\\}
+        {\large Dott. Dimitri Galli}
+
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.47\textwidth}
+        \raggedleft
+
+        {\large\textbf{Candidato:}\\}
+        {\large Alessandro Marchesini\\}
+        {\large Matricola 187179}
+
+    \end{minipage}
+
+
+    \vfill
+
+    \hrulefill\\
+
+    \centering
+    {\large\textbf{ANNO ACCADEMICO 2025/2026}}
+
+\end{titlepage}
+
+
+% ==============================================================================
+% DEDICA
+% ==============================================================================
+
+% La dedica non mostra alcun numero di pagina
+\pagestyle{empty}
+
+\input{chapters/00_dedication}
+
+% Passaggio al front matter vero e proprio
+\cleardoublepage
+
+
+% ==============================================================================
+% FRONT MATTER
+% ==============================================================================
+
+% Ripristina il numero di pagina
+\pagestyle{scrplain}
+
+% Numerazione romana:
+% i, ii, iii, iv, ...
+\pagenumbering{roman}
+
+
+% ------------------------------------------------------------------------------
+% SOMMARIO
+% ------------------------------------------------------------------------------
+
+\input{chapters/00_sommario.tex}
+
+
+% ------------------------------------------------------------------------------
+% INDICE GENERALE
+% ------------------------------------------------------------------------------
+
+\tableofcontents
+
+
+% ------------------------------------------------------------------------------
+% ELENCO DELLE FIGURE
+% ------------------------------------------------------------------------------
+
+\renewcommand{\listfigurename}{Elenco delle Figure}
+
+\listoffigures
+
+
+% ------------------------------------------------------------------------------
+% ELENCO DELLE TABELLE
+% ------------------------------------------------------------------------------
+
+\renewcommand{\listtablename}{Elenco delle Tabelle}
+
+\listoftables
+
+
+% ------------------------------------------------------------------------------
+% ELENCO DEI CODICI
+% ------------------------------------------------------------------------------
+
+\renewcommand{\lstlistingname}{Codice}
+
+\renewcommand{\lstlistlistingname}{Elenco dei Codici}
+
+\lstlistoflistings
+
+
+% ==============================================================================
+% CORPO PRINCIPALE
+% ==============================================================================
+
+% Il Capitolo 1 deve iniziare su una pagina dispari
+\cleardoublepage
+
+% Passaggio dalla numerazione romana a quella araba.
+% \pagenumbering{arabic} reimposta automaticamente il contatore a pagina 1.
+\pagenumbering{arabic}
+
+\pagestyle{scrplain}
+
+
+% ------------------------------------------------------------------------------
+% CAPITOLO 1 -- INTRODUZIONE
+% ------------------------------------------------------------------------------
+
+\input{chapters/01_introduzione.tex}
+
+
+% ------------------------------------------------------------------------------
+% CAPITOLO 2 -- CONTESTO
+% ------------------------------------------------------------------------------
+
+\input{chapters/02_contesto.tex}
+
+
+% ------------------------------------------------------------------------------
+% CAPITOLO 3 -- METODOLOGIA
+% ------------------------------------------------------------------------------
+
+\input{chapters/03_metodologia.tex}
+
+
+% ------------------------------------------------------------------------------
+% CAPITOLO 4 -- IMPLEMENTAZIONE
+% ------------------------------------------------------------------------------
+
+\input{chapters/04_dimostrazione.tex}
+
+
+% ------------------------------------------------------------------------------
+% CAPITOLO 5 -- RISULTATI
+% ------------------------------------------------------------------------------
+
+\input{chapters/05_risultati.tex}
+
+
+% ------------------------------------------------------------------------------
+% CAPITOLO 6 -- CONCLUSIONI
+% ------------------------------------------------------------------------------
+
+\input{chapters/06_conclusioni.tex}
+
+
+% ==============================================================================
+% APPENDICI
+% ==============================================================================
+
+\cleardoublepage
+\appendix
+
+% Appendice A -- Implementazione
+\input{chapters/appendice_implementazione.tex}
+
+% Appendice B -- Risultati sperimentali
+\input{chapters/appendice_risultati.tex}
+
+
+% ==============================================================================
+% BIBLIOGRAFIA
+% ==============================================================================
+
+\cleardoublepage
+
+\printbibliography[
+    heading=bibintoc,
+    title={Bibliografia}
+]
+
+
+% ==============================================================================
+% RINGRAZIAMENTI
+% ==============================================================================
+
+\cleardoublepage
+
+\input{chapters/ringraziamenti.tex}
+
+
+% ==============================================================================
+% FINE DEL DOCUMENTO
+% ==============================================================================
+
 \end{document}

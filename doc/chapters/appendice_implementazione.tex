@@ -1,0 +1,314 @@
+\chapter{Dettagli Implementativi e Listati del Framework}
+\label{app:implementazione}
+
+
+
+\section{Campionamento e Istanziazione dei Benchmark}
+\label{app:campionamento_benchmark}
+
+A completamento della procedura di parametrizzazione e istanziazione dei benchmark descritta nella Sottosezione~\ref{subsec:parametrizzazione_benchmark}, si riportano di seguito le routine implementative responsabili dell'applicazione del vincolo di proporzione tra traffico nominale e malevolo e del successivo campionamento stratificato delle partizioni di addestramento e collaudo.
+
+Il Listato~\ref{lst:correct_normal_anomaly_sampling} implementa la determinazione dinamica delle cardinalità da estrarre in funzione del parametro \texttt{MLConstants.NORMAL\_ANOMALY\_RATIO}, mentre il Listato~\ref{lst:stratified_sampling} riporta la procedura di campionamento che preserva la proporzione tra le partizioni identificate dalla variabile \texttt{split\_type}.
+
+
+\begin{lstlisting}[
+    language=Python,
+    caption={Routine di campionamento per l'istanziazione dei benchmark.},
+    label={lst:correct_normal_anomaly_sampling},
+    frame=single,
+    rulecolor=\color{mygray},
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\footnotesize,
+    commentstyle=\color{mygreen},
+    keywordstyle=\color{purple}\bfseries,
+    stringstyle=\color{mymauve},
+    emph={[2]None,True,False},
+    emphstyle={[2]\color{mymauve}\bfseries},
+    breaklines=false,
+    keepspaces=true,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\footnotesize\color{mygray},
+    numbersep=8pt
+]
+def _get_correct_normal_and_anomaly_data_samples(normal_data, anomaly_data, 
+                                            normal_samples, anomaly_samples):
+    # Calcola il corretto numero di campioni da estrarre dalle distribuzioni
+    if normal_samples < anomaly_samples * MLConstants.NORMAL_ANOMALY_RATIO:
+        n_anomaly_target = int(
+            normal_samples / MLConstants.NORMAL_ANOMALY_RATIO
+        )
+        anomaly_data_sample = _safe_stratified_sample(
+            anomaly_data, n_anomaly_target
+        )
+        normal_data_sample = normal_data
+    else:
+        n_normal_target = int(
+            anomaly_samples * MLConstants.NORMAL_ANOMALY_RATIO
+        )
+        normal_data_sample = _safe_stratified_sample(
+            normal_data, n_normal_target
+        )
+        anomaly_data_sample = anomaly_data
+
+    return normal_data_sample, anomaly_data_sample
+\end{lstlisting}
+
+
+\begin{lstlisting}[
+    language=Python,
+    caption={Routine di bilanciamento stratificato per l'istanziazione dei benchmark.},
+    label={lst:stratified_sampling},
+    frame=single,
+    rulecolor=\color{mygray},
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\footnotesize,
+    commentstyle=\color{mygreen},
+    keywordstyle=\color{purple}\bfseries,
+    stringstyle=\color{mymauve},
+    emph={[2]None,True,False},
+    emphstyle={[2]\color{mymauve}\bfseries},
+    breaklines=false,
+    keepspaces=true,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\footnotesize\color{mygray},
+    numbersep=8pt
+]
+def _safe_stratified_sample(data, n_samples):
+    # Se la colonna 'split_type' non è presente, 
+    #esegue un campionamento casuale semplice
+    if 'split_type' not in data.columns:
+        return data.sample(n=n_samples, random_state=MLConstants.MAIN_SEED)
+    
+    # Suddivide il dataset in partizioni di train e test
+    data_train = data[data['split_type'] == 'train']
+    data_test = data[data['split_type'] == 'test']
+    
+    # Calcola la lunghezza totale del dataset
+    total_len = len(data)
+    if total_len == 0 or n_samples == 0:
+        return pd.DataFrame(columns=data.columns)
+    
+    train_ratio = len(data_train) / total_len
+    n_train = round(n_samples * train_ratio)
+    n_test = n_samples - n_train
+    
+    # Gestione difensiva dei limiti di capienza delle partizioni
+    if n_test > len(data_test):
+        diff = n_test - len(data_test)
+        n_test = len(data_test)
+        n_train += diff
+    elif n_train > len(data_train):
+        diff = n_train - len(data_train)
+        n_train = len(data_train)
+        n_test += diff
+    
+    # Campionamento stratificato senza reinserimento
+    sampled_parts = []
+    if n_train > 0 and not data_train.empty:
+        sampled_parts.append(data_train.sample(
+            n=n_train, random_state=MLConstants.MAIN_SEED
+            ))
+    if n_test > 0 and not data_test.empty:
+        sampled_parts.append(data_test.sample(
+            n=n_test, random_state=MLConstants.MAIN_SEED
+            ))
+        
+    if not sampled_parts:
+        return pd.DataFrame(columns=data.columns)
+        
+    return concat_and_shuffle(sampled_parts)
+\end{lstlisting}
+
+
+
+\section{Nomenclatura e Identificazione Automatica dei Modelli}
+\label{app:nomenclatura_modelli}
+
+A supporto della procedura di istanziazione dei classificatori descritta nel Capitolo~\ref{sec:implementazione_classificatori}, il framework adotta una convenzione automatizzata per l'assegnazione dei nomi ai modelli serializzati e ai relativi record di tracciamento.
+
+La funzione \texttt{\_get\_standardized\_model\_name()} determina dinamicamente l'identificativo del modello a partire dalla tipologia del dataset e dall'insieme delle classi presenti. 
+Nel caso di una configurazione contenente più di due classi viene generato l'identificativo aggregato; nel caso biclasse viene invece individuata l'etichetta distinta da \texttt{normal} e incorporata nella nomenclatura del modello.
+
+Il Listato~\ref{lst:get_model_name} riporta l'implementazione completa della procedura.
+
+\begin{lstlisting}[
+    language=Python,
+    caption={Estrazione procedurale dell'etichetta di attacco per la generazione dinamica della nomenclatura del modello.},
+    label={lst:get_model_name},
+    frame=single,
+    rulecolor=\color{mygray},
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\footnotesize,
+    commentstyle=\color{mygreen},
+    keywordstyle=\color{purple}\bfseries,
+    stringstyle=\color{mymauve},
+    emph={[2]None,True,False},
+    emphstyle={[2]\color{mymauve}\bfseries},
+    breaklines=false,
+    keepspaces=true,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\footnotesize\color{mygray},
+    numbersep=8pt
+]
+def _get_standardized_model_name(dataset_type, unique_classes):
+    # Cancella gli spazi bianchi e converte in minuscolo per coerenza
+    classes = [str(c).strip() for c in unique_classes if str(c).strip()]
+
+    # Se len(classes) > 2, restituisce un nome generico
+    if len(classes) > 2:
+        return f"{dataset_type}_aggregate"
+    
+    # Identifica la classe di attacco
+    # (assumendo che 'normal' sia la classe benevola)
+    attack_classes = [c for c in classes if c.lower() != 'normal']
+    attack_name = attack_classes[0].lower() if attack_classes else "normal"
+    
+    return f"{dataset_type}_{attack_name}"
+\end{lstlisting}
+
+
+
+\section{Calcolo delle Metriche e Gestione dei Casi Limite}
+\label{app:calcolo_metriche}
+
+A completamento della procedura di valutazione descritta nella
+Sottosezione~\ref{subsec:calcolo_metriche_hk}, si riporta
+l'implementazione della logica utilizzata per il calcolo delle metriche
+di classificazione e per la gestione dei casi nei quali le quantità
+necessarie alla loro determinazione non risultano definite.
+
+La funzione \texttt{calculate\_metrics()} ricava preliminarmente i
+quattro elementi della matrice di confusione imponendo l'ordine delle
+classi \texttt{[0, 1]}. Le metriche sintetiche vengono calcolate
+soltanto quando il vettore delle etichette reali contiene entrambe le
+classi, mentre TPR, FNR, TNR e FPR sono subordinati alla verifica
+esplicita dei rispettivi denominatori.
+
+Il Listato~\ref{lst:calculate_metrics_edge_cases} riporta il frammento
+implementativo completo utilizzato per tale gestione difensiva.
+
+\begin{lstlisting}[
+    language=Python,
+    caption={Gestione difensiva dei casi limite e calcolo delle metriche in \texttt{calculate\_metrics()}.},
+    label={lst:calculate_metrics_edge_cases},
+    frame=single,
+    rulecolor=\color{mygray},
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\footnotesize, % Dimensione proporzionata che evita il wrap delle righe
+    commentstyle=\color{mygreen}, % Commenti in verde corsivo
+    keywordstyle=\color{purple}\bfseries, % Parole chiave (if, else, not) in viola
+    stringstyle=\color{mymauve}, % Stringhe in mauve/rosso
+    emph={[2]None,True,False}, % Evidenziazione valori booleani/nulli
+    emphstyle={[2]\color{mymauve}\bfseries},
+    breaklines=false, % Disattiva l'andata a capo automatica per mantenere la struttura originale
+    keepspaces=true, % Mantiene gli spazi e le rientranze corrette
+    showstringspaces=false,
+    numbers=left, % Opzionale: numeri di riga a sinistra
+    numberstyle=\footnotesize\color{mygray},
+    numbersep=8pt
+]
+has_classes = len(np.unique(y_test)) > 1
+# [Controllo di sicurezza sul numero di classi...]
+
+# Calcolo delle metriche
+tn, fp, fn, tp = confusion_matrix(y_test, y_pred, labels=[0, 1]).ravel()
+
+if has_classes:
+    accuracy = round(accuracy_score(y_test, y_pred), 
+        MLConstants.DECIMAL_DIGITS)
+    precision = round(precision_score(y_test, y_pred), 
+        MLConstants.DECIMAL_DIGITS)
+    recall = round(recall_score(y_test, y_pred), 
+        MLConstants.DECIMAL_DIGITS)
+    f1 = round(f1_score(y_test, y_pred), 
+        MLConstants.DECIMAL_DIGITS)
+    roc = round(roc_auc_score(y_test, y_scores), 
+        MLConstants.DECIMAL_DIGITS)
+    pr = round(average_precision_score(y_test, y_scores), 
+        MLConstants.DECIMAL_DIGITS)
+else:
+    accuracy = precision = recall = f1 = roc = pr = None
+    
+if (tp + fn) > 0:
+    tpr = round(tp / (tp + fn), MLConstants.DECIMAL_DIGITS)
+    fnr = round(fn / (tp + fn), MLConstants.DECIMAL_DIGITS)
+else:
+    tpr, fnr = None, None
+
+if (fp + tn) > 0: 
+    tnr = round(tn / (fp + tn), MLConstants.DECIMAL_DIGITS)
+    fpr = round(fp / (fp + tn), MLConstants.DECIMAL_DIGITS)
+else:
+    tnr, fpr = None, None
+\end{lstlisting}
+
+
+
+\section{Implementazione del Test $t$ di Welch}
+\label{app:welch_implementation}
+
+A completamento del protocollo inferenziale descritto nella Sottosezione~\ref{subsec:implementazione_welch}, si riporta l'implementazione completa della procedura utilizzata per il confronto statistico tra il modello di riferimento \texttt{INJECTION} e le configurazioni sottoposte a valutazione.
+
+La procedura estrae dal \textit{DataFrame} di sintesi i valori medi di \textit{F1-Score} associati ai diversi seed, costruisce i campioni corrispondenti alle configurazioni confrontate ed esegue il test mediante la funzione \texttt{scipy.stats.ttest\_ind()} con \texttt{equal\_var=False}. 
+L'esito viene successivamente classificato rispetto al livello di significatività prefissato e memorizzato nella struttura dei risultati.
+
+Il Listato~\ref{lst:welch_implementation} riporta l'implementazione completa della procedura.
+
+\begin{lstlisting}[
+    language=Python,
+    caption={Estrazione dei campioni ed esecuzione del Test $t$ di Welch.},
+    label={lst:welch_implementation},
+    frame=single,
+    rulecolor=\color{mygray},
+    backgroundcolor=\color{backcolour},
+    basicstyle=\ttfamily\footnotesize,
+    commentstyle=\color{mygreen},
+    keywordstyle=\color{purple}\bfseries,
+    stringstyle=\color{mymauve},
+    emph={[2]None,True,False},
+    emphstyle={[2]\color{mymauve}\bfseries},
+    breaklines=false,
+    keepspaces=true,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\footnotesize\color{mygray},
+    numbersep=8pt
+]
+# Estrazione dei valori di F1-Score medi per il modello 
+# di riferimento (INJECTION) su tutti i seed
+ref_row = data[data["model_name"] == reference_model]
+ref_scores = (
+    ref_row.drop(columns=["id", "model_name"]).values.flatten().astype(float)
+)
+
+results_list = []
+# Itera su ciascun modello presente nel DataFrame di sintesi 
+# per eseguire i confronti incrociati
+for _, row in data.iterrows():
+    current_model = row["model_name"]
+
+    if current_model == reference_model: continue
+
+    # Isola i valori numerici di test per il modello confrontato
+    current_scores = row.drop(["id", "model_name"]).values.astype(float)
+
+    # Esegue il test t di Welch assumendo varianze non uguali
+    t_stat, p_value = stats.ttest_ind(
+        ref_scores, current_scores, equal_var=False
+    )
+
+    # Valuta la significatività statistica
+    is_significant = "YES" if p_value < alpha else "NO"
+
+    results_list.append({
+        "Reference_Model": reference_model,
+        "Compared_Model": current_model,
+        "t_statistic": t_stat,
+        "p_value": p_value,
+        "alpha": alpha,
+        "is_significant": is_significant
+    })
+\end{lstlisting}
