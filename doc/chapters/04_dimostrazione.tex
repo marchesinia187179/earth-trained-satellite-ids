@@ -968,26 +968,16 @@ In perfetta simmetria con la suddivisione concettuale tra dominio sorgente e dom
     \small
     \caption{Istanze dei modelli biclasse generati per il dominio sorgente e i domini target ibridizzati.}
     \label{tab:biclass_models_summary}
-    \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+    \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X}
         \toprule
-        \textbf{Categoria} & \textbf{Dominio} & \textbf{Istanze Modello Biclasse} \\
+        \textbf{Categoria} & \textbf{Dominio} \\
         \midrule
-        \textbf{Modelli Sorgente} & UNSW-NB15 & 
-        \texttt{nb15\_dos} \newline
-        \texttt{nb15\_exploits} \newline
-        \texttt{nb15\_fuzzers} \newline
-        \texttt{nb15\_generic} \newline
-        \texttt{nb15\_reconnaissance} \\
-        \addlinespace
-        \textbf{Modelli Ibridi Target} & SAT20 & 
-        \texttt{nb15\_sat20\_syn\_ddos} \newline
-        \texttt{nb15\_sat20\_udp\_ddos} \\
-        \addlinespace
-        \textbf{Modelli Ibridi Target} & TER20 & 
-        \texttt{nb15\_ter20\_botnet} \newline
-        \texttt{nb15\_ter20\_ddos} \newline
-        \texttt{nb15\_ter20\_syn\_ddos} \newline
-        \texttt{nb15\_ter20\_udp\_ddos} \\
+        \textbf{Modelli Sorgente} & UNSW-NB15 \\
+        \multicolumn{2}{l}{\texttt{nb15\_dos} \quad \texttt{nb15\_exploits} \quad \texttt{nb15\_fuzzers} \quad \texttt{nb15\_generic} \quad \texttt{nb15\_reconnaissance}} \\
+        \textbf{Modelli Ibridi Target} & SAT20 \\
+        \multicolumn{2}{l}{\texttt{nb15\_sat20\_syn\_ddos} \quad \texttt{nb15\_sat20\_udp\_ddos}} \\
+        \textbf{Modelli Ibridi Target} & TER20 \\
+        \multicolumn{2}{l}{\texttt{nb15\_ter20\_botnet} \quad \texttt{nb15\_ter20\_ddos} \quad \texttt{nb15\_ter20\_syn\_ddos} \quad \texttt{nb15\_ter20\_udp\_ddos}} \\
         \bottomrule
     \end{tabularx}
 \end{table}
@@ -1167,7 +1157,6 @@ In particolare, vengono utilizzate le metriche descritte in Tabella~\ref{tab:eva
 \end{table}
 
 La matrice di confusione viene esplicitamente calcolata imponendo l'ordine delle classi \texttt{[0, 1]} e successivamente scomposta nei quattro termini fondamentali:
-
 \begin{equation}
 \mathbf{C} =
 \begin{bmatrix}
@@ -1242,7 +1231,6 @@ La persistenza viene effettuata mediante \texttt{update\_or\_append\_csv()}, che
 
 A partire dai risultati persistiti viene costruita la matrice di valutazione definita teoricamente nel Capitolo~\ref{ch:metodologia}. 
 Per ciascun seed $s_k \in \mathcal{S}$, tale matrice può essere formalmente rappresentata come:
-
 \begin{equation}
 H_k = \left[ h_{ij}^{(k)} \right] \in \mathbb{R}^{M \times D},
 \label{eq:hk_implementation}
@@ -1251,7 +1239,6 @@ H_k = \left[ h_{ij}^{(k)} \right] \in \mathbb{R}^{M \times D},
 dove $M$ identifica l'insieme dei modelli addestrati, $D$ l'insieme dei dataset di valutazione e ciascun elemento $h_{ij}^{(k)}$ rappresenta il valore della metrica considerata per la coppia costituita dal $i$-esimo modello e dal $j$-esimo dataset al seed $s_k$.
 
 Nell'implementazione concreta, la rappresentazione generale viene articolata in due matrici indipendenti, una relativa al \textit{True Positive Rate} e una relativa al \textit{True Negative Rate}:
-
 \begin{equation}
 H_k^{TPR} = \left[ TPR_{ij}^{(k)} \right], \qquad H_k^{TNR} = \left[ TNR_{ij}^{(k)} \right].
 \label{eq:hk_tpr_tnr}
@@ -1341,14 +1328,12 @@ L'intero flusso operativo di valutazione e la successiva aggregazione statistica
 Al termine dell'elaborazione dei singoli seed, viene eseguita una seconda fase di aggregazione che considera congiuntamente i risultati prodotti per tutti i valori di $s_k$. La routine \texttt{\_aggregated\_heatmaps()} legge i file \texttt{classifications.csv} presenti nelle directory associate ai diversi seed, li concatena in un unico \textit{DataFrame} e associa esplicitamente a ciascun record il seed di provenienza. 
 
 Per ciascuna coppia modello--dataset vengono successivamente determinate le statistiche aggregate della metrica considerata sui diversi seed. In particolare, per TPR e TNR viene prodotta un'unica matrice contenente due valori numerici distinti per ogni coppia modello--dataset: rispettivamente la media
-
 \begin{equation}
 \overline{h}_{ij} = \frac{1}{K} \sum_{k=1}^{K} h_{ij}^{(k)},
 \label{eq:metric_mean}
 \end{equation}
 
 e la varianza
-
 \begin{equation}
 \sigma_{ij}^{2} = \frac{1}{K} \sum_{k=1}^{K} \left( h_{ij}^{(k)}-\overline{h}_{ij} \right)^2.
 \label{eq:metric_variance}
@@ -1407,7 +1392,6 @@ I dati provenienti dalle diverse esecuzioni vengono successivamente concatenati 
 
 Poiché ciascun file di classificazione contiene più osservazioni relative a differenti dataset valutati dallo stesso modello, la procedura effettua un'ulteriore aggregazione mediante un raggruppamento per coppia \texttt{model\_name}--seed. 
 Per ciascuna coppia viene calcolata la media della \textit{F1-Score} sui dataset disponibili. Indicando con $f_{ij}^{(k)}$ il valore della \textit{F1-Score} associato al modello $i$, al dataset $j$ e al seed $s_k$, il valore utilizzato nel successivo test statistico è pertanto
-
 \begin{equation}
 \overline{F1}_{i}^{(k)}
 =
@@ -1494,7 +1478,6 @@ L'opzione \texttt{equal\_var=False} impone esplicitamente l'utilizzo della formu
 Per ogni gruppo di analisi viene individuato il modello di riferimento ricercando nel campo \texttt{model\_name} la configurazione contenente la stringa \texttt{INJECTION}. 
 La struttura dei benchmark garantisce la presenza di una sola configurazione di questo tipo nel \textit{DataFrame} considerato; tale modello viene pertanto utilizzato come riferimento per tutti i successivi confronti. 
 I valori corrispondenti ai dieci seed del modello di riferimento costituiscono il campione
-
 \begin{equation}
 \mathcal{F}_{\text{base}}
 =
@@ -1508,7 +1491,6 @@ I valori corrispondenti ai dieci seed del modello di riferimento costituiscono i
 \end{equation}
 
 Per ciascun modello confrontato $m$, viene analogamente costruito il campione
-
 \begin{equation}
 \mathcal{F}_{m}
 =
@@ -1522,7 +1504,6 @@ Per ciascun modello confrontato $m$, viene analogamente costruito il campione
 \end{equation}
 
 Il test inferenziale viene condotto assumendo l'indipendenza statistica delle osservazioni generate dalle diverse iterazioni con seed sintetici distinti ($s_k \in \mathcal{S}$) e senza vincoli sulla varianza delle due popolazioni. L'ipotesi nulla e l'ipotesi alternativa sono pertanto formulate, per ciascun confronto diretto tra $\mathcal{F}_{\text{base}}$ e $\mathcal{F}_{m}$, come
-
 \begin{equation}
 H_0:
 \mu_{\text{base}} = \mu_m,
@@ -1564,7 +1545,6 @@ for _, row in data.iterrows():
 \end{lstlisting}
 
 Il livello di significatività è stabilito \textit{a priori} al valore di primo tipo
-
 \begin{equation}
 \alpha = 0{,}05,
 \label{eq:welch_alpha}
@@ -1573,7 +1553,6 @@ Il livello di significatività è stabilito \textit{a priori} al valore di primo
 acquisito dal parametro di configurazione \texttt{MLConstants.WELCH\_TTEST\_ALFA\_VALUE}. 
 La decisione statistica viene determinata direttamente confrontando il \textit{p-value} restituito dal test con tale soglia prefissata. 
 In particolare, la differenza prestazionale tra il modello in esame e la baseline viene marcata come statisticamente significativa quando
-
 \begin{equation}
 p < \alpha,
 \label{eq:welch_decision_rule}
@@ -1774,10 +1753,8 @@ Il Listato~\ref{lst:pca_source_scaling} sintetizza entrambe le fasi, evidenziand
     label={lst:pca_source_scaling}
 ]
 scaler = StandardScaler()
-pca = PCA(
-    n_components=MLConstants.PCA_COMPONENTS,
-    random_state=MLConstants.MAIN_SEED
-)
+
+pca = PCA(n_components=MLConstants.PCA_COMPONENTS, random_state=MLConstants.MAIN_SEED)
 
 X_source_scaled = scaler.fit_transform(X_source)
 pca.fit(X_source_scaled)
@@ -1826,8 +1803,7 @@ stime KDE.
     caption={Standardizzazione dipendente dal sorgente, trasformazione delle feature e generazione delle stime KDE.},
     label={lst:kde_source_scaling}
 ]
-scaler = StandardScaler()
-scaler.fit(df_source[valid_source_features])
+scaler = StandardScaler().fit(df_source[valid_source_features])
 
 for feature in valid_features:
     if feature in scaler.feature_names_in_:
@@ -1837,9 +1813,8 @@ for feature in valid_features:
         X_test_scaled[feature] = (X_test_raw[feature] - mu_s) / sigma_s
 
 sns.kdeplot(
-    data=X_test_scaled, x=feature, hue=labels, fill=True, alpha=0.3,
-    common_norm=False, linewidth=2,
-    palette={'Normal Traffic': '#1f77b4', 'Attack/Anomaly': '#ff7f0e'},
+    data=X_test_scaled, x=feature, hue=labels, fill=True, alpha=0.3, common_norm=False,
+    linewidth=2, palette={'Normal Traffic': '#1f77b4', 'Attack/Anomaly': '#ff7f0e'},
     ax=ax, warn_singular=False, cut=0
 )
 
@@ -1911,7 +1886,6 @@ L'analisi rimane pertanto confinata alla fase diagnostica e non modifica il mode
 Prima della costruzione delle spiegazioni viene effettuato un campionamento stratificato e deterministico del test set (ancorato al seed di esecuzione), utilizzato per definire il dataset di background dell'algoritmo TreeSHAP. 
 La dimensione massima del campione è fissata dalla costante \texttt{SHAP\_MAX\_SAMPLES=500}\footnote{Il sotto-campionamento deterministico del dataset di background costituisce una misura essenziale per contenere la complessità computazionale del calcolo dei valori di Shapley. Riducendo la cardinalità del campione di riferimento a una quota rappresentativa, si previene un incremento insostenibile dei tempi di esecuzione e dell'occupazione di memoria durante l'algoritmo TreeSHAP, preservando al contempo la convergenza stocastica delle stime empiriche e la stabilità delle spiegazioni rese.}. 
 Le quote assegnate alle due classi sono calcolate mediante il parametro \texttt{NORMAL\_ANOMALY\_RATIO}, secondo:
-
 \begin{equation}
 N_{\mathrm{anom}} =
 \left\lfloor
@@ -2021,11 +1995,11 @@ L'intera architettura della pipeline, articolata nelle sue quattro fasi di elabo
         % FASE 4: RENDERING E PERSISTENZA (Livello 4)
         % ==========================================
         \coordinate (c4) at ($(c3) + (0, -3.4cm)$);
-        \node[node_primary, below left=2cm and 0.75cm of c4] (render) {
+        \node[node_primary, below left=2cm and 0.55cm of c4] (render) {
             \textbf{Rendering}\\ 
             \texttt{summary\_plot(dot)}
         };
-        \node[node_output, below right=2cm and 0.75cm of c4] (output) {
+        \node[node_output, below right=2cm and 1.4cm of c4] (output) {
             \textbf{Salvataggio}\\ 
             PNG
         };
@@ -2150,73 +2124,156 @@ Al fine di formalizzare la natura ibrida di tale procedura, la Figura~\ref{fig:s
     \begin{tikzpicture}[]
         
         % =====================================================================
-        % NODI DEL DIAGRAMMA
+        % COORDINATE CENTRALI DELLE TRE FASI
+        % =====================================================================
+        \coordinate (c1) at (0,0);
+        \coordinate (c2) at (0,-3.9cm);
+        \coordinate (c3) at (0,-7.45cm);
+        
+        
+        % =====================================================================
+        % FASE 1: AUTOMAZIONE DIAGNOSTICA
+        % Tutti i blocchi sulla stessa coordinata Y
         % =====================================================================
         
-        % FASE 1: Automazione Diagnostica (Livello 1)
-        \node[node_primary] (shap_gen) {
+        \node[node_primary, left=0.5cm of c1] (shap_gen) {
             \textbf{Generazione Batch} \\ 
             \texttt{save\_shap\_plot()}
         };
-        \node[node_output, below=1cm of shap_gen] (shap_plots) {
-            \textbf{Collezione Grafici SHAP} \\ 
+        
+        \node[node_output, right=0.5cm of c1] (shap_plots) {
+            \textbf{Collezione Grafici} \\[-5pt]
+            \textbf{SHAP} \\ 
             $(r = 1 \dots R)$
         };
         
-        % FASE 2: Intervento Supervisionato (Livello 2)
-        \node[node_accent, below=2cm of shap_plots] (human_eval) {
-            \textbf{Ispezione Visiva dei rank $\bf{\mathcal{T}_r}$} \\ 
-            e calcolo del contatore $C_j$
-        };
-        \node[node_transform, right=1cm of human_eval] (top_features) {
+        \draw[arrow_flow] (shap_gen) -- (shap_plots);
+        
+        
+        % =====================================================================
+        % FASE 2: INTERVENTO SUPERVISIONATO
+        % Tre blocchi affiancati con distanza di 1 cm
+        % =====================================================================
+        
+        \node[node_transform] (top_features) at (c2) {
             \textbf{Ordinamento} \\[-5pt]
             \textbf{Empirico} \\[-5pt]
             \textbf{e Selezione Top-3}
         };
+        
+        \node[node_accent, left=1cm of top_features] (human_eval) {
+            \textbf{Ispezione Visiva} \\[-5pt]
+            \textbf{dei rank $\bf{\mathcal{T}_r}$} \\[-5pt]
+            e calcolo del contatore $C_j$
+        };
+        
         \node[node_process, right=1cm of top_features] (config_var) {
             \textbf{Definizione Costante} \\ 
             \texttt{KDE\_TOP\_FEATURES}
         };
         
-        % FASE 3: Automazione Densometrica (Livello 3)
-        \node[node_primary, below=2.5cm of config_var] (kde_gen) {
+        \draw[arrow_flow] (human_eval) -- (top_features);
+        \draw[arrow_flow] (top_features) -- (config_var);
+        
+        
+        % =====================================================================
+        % FASE 3: AUTOMAZIONE DENSOMETRICA
+        % Tutti i blocchi sulla stessa coordinata Y
+        % =====================================================================
+        
+        \node[node_primary, left=0.5cm of c3] (kde_gen) {
             \textbf{Pipeline Densometrica} \\ 
             \texttt{save\_all\_kde\_plots()}
         };
-        \node[node_output, below=1cm of kde_gen] (kde_plots) {
+        
+        \node[node_output, right=0.5cm of c3] (kde_plots) {
             \textbf{Esportazione Finale} \\ 
             Grafici KDE
         };
-
-        % =====================================================================
-        % FRECCE E CONNESSIONI
-        % =====================================================================
-        \draw[arrow_flow] (shap_gen) -- (shap_plots);
-        \draw[arrow_target] (shap_plots) -- (human_eval) node[midway, left, font=\footnotesize] {Output Analizzato};
-        \draw[arrow_flow] (human_eval) -- (top_features);
-        \draw[arrow_flow] (top_features) -- (config_var);
-        \draw[arrow_param] (config_var) -- (kde_gen) node[midway, pos=0.45, left, font=\footnotesize] {Iniezione Parametro};
+        
         \draw[arrow_flow] (kde_gen) -- (kde_plots);
-
+        
+        
         % =====================================================================
-        % BOX DI RAGGRUPPAMENTO (LAYER BACKGROUND)
+        % COORDINATE DI RIFERIMENTO PER MARGINI UNIFORMI
+        % La Fase 2 è la più larga e determina la larghezza comune
         % =====================================================================
+        
+        \coordinate (L_ref) at ($(human_eval.west) - (12pt,0)$);
+        \coordinate (R_ref) at ($(config_var.east) + (12pt,0)$);
+        
+        
+        % =====================================================================
+        % CONNETTORI PACMAN TRA LE FASI
+        % =====================================================================
+        
+        % ---------------------------------------------------------------------
+        % Transizione Fase 1 -> Fase 2
+        % ---------------------------------------------------------------------
+        
+        % Uscita verso destra
+        \draw[neutralgrey, thick]
+            (shap_plots.east) -- (shap_plots.east -| R_ref) node[midway, pos=0.55, below, font=\footnotesize, align=center] {Output\\[-5pt] Analizzato} [dashed] -- ++(1cm,0);
+        
+        % Ingresso da sinistra
+        \draw[neutralgrey, thick, dashed]
+            ($(human_eval.west -| L_ref) - (1cm,0)$) -- (human_eval.west -| L_ref) [solid, -{Stealth[scale=1.1]}] -- (human_eval.west);
+        
+        
+        % ---------------------------------------------------------------------
+        % Transizione Fase 2 -> Fase 3
+        % ---------------------------------------------------------------------
+        
+        % Uscita verso destra
+        \draw[neutralgrey, thick] (config_var.east) -- (config_var.east -| R_ref) [dashed] -- ++(1cm,0);
+        
+        % Ingresso da sinistra
+        \draw[neutralgrey, thick, dashed] ($(kde_gen.west -| L_ref) - (1cm,0)$) -- (kde_gen.west -| L_ref) [solid, -{Stealth[scale=1.1]}] -- (kde_gen.west) node[pos=0.45, below, font=\footnotesize, align=center] {Iniezione\\[-5pt] Parametro};
+        
+        
+        % =====================================================================
+        % BOX DI RAGGRUPPAMENTO
+        % =====================================================================
+        
         \begin{scope}[on background layer]
-            % Box Fase 1
-            \node[group_box, fit=(shap_gen) (shap_plots)] (box_l1) {};
             
-            % Box Fase 2 (Human-in-the-Loop)
-            \node[group_highlight, fit=(human_eval) (top_features) (config_var)] (box_l2) {};
-
-            % Box Fase 3
-            \node[group_box, fit=(kde_gen) (kde_plots)] (box_l3) {};
+            % Fase 1
+            \node[
+                group_box,
+                fit=(shap_gen) (shap_plots)
+                    (L_ref |- shap_gen)
+                    (R_ref |- shap_plots)
+            ] (box_l1) {};
+            
+            % Fase 2
+            \node[
+                group_highlight,
+                fit=(human_eval) (top_features) (config_var)
+                    (L_ref |- human_eval)
+                    (R_ref |- config_var)
+            ] (box_l2) {};
+            
+            % Fase 3
+            \node[
+                group_box,
+                fit=(kde_gen) (kde_plots)
+                    (L_ref |- kde_gen)
+                    (R_ref |- kde_plots)
+            ] (box_l3) {};
+            
         \end{scope}
-
+        
+        
+        % =====================================================================
+        % TITOLI
+        % =====================================================================
+        
         \node[above, font=\footnotesize\bfseries, color=neutralgrey] at (box_l1.north) {Fase 1: Automazione Diagnostica};
-        \node[above, font=\footnotesize\bfseries, color=paramgreen] at (box_l2.north) {Fase 2: Intervento Supervisionato};
-        \node[above, font=\footnotesize\bfseries, color=neutralgrey, fill=white] at (box_l3.north) {Fase 3: Automazione Densometrica};
+        \node[above, font=\footnotesize\bfseries, color=paramgreen] at (box_l2.north) {Fase 2: Intervento Supervisionato};    
+        \node[above, font=\footnotesize\bfseries, color=neutralgrey] at (box_l3.north) {Fase 3: Automazione Densometrica};
         
     \end{tikzpicture}
+    
     \caption{Diagramma architetturale del raccordo \textit{Human-in-the-Loop} tra l'analisi diagnostica (SHAP) e la valutazione densometrica (KDE). L'intervento manuale (Fase 2) funge da disaccoppiamento metodologico tra le due pipeline automatizzate.}
     \label{fig:shap_kde_workflow}
 \end{figure}
@@ -2226,7 +2283,6 @@ Poiché la rappresentazione \texttt{plot\_type="dot"} ordina le caratteristiche 
 L'analisi viene ripetuta considerando tutti i grafici SHAP prodotti per le combinazioni di modelli, benchmark e seed previste dal protocollo sperimentale.
 
 A partire da tale ispezione viene costruito manualmente un contatore per ciascuna caratteristica $j$, definito come:
-
 \begin{equation}
 C_j =
 \sum_{r=1}^{R}

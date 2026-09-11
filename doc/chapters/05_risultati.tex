@@ -43,7 +43,6 @@ La proporzione tra le due macro-classi rimane quindi invariata; ciò che varia t
 \paragraph{Riferimento statistico e composizione dei test set.}
 L'Analisi delle Componenti Principali viene impiegata esclusivamente a scopo diagnostico sulle partizioni di test, utilizzando il sistema di riferimento dipendente dal dominio sorgente definito nel Capitolo~\ref{ch:implementazione}. 
 Lo standardizzatore è adattato su \texttt{NB15} e le statistiche $(\boldsymbol{\mu}_{S},\boldsymbol{\sigma}_{S})$ così ottenute vengono mantenute fisse per le configurazioni successive. Analogamente, la matrice degli autovettori $\mathbf{W}_{S}$ viene determinata una sola volta mediante il fitting della PCA sul benchmark sorgente standardizzato. Un generico benchmark $D$ viene pertanto proiettato secondo
-
 \begin{equation}
     \mathbf{P}_{D}
     =
@@ -150,7 +149,6 @@ L'interpretazione riguarda posizione, dispersione, estensione e sovrapposizione 
 
 A supporto delle rappresentazioni grafiche, le statistiche disponibili per le singole famiglie d'attacco sono aggregate nelle rispettive componenti malevole. 
 Indicando con $\mathcal{C}_{A}$ l'insieme delle classi malevole, la media aggregata è
-
 \begin{equation}
     \mu_{A}
     =
@@ -162,7 +160,6 @@ Indicando con $\mathcal{C}_{A}$ l'insieme delle classi malevole, la media aggreg
 \end{equation}
 
 mentre la varianza complessiva, comprendente sia la dispersione interna alle classi sia quella tra le rispettive medie, è
-
 \begin{equation}
     \sigma_{A}^{2}
     =
@@ -319,7 +316,6 @@ Tutti i test set condividono la medesima cardinalità:
 $18\,600$ campioni nominali e $1\,860$ malevoli, per un totale di $20\,460$ osservazioni. 
 Tale uniformità rende direttamente confrontabili anche le cardinalità $TP$, $TN$, $FP$ e $FN$. 
 La lettura prestazionale viene tuttavia condotta prioritariamente mediante
-
 \[
     \mathrm{TPR}=\mathrm{Recall},
     \qquad
@@ -403,7 +399,6 @@ La criticità di \texttt{Fuzzers} rimane evidente anche nell'F1-Score: $0.3918$ 
 
 Particolare attenzione richiede nuovamente HGB su \texttt{nb15\_ter20--Syn\_DDoS}. 
 Alla soglia operativa utilizzata dalla pipeline si osserva
-
 \[
     \mathrm{TPR}=0,
     \qquad
@@ -614,7 +609,6 @@ La matrice completa delle TPR medie sulle nove distribuzioni target aggregate e 
 
 Per il modello aggregato, considerando congiuntamente i sei benchmark sorgente, la TPR media è pari a $0.7870$, $0.7601$ e $0.7833$ rispettivamente per DT, HGB e RF. 
 Sui nove benchmark target i valori si riducono invece a
-
 \[
     0.3234 \quad \text{(DT)}, \qquad
     0.0607 \quad \text{(HGB)}, \qquad
@@ -656,7 +650,6 @@ Il confronto viene condotto separatamente per DT, HGB e RF tra il modello aggreg
 Le configurazioni condividono componente nominale, rapporto tra le classi e cardinalità complessiva; la differenza riguarda la classe positiva, poiché la baseline sostituisce $29$ dei $9\,300$ campioni malevoli NB15 con osservazioni provenienti da STIN.
 
 Indicando con $\overline{TPR}_{\mathrm{base},j}$ e $\overline{TPR}_{S,j}$ le TPR medie sui $K=10$ seed relative al test set $j$, viene definita
-
 \begin{equation}
     \Delta TPR_j =
     \overline{TPR}_{\mathrm{base},j}
@@ -709,7 +702,6 @@ La sola stabilità non costituisce pertanto un indicatore di efficacia: una risp
 \paragraph{Confronto con il migliore rilevatore sorgente disponibile.}
 Per evitare che il confronto con il solo modello aggregato sottostimi la capacità del paradigma sorgente, per ciascun benchmark target viene inoltre considerata la migliore TPR media ottenuta tra il modello aggregato e i cinque rilevatori specialistici. 
 Si definisce
-
 \begin{equation}
     \Delta TPR^{\mathrm{best}}_j =
     \overline{TPR}_{\mathrm{base},j}
@@ -854,7 +846,6 @@ Un secondo raccordo riguarda \texttt{total\_bytes}, seconda feature per DT e RF 
 Al contrario, \texttt{dst\_win\_byt}, pur mostrando un evidente scostamento distributivo tra NB15 e STIN, rimane nelle posizioni inferiori delle graduatorie SHAP dei tre modelli sorgente.
 
 L'evidenza complessiva mostra quindi che
-
 \[
     \text{ampiezza del domain shift}
     \;\not\equiv\;
@@ -877,7 +868,6 @@ La significatività delle differenze globali rispetto alla baseline viene verifi
 \paragraph{Costruzione dei campioni statistici.}
 La verifica inferenziale segue il protocollo definito nel Capitolo~\ref{ch:implementazione}. 
 Per ciascun modello $i$ e seed $s_k$, la quantità sottoposta al confronto è la media dell'F1-Score sui $16$ test set della cross-evaluation:
-
 \begin{equation}
     \overline{F1}_{i}^{(k)}
     =
@@ -889,7 +879,6 @@ Per ciascun modello $i$ e seed $s_k$, la quantità sottoposta al confronto è la
 
 Ogni configurazione è quindi rappresentata da $K=10$ valori $\overline{F1}_{i}^{(k)}$. 
 Il test confronta il vettore della baseline \texttt{injection\_aggregate} con quello di ciascun modello sorgente mediante un test $t$ di Welch bilaterale, senza assumere uguaglianza delle varianze:
-
 \[
     H_0:\mu_{\mathrm{base}}=\mu_m,
     \qquad
@@ -949,7 +938,6 @@ Ciascuna configurazione viene istanziata mediante DT, HGB e RF e sottoposta alla
 
 La costruzione dei benchmark ibridi richiede una cautela interpretativa specifica. 
 Nel training, infatti, il traffico nominale appartiene sempre al dominio sorgente, mentre quello malevolo appartiene al dominio target:
-
 \[
     Y=0 \Rightarrow D=\texttt{NB15},
     \qquad
@@ -983,7 +971,6 @@ La generalizzazione deve essere valutata anche sugli attacchi sorgente e sulle d
 \paragraph{Preservazione della componente nominale.}
 Un comportamento completamente uniforme emerge per la specificità. 
 Sulle $K=10$ repliche, tutti i modelli ibridi e tutte le architetture presentano
-
 \[
     \overline{TNR}=1.0000,
     \qquad
@@ -1010,19 +997,23 @@ La prossimità numerica rispetto alla ridotta quota target presente in \texttt{I
 
 \paragraph{Generalizzazione tra distribuzioni target.}
 Il comportamento cambia radicalmente quando la componente malevola appartiene al dominio target. 
-Per i tre modelli aggregati, la TPR media sui nove benchmark target risulta:
+Per i tre modelli aggregati, la TPR media sui nove benchmark target risulta riportata nella Tabella~\ref{tab:tpr_media_target_aggregati}.
 
-\[
-\begin{array}{c|ccc}
-    & \texttt{NB15\_STIN} &
-      \texttt{NB15\_SAT20} &
-      \texttt{NB15\_TER20} \\
-    \hline
-    DT  & 0.999922 & 0.999889 & 0.999922 \\
-    HGB & 0.999944 & 0.981796 & 0.999944 \\
-    RF  & 0.999922 & 0.999894 & 0.999906
-\end{array}
-\]
+\begin{table}[H]
+    \centering
+    \small
+    \caption{TPR media dei tre modelli aggregati sui nove benchmark target.}
+    \label{tab:tpr_media_target_aggregati}
+    \begin{tabular}{lccc}
+        \toprule
+        \textbf{Modello} & \textbf{\texttt{NB15\_STIN}} & \textbf{\texttt{NB15\_SAT20}} & \textbf{\texttt{NB15\_TER20}} \\
+        \midrule
+        DT  & 0.999922 & 0.999889 & 0.999922 \\
+        HGB & 0.999944 & 0.981796 & 0.999944 \\
+        RF  & 0.999922 & 0.999894 & 0.999906 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
 
 La sensibilità non risulta quindi limitata alla singola distribuzione target utilizzata nel fitting: i modelli aggregati mantengono TPR prossime all'unità anche sulle altre distribuzioni target considerate. 
 Tale evidenza indica un'elevata trasferibilità all'interno del gruppo target, ma non permette di stabilire se essa derivi da proprietà condivise degli attacchi o da caratteristiche distributive comuni ai domini target, dato il confondimento tra classe e provenienza presente nel training.
@@ -1047,7 +1038,6 @@ mostrato variazioni distributive rilevanti per \texttt{pkts\_per\_sec}, \texttt{
 Nel paradigma ibrido tali differenze coincidono strutturalmente con la distinzione tra le etichette.
 
 Il profilo
-
 \[
     TNR_{\text{NB15, benigno}}=1,
     \qquad
@@ -1074,7 +1064,6 @@ Tale polarizzazione motiva il confronto diretto con $\mathcal{M}_{\mathrm{base}}
 Il confronto con la baseline viene condotto distinguendo la TPR media sui sei benchmark NB15, la risposta sul benchmark \texttt{INJECTION}, la TPR media sui nove benchmark target e la TPR media sull'intera cross-evaluation.
 
 Per un generico modello ibrido $h$ e un gruppo di benchmark $g$, viene definita
-
 \begin{equation}
     \Delta TPR_{h,g}
     =
@@ -1085,7 +1074,6 @@ Per un generico modello ibrido $h$ e un gruppo di benchmark $g$, viene definita
 \end{equation}
 
 mentre per la specificità viene utilizzata
-
 \begin{equation}
     \Delta TNR_h
     =
@@ -1153,7 +1141,6 @@ La classificazione corretta di tutto il traffico nominale sorgente coesiste infa
 \paragraph{Generalizzazione lungo l'intera cross-evaluation.}
 Il compromesso diventa evidente considerando la TPR media sui $16$ test set.
 La baseline raggiunge
-
 \[
     0.88990 \quad \text{(DT)}, \qquad
     0.80246 \quad \text{(HGB)}, \qquad
@@ -1297,7 +1284,6 @@ Tale convergenza non costituisce tuttavia una dimostrazione causale.
 
 \texttt{pkts\_per\_sec} rappresenta il caso complementare: pur mostrando nella KDE lo scostamento quantitativo più marcato tra NB15 e STIN, non occupa le prime posizioni della gerarchia ibrida. 
 Si conferma quindi il principio già emerso nella Sezione~\ref{sec:risultati_modelli_sorgente}:
-
 \[
     \text{ampiezza del domain shift}
     \;\not\equiv\;
@@ -1396,7 +1382,6 @@ Tale distinzione risulta necessaria poiché la configurazione che massimizza la 
 \paragraph{Criterio di sintesi.}
 Il confronto viene effettuato sui medesimi raggruppamenti utilizzati nelle analisi precedenti. 
 Indicando con $\mathcal{G}_{S}$ l'insieme dei sei benchmark appartenenti alla tassonomia \texttt{NB15} e con $\mathcal{G}_{T}$ l'insieme dei nove benchmark target, la sensibilità media di un generico modello $i$ sul gruppo $\mathcal{G}$ viene espressa come
-
 \begin{equation}
     \overline{TPR}_{i,\mathcal{G}}
     =
@@ -1551,7 +1536,6 @@ La prima presenta lo scostamento quantitativo più estremo nella diagnostica KDE
 La seconda presenta uno scostamento meno estremo, ma diventa la feature dominante in tutte le architetture ibride.
 
 Ne consegue che
-
 \[
     \text{ampiezza del domain shift}
     \;\not\equiv\;

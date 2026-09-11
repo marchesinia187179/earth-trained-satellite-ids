@@ -1449,7 +1449,6 @@ Le quattro quantità rappresentano rispettivamente il numero di veri positivi, f
 \label{subsubsec:metriche_derivate_formali}
 
 Per rendere la valutazione indipendente dalla numerosità del campione di test, si introducono i principali tassi relativi derivati dalla matrice di confusione \cite{fawcett2006}:
-
 \begin{equation}
     TPR(\tau)=\frac{TP(\tau)}{TP(\tau)+FN(\tau)},
     \qquad
@@ -1457,7 +1456,6 @@ Per rendere la valutazione indipendente dalla numerosità del campione di test, 
 \end{equation}
 
 cui corrispondono i rispettivi complementari
-
 \begin{equation}
 \begin{aligned}
     FNR(\tau) &= 1-TPR(\tau) \\
@@ -1471,19 +1469,16 @@ cui corrispondono i rispettivi complementari
 \end{equation}
 
 L'affidabilità delle segnalazioni generate dal classificatore è invece misurata dalla \textit{Precision}:
-
 \begin{equation}
     Precision(\tau)=\frac{TP(\tau)}{TP(\tau)+FP(\tau)}
 \end{equation}
 
 Per sintetizzare il compromesso tra capacità di rilevamento degli attacchi e contenimento dei falsi allarmi si utilizza l'\textit{F1-score}, definito come media armonica tra Precision e Recall\footnote{Nei sistemi NIDS la media armonica è preferita alla media aritmetica poiché penalizza maggiormente modelli caratterizzati da un forte sbilanciamento tra sensibilità agli attacchi e precisione delle segnalazioni.}:
-
 \begin{equation}
     F_1(\tau)=2\cdot\frac{Precision(\tau)\cdot TPR(\tau)}{Precision(\tau)+TPR(\tau)}
 \end{equation}
 
 Infine, l'\textit{Accuracy} rappresenta la proporzione complessiva di classificazioni corrette:
-
 \begin{equation}
     Accuracy(\tau)=\frac{TP(\tau)+TN(\tau)}{N}
 \end{equation}
@@ -1496,7 +1491,6 @@ Tale indicatore assume tuttavia un ruolo secondario nei problemi di intrusion de
 La valutazione puntuale delle metriche presuppone la scelta di uno specifico valore della soglia decisionale (ad esempio $\tau=0.5$). Una caratterizzazione più completa del comportamento discriminativo del classificatore richiede invece l'analisi dell'intero intervallo di valori della soglia, $\tau\in[0,1]$.
 
 A tale scopo si impiegano le curve \textit{Receiver Operating Characteristic} (ROC) e \textit{Precision--Recall} (PR), sintetizzate mediante l'area sottesa alla rispettiva curva (\textit{Area Under the Curve}, AUC):
-
 \begin{equation}
     AUC_{ROC}=\int_{0}^{1}TPR\,d(FPR),
     \qquad
@@ -1568,25 +1562,21 @@ L'indice $AUC_{ROC}$ fornisce una misura della capacità discriminativa compless
 \label{subsubsec:significativita_statistica}
 
 Il trasferimento di un modello tra domini caratterizzati da differenti distribuzioni marginali delle caratteristiche $P(\mathbf{x})$ (\textit{covariate shift}) può determinare una degradazione delle prestazioni di classificazione \cite{pan2010}. Tale variazione dell'efficacia discriminativa di un modello $M$, valutato sul dominio sorgente $\mathcal{D}_S$ e sul dominio target $\mathcal{D}_T$, può essere espressa come
-
 \begin{equation}
     \Delta F_1=F_1(M,\mathcal{D}_S)-F_1(M,\mathcal{D}_T).
 \end{equation}
 
 Per valutare la significatività statistica delle differenze prestazionali tra modelli differenti, oppure tra un modello e una baseline di riferimento, si adotta il test $t$ di Welch, appropriato nel caso di campioni indipendenti con varianze non necessariamente uguali. Date due distribuzioni campionarie della metrica di interesse, caratterizzate da medie $\bar{x}_1$, $\bar{x}_2$, varianze $s_1^2$, $s_2^2$ e numerosità $n_1$, $n_2$, la statistica del test è definita da
-
 \begin{equation}
     t=\frac{\bar{x}_1-\bar{x}_2}{\sqrt{\frac{s_1^2}{n_1}+\frac{s_2^2}{n_2}}}.
 \end{equation}
 
 I corrispondenti gradi di libertà effettivi sono stimati mediante l'approssimazione di Welch--Satterthwaite:
-
 \begin{equation}
     \nu\approx\frac{\left(\frac{s_1^2}{n_1}+\frac{s_2^2}{n_2}\right)^2}{\frac{\left(s_1^2/n_1\right)^2}{n_1-1}+\frac{\left(s_2^2/n_2\right)^2}{n_2-1}}.
 \end{equation}
 
 L'ipotesi nulla di uguaglianza delle medie,
-
 \[
     H_0:\mu_1=\mu_2,
 \]
