@@ -7,7 +7,7 @@
 \contentsline {lstlisting}{\numberline {A.1}{\ignorespaces Routine di campionamento per l'istanziazione dei benchmark.}}{238}{lstlisting.Alph1.1}%
 \contentsline {lstlisting}{\numberline {A.2}{\ignorespaces Routine di bilanciamento stratificato per l'istanziazione dei benchmark.}}{238}{lstlisting.Alph1.2}%
 \contentsline {lstlisting}{\numberline {A.3}{\ignorespaces Estrazione procedurale dell'etichetta di attacco per la generazione dinamica della nomenclatura del modello.}}{240}{lstlisting.Alph1.3}%
-\contentsline {lstlisting}{\numberline {A.4}{\ignorespaces Gestione difensiva dei casi limite e calcolo delle metriche in \texttt {calculate\_metrics()}.}}{240}{lstlisting.Alph1.4}%
+\contentsline {lstlisting}{\numberline {A.4}{\ignorespaces Gestione difensiva dei casi limite e calcolo delle metriche in \texttt {calculate\_metrics()}.}}{241}{lstlisting.Alph1.4}%
 \contentsline {lstlisting}{\numberline {A.5}{\ignorespaces Estrazione dei campioni ed esecuzione del Test $t$ di Welch.}}{242}{lstlisting.Alph1.5}%
 \contentsline {lstlisting}{\numberline {A.6}{\ignorespaces Campionamento stratificato del test set per l'analisi SHAP.}}{243}{lstlisting.Alph1.6}%
 \contentsline {lstlisting}{\numberline {A.7}{\ignorespaces Calcolo, normalizzazione dimensionale e rendering dei valori SHAP.}}{244}{lstlisting.Alph1.7}%

@@ -51,11 +51,10 @@ def _safe_stratified_sample(data, n_samples):
     if 'split_type' not in data.columns:
         return data.sample(n=n_samples, random_state=MLConstants.MAIN_SEED)
     
-    # Suddivide il dataset in partizioni di train e test
     data_train = data[data['split_type'] == 'train']
     data_test = data[data['split_type'] == 'test']
     
-    # Calcola la lunghezza totale del dataset
+    # Controllo della lunghezza totale del dataset
     total_len = len(data)
     if total_len == 0 or n_samples == 0:
         return pd.DataFrame(columns=data.columns)
@@ -81,7 +80,7 @@ def _safe_stratified_sample(data, n_samples):
 
     if n_test > 0 and not data_test.empty:
         sampled_parts.append(data_test.sample(n=n_test, random_state=MLConstants.MAIN_SEED))
-        
+
     if not sampled_parts:
         return pd.DataFrame(columns=data.columns)
         
@@ -109,7 +108,7 @@ def _get_standardized_model_name(dataset_type, unique_classes):
     # Cancella gli spazi bianchi e converte in minuscolo per coerenza
     classes = [str(c).strip() for c in unique_classes if str(c).strip()]
 
-    # Se len(classes) > 2, restituisce un nome generico
+    # Caso aggregato
     if len(classes) > 2:
         return f"{dataset_type}_aggregate"
     
@@ -117,6 +116,7 @@ def _get_standardized_model_name(dataset_type, unique_classes):
     attack_classes = [c for c in classes if c.lower() != 'normal']
     attack_name = attack_classes[0].lower() if attack_classes else "normal"
     
+    # Caso biclasse
     return f"{dataset_type}_{attack_name}"
 \end{lstlisting}
 
@@ -125,21 +125,15 @@ def _get_standardized_model_name(dataset_type, unique_classes):
 \section{Calcolo delle Metriche e Gestione dei Casi Limite}
 \label{app:calcolo_metriche}
 
-A completamento della procedura di valutazione descritta nella
-Sottosezione~\ref{subsec:calcolo_metriche_hk}, si riporta
-l'implementazione della logica utilizzata per il calcolo delle metriche
-di classificazione e per la gestione dei casi nei quali le quantità
-necessarie alla loro determinazione non risultano definite.
+A completamento della procedura di valutazione descritta nella Sottosezione~\ref{subsec:calcolo_metriche_hk}, si riporta l'implementazione della logica utilizzata per il calcolo delle metriche di classificazione e per la gestione dei casi nei quali le quantità necessarie alla loro determinazione non risultano definite.
 
-La funzione \texttt{calculate\_metrics()} ricava preliminarmente i
-quattro elementi della matrice di confusione imponendo l'ordine delle
-classi \texttt{[0, 1]}. Le metriche sintetiche vengono calcolate
-soltanto quando il vettore delle etichette reali contiene entrambe le
-classi, mentre TPR, FNR, TNR e FPR sono subordinati alla verifica
-esplicita dei rispettivi denominatori.
+La funzione \texttt{calculate\_metrics()} ricava preliminarmente i quattro elementi della matrice di confusione imponendo l'ordine delle classi \texttt{[0, 1]}. 
+Le metriche sintetiche vengono calcolate soltanto quando il vettore delle etichette reali contiene entrambe le classi, mentre TPR, FNR, TNR e FPR sono subordinati alla verifica esplicita dei rispettivi denominatori.
 
 Il Listato~\ref{lst:calculate_metrics_edge_cases} riporta il frammento
 implementativo completo utilizzato per tale gestione difensiva.
+
+\newpage
 
 \begin{lstlisting}[
     style=python_thesis,
@@ -192,8 +186,7 @@ Il Listato~\ref{lst:welch_implementation} riporta l'implementazione completa del
     caption={Estrazione dei campioni ed esecuzione del Test $t$ di Welch.},
     label={lst:welch_implementation}
 ]
-# Estrazione dei valori di F1-Score medi per il modello 
-# di riferimento (INJECTION) su tutti i seed
+# Estrazione dei valori di F1-Score medi per il modello baseline su tutti i seed
 ref_row = data[data["model_name"] == reference_model]
 ref_scores = (ref_row.drop(columns=["id", "model_name"]).values.flatten().astype(float))
 

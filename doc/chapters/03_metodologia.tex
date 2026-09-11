@@ -1122,24 +1122,24 @@ Al contrario, un modello aggregato, essendo vincolato a costruire una regione $R
         \node[anchor=south, font=\footnotesize\bfseries] at (3, 6.2) {\textbf{(a) Modello Aggregato ($\Gamma > 1$)}};
         
         % Assi spazio delle caratteristiche X
-        \draw[arrow_flow] (0, 0) -- (3, 0) coordinate (centro_asse) -- (6, 0) node[right] {$x_1$};
-        \draw[arrow_flow] (0, 0) -- (0, 6) node[above] {$x_2$};
+        \draw[arrow_flow] (0, 1) -- (3, 1) coordinate (centro_asse) -- (6, 1) node[right] {$x_1$};
+        \draw[arrow_flow] (0, 1) -- (0, 6) node[above] {$x_2$};
         
         % Regione decisionale ampia R_1(M_S)
-        \draw[bnd_agg] (0.5, 0.5) rectangle (5.5, 5.5);
+        \draw[bnd_agg] (0.5, 1.5) rectangle (5.5, 5.5);
         \node[font=\footnotesize, align=center] at (3, 5.9) {$R_1(\mathcal{M}_S)$};
 
         % Manifold delle distribuzioni
         \node[node_alert, circle] (a1) at (1.55, 3.75) {$a_1$};
-        \node[node_alert, circle] (a2) at (2.25, 1.75) {$a_2$};
-        \node[node_alert, circle] (a3) at (3.75, 3.25) {$a_3$};
+        \node[node_alert, circle] (a2) at (2.5, 2.5) {$a_2$};
+        \node[node_alert, circle] (a3) at (4, 3.25) {$a_3$};
 
         % Perturbazione (Domain Shift) di a1
         \node[node_transform, circle] (a1_shift) at (3.25, 4.55) {$\tilde{a}_1$};
         \draw[arrow_alert] (a1) -- (a1_shift) node[midway, above left] {$\boldsymbol{\eta}$};
         
         % Didascalia concettuale
-        \node[below, font=\footnotesize] at (centro_asse) {Lo shift $\boldsymbol{\eta}$ viene assorbito dall'ampio margine.};
+        \node[below, font=\footnotesize] at (centro_asse) {Lo shift $\boldsymbol{\eta}$ viene assorbito dal confine.};
     \end{scope}
 
     % ==========================================
@@ -1149,8 +1149,8 @@ Al contrario, un modello aggregato, essendo vincolato a costruire una regione $R
         \node[anchor=south, font=\footnotesize\bfseries] at (3, 6.2) {\textbf{(b) Modello Biclasse ($\Gamma = 1$)}};
         
         % Assi spazio delle caratteristiche X
-        \draw[arrow_flow] (0, 0) -- (3, 0) coordinate (centro_asse) -- (6, 0) node[right] {$x_1$};
-        \draw[arrow_flow] (0, 0) -- (0, 6) node[above] {$x_2$};
+        \draw[arrow_flow] (0, 1) -- (3, 1) coordinate (centro_asse) -- (6, 1) node[right] {$x_1$};
+        \draw[arrow_flow] (0, 1) -- (0, 6) node[above] {$x_2$};
         
         % Regione decisionale specifica e ristretta R_1(M_{S,a})
         \draw[bnd_bic] (0.8, 3) rectangle (2.3, 4.5);

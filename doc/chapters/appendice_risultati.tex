@@ -204,7 +204,7 @@ La Tabella~\ref{tab:sorgente_tnr_multiseed} riporta la media e la varianza della
 \begin{table}[H]
     \centering
     \footnotesize
-    \caption{Media e varianza della TNR sui $10$ seed per i modelli sorgente. Il valore è indipendente dal test set malevolo poiché la componente nominale rimane invariata all'interno del protocollo sperimentale.}
+    \caption{Media e varianza della TNR sui $10$ seed per i modelli sorgente. Il valore è indipendente dal test set malevolo poiché la componente nominale rimane invariata.}
     \label{tab:sorgente_tnr_multiseed}
     \begin{tabular}{lcc|cc|cc}
         \toprule
@@ -231,10 +231,9 @@ La Tabella~\ref{tab:source_vs_base_target_variance} confronta la media e la vari
     \footnotesize
     \caption{Media e varianza della TPR sui benchmark target aggregati per il modello sorgente aggregato e la baseline.}
     \label{tab:source_vs_base_target_variance}
-    \begin{tabularx}{\textwidth}{l >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X}
+    \begin{tabular}{lcccc}
         \toprule
         & \multicolumn{2}{c}{\textbf{Modello sorgente}} & \multicolumn{2}{c}{\textbf{Baseline INJECTION}} \\
-        \cmidrule(lr){2-3} \cmidrule(lr){4-5}
         \textbf{Test Set} & $\boldsymbol{\overline{TPR}}$ & $\boldsymbol{\mathrm{Var}(TPR)}$ & $\boldsymbol{\overline{TPR}}$ & $\boldsymbol{\mathrm{Var}(TPR)}$ \\
         \midrule
         \multicolumn{5}{c}{\textbf{DT}} \\
@@ -255,7 +254,7 @@ La Tabella~\ref{tab:source_vs_base_target_variance} confronta la media e la vari
         \texttt{nb15\_sat20} & 0.26130 & $7.19\times10^{-4}$ & 0.99954 & $9.38\times10^{-8}$ \\
         \texttt{nb15\_ter20} & 0.45636 & $5.01\times10^{-5}$ & 0.98600 & $2.28\times10^{-4}$ \\
         \bottomrule
-    \end{tabularx}
+    \end{tabular}
 \end{table}
 
 A completamento del confronto, la Tabella~\ref{tab:source_vs_base_best_source_delta} quantifica, per ciascun benchmark target, la differenza di TPR tra la baseline \texttt{INJECTION} e il migliore modello sorgente disponibile per ciascun classificatore.
@@ -503,8 +502,8 @@ Prima dell'applicazione del test inferenziale, la Tabella~\ref{tab:sorgente_welc
     \resizebox{\textwidth}{!}{
     \begin{tabular}{lccc|ccc|ccc}
         \toprule
-        \multirow{2}{*}{\textbf{Modello}} & \multicolumn{3}{c|}{\textbf{DT}} & \multicolumn{3}{c|}{\textbf{HGB}} & \multicolumn{3}{c}{\textbf{RF}} \\
-        & $\boldsymbol{\overline{\overline{F1}}}$ & $\boldsymbol{s}$ & $\boldsymbol{\Delta F1}$ & $\boldsymbol{\overline{\overline{F1}}}$ & $\boldsymbol{s}$ & $\boldsymbol{\Delta F1}$ & $\boldsymbol{\overline{\overline{F1}}}$ & $\boldsymbol{s}$ & $\boldsymbol{\Delta F1}$ \\
+         & \multicolumn{3}{c|}{\textbf{DT}} & \multicolumn{3}{c|}{\textbf{HGB}} & \multicolumn{3}{c}{\textbf{RF}} \\
+        \textbf{Modello} & $\boldsymbol{\overline{\overline{F1}}}$ & $\boldsymbol{s}$ & $\boldsymbol{\Delta F1}$ & $\boldsymbol{\overline{\overline{F1}}}$ & $\boldsymbol{s}$ & $\boldsymbol{\Delta F1}$ & $\boldsymbol{\overline{\overline{F1}}}$ & $\boldsymbol{s}$ & $\boldsymbol{\Delta F1}$ \\
         \midrule
         \texttt{injection\_aggregate} & 0.86039 & 0.00352 & -- & 0.85407 & 0.03634 & -- & 0.89022 & 0.00245 & -- \\
         \texttt{nb15\_aggregate} & 0.56308 & 0.04017 & $+0.29731$ & 0.41231 & 0.05289 & $+0.44177$ & 0.57651 & 0.00647 & $+0.31371$ \\
@@ -528,8 +527,8 @@ Sulla base dei campioni così caratterizzati, la Tabella~\ref{tab:sorgente_welch
     \resizebox{\textwidth}{!}{
     \begin{tabular}{lccc|ccc|ccc}
         \toprule
-        \multirow{2}{*}{\textbf{Modello confrontato}} & \multicolumn{3}{c|}{\textbf{DT}} & \multicolumn{3}{c|}{\textbf{HGB}} & \multicolumn{3}{c}{\textbf{RF}} \\
-        & $\boldsymbol{t}$ & $\boldsymbol{p}$ & \textbf{Sign.} & $\boldsymbol{t}$ & $\boldsymbol{p}$ & \textbf{Sign.} & $\boldsymbol{t}$ & $\boldsymbol{p}$ & \textbf{Sign.} \\
+         & \multicolumn{3}{c|}{\textbf{DT}} & \multicolumn{3}{c|}{\textbf{HGB}} & \multicolumn{3}{c}{\textbf{RF}} \\
+        \textbf{Modello} & $\boldsymbol{t}$ & $\boldsymbol{p}$ & \textbf{Sign.} & $\boldsymbol{t}$ & $\boldsymbol{p}$ & \textbf{Sign.} & $\boldsymbol{t}$ & $\boldsymbol{p}$ & \textbf{Sign.} \\
         \midrule
         \texttt{nb15\_aggregate} & 23.3150 & $1.8720\times10^{-9}$ & Sì & 21.7698 & $2.7489\times10^{-13}$ & Sì & 143.4423 & $4.0594\times10^{-20}$ & Sì \\
         \texttt{nb15\_dos} & 49.6699 & $2.0529\times10^{-13}$ & Sì & 22.2139 & $1.2228\times10^{-13}$ & Sì & 17.4802 & $2.8399\times10^{-8}$ & Sì \\
@@ -555,8 +554,8 @@ Analogamente al confronto precedente, la Tabella~\ref{tab:ibridi_welch_descripti
     \resizebox{\textwidth}{!}{
     \begin{tabular}{lccc|ccc|ccc}
         \toprule
-        \multirow{2}{*}{\textbf{Modello}} & \multicolumn{3}{c|}{\textbf{DT}} & \multicolumn{3}{c|}{\textbf{HGB}} & \multicolumn{3}{c}{\textbf{RF}} \\
-         & $\boldsymbol{\overline{\overline{F1}}}$ & $\boldsymbol{s}$ & $\boldsymbol{\Delta F1}$ & $\boldsymbol{\overline{\overline{F1}}}$ & $\boldsymbol{s}$ & $\boldsymbol{\Delta F1}$ & $\boldsymbol{\overline{\overline{F1}}}$ & $\boldsymbol{s}$ & $\boldsymbol{\Delta F1}$ \\
+         & \multicolumn{3}{c|}{\textbf{DT}} & \multicolumn{3}{c|}{\textbf{HGB}} & \multicolumn{3}{c}{\textbf{RF}} \\
+        \textbf{Modello} & $\boldsymbol{\overline{\overline{F1}}}$ & $\boldsymbol{s}$ & $\boldsymbol{\Delta F1}$ & $\boldsymbol{\overline{\overline{F1}}}$ & $\boldsymbol{s}$ & $\boldsymbol{\Delta F1}$ & $\boldsymbol{\overline{\overline{F1}}}$ & $\boldsymbol{s}$ & $\boldsymbol{\Delta F1}$ \\
         \midrule
         \texttt{injection\_aggregate} & 0.860388 & 0.003516 & -- & 0.854074 & 0.036341 & -- & 0.890221 & 0.002452 & -- \\
         \texttt{nb15\_sat20\_aggregate} & 0.562863 & 0.000000 & $+0.297526$ & 0.556714 & 0.009015 & $+0.297360$ & 0.562864 & 0.000006 & $+0.327357$ \\
@@ -583,8 +582,8 @@ La Tabella~\ref{tab:ibridi_welch_results} completa l'analisi inferenziale riport
     \resizebox{\textwidth}{!}{
     \begin{tabular}{lccc|ccc|ccc}
         \toprule
-        \multirow{2}{*}{\textbf{Modello confrontato}} & \multicolumn{3}{c|}{\textbf{DT}} & \multicolumn{3}{c|}{\textbf{HGB}} & \multicolumn{3}{c}{\textbf{RF}} \\
-        & $\boldsymbol{t}$ & $\boldsymbol{p}$ & \textbf{Sign.} & $\boldsymbol{t}$ & $\boldsymbol{p}$ & \textbf{Sign.} & $\boldsymbol{t}$ & $\boldsymbol{p}$ & \textbf{Sign.} \\
+         & \multicolumn{3}{c|}{\textbf{DT}} & \multicolumn{3}{c|}{\textbf{HGB}} & \multicolumn{3}{c}{\textbf{RF}} \\
+        \textbf{Modello} & $\boldsymbol{t}$ & $\boldsymbol{p}$ & \textbf{Sign.} & $\boldsymbol{t}$ & $\boldsymbol{p}$ & \textbf{Sign.} & $\boldsymbol{t}$ & $\boldsymbol{p}$ & \textbf{Sign.} \\
         \midrule
         \texttt{nb15\_sat20\_aggregate} & 267.5863 & $7.2356\times10^{-19}$ & Sì & 25.1143 & $1.9370\times10^{-10}$ & Sì & 422.2333 & $1.1929\times10^{-20}$ & Sì \\
         \texttt{nb15\_sat20\_syn\_ddos} & 169.2801 & $3.4456\times10^{-20}$ & Sì & 56.6262 & $8.4088\times10^{-13}$ & Sì & 629.8796 & $6.8206\times10^{-38}$ & Sì \\
