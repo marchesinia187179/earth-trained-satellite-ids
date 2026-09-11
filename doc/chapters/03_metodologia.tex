@@ -1346,7 +1346,10 @@ Richiamando la regola di decisione parametrica introdotta nella Sezione~\ref{sub
 
 \begin{align}
     TP(\tau) &= \sum_{i=1}^{N} \mathbb{I}(y_i=1 \land \hat{y}_i(\tau)=1) \\
-    FP(\tau) &= \sum_{i=1}^{N} \mathbb{I}(y_i=0 \land \hat{y}_i(\tau)=1) \\
+    FP(\tau) &= \sum_{i=1}^{N} \mathbb{I}(y_i=0 \land \hat{y}_i(\tau)=1)
+\end{align}
+
+\begin{align}
     TN(\tau) &= \sum_{i=1}^{N} \mathbb{I}(y_i=0 \land \hat{y}_i(\tau)=0) \\
     FN(\tau) &= \sum_{i=1}^{N} \mathbb{I}(y_i=1 \land \hat{y}_i(\tau)=0)
 \end{align}
@@ -1506,53 +1509,53 @@ A tale scopo si impiegano le curve \textit{Receiver Operating Characteristic} (R
         % --- Sottofigura (a): Curva ROC ---
         \begin{scope}[shift={(0,0)}]
             % Assi
-            \draw[arrow_flow] (0,0) -- (5.5,0) node[right, text=neutralgrey] {\footnotesize $FPR$};
-            \draw[arrow_flow] (0,0) -- (0,5.5) node[above, text=neutralgrey] {\footnotesize $TPR$};
+            \draw[arrow_flow] (0,0) -- (5,0) node[right, text=neutralgrey] {\footnotesize $FPR$};
+            \draw[arrow_flow] (0,0) -- (0,5) node[above, text=neutralgrey] {\footnotesize $TPR$};
 
             % Griglia di riferimento
-            \draw[neutralgrey!30, thin] (0,4.5) -- (4.5,4.5) -- (4.5,0);
+            \draw[neutralgrey!30, thin] (0,4) -- (4,4) -- (4,0);
             \node[below left, text=neutralgrey] at (0,0) {\footnotesize $0$};
-            \node[below, text=neutralgrey] at (4.5,0) {\footnotesize $1$};
-            \node[left, text=neutralgrey] at (0,4.5) {\footnotesize $1$};
+            \node[below, text=neutralgrey] at (4,0) {\footnotesize $1$};
+            \node[left, text=neutralgrey] at (0,4) {\footnotesize $1$};
 
             % Area sottesa (AUC)
-            \fill[lightblue] (0,0) -- plot[smooth, domain=0:4.5] (\x, {4.5*sqrt(\x/4.5)}) -- (4.5,0) -- cycle;
+            \fill[lightblue] (0,0) -- plot[smooth, domain=0:4] (\x, {4*sqrt(\x/4)}) -- (4,0) -- cycle;
 
             % Baseline casuale (diagonale)
-            \draw[dashed, accentorange, thick] (0,0) -- (4.5,4.5);
+            \draw[dashed, accentorange, thick] (0,0) -- (4,4);
 
             % Curva ROC
-            \draw[very thick, mainblue, smooth, domain=0:4.5] plot (\x, {4.5*sqrt(\x/4.5)});
+            \draw[very thick, mainblue, smooth, domain=0:4] plot (\x, {4*sqrt(\x/4)});
 
             % Etichette
             \node[text=mainblue, font=\small\bfseries] at (2.3, 1.2) {$AUC_{ROC}$};
-            \node[above, text=neutralgrey] at (2.75, 5.5) {\textbf{(a) Curva ROC}};
+            \node[above, text=neutralgrey] at (2.5, 5) {\textbf{(a) Curva ROC}};
         \end{scope}
 
         % --- Sottofigura (b): Curva Precision-Recall ---
-        \begin{scope}[shift={(7.5,0)}]
+        \begin{scope}[shift={(7,0)}]
             % Assi
-            \draw[arrow_flow] (0,0) -- (5.5,0) node[right, text=neutralgrey] {\footnotesize $Recall\ (TPR)$};
-            \draw[arrow_flow] (0,0) -- (0,5.5) node[above, text=neutralgrey] {\footnotesize $Precision$};
+            \draw[arrow_flow] (0,0) -- (5,0) node[right, text=neutralgrey] {\footnotesize $Recall\ (TPR)$};
+            \draw[arrow_flow] (0,0) -- (0,5) node[above, text=neutralgrey] {\footnotesize $Precision$};
 
             % Griglia di riferimento
-            \draw[neutralgrey!30, thin] (0,4.5) -- (4.5,4.5) -- (4.5,0);
+            \draw[neutralgrey!30, thin] (0,4) -- (4,4) -- (4,0);
             \node[below left, text=neutralgrey] at (0,0) {\footnotesize $0$};
-            \node[below, text=neutralgrey] at (4.5,0) {\footnotesize $1$};
-            \node[left, text=neutralgrey] at (0,4.5) {\footnotesize $1$};
+            \node[below, text=neutralgrey] at (4,0) {\footnotesize $1$};
+            \node[left, text=neutralgrey] at (0,4) {\footnotesize $1$};
 
             % Area sottesa (AUC)
-            \fill[lightblue] (0,0) -- plot[smooth, domain=0:4.5] (\x, {4.5 - 2*(\x/4.5)^2}) -- (4.5,0) -- cycle;
+            \fill[lightblue] (0,0) -- plot[smooth, domain=0:4] (\x, {4 - 2*(\x/4)^2}) -- (4,0) -- cycle;
             
             % Baseline prevalenza (linea orizzontale)
-            \draw[dashed, accentorange, thick] (0,0.8) -- (4.5,0.8) node[right, text=accentorange] {\footnotesize $\pi$};
+            \draw[dashed, accentorange, thick] (0,0.8) -- (4,0.8) node[right, text=accentorange] {\footnotesize $\pi$};
 
             % Curva PR
-            \draw[very thick, mainblue, smooth, domain=0:4.5] plot (\x, {4.5 - 2*(\x/4.5)^2});
+            \draw[very thick, mainblue, smooth, domain=0:4] plot (\x, {4 - 2*(\x/4)^2});
 
             % Etichette
             \node[text=mainblue, font=\small\bfseries] at (1.2, 1.2) {$AUC_{PR}$};
-            \node[above, text=neutralgrey] at (2.75, 5.5) {\textbf{(b) Curva PR}};
+            \node[above, text=neutralgrey] at (2.5, 5) {\textbf{(b) Curva PR}};
         \end{scope}
     \end{tikzpicture}
     \caption{Rappresentazione schematica dell'Area Sottesa alla Curva (AUC) per le analisi grafiche ROC (a) e Precision-Recall (b).}

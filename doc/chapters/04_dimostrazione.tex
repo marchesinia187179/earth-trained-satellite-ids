@@ -889,20 +889,23 @@ La Figura~\ref{fig:aggregati_data_flow} schematizza visivamente il flusso di com
     \centering
     \begin{tikzpicture}
     % =========================================================================
-    % DATABASES / DATASETS (LIVELLO SUPERIORE)
-    % =========================================================================
-    \node[node_database] (unsw) at (-3,0) {
-        \textbf{Dataset Sorgente $\bm{\mathcal{D}_S}$}
-    };
-
-    \node[node_database, draw=accentorange, fill=lightorange] (stin) at (3,0) {
-        \textbf{Dataset Target $\bm{\Delta\mathcal{D}_T}$}
-    };
-
-    % =========================================================================
     % MODELLI (LIVELLO INFERIORE)
     % =========================================================================
-    \node[node_transform] (mbase) at (0,4) {
+    \node[node_primary, minimum height=3.5cm] (ms) {
+        \textbf{Modello Sorgente ($\mathcal{M}_S$)} \\
+        $100\%$ Benigno $\mathcal{D}_S$ \\[-5pt]
+        $100\%$ Malevolo $\mathcal{D}_S$ \\
+        $\rho = 10/1$
+    };
+
+    \node[node_accent, right=1cm of ms, minimum height=3.5cm] (mibrido) {
+        \textbf{Modello Ibrido ($\mathcal{M}_H^{(T)}$)} \\
+        $100\%$ Benigno $\mathcal{D}_S$ \\[-5pt]
+        $100\%$ Malevolo $\Delta\mathcal{D}_T$ \\
+        $\rho = 10/1$
+    };
+
+    \node[node_transform, right=1cm of mibrido, minimum height=3.5cm] (mbase) {
         \textbf{Modello Base ($\mathcal{M}_{\text{base}}$)} \\
         $100\%$ Benigno $\mathcal{D}_S$ \\[-5pt]
         $99,\overline{66}\%$ Malevolo $\mathcal{D}_S$ \\[-5pt]
@@ -910,18 +913,15 @@ La Figura~\ref{fig:aggregati_data_flow} schematizza visivamente il flusso di com
         $\rho = 10/1$
     };
 
-    \node[node_primary] (ms) at (-3,-3.5) {
-        \textbf{Modello Sorgente ($\mathcal{M}_S$)} \\
-        $100\%$ Benigno $\mathcal{D}_S$ \\[-5pt]
-        $100\%$ Malevolo $\mathcal{D}_S$ \\
-        $\rho = 10/1$
+    % =========================================================================
+    % DATABASES / DATASETS (LIVELLO SUPERIORE)
+    % =========================================================================
+    \node[node_database] (unsw) at ($(ms.east)!0.5!(mibrido.west) + (0,4)$) {
+        \textbf{Dataset Sorgente $\bm{\mathcal{D}_S}$}
     };
 
-    \node[node_accent] (mibrido) at (3,-3.5) {
-        \textbf{Modello Ibrido ($\mathcal{M}_H^{(T)}$)} \\
-        $100\%$ Benigno $\mathcal{D}_S$ \\[-5pt]
-        $100\%$ Malevolo $\Delta\mathcal{D}_T$ \\
-        $\rho = 10/1$
+    \node[node_database, draw=accentorange, fill=lightorange] (stin) at ($(mibrido.east)!0.5!(mbase.west) + (0,4)$) {
+        \textbf{Dataset Target $\bm{\Delta\mathcal{D}_T}$}
     };
 
     % =========================================================================
@@ -929,12 +929,12 @@ La Figura~\ref{fig:aggregati_data_flow} schematizza visivamente il flusso di com
     % =========================================================================
     % Frecce dal Dominio Sorgente (Blu)
     \draw[arrow_source] (unsw.south) -- (ms.north);
-    \draw[arrow_source] (unsw.north) |- (mbase.west);
-    \draw[arrow_source] ([yshift=-0.6cm]unsw.south) -| ([xshift=-1cm]mibrido.north);
+    \draw[arrow_source] (unsw.south) -- (mibrido.north);
+    \draw[arrow_source] (unsw.south) -- (mbase.north);
 
     % Frecce dal Dominio Target (Arancio)
-    \draw[arrow_target] (stin.north) |- (mbase.east);
     \draw[arrow_target] (stin.south) -- (mibrido.north);
+    \draw[arrow_target] (stin.south) -- (mbase.north);
 
     \end{tikzpicture}
     \caption{Architettura del flusso dati per l'addestramento dei Modelli Aggregati. Le percentuali indicano l'origine logica dei pacchetti che compongono i \textit{training set}, forzati strutturalmente al vincolo $\rho_{\text{ben/mal}} = 10/1$.}
