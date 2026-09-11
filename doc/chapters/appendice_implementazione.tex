@@ -17,29 +17,23 @@ A completamento della procedura di parametrizzazione e istanziazione dei benchma
 
 Il Listato~\ref{lst:correct_normal_anomaly_sampling} implementa la determinazione dinamica delle cardinalità da estrarre in funzione del parametro \texttt{MLConstants.NORMAL\_ANOMALY\_RATIO}, mentre il Listato~\ref{lst:stratified_sampling} riporta la procedura di campionamento che preserva la proporzione tra le partizioni identificate dalla variabile \texttt{split\_type}.
 
+\newpage
+
 \begin{lstlisting}[
     style=python_thesis,
     caption={Routine di campionamento per l'istanziazione dei benchmark.},
     label={lst:correct_normal_anomaly_sampling}
 ]
-def _get_correct_normal_and_anomaly_data_samples(normal_data, anomaly_data, 
-                                            normal_samples, anomaly_samples):
+def _get_correct_normal_and_anomaly_data_samples(
+    normal_data, anomaly_data, normal_samples, anomaly_samples):
     # Calcola il corretto numero di campioni da estrarre dalle distribuzioni
     if normal_samples < anomaly_samples * MLConstants.NORMAL_ANOMALY_RATIO:
-        n_anomaly_target = int(
-            normal_samples / MLConstants.NORMAL_ANOMALY_RATIO
-        )
-        anomaly_data_sample = _safe_stratified_sample(
-            anomaly_data, n_anomaly_target
-        )
+        n_anomaly_target = int(normal_samples / MLConstants.NORMAL_ANOMALY_RATIO)
+        anomaly_data_sample = _safe_stratified_sample(anomaly_data, n_anomaly_target)
         normal_data_sample = normal_data
     else:
-        n_normal_target = int(
-            anomaly_samples * MLConstants.NORMAL_ANOMALY_RATIO
-        )
-        normal_data_sample = _safe_stratified_sample(
-            normal_data, n_normal_target
-        )
+        n_normal_target = int(anomaly_samples * MLConstants.NORMAL_ANOMALY_RATIO)
+        normal_data_sample = _safe_stratified_sample(normal_data, n_normal_target)
         anomaly_data_sample = anomaly_data
 
     return normal_data_sample, anomaly_data_sample
@@ -53,8 +47,7 @@ A completamento della procedura di campionamento, il Listato~\ref{lst:stratified
     label={lst:stratified_sampling}
 ]
 def _safe_stratified_sample(data, n_samples):
-    # Se la colonna 'split_type' non è presente, 
-    #esegue un campionamento casuale semplice
+    # Se la colonna 'split_type' non è presente, esegue un campionamento casuale semplice
     if 'split_type' not in data.columns:
         return data.sample(n=n_samples, random_state=MLConstants.MAIN_SEED)
     
@@ -84,13 +77,10 @@ def _safe_stratified_sample(data, n_samples):
     # Campionamento stratificato senza reinserimento
     sampled_parts = []
     if n_train > 0 and not data_train.empty:
-        sampled_parts.append(data_train.sample(
-            n=n_train, random_state=MLConstants.MAIN_SEED
-            ))
+        sampled_parts.append(data_train.sample(n=n_train, random_state=MLConstants.MAIN_SEED))
+
     if n_test > 0 and not data_test.empty:
-        sampled_parts.append(data_test.sample(
-            n=n_test, random_state=MLConstants.MAIN_SEED
-            ))
+        sampled_parts.append(data_test.sample(n=n_test, random_state=MLConstants.MAIN_SEED))
         
     if not sampled_parts:
         return pd.DataFrame(columns=data.columns)
@@ -123,8 +113,7 @@ def _get_standardized_model_name(dataset_type, unique_classes):
     if len(classes) > 2:
         return f"{dataset_type}_aggregate"
     
-    # Identifica la classe di attacco
-    # (assumendo che 'normal' sia la classe benevola)
+    # Identifica la classe di attacco (assumendo che 'normal' sia la classe benevola)
     attack_classes = [c for c in classes if c.lower() != 'normal']
     attack_name = attack_classes[0].lower() if attack_classes else "normal"
     
@@ -164,18 +153,12 @@ has_classes = len(np.unique(y_test)) > 1
 tn, fp, fn, tp = confusion_matrix(y_test, y_pred, labels=[0, 1]).ravel()
 
 if has_classes:
-    accuracy = round(accuracy_score(y_test, y_pred), 
-        MLConstants.DECIMAL_DIGITS)
-    precision = round(precision_score(y_test, y_pred), 
-        MLConstants.DECIMAL_DIGITS)
-    recall = round(recall_score(y_test, y_pred), 
-        MLConstants.DECIMAL_DIGITS)
-    f1 = round(f1_score(y_test, y_pred), 
-        MLConstants.DECIMAL_DIGITS)
-    roc = round(roc_auc_score(y_test, y_scores), 
-        MLConstants.DECIMAL_DIGITS)
-    pr = round(average_precision_score(y_test, y_scores), 
-        MLConstants.DECIMAL_DIGITS)
+    accuracy = round(accuracy_score(y_test, y_pred), MLConstants.DECIMAL_DIGITS)
+    precision = round(precision_score(y_test, y_pred), MLConstants.DECIMAL_DIGITS)
+    recall = round(recall_score(y_test, y_pred), MLConstants.DECIMAL_DIGITS)
+    f1 = round(f1_score(y_test, y_pred), MLConstants.DECIMAL_DIGITS)
+    roc = round(roc_auc_score(y_test, y_scores), MLConstants.DECIMAL_DIGITS)
+    pr = round(average_precision_score(y_test, y_scores), MLConstants.DECIMAL_DIGITS)
 else:
     accuracy = precision = recall = f1 = roc = pr = None
     
@@ -212,25 +195,20 @@ Il Listato~\ref{lst:welch_implementation} riporta l'implementazione completa del
 # Estrazione dei valori di F1-Score medi per il modello 
 # di riferimento (INJECTION) su tutti i seed
 ref_row = data[data["model_name"] == reference_model]
-ref_scores = (
-    ref_row.drop(columns=["id", "model_name"]).values.flatten().astype(float)
-)
+ref_scores = (ref_row.drop(columns=["id", "model_name"]).values.flatten().astype(float))
 
 results_list = []
 # Itera su ciascun modello presente nel DataFrame di sintesi 
 # per eseguire i confronti incrociati
 for _, row in data.iterrows():
     current_model = row["model_name"]
-
     if current_model == reference_model: continue
 
     # Isola i valori numerici di test per il modello confrontato
     current_scores = row.drop(["id", "model_name"]).values.astype(float)
 
     # Esegue il test t di Welch assumendo varianze non uguali
-    t_stat, p_value = stats.ttest_ind(
-        ref_scores, current_scores, equal_var=False
-    )
+    t_stat, p_value = stats.ttest_ind(ref_scores, current_scores, equal_var=False)
 
     # Valuta la significatività statistica
     is_significant = "YES" if p_value < alpha else "NO"
@@ -260,27 +238,22 @@ Il Listato~\ref{lst:shap_sampling} riporta la procedura utilizzata per costruire
     label={lst:shap_sampling}
 ]
 # Allineamento delle etichette con le caratteristiche
-y_series = pd.Series(
-    y_test, index=X_test.index if hasattr(X_test, 'index') else None
-)
+y_series = pd.Series(y_test, index=X_test.index if hasattr(X_test, 'index') else None)
 
 # Calcola le quote di campionamento per le due classi
 n_anomaly = MLConstants.SHAP_MAX_SAMPLES // MLConstants.NORMAL_ANOMALY_RATIO
 n_normal = MLConstants.SHAP_MAX_SAMPLES - n_anomaly
 
-# Estrazione degli indici campionati per entrambe le classi, 
-# limitando al numero di istanze disponibili
+# Estrazione degli indici campionati per entrambe le classi, date le istanze disponibili
 idx_normal = pd.Index([])
 if sum(y_series == 0) > 0:
     idx_normal = y_series[y_series == 0].sample(
-        n=min(n_normal, sum(y_series == 0)), 
-        random_state=MLConstants.MAIN_SEED
+        n=min(n_normal, sum(y_series == 0)), random_state=MLConstants.MAIN_SEED
     ).index
 idx_anomaly = pd.Index([])
 if sum(y_series == 1) > 0:
     idx_anomaly = y_series[y_series == 1].sample(
-        n=min(n_anomaly, sum(y_series == 1)), 
-        random_state=MLConstants.MAIN_SEED
+        n=min(n_anomaly, sum(y_series == 1)), random_state=MLConstants.MAIN_SEED
     ).index
 
 sampled_idx = idx_normal.append(idx_anomaly)
@@ -291,8 +264,7 @@ if not sampled_idx.empty:
     X_test_sampled = X_test.loc[sampled_idx]
 else:
     X_test_sampled = X_test.sample(
-        n=min(MLConstants.SHAP_MAX_SAMPLES, len(X_test)), 
-        random_state=MLConstants.MAIN_SEED
+        n=min(MLConstants.SHAP_MAX_SAMPLES, len(X_test)), random_state=MLConstants.MAIN_SEED
     )
 \end{lstlisting}
 
@@ -307,17 +279,12 @@ Il Listato~\ref{lst:shap_rendering} riporta la relativa implementazione.
 ]
 # Calcolo dei valori SHAP con gestione del controllo di additività
 try:
-    shap_values = explainer.shap_values(
-        X_test_sampled, check_additivity=False
-    )
+    shap_values = explainer.shap_values(X_test_sampled, check_additivity=False)
 except TypeError:
     shap_values = explainer.shap_values(X_test_sampled)
 
 # Gestire le disparità di output
-if hasattr(shap_values, "values"):
-    shap_values_raw = shap_values.values
-else:
-    shap_values_raw = shap_values
+shap_values_raw = shap_values.values if hasattr(shap_values, "values") else shap_values
 
 # Estrazione dei valori della classe Anomaly in base alla struttura dei dati
 if isinstance(shap_values_raw, list) and len(shap_values_raw) == 2:
@@ -331,13 +298,8 @@ elif hasattr(shap_values_raw, 'shape') and len(shap_values_raw.shape) == 2:
 n_features = X_test_sampled.shape[1]
 plt.figure(figsize=(8, max(6, n_features * 0.4)))
 
-# Forza la visualizzazione "dot" per mostrare 
-# gli impatti individuali delle feature
+# Forza la visualizzazione "dot" per mostrare gli impatti individuali delle feature
 shap.summary_plot(
-    shap_values_raw, 
-    X_test_sampled, 
-    show=False, 
-    max_display=n_features, 
-    plot_type="dot"
+    shap_values_raw, X_test_sampled, show=False, max_display=n_features, plot_type="dot"
 )
 \end{lstlisting}

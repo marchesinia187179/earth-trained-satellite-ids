@@ -480,7 +480,7 @@ Il confronto riguarda pertanto principalmente la gerarchia delle feature e il ve
 \paragraph{Decision Tree.}
 Nel Decision Tree, Figura~\ref{fig:shap_baseline_injection}(a), \texttt{pkts\_per\_sec} occupa la prima posizione, seguita da \texttt{load\_s}, \texttt{total\_bytes}, \texttt{src\_bytes} e \texttt{byte\_ratio}. 
 Per \texttt{load\_s} e \texttt{total\_bytes}, numerosi valori elevati risultano associati a contributi positivi, mentre \texttt{byte\_ratio} presenta diversi valori elevati nella regione negativa. 
-\texttt{pkts\_per\_sec}, pur risultando la feature globalmente più rilevante, mostra contributi distribuiti su entrambi i lati dell'origine e non evidenzia una relazione univariata strettamente monotona.
+\texttt{pkts\_per\_sec}, pur essendo la feature più rilevante, mostra contributi distribuiti su entrambe le parti e non evidenzia una relazione univariata strettamente monotona.
 
 \paragraph{Histogram-based Gradient Boosting.}
 Per HGB, Figura~\ref{fig:shap_baseline_injection}(b), \texttt{pkts\_per\_sec} rimane in prima posizione, seguita da \texttt{load\_s}, \texttt{down\_up\_ratio}, \texttt{src\_bytes} e \texttt{src\_mean\_pkt\_size}. 
@@ -1050,7 +1050,7 @@ risulta pertanto compatibile con una funzione decisionale fortemente allineata a
 Le sole metriche non consentono tuttavia di determinare quali caratteristiche producano tale separazione né di distinguere informazione di classe e informazione di dominio.
 
 Nel complesso, $\mathcal{M}_{H}$ presenta quindi una specializzazione target molto pronunciata e stabile, accompagnata dalla perdita quasi completa della sensibilità verso gli attacchi sorgente. 
-Tale polarizzazione motiva il confronto diretto con $\mathcal{M}_{\mathrm{base}}$, caratterizzata invece da una conoscenza target estremamente sparsa.
+Tale polarizzazione motiva il confronto diretto con $\mathcal{M}_{\mathrm{base}}$.
 
 
 % ------------------------------------------------------------------------------
@@ -1206,7 +1206,13 @@ Il criterio di lettura delle attribuzioni è quello introdotto nella Sottosezion
         \small (b) Histogram-based Gradient Boosting
     \end{minipage}
 
-    \vspace{0.5em}
+    % Label legacy mantenute per preservare eventuali riferimenti esistenti.
+    \label{fig:shap_dt_hybrid_nb15_stin}
+    \label{fig:shap_hgb_hybrid_nb15_stin}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
 
     \begin{minipage}[t]{0.48\textwidth}
         \centering
@@ -1220,8 +1226,6 @@ Il criterio di lettura delle attribuzioni è quello introdotto nella Sottosezion
     \label{fig:shap_hybrid_nb15_stin}
 
     % Label legacy mantenute per preservare eventuali riferimenti esistenti.
-    \label{fig:shap_dt_hybrid_nb15_stin}
-    \label{fig:shap_hgb_hybrid_nb15_stin}
     \label{fig:shap_rf_hybrid_nb15_stin}
 \end{figure}
 

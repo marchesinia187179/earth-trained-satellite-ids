@@ -1,7 +1,8 @@
 \chapter{Formulazione Teorica e Framework Metodologico}
 \label{ch:metodologia}
 
-Il presente capitolo definisce l'impalcatura teorica e il framework metodologico alla base dell'intera indagine sperimentale, fornendo gli strumenti formali necessari per la modellazione, l'analisi e l'adattamento dei sistemi di \textit{Network Intrusion Detection} (NIDS) in contesti operativi eterogenei. L'obiettivo primario risiede nell'instaurazione di un paradigma valutativo rigoroso, strutturalmente svincolato dalle specificità implementative dei singoli dataset, che consenta di quantificare oggettivamente i fenomeni di traslazione di dominio (\textit{domain shift}) e di validare le performance di generalizzazione isolando i reali contributi algoritmici dalla varianza stocastica.
+Il presente capitolo definisce l'impalcatura teorica e il framework metodologico alla base dell'intera indagine sperimentale, fornendo gli strumenti formali necessari per la modellazione, l'analisi e l'adattamento dei sistemi di \textit{Network Intrusion Detection} (NIDS) in contesti operativi eterogenei. 
+L'obiettivo primario risiede nell'instaurazione di un paradigma valutativo rigoroso, strutturalmente svincolato dalle specificità implementative dei singoli dataset, che consenta di quantificare oggettivamente i fenomeni di traslazione di dominio (\textit{domain shift}) e di validare le performance di generalizzazione isolando i reali contributi algoritmici dalla varianza stocastica.
 
 La trattazione si articola secondo una progressione logica suddivisa in quattro sezioni principali:
 \begin{itemize}
@@ -14,12 +15,10 @@ La trattazione si articola secondo una progressione logica suddivisa in quattro 
 \section{Modello del Sistema e Spazi di Rappresentazione}
 \label{sec:modello_sistema}
 
-La presente sezione formalizza l'impalcatura teorica e matematica del framework analitico, definendo in modo rigoroso gli spazi vettoriali di rappresentazione e le distribuzioni di probabilità necessarie per modellare i fenomeni di transizione cross-dominio nei sistemi NIDS. 
+La presente sezione formalizza l'impalcatura teorica e matematica del framework analitico, definendo in modo rigoroso gli spazi vettoriali di rappresentazione e le distribuzioni di probabilità necessarie per modellare i fenomeni di transizione cross-dominio nel contesto NIDS delineato nel capitolo precedente.
 L'obiettivo è stabilire un modello astratto, indipendente dalle peculiarità di implementazione dei singoli dataset, in grado di garantire il rigore metodologico, la comparabilità delle metriche e l'assenza di contaminazione informativa.
 
-Questa formalizzazione prosegue direttamente la disamina svolta nel Capitolo~\ref{ch:bck_rltd_wrks}, traducendo in termini matematici e procedurali le criticità del confronto tra segmenti terrestri e spaziali e le esigenze di adattamento dei NIDS delineate nel contesto di riferimento.
-
-A tal fine, la trattazione introduce preliminarmente la formalizzazione dei domini di origine e destinazione, delineando la semantica a doppia etichettatura $(Y, A)$, le regole di partizionamento preventivo anti-\textit{data leakage} e il vincolo di proporzionamento parametrico $\rho$ alla base delle cinque categorie astratte di benchmark, native e ibride, istanziabili dal framework. 
+A tal fine, la trattazione introduce preliminarmente la formalizzazione dei domini di origine e destinazione, delineando la semantica a doppia etichettatura $(Y, A)$, le regole di partizionamento preventivo anti-\textit{data leakage} e il vincolo di proporzionamento parametrico $\rho$ alla base delle cinque categorie astratte di benchmark istanziabili dal framework. 
 Successivamente, viene definito l'operatore di proiezione $\boldsymbol{\psi}_k$, specifico per ciascun dominio $k \in \{S, T\}$, che mappa le caratteristiche grezze eterogenee nello spazio delle \textit{feature} condiviso $\mathcal{X}$, esplicitando i criteri concettuali di filtraggio e armonizzazione degli attributi. 
 La trattazione si conclude motivando, sulla base della proprietà di invarianza rispetto a trasformazioni monotoniche propria dei classificatori a partizionamento ricorsivo, l'omissione della fase esplicita di scalatura dalla definizione dello spazio delle \textit{feature}.
 
@@ -30,30 +29,44 @@ Per facilitare la lettura della trattazione successiva, i principali simboli e c
     \small
     \caption{Sintesi della notazione matematica e dei simboli del framework.}
     \label{tab:notazione_matematica}
-    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3cm} >{\raggedright\arraybackslash}X }
+    \begin{tabularx}{\textwidth}{
+        >{\raggedright\arraybackslash}p{3cm}
+        >{\raggedright\arraybackslash}X
+    }
         \toprule
-        \textbf{Simbolo} & \textbf{Descrizione e Significato Concettuale} \\
+        \textbf{Simbolo} & \textbf{Significato} \\
         \midrule
+
         $\mathcal{D} = (\mathcal{X}, P(\mathbf{x}))$ &
-        Dominio di traffico (spazio delle \textit{feature} e distribuzione marginale) \\
+        Dominio di traffico e relativa distribuzione \\
+
         $\mathcal{X} \subseteq \mathbb{R}^d$ &
-        Spazio delle caratteristiche $d$-dimensionale omogeneizzato \\
+        Spazio condiviso delle \textit{feature} \\
+
         $\mathbf{x} = (x_1, \dots, x_d)^\top$ &
-        Vettore delle \textit{feature} del singolo flusso di rete \\
+        Vettore delle \textit{feature} di un flusso \\
+
         $\mathcal{Y} = \{0,1\}$ &
-        Spazio discreto delle etichette primarie ($0$: Normal, $1$: Malevolo) \\
+        Etichetta binaria: $0$ normale, $1$ malevolo \\
+
         $A \in \mathcal{A}$ &
-        Variabile descrittiva per la specifica famiglia di attacco (definita per $Y=1$) \\
+        Classe specifica del flusso: \textit{Normal} o famiglia d'attacco \\
+
         $\mathcal{A}_S, \mathcal{A}_T$ &
-        Insiemi delle tipologie di minaccia presenti nei domini sorgente e target \\
+        Famiglie di attacco sorgente e target \\
+
         $\mathcal{D}_S, \mathcal{D}_T$ &
-        Dominio Terrestre Sorgente e Domini Target di Destinazione \\
+        Domini sorgente e target \\
+
         $\mathcal{D}_k^{(train)}, \mathcal{D}_k^{(test)}$ &
-        Partizioni disgiunte di addestramento e test per il generico dominio $k$ \\
+        Partizioni di addestramento e test del dominio $k$ \\
+
         $\boldsymbol{\psi}_{k \in \{S,T\}}(\cdot)$ &
-        Operatore di proiezione e combinazione dalle \textit{feature} grezze allo spazio $\mathcal{X}$ \\
+        Operatore di proiezione nello spazio condiviso $\mathcal{X}$ \\
+
         $N(\cdot)$ &
-        Operatore di cardinalità (numero di campioni estratti) \\
+        Cardinalità dell'insieme considerato \\
+
         \bottomrule
     \end{tabularx}
 \end{table}
@@ -304,28 +317,41 @@ Per agevolare la consultazione, i formalismi architetturali e i parametri funzio
     \small
     \caption{Sintesi della notazione relativa alle architetture e ai parametri di classificazione.}
     \label{tab:notazione_modelli}
-    \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X}
+    \begin{tabularx}{\textwidth}{
+        l
+        >{\raggedright\arraybackslash}X
+    }
         \toprule
-        \textbf{Simbolo} & \textbf{Descrizione e Significato Concettuale} \\
+        \textbf{Simbolo} & \textbf{Significato} \\
         \midrule
+
         $f_\theta(\mathbf{x}) \approx P(Y=1 \mid \mathbf{x})$ &
-        Funzione decisionale parametrica: stima della probabilità a posteriori che il campione appartenga alla classe malevola \\
-        $\hat{Y} \in \{0, 1\}$ &
-        Decisione binaria finale predetta dal classificatore \\
-        $\tau \in (0, 1)$ &
-        Soglia decisionale parametrica per il bilanciamento dei falsi positivi \\
+        Stima della probabilità di traffico malevolo \\
+
+        $\hat{Y} \in \{0,1\}$ &
+        Classe binaria predetta \\
+
+        $\tau \in (0,1)$ &
+        Soglia decisionale del classificatore \\
+
         $\mathcal{M}_{\text{base}}$ &
-        Modello baseline, addestrato sul \textit{Set di Iniezione} $\mathcal{D}_{\text{inj}}^{(\text{train})}$ \\
+        Modello baseline addestrato sul Set di Iniezione \\
+
         $\mathcal{M}_{S}$ &
-        Modello aggregato nativo sorgente, addestrato sul \textit{Set Sorgente} $\mathcal{D}_{S}^{(\text{train})}$ \\
+        Modello aggregato addestrato sul dominio sorgente \\
+
         $\mathcal{M}_{H}^{(T)}$ &
-        Modello aggregato ibrido (\textit{Oracle}), addestrato unendo la componente lecita sorgente con la totalità degli attacchi target \\
-        $\mathcal{M}_{S,a}$, $\mathcal{M}_{H,T,a}$ &
-        Modelli biclasse (sorgente e ibridi), addestrati sulla componente nominale con una singola famiglia d'attacco $a \in \mathcal{A}$ \\
+        Modello aggregato ibrido con attacchi target \\
+
+        $\mathcal{M}_{S,a}, \mathcal{M}_{H,T,a}$ &
+        Modelli biclasse specializzati sulla minaccia $a$ \\
+
         $\mathcal{L}$ &
-        Funzione di perdita \textit{Binary Cross-Entropy} (BCE) per l'ottimizzazione della stima parametrica \\
+        Funzione BCE della formulazione astratta dell'apprendimento \\
+
         $I(R_m)$ &
-        Criterio di impurità (es. indice di Gini o entropia) per la scissione ottima dei nodi nello spazio delle caratteristiche \\
+        Criterio di impurità della regione o nodo $R_m$ \\
+
         \bottomrule
     \end{tabularx}
 \end{table}
@@ -822,26 +848,38 @@ Per agevolare la consultazione delle metriche e dei parametri statistici discuss
     \small
     \caption{Sintesi della notazione relativa al framework di valutazione e alla stabilità statistica.}
     \label{tab:notazione_valutazione}
-    \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X }
+    \begin{tabularx}{\textwidth}{
+        l
+        >{\raggedright\arraybackslash}X
+    }
         \toprule
-        \textbf{Simbolo} & \textbf{Descrizione e Significato Concettuale} \\
+        \textbf{Simbolo} & \textbf{Significato} \\
         \midrule
+
         $s_0$ &
-        Seed deterministico utilizzato per il partizionamento dei dati e la generazione invariante dei benchmark \\
+        Seed fisso per partizionamento e composizione dei benchmark \\
+
         $\mathcal{S} = \{s_1, \dots, s_K\}$ &
-        Insieme di $K$ seed pseudo-casuali per l'inizializzazione stocastica e l'addestramento dei classificatori \\
-        $H_k(M, D)$ &
-        Matrice delle prestazioni (es. TPR, TNR) ottenute dal modello $M$ sul benchmark $D$ con il seed $s_k$ \\
-        $\hat{\mu}(M, D), \hat{\sigma}^2(M, D)$ &
-        Stima puntuale del valore atteso e della varianza campionaria delle metriche prestazionali marginalizzate sui $K$ seed \\
+        Insieme dei $K$ seed di addestramento \\
+
+        $H_k$ &
+        Matrice delle prestazioni ottenute con il seed $s_k$ \\
+
+        $\hat{\mu}(M,D), \hat{\sigma}^2(M,D)$ &
+        Media e varianza delle prestazioni sui $K$ seed \\
+
         $t, \nu_{\text{eff}}$ &
-        Statistica del test e gradi di libertà effettivi nel test $t$ di Welch per la significatività rispetto al baseline \\
+        Statistica e gradi di libertà del test $t$ di Welch \\
+
         $\Gamma(M) = |\mathcal{A}_m(M)|$ &
-        Indice di granularità: cardinalità delle famiglie d'attacco osservate in addestramento dal modello $M$ \\
+        Numero di famiglie d'attacco osservate in addestramento \\
+
         $R_1(M)$ &
-        Regione decisionale positiva nello spazio $\mathcal{X}$, corrispondente alla previsione dell'etichetta malevola ($Y=1$) \\
+        Regione decisionale associata alla classe malevola \\
+
         $\operatorname{supp} P(\mathbf{x} \mid Y=1, A=a)$ &
-        Supporto spaziale effettivo della distribuzione condizionata associata a una singola famiglia di attacco $a$ \\
+        Supporto della distribuzione della minaccia $a$ \\
+
         \bottomrule
     \end{tabularx}
 \end{table}
@@ -1084,7 +1122,7 @@ Al contrario, un modello aggregato, essendo vincolato a costruire una regione $R
         \node[anchor=south, font=\footnotesize\bfseries] at (3, 6.2) {\textbf{(a) Modello Aggregato ($\Gamma > 1$)}};
         
         % Assi spazio delle caratteristiche X
-        \draw[arrow_flow] (0, 0) -- (6, 0) node[right] {$x_1$};
+        \draw[arrow_flow] (0, 0) -- (3, 0) coordinate (centro_asse) -- (6, 0) node[right] {$x_1$};
         \draw[arrow_flow] (0, 0) -- (0, 6) node[above] {$x_2$};
         
         % Regione decisionale ampia R_1(M_S)
@@ -1101,13 +1139,7 @@ Al contrario, un modello aggregato, essendo vincolato a costruire una regione $R
         \draw[arrow_alert] (a1) -- (a1_shift) node[midway, above left] {$\boldsymbol{\eta}$};
         
         % Didascalia concettuale
-        \node[
-            text width=5cm,
-            align=center,
-            font=\footnotesize
-        ] at (3, -1) {
-            La regione copre l'unione dei supporti. Lo shift $\boldsymbol{\eta}$ viene assorbito dall'ampio margine.
-        };
+        \node[below, font=\footnotesize] at (centro_asse) {Lo shift $\boldsymbol{\eta}$ viene assorbito dall'ampio margine.};
     \end{scope}
 
     % ==========================================
@@ -1117,8 +1149,8 @@ Al contrario, un modello aggregato, essendo vincolato a costruire una regione $R
         \node[anchor=south, font=\footnotesize\bfseries] at (3, 6.2) {\textbf{(b) Modello Biclasse ($\Gamma = 1$)}};
         
         % Assi spazio delle caratteristiche X
-        \draw[arrow_flow] (0,0) -- (6,0) node[right] {$x_1$};
-        \draw[arrow_flow] (0,0) -- (0,6) node[above] {$x_2$};
+        \draw[arrow_flow] (0, 0) -- (3, 0) coordinate (centro_asse) -- (6, 0) node[right] {$x_1$};
+        \draw[arrow_flow] (0, 0) -- (0, 6) node[above] {$x_2$};
         
         % Regione decisionale specifica e ristretta R_1(M_{S,a})
         \draw[bnd_bic] (0.8, 3) rectangle (2.3, 4.5);
@@ -1132,13 +1164,7 @@ Al contrario, un modello aggregato, essendo vincolato a costruire una regione $R
         \draw[arrow_alert] (b1) -- (b1_shift) node[midway, above left] {$\boldsymbol{\eta}$};
         
         % Didascalia concettuale
-        \node[
-            text width=5cm,
-            align=center,
-            font=\footnotesize
-        ] at (3,-1) {
-            La regione calza strettamente il singolo supporto. Lo shift $\boldsymbol{\eta}$ elude il confine decisionale.
-        };
+        \node[below, font=\footnotesize] at (centro_asse) {Lo shift $\boldsymbol{\eta}$ elude il confine decisionale.};
     \end{scope}
     \end{tikzpicture}
     \caption{Rappresentazione bidimensionale nello spazio delle caratteristiche $\mathcal{X}$ dell'impatto del \textit{domain shift} (vettore di traslazione $\boldsymbol{\eta}$) a seconda della granularità del modello. A sinistra, la maggiore ampiezza spaziale del modello aggregato garantisce tolleranza generalista; a destra, l'ottimizzazione specialistica sul singolo supporto malevolo determina rigidità sotto perturbazione.}
@@ -1163,28 +1189,38 @@ Per agevolare la consultazione della trattazione, i simboli matematici, i costru
     \small
     \caption{Sintesi della notazione relativa al framework analitico, all'interpretabilità e alla valutazione statistica.}
     \label{tab:notazione_framework}
-    \begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X}
+    \begin{tabularx}{\textwidth}{
+        l
+        >{\raggedright\arraybackslash}X
+    }
         \toprule
-        \textbf{Simbolo} & \textbf{Descrizione e Significato Concettuale} \\
+        \textbf{Simbolo} & \textbf{Significato} \\
         \midrule
+
         $\mathbf{Z}_D$ &
-        Matrice dei dati del benchmark $D$ standardizzata mediante la media $\boldsymbol{\mu}_S$ e la deviazione standard $\boldsymbol{\sigma}_S$ del solo dominio sorgente \\
+        Matrice del benchmark $D$ standardizzata sul sorgente \\
+
         $\boldsymbol{\Sigma}_D, \mathbf{W}_D$ &
-        Matrice di covarianza campionaria e matrice di proiezione ortogonale sui primi due assi della PCA \\
+        Matrice di covarianza e proiezione PCA \\
+
         $\hat{f}_y(z), h_{\text{KDE}}$ &
-        Stima di densità univariata KDE per la classe $y$ e relativo parametro di lisciamento (\textit{bandwidth}) con kernel gaussiano $\kappa(\cdot)$ \\
+        Densità KDE della classe $y$ e relativa \textit{bandwidth} \\
+
         $\phi_j(\mathbf{x})$ &
-        Valore SHAP associato alla $j$-esima caratteristica del vettore $\mathbf{x}$, rappresentante il suo contributo marginale esatto \\
+        Contributo SHAP della \textit{feature} $j$ alla predizione \\
+
         $I_j^{(D)}, C_j$ &
-        Importanza media assoluta SHAP della $j$-esima caratteristica sul benchmark $D$ e frequenza globale di inclusione nella \textit{top-3} \\
-        $TP(\tau), FP(\tau), \newline TN(\tau), FN(\tau)$ &
-        Cardinalità della matrice di confusione determinate in funzione della soglia decisionale parametrica $\tau$ \\
+        Importanza SHAP media e frequenza nella \textit{top-3} \\
+
+        $TP(\tau), FP(\tau), TN(\tau), FN(\tau)$ &
+        Conteggi della matrice di confusione alla soglia $\tau$ \\
+
         $AUC_{ROC}, AUC_{PR}$ &
-        Area sottesa alle curve \textit{Receiver Operating Characteristic} e \textit{Precision-Recall} per la caratterizzazione al variare di $\tau \in [0,1]$ \\
+        Aree sottese alle curve ROC e Precision--Recall \\
+
         $\Delta F_1$ &
-        Variazione prestazionale in termini di $F_1$-score per la quantificazione del degrado da \textit{covariate shift} tra sorgente $\mathcal{D}_S$ e target $\mathcal{D}_T$ \\
-        $t, \nu, H_0$ &
-        Statistica del test $t$ di Welch, gradi di libertà effettivi di Welch--Satterthwaite e ipotesi nulla di equivalenza delle medie prestazionali \\
+        Variazione di $F_1$ tra dominio sorgente e target \\
+
         \bottomrule
     \end{tabularx}
 \end{table}
@@ -1264,20 +1300,19 @@ Il ruolo e l'impatto della standardizzazione dipendente dal sorgente sulle diver
     \small
     \caption{Sintesi del ruolo e dell'impatto della standardizzazione dipendente dal sorgente $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S)$ sulle componenti diagnostiche del framework.}
     \label{tab:confronto_scaling_pca_kde}
-    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{3.2cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X }
+    \begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{2.5cm} >{\raggedright\arraybackslash}p{4cm} >{\raggedright\arraybackslash}X }
         \toprule
-        \textbf{Strumento}  & \textbf{Natura del Requisito} & \textbf{Impatto Tecnico e Motivazione} \\[-5pt]
-        & & \textbf{Metodologica} \\
+        \textbf{Strumento}  & \textbf{Natura del Requisito} & \textbf{Impatto Tecnico e Motivazione Metodologica} \\
         \midrule
         \textbf{Classificatori (Tree-Based)} &
         Nessuno (Nessuna Trasformazione) &
         Invarianza Monotonica: gli algoritmi basati su albero operano su ordinamenti relativi dei dati. Nessun impatto sulle metriche di accuratezza. \\
         \addlinespace
-        \textbf{Proiezioni Latenti (PCA)} &
+        \textbf{PCA} &
         Matematicamente Indispensabile &
         Prevenzione della Dominanza delle Scale: la matrice di covarianza $\boldsymbol{\Sigma}_D$ richiede unità adimensionali; in caso contrario, le componenti principali catturano solo la scala numerica grezza più ampia. \\
         \addlinespace
-        \textbf{Stima di Densità (KDE)} &
+        \textbf{KDE} &
         Metodologico e Visivo &
         Preservazione del Shift e Omogeneità: non altera la forma intrinseca della stima 1D, ma rende visibile lo spostamento di media dal sorgente $z=0$, rende i grafici affiancati comparabili e stabilizza la \textit{bandwidth} $h_{\text{KDE}}$. \\
         \bottomrule
@@ -1502,10 +1537,6 @@ A tale scopo si impiegano le curve \textit{Receiver Operating Characteristic} (R
     \begin{tikzpicture}[global_font]
         % --- Sottofigura (a): Curva ROC ---
         \begin{scope}[shift={(0,0)}]
-            % Assi
-            \draw[arrow_flow] (0,0) -- (5,0) node[right, text=neutralgrey] {\footnotesize $FPR$};
-            \draw[arrow_flow] (0,0) -- (0,5) node[above, text=neutralgrey] {\footnotesize $TPR$};
-
             % Griglia di riferimento
             \draw[neutralgrey!30, thin] (0,4) -- (4,4) -- (4,0);
             \node[below left, text=neutralgrey] at (0,0) {\footnotesize $0$};
@@ -1524,14 +1555,14 @@ A tale scopo si impiegano le curve \textit{Receiver Operating Characteristic} (R
             % Etichette
             \node[text=mainblue, font=\small\bfseries] at (2.3, 1.2) {$AUC_{ROC}$};
             \node[above, text=neutralgrey] at (2.5, 5) {\textbf{(a) Curva ROC}};
+
+            % Assi
+            \draw[arrow_flow] (0,0) -- (5,0) node[right, text=neutralgrey] {\footnotesize $FPR$};
+            \draw[arrow_flow] (0,0) -- (0,5) node[above, text=neutralgrey] {\footnotesize $TPR$};
         \end{scope}
 
         % --- Sottofigura (b): Curva Precision-Recall ---
         \begin{scope}[shift={(7,0)}]
-            % Assi
-            \draw[arrow_flow] (0,0) -- (5,0) node[right, text=neutralgrey] {\footnotesize $Recall\ (TPR)$};
-            \draw[arrow_flow] (0,0) -- (0,5) node[above, text=neutralgrey] {\footnotesize $Precision$};
-
             % Griglia di riferimento
             \draw[neutralgrey!30, thin] (0,4) -- (4,4) -- (4,0);
             \node[below left, text=neutralgrey] at (0,0) {\footnotesize $0$};
@@ -1550,6 +1581,10 @@ A tale scopo si impiegano le curve \textit{Receiver Operating Characteristic} (R
             % Etichette
             \node[text=mainblue, font=\small\bfseries] at (1.2, 1.2) {$AUC_{PR}$};
             \node[above, text=neutralgrey] at (2.5, 5) {\textbf{(b) Curva PR}};
+
+            % Assi
+            \draw[arrow_flow] (0,0) -- (5,0) node[right, text=neutralgrey] {\footnotesize $Recall\ (TPR)$};
+            \draw[arrow_flow] (0,0) -- (0,5) node[above, text=neutralgrey] {\footnotesize $Precision$};
         \end{scope}
     \end{tikzpicture}
     \caption{Rappresentazione schematica dell'Area Sottesa alla Curva (AUC) per le analisi grafiche ROC (a) e Precision-Recall (b).}

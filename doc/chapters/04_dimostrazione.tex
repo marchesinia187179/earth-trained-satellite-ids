@@ -1,7 +1,7 @@
 \chapter{Implementazione del Framework Metodologico}
 \label{ch:implementazione}
 
-Il presente capitolo traduce l'impalcatura teorica e il framework metodologico, definiti nel capitolo precedente, in una configurazione sperimentale concreta e riproducibile. 
+Il presente capitolo traduce l'impalcatura teorica e il framework metodologico, definiti nel Capitolo~\ref{ch:metodologia}, in una configurazione sperimentale concreta e riproducibile. 
 L'obiettivo primario risiede nel dettagliare l'istanziazione software, le scelte architetturali e i protocolli operativi impiegati per l'addestramento e la valutazione dei sistemi di \textit{Network Intrusion Detection} (NIDS), rimandando esplicitamente l'analisi dei risultati empirici e delle metriche prestazionali al Capitolo 5. 
 Questa trasposizione materiale garantisce la totale trasparenza tecnologica e fornisce gli strumenti implementativi necessari per quantificare oggettivamente i fenomeni di \textit{domain shift}.
 
@@ -798,23 +798,23 @@ La Tabella~\ref{tab:hyperparameters_summary} sintetizza la corrispondenza tra le
     \small
     \caption{Configurazione degli iperparametri di default e classi \texttt{scikit-learn} utilizzate per ciascuna famiglia di classificatori.}
     \label{tab:hyperparameters_summary}
-    \begin{tabularx}{\textwidth}{l >{\ttfamily}l >{\raggedright\arraybackslash}X}
+    \begin{tabularx}{\textwidth}{l l >{\raggedright\arraybackslash}X}
         \toprule
-        \textbf{Algoritmo} & \textbf{\textrm{Classe} \texttt{scikit-learn}} & \textbf{Iperparametri di Default} \\
+        \textbf{Alg.} & \textbf{Classe \texttt{scikit-learn}} & \textbf{Iperparametri di Default} \\
         \midrule
-        Decision Tree (DT) & DecisionTreeClassifier & 
+        DT & DecisionTreeClassifier & 
         \texttt{criterion='gini'}, 
         \texttt{max\_depth=None}, 
         \texttt{min\_samples\_split=2} \\
         \addlinespace
-        Random Forest (RF) & RandomForestClassifier & 
+        RF & RandomForestClassifier & 
         \texttt{n\_estimators=100}, 
         \texttt{criterion='gini'}, 
         \texttt{max\_depth=None}, 
         \texttt{max\_features='sqrt'}, 
         \texttt{min\_samples\_split=2} \\
         \addlinespace
-        Hist. Gradient Boosting & HistGradientBoostingClassifier & 
+        HGB & HistGradientBoostingClassifier & 
         \texttt{learning\_rate=0.1}, 
         \texttt{max\_iter=100}, 
         \texttt{max\_depth=None}, 
@@ -1158,7 +1158,7 @@ La matrice di confusione viene esplicitamente calcolata imponendo l'ordine delle
 \begin{bmatrix}
 TN & FP \\
 FN & TP
-\end{bmatrix}.
+\end{bmatrix}
 \label{eq:confusion_matrix_implementation}
 \end{equation}
 
@@ -1524,20 +1524,14 @@ L'implementazione completa della procedura, comprensiva della gestione iterativa
     label={lst:welch_core}
 ]
 ref_row = data[data["model_name"] == reference_model]
-ref_scores = (
-    ref_row.drop(columns=["id", "model_name"]).values.flatten().astype(float)
-)
+ref_scores = (ref_row.drop(columns=["id", "model_name"]).values.flatten().astype(float))
 
 for _, row in data.iterrows():
     current_model = row["model_name"]
-
     if current_model == reference_model: continue
-
+    
     current_scores = row.drop(["id", "model_name"]).values.astype(float)
-
-    t_stat, p_value = stats.ttest_ind(
-        ref_scores, current_scores, equal_var=False
-    )
+    t_stat, p_value = stats.ttest_ind(ref_scores, current_scores, equal_var=False)
 \end{lstlisting}
 
 Il livello di significatività è stabilito \textit{a priori} al valore di primo tipo
