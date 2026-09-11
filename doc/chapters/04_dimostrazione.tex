@@ -368,16 +368,16 @@ Come si evince dai dati di partizionamento, l'applicazione rigorosa del rapporto
     };
 
     % LIVELLO 2: FILTRAGGIO E TASSONOMIA
-    \node [node_process, above left=1cm and -0.5cm of rho] (p_unsw) {
+    \node [node_process, left=1cm of rho] (p_unsw) {
         \textbf{Minority Removal}\\
         Eliminazione 4 classi\\
-        $\rightarrow 250.982$ record
+        250.982 record
     };
 
-    \node [node_process, above right=1cm and -0.5cm of rho] (p_stin) {
+    \node [node_process, right=1cm of rho] (p_stin) {
         \textbf{Minority Merge}\\
         Accorpamento classi\\
-        $\rightarrow 209.564$ record
+        209.564 record
     };
 
     % LIVELLO 1: INPUT DATASET GREZZI
@@ -401,27 +401,27 @@ Come si evince dai dati di partizionamento, l'applicazione rigorosa del rapporto
     };
 
     % LIVELLO 5: OUTPUT BENCHMARK
-    \node [node_output, below left=1cm and -0.5cm of split] (bench_aggr) {
+    \node [node_output, left=1cm of split] (bench_aggr) {
         \textbf{Benchmark Aggregati}\\
-        (5 Dataset - $102.300$ rec)
+        5 Dataset - $102.300$ record
     };
 
-    \node [node_output, below right=1cm and -0.5cm of split] (bench_biclass) {
+    \node [node_output, right=1cm of split] (bench_biclass) {
         \textbf{Benchmark Biclasse}\\
-        (11 Dataset - $102.300$ rec)
+        11 Dataset - $102.300$ record
     };
 
     % CONNESSIONI
     \path [arrow_source] (unsw) -- (p_unsw);
     \path [arrow_target] (stin) -- (p_stin);
 
-    \path [arrow_flow] (p_unsw) |- (rho);
-    \path [arrow_flow] (p_stin) |- (rho);
+    \path [arrow_flow] (p_unsw) -- (rho);
+    \path [arrow_flow] (p_stin) -- (rho);
 
     \path [arrow_param] (rho) -- (split);
 
-    \path [arrow_flow] (split.west) -| (bench_aggr.north);
-    \path [arrow_flow] (split.east) -| (bench_biclass.north);
+    \path [arrow_flow] (split) -- (bench_aggr);
+    \path [arrow_flow] (split) -- (bench_biclass);
 
 \end{tikzpicture}
 \caption{Diagramma di flusso del processo di estrazione, pulizia, campionamento vincolato ($\rho=10$) e partizionamento stratificato 80/20 per la generazione dei benchmark fisici aggregati e biclasse.}
@@ -687,12 +687,9 @@ def _align_nb15(data):
     new_df['down_up_ratio'] = data['dpkts'] / (data['spkts'] + 1e-6)
     new_df['total_bytes'] = new_df['src_bytes'] + new_df['dst_bytes']
     new_df['total_pkts'] = new_df['src_pkts'] + new_df['dst_pkts']
-    new_df['src_mean_pkt_size'] = \
-        new_df['src_bytes'] / (new_df['src_pkts'] + 1e-6)
-    new_df['dst_mean_pkt_size'] = \
-        new_df['dst_bytes'] / (new_df['dst_pkts'] + 1e-6)
-    new_df['pkts_per_sec'] = \ 
-        (new_df['src_pkts'] + new_df['dst_pkts']) / (data['dur'] + 1e-6)
+    new_df['src_mean_pkt_size'] = new_df['src_bytes'] / (new_df['src_pkts'] + 1e-6)
+    new_df['dst_mean_pkt_size'] = new_df['dst_bytes'] / (new_df['dst_pkts'] + 1e-6)
+    new_df['pkts_per_sec'] = (new_df['src_pkts'] + new_df['dst_pkts']) / (data['dur'] + 1e-6)
     new_df['win_diff'] = new_df['src_win_byt'] - new_df['dst_win_byt']
     new_df['byte_ratio'] = new_df['dst_bytes'] / (new_df['src_bytes'] + 1e-6)
     new_df['class'] = data['attack_cat']
@@ -701,15 +698,16 @@ def _align_nb15(data):
     return new_df
 \end{lstlisting}
 
+\newpage
+
 \begin{lstlisting}[
     style=python_thesis,
     caption={Trasposizione operativa dell'operatore di mappatura $\boldsymbol{\psi}_k$ tramite vettorializzazione \texttt{pandas} per il dominio STIN.},
     label={lst:align_stin}
 ]
 def _align_stin(data):
-    required_columns = ['fl_dur', 'l_fw_pkt', 'l_bw_pkt', 'fw_pk', 
-    'bw_pkt_s', 'fw_win_byt', 'bw_win_byt', 'fl_byt_s', 
-    'fl_iat_min', 'down_up_ratio', 'label']
+    required_columns = ['fl_dur', 'l_fw_pkt', 'l_bw_pkt', 'fw_pk', 'bw_pkt_s', 
+    'fw_win_byt', 'bw_win_byt', 'fl_byt_s', 'fl_iat_min', 'down_up_ratio', 'label']
     # [Controllo di sicurezza per le required_columns...]
 
     new_df = pd.DataFrame()
@@ -726,10 +724,8 @@ def _align_stin(data):
     new_df['down_up_ratio'] = data['down_up_ratio']
     new_df['total_bytes'] = new_df['src_bytes'] + new_df['dst_bytes']
     new_df['total_pkts'] = new_df['src_pkts'] + new_df['dst_pkts']
-    new_df['src_mean_pkt_size'] = \
-        new_df['src_bytes'] / (new_df['src_pkts'] + 1e-6)
-    new_df['dst_mean_pkt_size'] = \
-        new_df['dst_bytes'] / (new_df['dst_pkts'] + 1e-6)
+    new_df['src_mean_pkt_size'] = new_df['src_bytes'] / (new_df['src_pkts'] + 1e-6)
+    new_df['dst_mean_pkt_size'] = new_df['dst_bytes'] / (new_df['dst_pkts'] + 1e-6)
     new_df['pkts_per_sec'] = ((new_df['src_pkts'] + new_df['dst_pkts']) \
         / (new_df['duration'] + 1e-6)) * 1000000
     new_df['win_diff'] = new_df['src_win_byt'] - new_df['dst_win_byt']
@@ -1710,8 +1706,8 @@ Successivamente, tali parametri congelati vengono applicati per via diretta sia 
     \draw [arrow_param] (fit_stage) -- node[left, pos=0.6, align=center, font=\footnotesize, text=paramgreen] {Parametri Congelati\\[-5pt] $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S, \mathbf{W}_S)$} (transform_source);    
     \path [arrow_param] (fit_stage.south east) -- node[right, pos=0.2, xshift=0.5cm, align=center, font=\footnotesize, text=paramgreen] {Nessun\\[-5pt] Ricalcolo\\[-5pt] Locale} (transform_target.north west);
 
-    \draw [arrow_source] (source_data.west) -- ++(-1.2,0) |- node[near start, left, font=\footnotesize, text=mainblue] {Dati Grezzi $S$} (transform_source.west);
-    \draw [arrow_target] (target_data) -- node[right, font=\footnotesize\bfseries, text=accentorange] {Transform Only} (transform_target);
+    \draw [arrow_source] (source_data.west) -- ++(-1.2,0) |- node[near start, left, font=\footnotesize, text=mainblue, align=center] {Dati\\[-5pt] Grezzi $S$} (transform_source.west);
+    \draw [arrow_target] (target_data) -- node[right, font=\footnotesize\bfseries, text=accentorange, align=center] {Transform\\[-5pt] Only} (transform_target);
 
     \draw [arrow_flow] (transform_source) -- (out_pca);
     \draw [arrow_flow] (transform_target) -- (out_kde);
@@ -2412,7 +2408,7 @@ Parallelamente al flusso principale opera il modulo diagnostico.
 La standardizzazione utilizzata per PCA e KDE viene mantenuta separata dal grafo computazionale di training e inferenza.
 Le caratteristiche individuate mediante l'ispezione dei grafici SHAP vengono quindi utilizzate per configurare l'analisi KDE, secondo la procedura supervisionata descritta nella Sezione~\ref{subsec:pipeline_shap_kde}.
  
-La composizione complessiva degli stadi implementativi è sintetizzata nella Figura~\ref{fig:architettura_software_end_to_end}, che evidenzia, con il relativo dettaglio parametrico, il flusso principale della pipeline e il relativo ramo diagnostico.
+La composizione complessiva degli stadi implementativi è sintetizzata nella Figura~\ref{fig:architettura_software_end_to_end}, che evidenzia il flusso principale della pipeline e il relativo ramo diagnostico.
  
 \begin{figure}[H]
 \centering

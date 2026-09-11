@@ -50,8 +50,8 @@ Per facilitare la lettura della trattazione successiva, i principali simboli e c
         Dominio Terrestre Sorgente e Domini Target di Destinazione \\
         $\mathcal{D}_k^{(train)}, \mathcal{D}_k^{(test)}$ &
         Partizioni disgiunte di addestramento e test per il generico dominio $k$ \\
-        $\boldsymbol{\psi}_k(\cdot)$ &
-        Operatore di proiezione e combinazione dalle \textit{feature} grezze allo spazio $\mathcal{X}$, specifico per il dominio $k \in \{S,T\}$ \\
+        $\boldsymbol{\psi}_{k \in \{S,T\}}(\cdot)$ &
+        Operatore di proiezione e combinazione dalle \textit{feature} grezze allo spazio $\mathcal{X}$ \\
         $N(\cdot)$ &
         Operatore di cardinalità (numero di campioni estratti) \\
         \bottomrule
@@ -313,15 +313,15 @@ Per agevolare la consultazione, i formalismi architetturali e i parametri funzio
         $\hat{Y} \in \{0, 1\}$ &
         Decisione binaria finale predetta dal classificatore \\
         $\tau \in (0, 1)$ &
-        Soglia decisionale parametrica, tarabile lungo la curva ROC per il bilanciamento dei falsi positivi \\
+        Soglia decisionale parametrica per il bilanciamento dei falsi positivi \\
         $\mathcal{M}_{\text{base}}$ &
-        Modello baseline, addestrato sul \textit{Set di Iniezione} $\mathcal{D}_{\text{inj}}^{(\text{train})}$ includendo conoscenza target sparsa \\
+        Modello baseline, addestrato sul \textit{Set di Iniezione} $\mathcal{D}_{\text{inj}}^{(\text{train})}$ \\
         $\mathcal{M}_{S}$ &
-        Modello aggregato nativo sorgente, addestrato esclusivamente sulle distribuzioni stazionarie originarie $\mathcal{D}_{S}^{(\text{train})}$ \\
+        Modello aggregato nativo sorgente, addestrato sul \textit{Set Sorgente} $\mathcal{D}_{S}^{(\text{train})}$ \\
         $\mathcal{M}_{H}^{(T)}$ &
         Modello aggregato ibrido (\textit{Oracle}), addestrato unendo la componente lecita sorgente con la totalità degli attacchi target \\
         $\mathcal{M}_{S,a}$, $\mathcal{M}_{H,T,a}$ &
-        Modelli biclasse (sorgente e ibridi), focalizzati analiticamente sulla rilevabilità della singola famiglia d'attacco $a \in \mathcal{A}$ \\
+        Modelli biclasse (sorgente e ibridi), addestrati sulla componente nominale con una singola famiglia d'attacco $a \in \mathcal{A}$ \\
         $\mathcal{L}$ &
         Funzione di perdita \textit{Binary Cross-Entropy} (BCE) per l'ottimizzazione della stima parametrica \\
         $I(R_m)$ &
