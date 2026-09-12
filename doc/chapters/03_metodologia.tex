@@ -9,7 +9,7 @@ La trattazione si articola secondo una progressione logica suddivisa in quattro 
     \item La \textbf{Sezione~\ref{sec:modello_sistema}} formalizza il modello astratto del sistema, definendo rigorosamente gli spazi vettoriali di rappresentazione, gli operatori di proiezione per l'armonizzazione delle \textit{feature} e le regole architetturali di partizionamento dei domini.
     \item La \textbf{Sezione~\ref{sec:tassonomia_modelli}} delinea la tassonomia delle architetture di classificazione adottate e le relative strategie di \textit{transfer learning}, uniformando le metriche di confronto mediante una formulazione omogenea basata sulla stima della probabilità a posteriori.
     \item La \textbf{Sezione~\ref{sec:framework_adattamento}} stabilisce il protocollo valutativo per la stabilità statistica, affrontando la gestione dell'incertezza stocastica tramite valutazione \textit{multi-seed} e definendo gli indici morfologici di granularità dello spazio decisionale.
-    \item Infine, la \textbf{Sezione~\ref{sec:framework_analitico}} completa l'architettura metodologica descrivendo l'apparato diagnostico e di \textit{explainability}, integrando strumenti di stima di densità e metriche di rilevanza fondate sulla teoria dei giochi cooperativi per la caratterizzazione e l'interpretazione causale delle divergenze distributive.
+    \item Infine, la \textbf{Sezione~\ref{sec:framework_analitico}} completa l'architettura metodologica descrivendo l'apparato diagnostico e di \textit{explainability}, integrando strumenti di stima di densità e metriche di rilevanza fondate sulla teoria dei giochi cooperativi per la caratterizzazione e interpretazione delle divergenze distributive.
 \end{itemize}
 
 \section{Modello del Sistema e Spazi di Rappresentazione}
@@ -190,7 +190,7 @@ I dettagli analitici di composizione per ciascuna delle cinque categorie, opport
         \midrule
         \textbf{Set Nativo Sorgente Aggregato} &
         Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ &
-        Tutte le minacce sorgente $P_S(\mathbf{x} \mid Y=1, A \in \mathcal{A}_S)$ con distribuzioni \textit{a priori} naturali. \\
+        Tutte le minacce sorgente $P_S(\mathbf{x} \mid Y=1, A \in \mathcal{A}_S)$ con una distribuzione empirica delle famiglie d'attacco nel dataset di origine. \\
         \addlinespace
         \textbf{Set Nativo Sorgente Biclasse} &
         Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ &
@@ -198,7 +198,7 @@ I dettagli analitici di composizione per ciascuna delle cinque categorie, opport
         \addlinespace
         \textbf{Set Ibrido Aggregato} &
         Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ &
-        Tutte le minacce target $P_T(\mathbf{x} \mid Y=1, A \in \mathcal{A}_T)$ con distribuzioni \textit{a priori} naturali. \\
+        Tutte le minacce target $P_T(\mathbf{x} \mid Y=1, A \in \mathcal{A}_T)$ con una distribuzione empirica delle famiglie d'attacco nel dataset di target. \\
         \addlinespace
         \textbf{Set Ibrido Biclasse} &
         Baseline nativa $P_S(\mathbf{x} \mid Y=0, A \in \mathcal{A}_S)$ &
@@ -393,7 +393,9 @@ La decisione binaria finale $\hat{Y} \in \{0, 1\}$ per un generico vettore di te
 \label{subsubsec:modello_baseline}
 Contrariamente agli approcci convenzionali della letteratura che adottano come baseline modelli addestrati su sole distribuzioni stazionarie native, il framework metodologico propone come \textbf{unico modello baseline di riferimento} ($\mathcal{M}_{\text{base}}$) un classificatore addestrato sulla partizione di train del \textbf{\textit{Set di Iniezione di Riferimento}} ($\mathcal{D}_{\text{inj}}^{(\text{train})}$).
 
-Questo modello definisce un'ancora di prestazione per contesti affetti da transizione trasmissiva (es. il passaggio da reti terrestri a canali satellitari). In tale ruolo, $\mathcal{M}_{\text{base}}$ fornisce un riferimento stabilizzante per la valutazione dei modelli e consente di confrontare le prestazioni lungo una traiettoria di cambiamento di canale reale. $\mathcal{M}_{\text{base}}$ è un sistema NIDS ad elevata capacità adattiva, in grado di generalizzare non solo su minacce non viste della medesima distribuzione, ma anche su distribuzioni eterogenee grazie alla conoscenza preventiva sparsa. Il vettore dei parametri ottimali $\theta_{\text{base}}^*$ viene ottenuto mediante:
+Questo modello definisce un'ancora di prestazione per contesti affetti da transizione trasmissiva (es. il passaggio da reti terrestri a canali satellitari). 
+In tale ruolo, $\mathcal{M}_{\text{base}}$ fornisce una configurazione di riferimento per il confronto con i modelli sorgente e ibridi e consente di valutare sperimentalmente l'effetto associato all'introduzione di una quantità fortemente limitata di conoscenza target sulla capacità di generalizzazione cross-domain e sulla preservazione della conoscenza sorgente. 
+Il vettore dei parametri ottimali $\theta_{\text{base}}^*$ viene ottenuto mediante:
 \begin{equation}
     \theta_{\text{base}}^* = \arg\min_\theta \mathcal{R}_{\text{emp}}\left(\theta; \mathcal{D}_{\text{inj}}^{(\text{train})}\right)
     \label{eq:mbase_optimization}
@@ -458,7 +460,7 @@ in cui la classe nominale $Y=0$ di origine è unita alla totalità dei vettori d
 
 \subsubsection{Conservazione dei Modelli, Inferenza e Disaggregazione delle Prestazioni}
 \label{subsubsec:persistenza_aggregati}
-Al completamento della fase di ottimizzazione parametrica e dopo la verifica della convergenza sui rispettivi set di test locali, tutti i modelli generati ($\mathcal{M}_{\text{base}}$, $\mathcal{M}_{S}$ e le istanze $\mathcal{M}_{H}^{(T)}$) vengono mantenuti fissi nella propria struttura.
+Al completamento della fase di addestramento, tutti i modelli generati ($\mathcal{M}_{\text{base}}$, $\mathcal{M}_{S}$ e le istanze $\mathcal{M}_{H}^{(T)}$) vengono mantenuti fissi nella propria struttura e successivamente sottoposti al protocollo di valutazione.
 
 Il protocollo di valutazione per tali classificatori, schematizzato in Figura~\ref{fig:multiclass_evaluation} secondo la notazione standard a diagramma di flusso (\textit{flowchart})\footnote{A differenza degli schemi architetturali e compositivi delle Figure~\ref{fig:flusso_benchmark} e~\ref{fig:allineamento_feature}, che rappresentano relazioni statiche tra insiemi di dati, la Figura~\ref{fig:multiclass_evaluation} e la successiva Figura~\ref{fig:cross_evaluation} descrivono un protocollo procedurale con un autentico punto di biforcazione (il confronto $f_{\theta^*}(\mathbf{x}) \gtrless \tau$). Per tale ragione si adotta qui la notazione a diagramma di flusso convenzionale (nodi ellittici per gli insiemi di dati, rombi per i punti di decisione, rettangoli per i processi), coerentemente con la prassi diffusa in letteratura per la rappresentazione di protocolli algoritmici a bivi condizionali.}, segue un doppio binario analitico:
 \begin{enumerate}
@@ -587,7 +589,7 @@ Poiché l'output di classificazione è limitato al dominio binario $\mathcal{Y} 
 In fase di valutazione sperimentale, il protocollo per i classificatori biclasse, schematizzato in Figura~\ref{fig:cross_evaluation} secondo la medesima notazione a diagramma di flusso introdotta in Figura~\ref{fig:multiclass_evaluation}, segue due direttive analitiche complementari:
 \begin{enumerate}
     \item \textbf{Valutazione Nominale Specialistica (\textit{In-Domain}):} ciascun modello $\mathcal{M}_{S, a}$ (o $\mathcal{M}_{H, T, a}$) viene inizialmente testato sulla partizione dedicata alla singola minaccia $\mathcal{D}_a^{(\text{test})}$, stabilendo la prestazione ideale del classificatore nel proprio dominio di addestramento primario;
-    \item \textbf{Valutazione Incrociata di Classe (\textit{Cross-Evaluation}):} il modello specialistico viene successivamente proiettato sull'intera gamma di benchmark multi-classe eterogenei $\mathcal{D}^{(\text{test})}$. Tale analisi permette di verificare se la firma appresa per la minaccia $a$ generi falsi allarmi su attacchi $b \neq a$, quantificando la selettività di classe e l'eventuale polarizzazione dello spazio decisionale.
+    \item \textbf{Valutazione Incrociata di Classe (\textit{Cross-Evaluation}):} il modello specialistico viene successivamente valutato sull'intera gamma di benchmark eterogenei $\mathcal{D}^{(\text{test})}$. Tale analisi consente di quantificare in quale misura la funzione decisionale appresa sulla famiglia $a$ mantenga capacità di rilevamento nei confronti di famiglie malevole $b\neq a$, caratterizzandone quindi la trasferibilità cross-family.
 \end{enumerate}
 
 Come anticipato per la famiglia dei modelli aggregati, l'insieme eterogeneo $\mathcal{D}^{(\text{test})}$ impiegato nella \textit{cross-evaluation} coincide esattamente con l'insieme universale dei benchmark $\mathcal{B}$ (Sezione~\ref{subsec:stabilita_stocastica}). In quella sede verrà introdotta la matrice strutturata $H_k \in \mathbb{R}^{|\mathcal{M}|\times|\mathcal{B}|}$, in cui verranno incrociati tutti i modelli formulati $\{\mathcal{M}_{\text{base}}, \mathcal{M}_S, \mathcal{M}_H^{(T)}, \mathcal{M}_{S,a}, \mathcal{M}_{H,T,a}\}$ con l'intera estensione dei domini di test generati, fornendo così la rappresentazione visiva e matematica unificata che concretizza questo incrocio prestazionale.
@@ -664,7 +666,7 @@ La selezione delle soglie ottimali di split $\theta_j$ per la $j$-esima caratter
 \end{equation}
 
 \subsubsection{Proprietà di Invarianza e Tolleranza alle Distorsioni di Canale}
-Gli alberi di decisione esibiscono proprietà algebriche e geometriche fondamentali che li rendono intrinsecamente robusti alle perturbazioni introdotte dai canali trasmissivi radiofrequenza (RF) e dalle perdite di pacchetto.
+Gli alberi di decisione presentano proprietà di invarianza rispetto a trasformazioni monotone delle singole caratteristiche e una stabilità locale rispetto a perturbazioni che non determinano l\'attraversamento delle soglie di split. Tali proprietà non implicano tuttavia una robustezza generale rispetto al \textit{domain shift}, che può modificare la distribuzione dei dati in forme non riconducibili a semplici trasformazioni monotone.
 
 \paragraph{Invarianza alle Trasformazioni Monotone}
 Come introdotto nella Sezione~\ref{subsec:allineamento_feature} a giustificazione dell'omissione della fase di scalatura esplicita, le metriche estratte dai canali spaziali possono subire variazioni di scala, attenuazioni o calibrazioni non-lineari. La proprietà viene qui derivata in forma rigorosa e generalizzata a trasformazioni specifiche per singola caratteristica. Sia $h_j: \mathbb{R} \to \mathbb{R}$ una trasformazione strettamente monotonica crescente applicata alla caratteristica $x_j$. Poiché la decisione di uno split ad un generico nodo dell'albero è governata dalla funzione di soglia $\mathbb{I}(x_j > \theta_j)$, si osserva che:
@@ -684,17 +686,6 @@ Si consideri una misura corrotta da distorsione o rumore di canale $\tilde{\math
 \end{equation}
 Questa natura a scalino (\textit{step function}) riduce la sensibilità al rumore gaussiano e alle fluttuazioni di piccola entità rispetto ai modelli a separazione lineare o a base di distanza euclidea.
 
-\paragraph{Gestione Nativa dei Dati Mancanti (\textit{Packet Loss})}
-In presenza di perdite di pacchetti o corruzione dei dati di header, alcune caratteristiche $x_j$ possono risultare non disponibili ($x_j = \text{NaN}$). Le strutture alberiformi gestiscono tale incompletezza mediante due meccanismi distinti proposti in letteratura, entrambi privi della necessità di imputazione esplicita del dato: gli \textit{split surrogati}, introdotti nella formulazione originaria di CART~\cite{breiman1984}, che individuano uno split alternativo su una caratteristica correlata a $x_j$ qualora quest'ultima risulti mancante; e l'instradamento a \textit{direzione predefinita} (\textit{default direction}), proposto nel contesto degli algoritmi di boosting scalabili~\cite{chen2016}, in cui la direzione ottimale $\delta^*_j \in \{\text{sinistra}, \text{destra}\}$ per ciascun nodo di split su $x_j$ viene appresa direttamente durante l'addestramento, minimizzando la perdita empirica sui pattern di sparsità osservati:
-\begin{equation}
-    \text{Posizione}(\mathbf{x}) =
-    \begin{cases}
-        \text{Sinistra} & \text{se } x_j \le \theta_j \\
-        \text{Destra} & \text{se } x_j > \theta_j \\
-        \delta^*_j & \text{se } x_j = \text{NaN}
-    \end{cases}
-\end{equation}
-
 \subsubsection{Formulazione Generale degli Ensemble per la Riduzione dell'Errore}
 Sebbene il singolo albero di decisione presenti un basso errore di bias, esso soffre di elevata varianza. Per mitigare tale limite, si ricorre a tecniche di \textit{ensembling} che combinano $B$ stimatori base $\{f_b(\mathbf{x})\}_{b=1}^B$ per formare un predittore aggregato $F(\mathbf{x})$:
 \begin{equation}
@@ -709,7 +700,7 @@ Sia $\sigma^2$ la varianza del singolo albero e $\rho$ il coefficiente di correl
 \begin{equation}
     \operatorname{Var}(\bar{f}(\mathbf{x})) = \rho \sigma^2 + \frac{1 - \rho}{B} \sigma^2
 \end{equation}
-Al crescere del numero di alberi $B \to \infty$, il secondo termine tende a zero, riducendo la varianza complessiva del modello al limite teorico $\rho \sigma^2$. La de-correlazione forzata delle caratteristiche riduce il fattore $\rho$, garantendo un'elevata capacità di generalizzazione anche su traffico malevolo mai osservato.
+Al crescere del numero di alberi $B \to \infty$, il secondo termine tende a zero, riducendo la varianza complessiva del modello al limite teorico $\rho \sigma^2$.
 
 \paragraph{Riduzione del Bias via Gradient Boosting}
 A differenza dell'approccio parallelo del Bagging, gli algoritmi di \textit{Gradient Boosting}~\cite{friedman2001} (incluso il paradigma con discretizzazione a istogrammi \textit{Histogram-based Gradient Boosting}~\cite{ke2017}) costruiscono l'ensemble in modo sequenziale ed additivo. Dato un modello al passo $b-1$ pari a $F_{b-1}(\mathbf{x})$, lo stimatore successivo $f_b(\mathbf{x})$ viene addestrato per approssimare i pseudo-residui $r_{i,b}$, definiti come il gradiente negativo della funzione di perdita differenziabile $L(y_i, F(\mathbf{x}_i))$ valutato sulla predizione corrente:
@@ -720,7 +711,7 @@ L'aggiornamento del modello aggregato avviene secondo la regola:
 \begin{equation}
     F_b(\mathbf{x}) = F_{b-1}(\mathbf{x}) + \nu \cdot f_b(\mathbf{x})
 \end{equation}
-dove $\nu \in (0, 1]$ rappresenta il tasso di apprendimento (\textit{learning rate}). Tale approccio garantisce una minimizzazione progressiva del bias dell'errore di classificazione, consentendo di catturare sottili pattern di attacco ad alta dimensionalità tipici delle minacce cibernetiche complesse.
+dove $\nu \in (0, 1]$ rappresenta il tasso di apprendimento (\textit{learning rate}). Tale approccio mira a ridurre progressivamente l'errore rispetto alla funzione obiettivo mediante correzioni sequenziali dell'errore di classificazione, consentendo di catturare sottili pattern di attacco ad alta dimensionalità tipici delle minacce cibernetiche complesse.
 
 \begin{table}[H]
     \centering
@@ -1309,8 +1300,8 @@ Il ruolo e l'impatto della standardizzazione dipendente dal sorgente sulle diver
         Invarianza Monotonica: gli algoritmi basati su albero operano su ordinamenti relativi dei dati. Nessun impatto sulle metriche di accuratezza. \\
         \addlinespace
         \textbf{PCA} &
-        Matematicamente Indispensabile &
-        Prevenzione della Dominanza delle Scale: la matrice di covarianza $\boldsymbol{\Sigma}_D$ richiede unità adimensionali; in caso contrario, le componenti principali catturano solo la scala numerica grezza più ampia. \\
+        Metodologicamente necessaria per la comparabilità &
+        Riduzione della dominanza delle scale numeriche: la matrice di covarianza $\boldsymbol{\Sigma}_D$ richiede unità adimensionali; in caso contrario, le componenti principali catturano solo la scala numerica grezza più ampia. \\
         \addlinespace
         \textbf{KDE} &
         Metodologico e Visivo &
@@ -1622,7 +1613,7 @@ viene respinta qualora il valore $p$ associato alla statistica $t$ risulti infer
 \label{sec:sintesi_raccordo_ch4}
 
 L'impalcatura teorica e metodologica formalizzata nel presente capitolo definisce un modello astratto e rigoroso per la valutazione dei sistemi NIDS soggetti a \textit{domain shift}. 
-Attraverso l'allineamento degli spazi delle \textit{feature}, la formalizzazione dei modelli di classificazione (aggregati e specialistici) e la definizione di un protocollo stocastico fondato su valutazioni \textit{multi-seed} e test di significatività, il framework garantisce l'isolamento dei reali contributi algoritmici dal rumore di misura.
+Attraverso l'allineamento degli spazi delle \textit{feature}, la formalizzazione dei modelli di classificazione (aggregati e specialistici) e la definizione di un protocollo stocastico fondato su valutazioni \textit{multi-seed} e test di significatività, il framework garantisce di mantenere distinta la variabilità dal rumore di misura.
 
 Tuttavia, la validità dei vincoli analitici e delle proprietà di invarianza descritte richiede un riscontro quantitativo su scenari operativi concreti. 
 Nel Capitolo~\ref{ch:implementazione}, il framework teorico viene pertanto istanziato ed eseguito empiricamente. 
