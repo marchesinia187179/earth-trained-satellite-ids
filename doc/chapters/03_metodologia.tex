@@ -288,7 +288,7 @@ La definizione dello spazio proiettato $\mathcal{X}$ risponde a rigorosi vincoli
 
 \subsubsection{Invarianza Monotonica e Omissione della Scalatura Esplicita}
 \label{subsubsec:invarianza_monotonica}
-La gestione della scala delle variabili è centrale. Sebbene le tecniche di riscalamento lineare o di standardizzazione ($Z$-score, Min-Max scaling) siano ampiamente adottate in letteratura per uniformare i domini di variabilità, il framework teorico sfrutta una nota proprietà algebrica delle famiglie di classificatori impiegate in questa tesi~\cite{breiman1984,hastie2009}.
+La gestione della scala delle variabili è centrale. Sebbene le tecniche di riscalamento lineare o di standardizzazione ($Z$-score, Min-Max scaling) siano ampiamente adottate in letteratura per uniformare i domini di variabilità, il framework teorico sfrutta una nota proprietà algebrica delle famiglie di classificatori impiegate in questo elaborato~\cite{breiman1984,hastie2009}.
 
 Per la classe dei modelli basati sul partizionamento ricorsivo dello spazio dei dati\footnote{Tale famiglia include architetture ad albero di decisione singolo e relative estensioni ad \textit{ensemble}. La presente derivazione, e la conseguente omissione della scalatura esplicita, è valida esclusivamente per questa famiglia di modelli; qualora il framework venisse esteso a classificatori sensibili alla scala delle variabili (es. reti neurali, SVM a kernel, $k$-NN, regressione logistica regolarizzata), la normalizzazione andrebbe reintrodotta esplicitamente nello stadio di elaborazione iniziale.}, la funzione di suddivisione $s(\mathbf{x})$ lungo ciascuna dimensione $j$ poggia sull'ordinamento relativo dei valori rispetto a una soglia $\theta \in \mathbb{R}$:
 \begin{equation}

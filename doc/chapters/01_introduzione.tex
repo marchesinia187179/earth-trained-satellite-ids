@@ -15,7 +15,6 @@ Questo requisito assume particolare importanza nella transizione tra domini terr
 Il presente lavoro affronta tale problematica mediante la definizione e la validazione sperimentale di un framework per l'analisi della robustezza e della trasferibilità cross-domain di classificatori supervisionati applicati a sistemi NIDS. 
 L'indagine considera differenti regimi di disponibilità della conoscenza target e differenti configurazioni della componente malevola, con l'obiettivo di valutare non soltanto la capacità di adattamento verso nuove distribuzioni, ma anche la conservazione dell'informazione precedentemente acquisita nel dominio sorgente.
 
-A partire da tali premesse, il presente lavoro definisce e valida sperimentalmente un framework per l'analisi della robustezza e della trasferibilità cross-domain di classificatori supervisionati applicati a sistemi NIDS. 
 Il capitolo introduce il contesto dell'indagine, formalizza il problema di ricerca e i relativi obiettivi, sintetizza l'approccio metodologico e identifica i principali contributi della tesi, concludendo con l'organizzazione della trattazione.
 
 % ==============================================================================
@@ -56,7 +55,7 @@ Da tali considerazioni deriva la motivazione centrale del presente lavoro: anali
 L'interesse non è quindi limitato alla ricerca della massima prestazione su uno specifico dominio, ma riguarda più in generale la capacità del sistema di mantenere un comportamento discriminativo stabile attraverso scenari eterogenei.
 
 Questa prospettiva richiede di superare una valutazione circoscritta alla sola accuratezza intra-domain e di considerare congiuntamente la generalizzazione cross-domain, la stabilità rispetto alla componente stocastica dell'addestramento, la sensibilità alle differenti distribuzioni malevole e la struttura della funzione decisionale appresa. 
-Su tali presupposti viene formulato, nella sezione successiva, il problema di ricerca affrontato dalla tesi.
+Su tali presupposti viene formulato, nella sezione successiva, il problema di ricerca affrontato dall'elaborato.
 
 
 
@@ -272,7 +271,7 @@ L'obiettivo è verificare se una conoscenza preventiva fortemente sparsa del dom
 Il comportamento della baseline viene pertanto confrontato sia con il regime privo di adattamento sia con le configurazioni caratterizzate da una maggiore esposizione al dominio target.
 
 \paragraph{RQ3 -- Granularità, Specializzazione e Generalizzazione.}
-\textit{Come incide la granularità della rappresentazione della componente malevola sulla capacità del classificatore di generalizzare in presenza di variazioni distributive?}
+\textit{Come varia la capacità del classificatore di generalizzare al variare della granularità della rappresentazione della componente malevola?}
 
 La terza domanda confronta modelli aggregati, nei quali più famiglie d'attacco contribuiscono alla costruzione della regione decisionale positiva, e modelli biclasse specialistici, addestrati rispetto a una singola famiglia di minaccia. 
 L'analisi mira a verificare il compromesso tra ampiezza della conoscenza rappresentata durante l'apprendimento e specializzazione discriminativa, valutando se una frontiera costruita su un supporto malevolo più eterogeneo risulti maggiormente tollerante al \textit{domain shift} rispetto a una formulazione più ristretta.
@@ -360,7 +359,7 @@ La valutazione incrociata consente di confrontare il comportamento del medesimo 
 Le prestazioni vengono analizzate attraverso metriche derivate dalla matrice di confusione, con particolare attenzione a \textit{Recall}/TPR, TNR, \textit{Precision} e \textit{F1-Score}, affiancate dalla PR-AUC per caratterizzare la qualità della graduatoria probabilistica indipendentemente dalla singola soglia operativa.
 
 I risultati ottenuti sui differenti seed vengono successivamente aggregati per caratterizzare media e dispersione delle prestazioni. 
-Il confronto tra la baseline e le altre configurazioni viene inoltre supportato mediante il test $t$ di Welch applicato all'\textit{F1-Score}, al fine di verificare se gli scostamenti osservati risultino compatibili con la sola variabilità inter-seed oppure rappresentino differenze statisticamente significative secondo il criterio adottato.
+Il confronto tra la baseline e le altre configurazioni viene inoltre supportato mediante il test statistico applicato all'\textit{F1-Score}, al fine di verificare l'ipotesi nulla di uguaglianza delle medie secondo il criterio inferenziale definito nel protocollo.
 
 \paragraph{6) Diagnostica distributiva e spiegabilità.}
 Parallelamente al percorso principale di addestramento e valutazione viene mantenuto un ramo diagnostico separato, finalizzato a caratterizzare sia la struttura dei dati sia la funzione decisionale dei classificatori.
@@ -383,16 +382,16 @@ I risultati prodotti mediante tale protocollo costituiscono infine l'oggetto del
 
 
 % ==============================================================================
-% 1.5 CONTRIBUTI DELLA TESI
+% 1.5 CONTRIBUTI DEL ELABORATO
 % ==============================================================================
 
-\section{Contributi della Tesi}
+\section{Contributi dell'Elaborato}
 \label{sec:intro_contributi}
 
 Il presente lavoro fornisce un insieme di contributi metodologici, sperimentali e implementativi orientati allo studio della robustezza cross-domain dei sistemi NIDS supervisionati. 
 Il contributo complessivo non consiste nella proposta di una nuova architettura di classificazione, bensì nella definizione di un quadro sistematico attraverso il quale modelli esistenti possano essere addestrati, trasferiti e confrontati in presenza di distribuzioni di traffico eterogenee e differenti livelli di disponibilità della conoscenza target.
 
-I principali contributi della tesi possono essere sintetizzati nei seguenti punti.
+I principali contributi dell'elaborato possono essere sintetizzati nei seguenti punti.
 
 \begin{enumerate}
 
@@ -438,23 +437,23 @@ La metodologia proposta considera invece congiuntamente provenienza e composizio
 
 Il perimetro dei contributi rimane circoscritto alle grandezze effettivamente valutate nel protocollo sperimentale. 
 In particolare, il lavoro non fornisce una caratterizzazione quantitativa dei costi computazionali di deployment, quali latenza di inferenza, occupazione di memoria o consumo energetico, né valuta il trasferimento cross-domain della componente di traffico nominale. 
-Tali aspetti costituiscono pertanto dimensioni complementari rispetto ai contributi sviluppati nella presente tesi e vengono demandati alle successive considerazioni sui limiti e sulle possibili estensioni del lavoro.
+Tali aspetti costituiscono pertanto dimensioni complementari rispetto ai contributi sviluppati nel presente elaborato e vengono demandati alle successive considerazioni sui limiti e sulle possibili estensioni del lavoro.
 
 
 
 % ==============================================================================
-% 1.6 ORGANIZZAZIONE DELLA TESI
+% 1.6 ORGANIZZAZIONE DELLA ELABORATO
 % ==============================================================================
 
-\section{Organizzazione della Tesi}
+\section{Organizzazione dell'Elaborato}
 \label{sec:intro_organizzazione}
 
 La trattazione è organizzata secondo una progressione che muove dalla definizione del contesto applicativo e del problema di ricerca alla formalizzazione metodologica, alla relativa implementazione e alla successiva validazione sperimentale. 
-Il lavoro si articola complessivamente in sei capitoli, cui si aggiunge un'appendice dedicata alla raccolta dei risultati numerici completi.
+Il lavoro si articola complessivamente in sei capitoli, cui si aggiungono due appendici dedicate, rispettivamente, ai dettagli implementativi del framework e alla raccolta dei risultati numerici completi.
 
 Il \textbf{Capitolo~\ref{ch:bck_rltd_wrks}}, \textit{Contesto di Riferimento e Stato dell'Arte}, introduce il quadro tecnologico e scientifico nel quale si colloca il lavoro. 
 Vengono analizzate le caratteristiche delle infrastrutture di telecomunicazione terrestri e satellitari, le principali problematiche di sicurezza associate alla loro integrazione e il ruolo dei sistemi NIDS basati su Machine Learning. 
-La trattazione approfondisce inoltre il fenomeno del \textit{domain shift}, la scarsità di dati etichettati nel dominio target e le principali strategie di adattamento considerate in letteratura, culminando nell'identificazione del \textit{research gap} affrontato dalla tesi.
+La trattazione approfondisce inoltre il fenomeno del \textit{domain shift}, la scarsità di dati etichettati nel dominio target e le principali strategie di adattamento considerate in letteratura, culminando nell'identificazione del \textit{research gap} affrontato dall'elaborato.
 
 Il \textbf{Capitolo~\ref{ch:metodologia}}, \textit{Formulazione Teorica e Framework Metodologico}, traduce il problema individuato in una struttura formale indipendente dalle specificità implementative dei dataset. 
 Vengono definiti i domini sorgente e target, lo spazio condiviso delle caratteristiche, gli operatori di mappatura, le differenti configurazioni di benchmark e la tassonomia dei modelli di classificazione. 
@@ -469,9 +468,11 @@ L'analisi prende inizialmente in esame la struttura geometrica e distributiva de
 I risultati puntuali vengono integrati con le statistiche aggregate sulle repliche \textit{multi-seed}, con il test $t$ di Welch e con l'analisi post-hoc delle caratteristiche maggiormente coinvolte nelle decisioni dei classificatori. 
 La parte conclusiva del capitolo ricompone le evidenze quantitative, distributive e interpretative al fine di caratterizzare i differenti regimi di generalizzazione osservati.
 
-Il \textbf{Capitolo~6}, \textit{Conclusioni Finali}, ricondurrà le evidenze sperimentali alle domande di ricerca formulate nella Sezione~\ref{sec:intro_obiettivi}. 
-La trattazione sintetizzerà i principali risultati ottenuti, discuterà il contributo complessivo del framework rispetto al problema della robustezza cross-domain e distinguerà le conclusioni direttamente supportate dal protocollo dai relativi limiti sperimentali. 
-Saranno infine delineate le principali direzioni di sviluppo futuro, con particolare riferimento alle dimensioni non investigate nella presente campagna sperimentale.
+Il \textbf{Capitolo~\ref{ch:conclusioni}}, \textit{Conclusioni Finali}, riconduce le evidenze sperimentali alle domande di ricerca formulate nella Sezione~\ref{sec:intro_obiettivi}. 
+La trattazione sintetizza i principali risultati ottenuti, discute il contributo complessivo del framework rispetto al problema della robustezza cross-domain e distingue le conclusioni direttamente supportate dal protocollo dai relativi limiti sperimentali. 
+Sono infine delineate le principali direzioni di sviluppo futuro, con particolare riferimento alle dimensioni non investigate nella presente campagna sperimentale.
+
+L'\textbf{Appendice~\ref{app:implementazione}}, \textit{Dettagli Implementativi e Listati del Framework}, raccoglie i principali listati e i dettagli operativi che completano la descrizione del Capitolo~\ref{ch:implementazione}, mantenendoli separati dal corpo principale al fine di preservarne la leggibilità.
 
 L'\textbf{Appendice~\ref{app:risultati_completi}}, \textit{Risultati Numerici Completi}, raccoglie infine il dettaglio numerico delle valutazioni sviluppate nel Capitolo~\ref{ch:risultati}. 
 Le matrici di confusione, le metriche complementari e gli esiti completi delle verifiche statistiche vengono mantenuti separati dalla discussione principale al fine di preservarne la leggibilità, garantendo contestualmente la tracciabilità quantitativa delle analisi presentate.

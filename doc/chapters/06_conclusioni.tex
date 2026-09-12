@@ -1,7 +1,7 @@
 \chapter{Conclusioni Finali}
 \label{ch:conclusioni}
 
-Il presente capitolo conclude il percorso di ricerca sviluppato nella tesi, ricomponendo le evidenze metodologiche e sperimentali emerse dall'analisi della trasferibilità cross-domain di \textit{Network Intrusion Detection Systems} (NIDS) basati su Machine Learning.
+Il presente capitolo conclude il percorso di ricerca sviluppato nell'elaborato, ricomponendo le evidenze metodologiche e sperimentali emerse dall'analisi della trasferibilità cross-domain di \textit{Network Intrusion Detection Systems} (NIDS) basati su Machine Learning.
 
 A partire dai risultati discussi nel Capitolo~\ref{ch:risultati}, vengono dapprima sintetizzati gli elementi fondamentali del lavoro svolto e, successivamente, formulate risposte esplicite alle domande di ricerca definite nel Capitolo~\ref{ch:introduzione}. 
 Le evidenze ottenute vengono quindi ricondotte ai contributi complessivi dello studio, distinguendo le implicazioni metodologiche dalle possibili ricadute per la futura progettazione di sistemi di rilevamento destinati a infrastrutture integrate terrestre-spaziali.
@@ -17,7 +17,7 @@ La trattazione si conclude con l'identificazione dei principali limiti della cam
 \section{Sintesi del Lavoro Svolto}
 \label{sec:sintesi_lavoro}
 
-Il lavoro di tesi ha affrontato il problema della generalizzazione di classificatori NIDS supervisionati in presenza di distribuzioni di traffico eterogenee, con particolare riferimento al trasferimento della conoscenza acquisita in un dominio sorgente terrestre verso domini target rappresentativi di scenari di comunicazione terrestre-spaziali.
+Il lavoro dell'elaborato ha affrontato il problema della generalizzazione di classificatori NIDS supervisionati in presenza di distribuzioni di traffico eterogenee, con particolare riferimento al trasferimento della conoscenza acquisita in un dominio sorgente terrestre verso domini target rappresentativi di scenari di comunicazione terrestre-spaziali.
 
 La problematica è stata affrontata mediante la definizione di un framework metodologico volto a separare tre aspetti complementari: la rappresentazione comune delle osservazioni provenienti da domini differenti, la composizione controllata della conoscenza disponibile durante l'addestramento e la valutazione sistematica della capacità di generalizzazione dei classificatori.
 
@@ -160,7 +160,7 @@ L'evidenza non identifica tuttavia una proporzione universalmente ottimale di ca
 La terza domanda di ricerca è stata formulata come segue:
 
 \begin{quote}
-\textit{Come incide la granularità della rappresentazione della componente malevola sulla capacità del classificatore di generalizzare in presenza di variazioni distributive?}
+\textit{Come varia la capacità del classificatore di generalizzare al variare della granularità della rappresentazione della componente malevola?}
 \end{quote}
 
 I risultati ottenuti indicano che la granularità della componente malevola incide in modo sostanziale sul compromesso tra specializzazione e generalizzazione.
@@ -500,7 +500,7 @@ Tale analisi risulterebbe particolarmente rilevante in un contesto NIDS, nel qua
 Lo sviluppo futuro non dovrebbe pertanto limitarsi alla ricerca di una soglia che massimizzi una singola metrica, ma caratterizzare la stabilità della soglia rispetto al \textit{domain shift}, verificando se un valore definito sul dominio sorgente mantenga un comportamento adeguato anche sulle distribuzioni target.
 
 Una quarta direzione riguarda la \textbf{caratterizzazione delle risorse computazionali e la validazione su piattaforme di esecuzione rappresentative}.
-Il confronto sviluppato nella presente tesi è limitato alle proprietà predittive e alla stabilità dei classificatori.
+Il confronto sviluppato nel presente elaborato è limitato alle proprietà predittive e alla stabilità dei classificatori.
 Una successiva campagna dovrebbe affiancare a tali grandezze misure relative a:
 \begin{itemize}
     \item latenza di inferenza;
@@ -528,7 +528,7 @@ L'obiettivo non sarebbe quindi sostituire necessariamente i classificatori ad al
 Le direzioni delineate possono essere considerate secondo una progressione incrementale.
 L'introduzione di traffico benigno target e di ulteriori dataset estenderebbe innanzitutto la validità empirica del protocollo; l'analisi della quantità di conoscenza target e della soglia decisionale approfondirebbe il comportamento del meccanismo di adattamento; la misurazione delle risorse avvicinerebbe il framework a una valutazione ingegneristica di deployment; infine, l'utilizzo di rappresentazioni più complete consentirebbe di ampliare il confronto verso nuove famiglie di modelli.
 
-Nel loro insieme, tali sviluppi permetterebbero di verificare quanto le evidenze emerse nella presente tesi siano generalizzabili oltre le specifiche condizioni sperimentali considerate e di evolvere progressivamente il framework da strumento di analisi della trasferibilità cross-domain a base metodologica per la progettazione e la validazione di NIDS destinati a infrastrutture di comunicazione terrestre-spaziali.
+Nel loro insieme, tali sviluppi permetterebbero di verificare quanto le evidenze emerse nel presente elaborato siano generalizzabili oltre le specifiche condizioni sperimentali considerate e di evolvere progressivamente il framework da strumento di analisi della trasferibilità cross-domain a base metodologica per la progettazione e la validazione di NIDS destinati a infrastrutture di comunicazione terrestre-spaziali.
 
 
 
