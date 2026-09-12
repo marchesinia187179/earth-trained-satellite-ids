@@ -1,0 +1,300 @@
+\chapter{Dettagli Implementativi e Listati del Framework}
+\label{app:implementazione}
+
+La presente appendice raccoglie i principali dettagli implementativi del framework che, per estensione e livello di granularità, non sono stati riportati integralmente nel Capitolo~\ref{ch:implementazione}.
+L'obiettivo è documentare le componenti software necessarie a completare la descrizione della pipeline sperimentale, preservando nel corpo principale dell'elaborato l'attenzione sulle scelte architetturali, metodologiche e implementative maggiormente rilevanti.
+
+Sono pertanto riportate le routine relative al campionamento e all'istanziazione dei benchmark, alla nomenclatura automatica dei modelli, alla gestione dei casi limite nel calcolo delle metriche, all'esecuzione del test $t$ di Welch e alle componenti ausiliarie della pipeline SHAP.
+I listati costituiscono un'integrazione della trattazione sviluppata nel Capitolo~\ref{ch:implementazione} e ne documentano la trasposizione operativa nel framework software realizzato.
+
+L'organizzazione dell'appendice segue la medesima progressione logica adottata nella descrizione implementativa: preparazione dei benchmark, identificazione dei modelli, valutazione delle prestazioni, verifica statistica e analisi di spiegabilità.
+
+
+\section{Campionamento e Istanziazione dei Benchmark}
+\label{app:campionamento_benchmark}
+
+A completamento della procedura di parametrizzazione e istanziazione dei benchmark descritta nella Sottosezione~\ref{subsec:parametrizzazione_benchmark}, si riportano di seguito le routine implementative responsabili dell'applicazione del vincolo di proporzione tra traffico nominale e malevolo e del successivo campionamento stratificato delle partizioni di addestramento e test.
+
+Il Listato~\ref{lst:correct_normal_anomaly_sampling} implementa la determinazione dinamica delle cardinalità da estrarre in funzione del parametro \texttt{MLConstants.NORMAL\_ANOMALY\_RATIO}, mentre il Listato~\ref{lst:stratified_sampling} riporta la procedura di campionamento che riproduce, compatibilmente con la numerosità disponibile, la proporzione tra le partizioni identificate dalla variabile \texttt{split\_type}.
+
+\newpage
+
+\begin{lstlisting}[
+    style=python_thesis,
+    caption={Routine di campionamento per l'istanziazione dei benchmark.},
+    label={lst:correct_normal_anomaly_sampling}
+]
+def _get_correct_normal_and_anomaly_data_samples(
+    normal_data, anomaly_data, normal_samples, anomaly_samples):
+    # Calcola il corretto numero di campioni da estrarre dalle distribuzioni
+    if normal_samples < anomaly_samples * MLConstants.NORMAL_ANOMALY_RATIO:
+        n_anomaly_target = int(normal_samples / MLConstants.NORMAL_ANOMALY_RATIO)
+        anomaly_data_sample = _safe_stratified_sample(anomaly_data, n_anomaly_target)
+        normal_data_sample = normal_data
+    else:
+        n_normal_target = int(anomaly_samples * MLConstants.NORMAL_ANOMALY_RATIO)
+        normal_data_sample = _safe_stratified_sample(normal_data, n_normal_target)
+        anomaly_data_sample = anomaly_data
+
+    return normal_data_sample, anomaly_data_sample
+\end{lstlisting}
+
+A completamento della procedura di campionamento, il Listato~\ref{lst:stratified_sampling} riporta la routine utilizzata per ripartire le osservazioni tra le partizioni \texttt{train} e \texttt{test}, riproducendone, compatibilmente con la numerosità disponibile, la proporzione relativa e gestendo esplicitamente gli eventuali limiti di capienza delle due partizioni.
+
+\begin{lstlisting}[
+    style=python_thesis,
+    caption={Routine di campionamento stratificato per l'istanziazione dei benchmark.},
+    label={lst:stratified_sampling}
+]
+def _safe_stratified_sample(data, n_samples):
+    # Se la colonna 'split_type' non è presente, esegue un campionamento casuale semplice
+    if 'split_type' not in data.columns:
+        return data.sample(n=n_samples, random_state=MLConstants.MAIN_SEED)
+    
+    data_train = data[data['split_type'] == 'train']
+    data_test = data[data['split_type'] == 'test']
+    
+    # Controllo della lunghezza totale del dataset
+    total_len = len(data)
+    if total_len == 0 or n_samples == 0:
+        return pd.DataFrame(columns=data.columns)
+    
+    train_ratio = len(data_train) / total_len
+    n_train = round(n_samples * train_ratio)
+    n_test = n_samples - n_train
+    
+    # Gestione difensiva dei limiti di capienza delle partizioni
+    if n_test > len(data_test):
+        diff = n_test - len(data_test)
+        n_test = len(data_test)
+        n_train += diff
+    elif n_train > len(data_train):
+        diff = n_train - len(data_train)
+        n_train = len(data_train)
+        n_test += diff
+    
+    # Campionamento stratificato senza reinserimento
+    sampled_parts = []
+    if n_train > 0 and not data_train.empty:
+        sampled_parts.append(data_train.sample(n=n_train, random_state=MLConstants.MAIN_SEED))
+
+    if n_test > 0 and not data_test.empty:
+        sampled_parts.append(data_test.sample(n=n_test, random_state=MLConstants.MAIN_SEED))
+
+    if not sampled_parts:
+        return pd.DataFrame(columns=data.columns)
+        
+    return concat_and_shuffle(sampled_parts)
+\end{lstlisting}
+
+
+
+\section{Nomenclatura e Identificazione Automatica dei Modelli}
+\label{app:nomenclatura_modelli}
+
+A supporto della procedura di istanziazione dei classificatori descritta nel Capitolo~\ref{sec:implementazione_classificatori}, il framework adotta una convenzione automatizzata per l'assegnazione dei nomi ai modelli serializzati e ai relativi record di tracciamento.
+
+La funzione \texttt{\_get\_standardized\_model\_name()} determina dinamicamente l'identificativo del modello a partire dalla tipologia del dataset e dall'insieme delle classi presenti. 
+Nel caso di una configurazione contenente più di due classi viene generato l'identificativo aggregato; nel caso biclasse viene invece individuata l'etichetta distinta da \texttt{normal} e incorporata nella nomenclatura del modello.
+
+Il Listato~\ref{lst:get_model_name} riporta l'implementazione completa della procedura.
+
+\begin{lstlisting}[
+    style=python_thesis,
+    caption={Estrazione procedurale dell'etichetta di attacco per la generazione dinamica della nomenclatura del modello.},
+    label={lst:get_model_name}
+]
+def _get_standardized_model_name(dataset_type, unique_classes):
+    # Normalizza la rappresentazione testuale rimuovendo gli spazi bianchi
+    classes = [str(c).strip() for c in unique_classes if str(c).strip()]
+
+    # Caso aggregato
+    if len(classes) > 2:
+        return f"{dataset_type}_aggregate"
+    
+    # Identifica la classe di attacco (assumendo che 'normal' sia la classe benevola)
+    attack_classes = [c for c in classes if c.lower() != 'normal']
+    attack_name = attack_classes[0].lower() if attack_classes else "normal"
+    
+    # Caso biclasse
+    return f"{dataset_type}_{attack_name}"
+\end{lstlisting}
+
+
+
+\section{Calcolo delle Metriche e Gestione dei Casi Limite}
+\label{app:calcolo_metriche}
+
+A completamento della procedura di valutazione descritta nella Sottosezione~\ref{subsec:calcolo_metriche_hk}, si riporta l'implementazione della logica utilizzata per il calcolo delle metriche di classificazione e per la gestione dei casi nei quali le quantità necessarie alla loro determinazione non risultano definite.
+
+La funzione \texttt{calculate\_metrics()} ricava preliminarmente i quattro elementi della matrice di confusione imponendo l'ordine delle classi \texttt{[0, 1]}. 
+Le metriche sintetiche vengono calcolate soltanto quando il vettore delle etichette reali contiene entrambe le classi, mentre TPR, FNR, TNR e FPR sono subordinati alla verifica esplicita dei rispettivi denominatori.
+
+Il Listato~\ref{lst:calculate_metrics_edge_cases} riporta il frammento
+implementativo completo utilizzato per tale gestione difensiva.
+
+\newpage
+
+\begin{lstlisting}[
+    style=python_thesis,
+    caption={Gestione difensiva dei casi limite e calcolo delle metriche in \texttt{calculate\_metrics()}.},
+    label={lst:calculate_metrics_edge_cases}
+]
+has_classes = len(np.unique(y_test)) > 1
+# [Controllo di sicurezza sul numero di classi...]
+
+# Calcolo delle metriche
+tn, fp, fn, tp = confusion_matrix(y_test, y_pred, labels=[0, 1]).ravel()
+
+if has_classes:
+    accuracy = round(accuracy_score(y_test, y_pred), MLConstants.DECIMAL_DIGITS)
+    precision = round(precision_score(y_test, y_pred), MLConstants.DECIMAL_DIGITS)
+    recall = round(recall_score(y_test, y_pred), MLConstants.DECIMAL_DIGITS)
+    f1 = round(f1_score(y_test, y_pred), MLConstants.DECIMAL_DIGITS)
+    roc = round(roc_auc_score(y_test, y_scores), MLConstants.DECIMAL_DIGITS)
+    pr = round(average_precision_score(y_test, y_scores), MLConstants.DECIMAL_DIGITS)
+else:
+    accuracy = precision = recall = f1 = roc = pr = None
+    
+if (tp + fn) > 0:
+    tpr = round(tp / (tp + fn), MLConstants.DECIMAL_DIGITS)
+    fnr = round(fn / (tp + fn), MLConstants.DECIMAL_DIGITS)
+else:
+    tpr, fnr = None, None
+
+if (fp + tn) > 0: 
+    tnr = round(tn / (fp + tn), MLConstants.DECIMAL_DIGITS)
+    fpr = round(fp / (fp + tn), MLConstants.DECIMAL_DIGITS)
+else:
+    tnr, fpr = None, None
+\end{lstlisting}
+
+Nel listato, la variabile \texttt{pr} memorizza l'Average Precision (AP) calcolata mediante \texttt{average\_\allowbreak{}precision\_\allowbreak{}score}; la curva Precision--Recall rimane un artefatto grafico distinto dalla metrica AP. L'arrotondamento mostrato è quello effettivamente applicato dalla pipeline prima della persistenza delle metriche.
+
+
+\section{Implementazione del Test t di Welch}
+\label{app:welch_implementation}
+
+A completamento del protocollo inferenziale descritto nella Sottosezione~\ref{subsec:implementazione_welch}, si riporta l'implementazione completa della procedura utilizzata per il confronto statistico tra il modello di riferimento \texttt{INJECTION} e le configurazioni sottoposte a valutazione.
+
+La procedura estrae dal \textit{DataFrame} di sintesi i valori medi di \textit{F1-Score} associati ai diversi seed, costruisce i campioni corrispondenti alle configurazioni confrontate ed esegue il test mediante la funzione \texttt{scipy.stats.ttest\_ind()} con \texttt{equal\_var=False}. 
+L'esito viene successivamente classificato rispetto al livello di significatività prefissato e memorizzato nella struttura dei risultati. La chiamata \texttt{ttest\_ind(..., equal\_var=False)} tratta i due vettori come campioni indipendenti e non costituisce, di per sé, una dimostrazione dell'indipendenza statistica delle osservazioni.
+
+Il Listato~\ref{lst:welch_implementation} riporta l'implementazione completa della procedura.
+
+\begin{lstlisting}[
+    style=python_thesis,
+    caption={Estrazione dei campioni ed esecuzione del test $t$ di Welch.},
+    label={lst:welch_implementation}
+]
+# Estrazione dei valori di F1-Score medi per il modello baseline su tutti i seed
+ref_row = data[data["model_name"] == reference_model]
+ref_scores = (ref_row.drop(columns=["id", "model_name"]).values.flatten().astype(float))
+
+results_list = []
+# Itera su ciascun modello presente nel DataFrame di sintesi 
+# per eseguire i confronti incrociati
+for _, row in data.iterrows():
+    current_model = row["model_name"]
+    if current_model == reference_model: continue
+
+    # Isola i valori numerici di test per il modello confrontato
+    current_scores = row.drop(["id", "model_name"]).values.astype(float)
+
+    # Esegue il test t di Welch assumendo varianze non uguali
+    t_stat, p_value = stats.ttest_ind(ref_scores, current_scores, equal_var=False)
+
+    # Valuta la significatività statistica
+    is_significant = "YES" if p_value < alpha else "NO"
+
+    results_list.append({
+        "Reference_Model": reference_model,
+        "Compared_Model": current_model,
+        "t_statistic": t_stat,
+        "p_value": p_value,
+        "alpha": alpha,
+        "is_significant": is_significant
+    })
+\end{lstlisting}
+
+
+
+\section{Dettagli Implementativi della Pipeline SHAP}
+\label{app:shap_implementation}
+
+A completamento della pipeline di spiegabilità descritta nella Sottosezione~\ref{subsec:implementazione_shap}, si riportano le componenti implementative relative al campionamento controllato del test set e alla successiva uniformazione della struttura dimensionale dei valori SHAP restituiti dagli \textit{explainer}.
+
+Il Listato~\ref{lst:shap_sampling} riporta la procedura utilizzata per costruire il campione destinato all'analisi SHAP. Le quote calcolate per le due classi sono nominali: per ciascuna classe viene estratto al massimo il numero di osservazioni effettivamente disponibile, senza riallocare automaticamente l'eventuale quota residua. Il fallback al campionamento casuale standard viene attivato soltanto nel caso in cui la procedura non produca alcun indice campionato.
+
+\begin{lstlisting}[
+    style=python_thesis,
+    caption={Campionamento stratificato del test set per l'analisi SHAP.},
+    label={lst:shap_sampling}
+]
+# Allineamento delle etichette con le caratteristiche
+y_series = pd.Series(y_test, index=X_test.index if hasattr(X_test, 'index') else None)
+
+# Calcola le quote di campionamento per le due classi
+n_anomaly = MLConstants.SHAP_MAX_SAMPLES // MLConstants.NORMAL_ANOMALY_RATIO
+n_normal = MLConstants.SHAP_MAX_SAMPLES - n_anomaly
+
+# Estrazione degli indici campionati per entrambe le classi, date le istanze disponibili
+idx_normal = pd.Index([])
+if sum(y_series == 0) > 0:
+    idx_normal = y_series[y_series == 0].sample(
+        n=min(n_normal, sum(y_series == 0)), random_state=MLConstants.MAIN_SEED
+    ).index
+idx_anomaly = pd.Index([])
+if sum(y_series == 1) > 0:
+    idx_anomaly = y_series[y_series == 1].sample(
+        n=min(n_anomaly, sum(y_series == 1)), random_state=MLConstants.MAIN_SEED
+    ).index
+
+sampled_idx = idx_normal.append(idx_anomaly)
+
+# Filtra il test set originale utilizzando gli indici stratificati
+# (o fallback a un campionamento casuale standard)
+if not sampled_idx.empty:
+    X_test_sampled = X_test.loc[sampled_idx]
+else:
+    X_test_sampled = X_test.sample(
+        n=min(MLConstants.SHAP_MAX_SAMPLES, len(X_test)), random_state=MLConstants.MAIN_SEED
+    )
+\end{lstlisting}
+
+Successivamente al calcolo dei valori SHAP, l'implementazione gestisce le differenti strutture dati che possono essere restituite dalla libreria, isolando quando necessario la componente associata alla classe positiva e predisponendo la rappresentazione mediante \texttt{shap.summary\_plot()}.
+
+Il Listato~\ref{lst:shap_rendering} riporta la relativa implementazione.
+La gestione delle forme \texttt{list}, tridimensionale e bidimensionale è riferita alle strutture osservate nell'ambiente software utilizzato per la campagna sperimentale e non viene assunta come comportamento universale delle API SHAP. Nel primo tentativo di calcolo, \texttt{check\_additivity=False} disabilita il controllo automatico di additività; se l'argomento non è supportato, il codice ricade nella chiamata priva di tale parametro, senza attribuire a questa scelta ulteriori cause numeriche non documentate.
+
+\begin{lstlisting}[
+    style=python_thesis,
+    caption={Calcolo, uniformazione dimensionale e rendering dei valori SHAP.},
+    label={lst:shap_rendering}
+]
+# Calcolo dei valori SHAP con gestione del controllo di additività
+try:
+    shap_values = explainer.shap_values(X_test_sampled, check_additivity=False)
+except TypeError:
+    shap_values = explainer.shap_values(X_test_sampled)
+
+# Gestire le disparità di output
+shap_values_raw = shap_values.values if hasattr(shap_values, "values") else shap_values
+
+# Estrazione dei valori della classe Anomaly in base alla struttura dei dati
+if isinstance(shap_values_raw, list) and len(shap_values_raw) == 2:
+    shap_values_raw = shap_values_raw[1]
+elif hasattr(shap_values_raw, 'shape') and len(shap_values_raw.shape) == 3:
+    shap_values_raw = shap_values_raw[:, :, 1]
+elif hasattr(shap_values_raw, 'shape') and len(shap_values_raw.shape) == 2:
+    pass
+
+# Genera e configura dinamicamente il grafico
+n_features = X_test_sampled.shape[1]
+plt.figure(figsize=(8, max(6, n_features * 0.4)))
+
+# Forza la visualizzazione "dot" per mostrare gli impatti individuali delle feature
+shap.summary_plot(
+    shap_values_raw, X_test_sampled, show=False, max_display=n_features, plot_type="dot"
+)
+\end{lstlisting}

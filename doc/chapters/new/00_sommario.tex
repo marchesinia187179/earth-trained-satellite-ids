@@ -1,0 +1,23 @@
+\chapter*{Sommario}
+\addcontentsline{toc}{chapter}{Sommario}
+
+La crescente integrazione di infrastrutture satellitari all'interno delle moderne reti di comunicazione introduce nuove esigenze in termini di monitoraggio e rilevamento delle intrusioni. 
+In tale contesto, l'impiego di sistemi di \textit{Network Intrusion Detection} basati su tecniche di \textit{Machine Learning} risulta particolarmente promettente, ma è condizionato dalla capacità dei modelli di mantenere prestazioni adeguate quando la distribuzione dei dati osservata in fase operativa differisce da quella utilizzata durante l'addestramento.
+
+Il presente lavoro analizza il problema della generalizzazione \textit{cross-domain} di classificatori addestrati su traffico di rete terrestre e successivamente valutati su distribuzioni target rappresentative di scenari di rete terrestre-spaziali.
+A tale scopo è stato sviluppato un framework metodologico che armonizza i dataset UNSW-NB15 e STIN all'interno di uno spazio condiviso delle feature mediante un operatore di mappatura volto a preservare la coerenza semantica e dimensionale delle grandezze considerate.
+
+Il protocollo sperimentale confronta tre differenti paradigmi di addestramento: modelli addestrati esclusivamente sul dominio sorgente, una configurazione di baseline denominata \texttt{INJECTION}, nella quale una quota limitata di osservazioni malevole target viene introdotta nel training set sorgente, e modelli ibridi addestrati utilizzando direttamente la componente malevola del dominio target. 
+Le sperimentazioni sono state condotte mediante Decision Tree, Random Forest e Histogram-based Gradient Boosting, adottando una procedura multi-seed e una valutazione sistematica sia sul dominio sorgente sia sui differenti benchmark target.
+
+L'analisi quantitativa è stata affiancata da tecniche diagnostiche e di spiegabilità. 
+Le proiezioni PCA e le stime di densità KDE sono state utilizzate per caratterizzare le differenze distributive tra i domini, mentre l'analisi SHAP ha consentito di esaminare la rilevanza delle feature nelle differenti configurazioni. 
+La variabilità delle evidenze sperimentali è stata inoltre analizzata attraverso la valutazione inter-seed e l\'impiego del test $t$ di Welch.
+
+I risultati mostrano una marcata differenza tra i paradigmi considerati.
+I modelli addestrati esclusivamente sul dominio sorgente mantengono buone prestazioni sui dati omologhi, ma evidenziano una marcata riduzione della sensibilità nella valutazione \textit{cross-domain}. 
+I modelli ibridi raggiungono invece prestazioni molto elevate sui benchmark target, a fronte di una perdita della capacità di riconoscere gli attacchi appartenenti al dominio sorgente. 
+La baseline \texttt{INJECTION} presenta il comportamento più equilibrato, preservando sostanzialmente le prestazioni sul dominio sorgente e incrementando al contempo la capacità di rilevamento sul dominio target.
+
+Nel complesso, il lavoro evidenzia come la composizione del dataset di addestramento risulti fortemente associata alla capacità di generalizzazione di un NIDS in presenza di \textit{domain shift}.
+I risultati ottenuti mostrano inoltre l'importanza di affiancare alla valutazione in-domain una sperimentazione \textit{cross-domain}, al fine di caratterizzare in modo più realistico la capacità di generalizzazione dei modelli destinati a scenari di rete eterogenei.
