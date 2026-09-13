@@ -404,7 +404,7 @@ Alla soglia operativa utilizzata dalla pipeline si osserva
     \qquad
     \mathrm{F1}=0,
     \qquad
-    \mathrm{PR\text{-}AUC}=0.5501.
+    \mathrm{AP}=0.5501.
 \]
 
 L'F1-Score descrive il fallimento della decisione binaria nella configurazione effettivamente valutata, mentre l'Average Precision (AP) indica che la graduatoria probabilistica conserva informazione lungo soglie alternative. 
@@ -878,6 +878,7 @@ Per ciascun modello $i$ e seed $s_k$, la quantità sottoposta al confronto è la
     F1_{ij}^{(k)}.
     \label{eq:cap5_f1_seed_mean_source}
 \end{equation}
+La quantità $\overline{F1}_{i}^{(k)}$ è una macro-media non pesata sui $16$ benchmark della \textit{cross-evaluation}: ciascuno scenario contribuisce con lo stesso peso, indipendentemente dalla relativa numerosità campionaria. Essa rappresenta pertanto una sintesi del panel sperimentale e non una stima della prestazione attesa sotto una specifica distribuzione operativa di traffico. La sua interpretazione viene quindi mantenuta congiunta alle prestazioni disaggregate sui gruppi sorgente e target.
 
 Ogni configurazione è quindi rappresentata da $K=10$ valori $\overline{F1}_{i}^{(k)}$. 
 Il test confronta il vettore della baseline \texttt{injection\_aggregate} con quello di ciascun modello sorgente mediante un test $t$ di Welch bilaterale, senza assumere uguaglianza delle varianze:
@@ -889,7 +890,7 @@ Il test confronta il vettore della baseline \texttt{injection\_aggregate} con qu
     \alpha=0.05.
 \]
 
-La natura della variabile deve rimanere esplicita: il test fornisce una valutazione \emph{globale} del comportamento lungo i $16$ benchmark e non una verifica di significatività separata per ciascun test set.
+La natura della variabile deve rimanere esplicita: il test opera sulla macro-media non pesata dell'F1-Score lungo i $16$ benchmark e non fornisce una verifica di significatività separata per ciascun test set.
 La media sui $16$ benchmark costituisce un indicatore sintetico specifico del protocollo di \textit{cross-evaluation}: ciascun test set contribuisce con il medesimo peso, indipendentemente dalla prevalenza che la corrispondente distribuzione potrebbe assumere in uno scenario operativo reale. Il valore non rappresenta quindi un F1 calcolato aggregando tutte le predizioni né una stima della prestazione attesa in deployment.
 La procedura implementata mediante \texttt{scipy.stats.ttest\_ind(..., equal\_var=False)} tratta inoltre i due vettori come campioni indipendenti e non sfrutta esplicitamente l'eventuale struttura appaiata derivante dall'impiego degli stessi seed. Il confronto viene pertanto interpretato in chiave esplorativa e secondo le assunzioni della procedura adottata.
 
@@ -1210,13 +1211,7 @@ Il criterio di lettura delle attribuzioni è quello introdotto nella Sottosezion
         \small (b) Histogram-based Gradient Boosting
     \end{minipage}
 
-    % Label legacy mantenute per preservare eventuali riferimenti esistenti.
-    \label{fig:shap_dt_hybrid_nb15_stin}
-    \label{fig:shap_hgb_hybrid_nb15_stin}
-\end{figure}
-
-\begin{figure}[H]
-    \centering
+    \vspace{0.5em}
 
     \begin{minipage}[t]{0.48\textwidth}
         \centering
@@ -1230,6 +1225,8 @@ Il criterio di lettura delle attribuzioni è quello introdotto nella Sottosezion
     \label{fig:shap_hybrid_nb15_stin}
 
     % Label legacy mantenute per preservare eventuali riferimenti esistenti.
+    \label{fig:shap_dt_hybrid_nb15_stin}
+    \label{fig:shap_hgb_hybrid_nb15_stin}
     \label{fig:shap_rf_hybrid_nb15_stin}
 \end{figure}
 
@@ -1457,16 +1454,16 @@ La conoscenza target estesa non produce quindi un semplice ampliamento della fun
 Il confronto tra i tre paradigmi mostra che le configurazioni caratterizzate da una maggiore esposizione target non presentano un miglioramento monotono della generalizzazione complessiva. 
 Nel protocollo osservato, il passaggio da $\mathcal{M}_{S}$ a $\mathcal{M}_{\mathrm{base}}$ è associato a un forte incremento della sensibilità target con sostanziale preservazione del comportamento sul sorgente; la configurazione $\mathcal{M}_{H}$ presenta una sensibilità target ancora maggiore, ma una retention quasi nulla delle anomalie NB15.
 
-La conseguenza è evidente nelle metriche globali. 
+La conseguenza è evidente nelle metriche aggregate sul panel sperimentale. 
 La baseline raggiunge la maggiore TPR media sui $16$ benchmark per tutte le architetture: $0.88990$ per DT, $0.80246$ per HGB e $0.90071$ per RF. 
-La medesima gerarchia emerge dall'F1-Score globale multi-seed, pari rispettivamente a $0.860388$, $0.854074$ e $0.890221$. 
-I modelli aggregati ibridi, pur massimizzando la sensibilità target, rimangono invece intorno a $0.56$ nelle misure globali, in coerenza con il profilo fortemente polarizzato osservato tra i due domini.
+La medesima gerarchia emerge dalla macro-media non pesata dell'F1-Score sui $16$ benchmark, aggregata sui seed, pari rispettivamente a $0.860388$, $0.854074$ e $0.890221$. 
+I modelli aggregati ibridi, pur massimizzando la sensibilità target, rimangono invece intorno a $0.56$ in tale sintesi, risultato che deve essere letto congiuntamente alla forte polarizzazione osservata tra benchmark sorgente e target.
 
 Il risultato principale non consiste pertanto nella massimizzazione assoluta di una singola metrica, ma nel compromesso tra adattamento al nuovo dominio e conservazione delle conoscenze precedentemente apprese.
 
 \paragraph{Influenza dell'architettura e della composizione del training set.}
 L'architettura del classificatore modula tale compromesso senza modificarne la struttura generale. 
-Nella baseline, RF presenta il profilo predittivo globale più favorevole, con la maggiore TPR target, la maggiore TPR sui $16$ benchmark e il maggiore F1-Score globale. 
+Nella baseline, RF presenta il profilo predittivo globale più favorevole, con la maggiore TPR target, la maggiore TPR sui $16$ benchmark e il maggiore macro-media F1 sui benchmark. 
 HGB presenta invece la maggiore specificità, pari a $0.99658$, accompagnata da una sensibilità target inferiore; DT assume una posizione intermedia e mantiene valori relativamente prossimi a RF nella sensibilità target.
 
 Le variazioni associate alla composizione del training set risultano tuttavia di magnitudine maggiore rispetto a molte delle differenze tra architetture.
@@ -1624,13 +1621,13 @@ Tali differenze non vengono convertite in stime di latenza, memoria o consumo no
 \paragraph{Prestazioni delle tre architetture nella baseline.}
 La configurazione \texttt{INJECTION} costituisce il riferimento più informativo per il confronto, poiché il quadro globale ha mostrato che essa realizza il comportamento più uniforme tra sorgente e target.
 
-RF presenta il miglior profilo predittivo complessivo: TPR target pari a $0.98821$, TPR globale pari a $0.90071$, TNR pari a $0.99057$ e F1-Score globale multi-seed pari a $0.890221$. 
+RF presenta il miglior profilo predittivo complessivo: TPR target pari a $0.98821$, TPR globale pari a $0.90071$, TNR pari a $0.99057$ e macro-media F1 sui benchmark, aggregata sui seed pari a $0.890221$. 
 DT raggiunge rispettivamente $0.96612$, $0.88990$, $0.98460$ e $0.860388$. 
-Rispetto al singolo albero, RF incrementa quindi la TPR target di $0.02209$ e l'F1-Score globale di $0.029833$.
+Rispetto al singolo albero, RF incrementa quindi la TPR target di $0.02209$ e la macro-media F1 sui benchmark di $0.029833$.
 
 HGB presenta un profilo differente. 
-La TNR raggiunge $0.99658$, valore più elevato tra le tre baseline, mentre la TPR target si riduce a $0.82970$ e l'F1-Score globale a $0.854074$. 
-Rispetto a HGB, RF presenta quindi un vantaggio di $0.15851$ nella TPR target e di $0.036147$ nell'F1-Score globale, a fronte di una specificità leggermente inferiore.
+La TNR raggiunge $0.99658$, valore più elevato tra le tre baseline, mentre la TPR target si riduce a $0.82970$ e la macro-media F1 sui benchmark a $0.854074$. 
+Rispetto a HGB, RF presenta quindi un vantaggio di $0.15851$ nella TPR target e di $0.036147$ nella macro-media F1 sui benchmark, a fronte di una specificità leggermente inferiore.
 
 Il protocollo evidenzia pertanto un effettivo compromesso tra i due tipi di errore. 
 HGB privilegia maggiormente la preservazione del traffico nominale, mentre RF riduce sensibilmente la quota di attacchi target non riconosciuti.

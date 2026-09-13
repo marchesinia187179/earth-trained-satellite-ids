@@ -98,7 +98,7 @@ Tale corrispondenza viene interpretata in termini associativi e non causali, poi
 
 In risposta alla \textbf{RQ1}, è pertanto possibile concludere che, nelle condizioni sperimentali considerate, \textbf{l'addestramento esclusivamente sul dominio sorgente non risulta sufficiente a garantire una capacità discriminativa uniforme nei confronti delle distribuzioni malevole target}.
 La conoscenza acquisita sul sorgente conserva una trasferibilità parziale verso specifiche configurazioni, ma il comportamento complessivo evidenzia una marcata sensibilità al \textit{domain shift}.
-Ne consegue che la sola validazione intra-domain non costituisce un indicatore sufficiente della robustezza di un NIDS destinato a operare in presenza di distribuzioni di traffico eterogenee.
+Ne consegue che, nel perimetro sperimentale considerato, la sola validazione intra-domain non costituisce un indicatore sufficiente della trasferibilità cross-domain del classificatore.
 
 
 % ------------------------------------------------------------------------------
@@ -129,10 +129,10 @@ Sui sei benchmark appartenenti alla tassonomia NB15, le differenze di TPR media 
 Anche la TNR rimane sostanzialmente stabile tra le due configurazioni.
 Nel protocollo considerato, l'introduzione della componente target sparsa modifica pertanto principalmente la risposta verso le distribuzioni malevole non osservate dal modello puramente sorgente, mantenendo pressoché invariata la sensibilità media nei confronti delle distribuzioni NB15.
 
-La valutazione sull'intera matrice di \textit{cross-evaluation} rafforza tale interpretazione.
-La configurazione \textit{INJECTION} presenta la maggiore media globale dell'F1-Score tra le configurazioni confrontate per tutte e tre le famiglie algoritmiche.
-L'analisi inferenziale mediante test $t$ di Welch mostra inoltre che le distribuzioni dei valori aggregati risultano statisticamente distinguibili rispetto a quelle dei modelli sorgente secondo il criterio e le assunzioni adottati nel protocollo sperimentale.
-Tale risultato non implica una superiorità della baseline su ogni singolo benchmark e viene interpretato in chiave esplorativa, coerentemente con la procedura statistica adottata.
+La valutazione sull'intera matrice di \textit{cross-evaluation} rafforza, sul piano descrittivo, tale interpretazione.
+La configurazione \textit{INJECTION} presenta la maggiore macro-media non pesata dell'F1-Score sui benchmark tra le configurazioni confrontate per tutte e tre le famiglie algoritmiche.
+L'analisi inferenziale mediante test $t$ di Welch indica che, secondo il criterio e le assunzioni adottati nel protocollo sperimentale, le distribuzioni dei valori aggregati risultano statisticamente distinguibili rispetto a quelle dei modelli sorgente.
+Tale evidenza viene interpretata in chiave esplorativa ed è condizionata alla composizione fissa dei benchmark e alle repliche di addestramento considerate; non quantifica pertanto l'incertezza associata alla selezione dei campioni target né a differenti ricampionamenti dei dataset.
 
 Un ulteriore elemento di interpretazione deriva dal confronto con le configurazioni ibride, nelle quali la componente malevola target viene incorporata in misura sostanzialmente maggiore.
 Tali modelli raggiungono sensibilità molto elevate sulle distribuzioni target, in particolare nelle configurazioni aggregate, ma mostrano contemporaneamente una marcata perdita della capacità di riconoscere le distribuzioni d'attacco sorgente.
@@ -146,7 +146,7 @@ La campagna non ha considerato una variazione progressiva del numero o della pro
 Non è quindi possibile stabilire se i $29$ campioni impiegati costituiscano una quantità minima, ottimale o generalmente sufficiente, né determinare la forma della relazione tra quantità di conoscenza target e capacità di generalizzazione.
 Il risultato mostra che, per la specifica composizione dei benchmark e per le famiglie di classificatori considerate, la quota target prevista dalla configurazione \textit{INJECTION} è associata a una modifica rilevante e favorevole del comportamento cross-domain.
 
-In risposta alla \textbf{RQ2}, è pertanto possibile concludere che \textbf{una conoscenza target fortemente sparsa risulta associata, nelle condizioni sperimentali analizzate, a un marcato miglioramento della generalizzazione verso le distribuzioni malevole target, con sostanziale preservazione della capacità discriminativa acquisita sul dominio sorgente}.
+In risposta alla \textbf{RQ2}, è pertanto possibile concludere che \textbf{nella specifica configurazione sperimentale analizzata, una conoscenza target fortemente sparsa risulta associata a un rilevante miglioramento della generalizzazione verso le distribuzioni malevole target, preservando sostanzialmente la capacità discriminativa acquisita sul dominio sorgente}.
 L'evidenza non identifica tuttavia una proporzione universalmente ottimale di campioni target, ma mostra come anche un'esposizione estremamente limitata al dominio di destinazione possa risultare associata a un cambiamento sostanziale della funzione di classificazione.
 
 
@@ -191,6 +191,7 @@ I risultati indicano piuttosto che una granularità ristretta risulta associata 
 Un quadro differente emerge per le configurazioni aggregate.
 Nel paradigma ibrido, i modelli NB15\_STIN, NB15\_SAT20 e NB15\_TER20 mantengono TPR prossime all'unità sull'insieme dei benchmark target anche quando la distribuzione di valutazione non coincide con quella specificamente impiegata per la costruzione del training set.
 La maggiore eterogeneità della componente positiva risulta pertanto associata, nel perimetro analizzato, a una copertura più uniforme delle distribuzioni malevole target.
+Tale comportamento deve tuttavia essere interpretato considerando la composizione dei benchmark ibridi. In queste configurazioni, la componente benigna proviene dal dominio sorgente UNSW-NB15, mentre quella malevola proviene dal dominio target; ne deriva una parziale associazione tra appartenenza di classe e provenienza del dataset. Il protocollo adottato non consente pertanto di separare completamente l'apprendimento di caratteristiche effettivamente associate alla natura malevola del traffico dall'apprendimento di caratteristiche indicative dell'identità del dominio o del dataset. Le elevate prestazioni target dei modelli ibridi devono quindi essere interpretate anche alla luce di questo possibile confondimento.
 
 La medesima differenza emerge considerando l'F1-Score medio calcolato sull'intera matrice di \textit{cross-evaluation}.
 All'interno del gruppo dei modelli ibridi, le configurazioni aggregate raggiungono generalmente valori globali superiori rispetto alla maggior parte dei rilevatori specialistici.
@@ -200,7 +201,7 @@ Sul piano interpretativo, tali risultati sono compatibili con l'ipotesi metodolo
 Al contrario, l'addestramento su una singola famiglia può risultare associato a una regione maggiormente aderente alle caratteristiche specifiche di quella distribuzione, con elevata sensibilità locale ma anche maggiore dipendenza dalla somiglianza con le osservazioni incontrate successivamente.
 Tale interpretazione rimane comunque descrittiva e non costituisce una dimostrazione geometrica o causale della forma delle regioni decisionali apprese.
 
-In risposta alla \textbf{RQ3}, è quindi possibile concludere che \textbf{una rappresentazione più aggregata ed eterogenea della componente malevola risulta generalmente associata a una maggiore uniformità della generalizzazione cross-domain, mentre una granularità specialistica favorisce prestazioni elevate sulla distribuzione di riferimento ma produce una trasferibilità più variabile verso famiglie differenti}.
+In risposta alla \textbf{RQ3}, è quindi possibile concludere che, \textbf{nel protocollo sperimentale considerato, una rappresentazione più aggregata ed eterogenea della componente malevola risulta associata a una maggiore uniformità delle prestazioni sui benchmark target, mentre una granularità specialistica produce una risposta più variabile verso famiglie differenti}. Tale evidenza non consente tuttavia di attribuire univocamente il comportamento osservato alla sola granularità, in particolare nelle configurazioni ibride caratterizzate dal possibile confondimento tra classe e dominio di provenienza.
 La scelta della granularità rappresenta pertanto un compromesso tra specializzazione locale e ampiezza della capacità discriminativa, la cui configurazione più appropriata dipende dall'obiettivo operativo e dalla variabilità delle distribuzioni che il NIDS è chiamato a riconoscere.
 
 
@@ -219,6 +220,7 @@ La quarta domanda di ricerca è stata formulata come segue:
 
 I risultati ottenuti mostrano che l'architettura del classificatore contribuisce a modificare il compromesso tra sensibilità, specificità e stabilità, senza tuttavia determinare autonomamente il comportamento cross-domain del sistema.
 Le differenze osservate tra Decision Tree, Histogram-based Gradient Boosting e Random Forest devono infatti essere interpretate congiuntamente alla composizione del training set e al regime di addestramento nel quale ciascun classificatore viene utilizzato.
+Le differenze tra DT, RF e HGB devono inoltre essere riferite alle specifiche configurazioni di default di \texttt{scikit-learn} impiegate nel protocollo e non costituiscono un ordinamento generale delle rispettive famiglie algoritmiche.
 
 La configurazione \textit{INJECTION} consente di effettuare il confronto più diretto tra le tre architetture, poiché mantiene invariata la composizione dei dati e modifica esclusivamente la famiglia algoritmica.
 In tale condizione, Random Forest presenta il profilo predittivo complessivamente più favorevole tra i classificatori considerati.
@@ -257,14 +259,14 @@ Nei modelli DT e HGB la funzione decisionale appare maggiormente concentrata sul
 Tale differenza descrive una diversa organizzazione interna della funzione decisionale, ma non consente di attribuire causalmente a tale struttura le differenze prestazionali osservate.
 
 Il confronto tra regimi di addestramento mostra infatti che le variazioni prestazionali associate alla composizione dei dati risultano, in diversi confronti, di magnitudine superiore alle differenze osservate tra le architetture.
-Il passaggio dal modello sorgente alla configurazione \textit{INJECTION}, mantenendo invariata la famiglia algoritmica e modificando la composizione del training set mediante una quota estremamente ridotta di campioni target, è associato a incrementi della TPR target pari a $+0.6427$ per DT, $+0.7690$ per HGB e $+0.6847$ per RF.
+Il passaggio dal modello sorgente alla configurazione \textit{INJECTION}, mantenendo invariata la famiglia algoritmica e introducendo soltanto una quota estremamente ridotta di campioni target, è associato a incrementi della TPR target pari a $+0.6427$ per DT, $+0.7690$ per HGB e $+0.6847$ per RF.
 Tali variazioni sono sensibilmente superiori alle differenze osservate tra i tre classificatori all'interno della medesima configurazione \textit{INJECTION}.
 
 Analogamente, nelle configurazioni aggregate ibride tutte e tre le architetture raggiungono sensibilità prossime all'unità sulle distribuzioni target e, contemporaneamente, perdono quasi completamente la capacità di riconoscere gli attacchi sorgente.
 Il fenomeno di specializzazione non viene quindi eliminato dalla scelta di DT, HGB o RF, ma coinvolge trasversalmente le tre famiglie algoritmiche quando la composizione della conoscenza di addestramento viene modificata in modo sostanziale.
 
 In risposta alla \textbf{RQ4}, è pertanto possibile concludere che \textbf{l'architettura del classificatore modula il compromesso tra sensibilità, specificità, stabilità e struttura decisionale, ma la robustezza cross-domain dipende in misura sostanziale anche dalla composizione delle distribuzioni utilizzate durante l'addestramento}.
-Nel protocollo sperimentale considerato, Random Forest presenta il comportamento complessivamente più favorevole nella configurazione \textit{INJECTION}, combinando elevata sensibilità target, maggiore F1-Score globale e ridotta dispersione inter-seed; HGB privilegia maggiormente la specificità, mentre DT mantiene un comportamento intermedio.
+Nel protocollo sperimentale considerato e nelle specifiche configurazioni di default adottate, Random Forest presenta il comportamento complessivamente più favorevole nella configurazione \textit{INJECTION}, combinando elevata sensibilità target, maggiore macro-media F1 sui benchmark e ridotta dispersione inter-seed; HGB mostra una maggiore specificità, mentre DT mantiene un comportamento intermedio.
 
 Tale risultato non consente tuttavia di identificare RF come architettura generalmente ottimale per un NIDS destinato a infrastrutture terrestre-spaziali.
 La campagna sperimentale non comprende infatti misure di latenza di inferenza, occupazione di memoria, dimensione del modello, utilizzo delle risorse hardware o consumo energetico.
@@ -288,7 +290,7 @@ Le conclusioni formulate per le quattro domande di ricerca sono sintetizzate nel
         \addlinespace
         \textbf{RQ2} &
         Conoscenza target sparsa associata a una maggiore generalizzazione cross-domain. &
-        \textit{INJECTION}: $29$ campioni target incrementano la sensibilità target preservando sostanzialmente la risposta su NB15. &
+        \textit{INJECTION}: la configurazione contenente $29$ campioni target è associata a una maggiore sensibilità target, preservando sostanzialmente la risposta su NB15. &
         I $29$ campioni non definiscono una quantità minima od ottimale. \\
         \addlinespace
         \textbf{RQ3} &

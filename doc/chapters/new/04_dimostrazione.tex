@@ -585,7 +585,7 @@ La Tabella~\ref{tab:feature_filtering_summary} riassume il processo logico di ri
 \label{subsec:implementazione_psi}
 
 Al fine di proiettare gli spazi delle feature originari in uno spazio latente condiviso omogeneo, è stato implementato formalmente l'operatore di mappatura $\boldsymbol{\psi}_k : \mathcal{X}_k \to \mathcal{X}_{\text{shared}}$, con $k \in \{S, T\}$. 
-Tale operatore agisce sui vettori grezzi applicando trasformazioni algebriche, conversioni di unità di misura e derivazioni analitiche, perseguendo la coerenza semantica e dimensionale delle grandezze fisiche e di rete.
+Tale operatore agisce sui vettori grezzi applicando trasformazioni algebriche, conversioni di unità di misura e derivazioni analitiche finalizzate alla costruzione di una rappresentazione semanticamente comparabile tra i domini. L'equivalenza delle feature viene assunta sulla base delle definizioni disponibili nei dataset e costituisce un vincolo del protocollo, verificato rispetto al significato documentato delle variabili e alle relative unità di misura.
 
 La Tabella~\ref{tab:mapping_operator} formalizza le trasformazioni scalari $\psi_{k,j}$ applicate a ciascuna feature condivisa $j$, mettendo a confronto il dominio sorgente (UNSW-NB15) e il dominio target (STIN/TER20/SAT20).
 
@@ -654,7 +654,7 @@ La Tabella~\ref{tab:mapping_operator} formalizza le trasformazioni scalari $\psi
 Nel processo di mappatura emergono tre aspetti architetturali critici:
 \begin{itemize}
     \item \textbf{Conversioni di Scala e Armonizzazione Temporale:} Per allineare le metriche, la durata dei flussi nel dominio sorgente è stata riscalata da secondi a microsecondi (fattore moltiplicativo $10^6$). Parallelamente, il throughput nominale (\texttt{sload}, \texttt{dload}), originariamente quantificato in bit/s in UNSW-NB15, è stato convertito in Byte/s (dividendolo per 8) per coincidere con l'unità di misura nativa dei domini target.
-    \item \textbf{Derivazione Analitica di Metriche Mancanti:} Nel dominio $\mathcal{D}_T$, il conteggio totale dei pacchetti di destinazione (\texttt{dst\_pkts}) non è fornito in forma diretta. Per ottenere una stima coerente nello spazio condiviso, tale grandezza è stata derivata indirettamente tramite il prodotto analitico tra il tasso di arrivo pacchetti di ritorno (\texttt{bw\_pkt\_s}) e la durata del flusso (\texttt{fl\_dur}), normalizzato per i microsecondi ($10^6$).
+    \item \textbf{Derivazione Analitica di Metriche Mancanti:} Nel dominio $\mathcal{D}_T$, il conteggio totale dei pacchetti di destinazione (\texttt{dst\_pkts}) non è fornito in forma diretta. Tale quantità viene pertanto stimata indirettamente mediante il prodotto tra il tasso di pacchetti in direzione backward (\texttt{bw\_pkt\_s}) e la durata del flusso (\texttt{fl\_dur}), normalizzata rispetto ai microsecondi ($10^6$). La ricostruzione dipende quindi dalla definizione e dalla precisione con cui la variabile \texttt{bw\_pkt\_s} è rappresentata nel dataset STIN e può produrre valori non interi.
     \item \textbf{Stabilizzazione Numerica:} Durante il calcolo di indici razionali (come \texttt{down\_up\_ratio}, \texttt{byte\_ratio}, le densità di pacchetti e il \textit{packet rate}), è stata introdotta una costante di regolarizzazione $\epsilon = 10^{-6}$ ai denominatori. Questo accorgimento previene singolarità algebriche causate da divisioni per zero indotte da flussi anomali o malformati.
 \end{itemize}
 
@@ -814,14 +814,21 @@ La Tabella~\ref{tab:hyperparameters_summary} sintetizza la corrispondenza tra le
         \texttt{min\_samples\_split=2} \\
         \addlinespace
         HGB & HistGradientBoostingClassifier & 
+        \texttt{loss='log\_loss'}, 
         \texttt{learning\_rate=0.1}, 
         \texttt{max\_iter=100}, 
         \texttt{max\_depth=None}, 
         \texttt{max\_leaf\_nodes=31}, 
-        \texttt{l2\_regularization=0.0} \\
+        \texttt{l2\_regularization=0.0}, 
+        \texttt{early\_stopping='auto'}, 
+        \texttt{validation\_fraction=0.1}, 
+        \texttt{n\_iter\_no\_change=10} \\
         \bottomrule
     \end{tabularx}
 \end{table}
+Per il classificatore HGB, la configurazione predefinita \texttt{early\_stopping='auto'} abilita il criterio di arresto anticipato quando la cardinalità del training set supera $10.000$ campioni. 
+In tali condizioni, \texttt{HistGradientBoostingClassifier} utilizza, in assenza di un validation set esplicitamente fornito, una frazione interna pari a \texttt{validation\_fraction=0.1} per il monitoraggio del criterio di arresto.
+Pertanto, lo split esterno 80/20 definisce la separazione tra training set e test set del protocollo sperimentale, mentre HGB può effettuare un'ulteriore suddivisione interna del solo training set durante il fitting.
 
 Per garantire un tracciamento rigoroso del ciclo di vita dei modelli, l'istanziamento e l'addestramento non disperdono lo stato interno degli stimatori. 
 Al termine del fitting di ciascun classificatore su uno specifico dataset di addestramento (sorgente o ibrido) e per ogni seed di esecuzione, le informazioni di configurazione hardware/temporale, i principali iperparametri e le metriche di prestazione in-sample (\textit{training set}) vengono persistite in modo strutturato all'interno del file di registro \texttt{models\_metadata.csv}.
@@ -849,7 +856,7 @@ Tale meccanismo di tracciamento memorizza per ogni modello un record identificat
     \end{tabularx}
 \end{table}
 
-L'archiviazione sistematica in \texttt{models\_metadata.csv} assicura la completa uditabilità dell'infrastruttura di addestramento, fornendo la base informativa per le successive fasi di inferenza e valutazione cross-dominio sui dataset di test target.
+L'archiviazione sistematica in \texttt{models\_metadata.csv} favorisce la tracciabilità dell'infrastruttura di addestramento, fornendo la base informativa per le successive fasi di inferenza e valutazione cross-dominio sui dataset di test target.
 
 \subsection{Istanziazione dei Modelli Aggregati}
 \label{subsec:istanziazione_aggregati}
@@ -937,7 +944,7 @@ La Figura~\ref{fig:aggregati_data_flow} schematizza visivamente il flusso di com
 \end{figure}
 
 Il prelievo dei campioni dalla partizione target ($\Delta\mathcal{D}_T^{(\text{train})}$) è governato da una procedura di campionamento casuale stratificato (\textit{stratified random sampling})\footnote{Implementato avvalendosi della funzione \texttt{train\_test\_split} di \texttt{scikit-learn}, valorizzando il parametro \texttt{stratify} per garantire la corretta preservazione delle proporzioni relative alle classi originali durante l'estrazione.}. 
-Questa metodologia garantisce che i sotto-insiemi estratti rispettino le proporzioni imposte dal ratio 10/1 e salvaguarda la rigida compartimentazione logica tra \textit{train set} e \textit{test set}, risultando fondamentale per scongiurare qualsiasi fenomeno di dispersione dell'informazione (\textit{Data Leakage}) in fase di validazione.
+Questa metodologia preserva le proporzioni imposte dal ratio 10/1 e mantiene separati i record assegnati al \textit{train set} e al \textit{test set}, prevenendo il loro riutilizzo diretto tra le due partizioni.
 
 Dal punto di vista dell'ingegneria del software, la pipeline di istanziazione e addestramento è centralizzata all'interno del modulo \texttt{models.py}. 
 La logica architetturale espone un punto di accesso pubblico, la funzione \texttt{model\_processing()}, la quale orchestra dinamicamente l'esecuzione. 
@@ -954,7 +961,7 @@ Tale approccio consente di misurare le metriche di accuratezza del modello dinan
 Dal punto di vista dell'ingegnerizzazione dei dati, i sotto-insiemi impiegati per il \textit{fitting} di questi modelli vengono strutturati \textit{a priori} durante la macro-fase di pre-elaborazione del file. 
 In questa sede, i record appartenenti a vettori di attacco estranei al contesto di analisi vengono filtrati e scartati, restituendo un dominio di riferimento strettamente binario (es. \texttt{[Normal, DDoS]}). 
 Durante la generazione di questi dataset isolati, l'algoritmo di elaborazione impone rigorosamente il mantenimento del rapporto di proporzionamento $\rho_{ben/mal} = 10/1$. 
-Contestualmente, viene preservata e fissata la partizione logica dei dati tramite etichettatura statica dei set di \textit{train} e \textit{test}, scongiurando eventuali contaminazioni informative (\textit{Data Leakage}).
+Contestualmente, viene preservata e fissata la partizione logica dei dati tramite etichettatura statica dei set di \textit{train} e \textit{test}, evitando il riutilizzo diretto delle medesime osservazioni tra le due partizioni.
 
 In perfetta simmetria con la suddivisione concettuale tra dominio sorgente e domini target ibridizzati, la pipeline ha generato le istanze biclasse riepilogate nella Tabella~\ref{tab:biclass_models_summary}.
 
@@ -1632,7 +1639,7 @@ Tale scelta implementa il principio teorico introdotto nella Sezione~\ref{subsub
 
 L'architettura logica di questo processo di trasformazione dipendente dal sorgente è schematizzata nella Figura~\ref{fig:source_dependent_standardization_flow}. 
 Come mostrato nel diagramma di flusso, la stima dei parametri di posizione e scala $(\boldsymbol{\mu}_S, \boldsymbol{\sigma}_S)$, così come la matrice di proiettori vettoriali $\mathbf{W}_S$, viene effettuata in modo atomico durante la fase di \textit{fitting} sul solo benchmark sorgente. 
-Successivamente, tali parametri congelati vengono applicati per via diretta sia a $S$ sia a ciascun benchmark target $T_k$, garantendo l'invarianza del sistema di riferimento e scongiurando qualunque forma di \textit{data leakage}.
+Successivamente, tali parametri congelati vengono applicati per via diretta sia a $S$ sia a ciascun benchmark target $T_k$, garantendo l'invarianza del sistema di riferimento e evitando che le statistiche dei benchmark target vengano utilizzate nella stima dei parametri di trasformazione.
 
 \begin{figure}[H]
 \centering
@@ -1715,7 +1722,7 @@ Successivamente, tali parametri congelati vengono applicati per via diretta sia 
         \node [group_box, fit=(out_pca) (out_kde)] (g2) {};
     \end{scope}
 
-    \node[above, font=\footnotesize\bfseries, color=paramgreen, fill=white] at (g1.north) {Fase di Stima Statistica (Zero Leakage)};
+    \node[above, font=\footnotesize\bfseries, color=paramgreen, fill=white] at (g1.north) {Fase di Stima Statistica sul Solo Sorgente};
     \node[above, font=\footnotesize\bfseries, color=neutralgrey, fill=white] at (g2.north) {Rappresentazione Grafica Diagnostica};
 
 \end{tikzpicture}
@@ -1731,6 +1738,8 @@ Dalla matrice delle caratteristiche vengono rimosse le colonne \texttt{label}, \
 Per realizzare la standardizzazione diagnostica viene istanziato uno \texttt{StandardScaler} di \newline \texttt{scikit-learn}. 
 Nel caso della PCA, il modello di scaling viene \textbf{adattato esclusivamente al sottoinsieme \texttt{test} del benchmark sorgente}. 
 Indicando con $\mathbf{X}_{S,\mathrm{test}}$ tale matrice, l'operazione di adattamento dello standardizzatore e della PCA è seguita dall'applicazione dei medesimi trasformatori ai benchmark considerati, senza eseguire nuovi adattamenti locali.
+
+La PCA è impiegata esclusivamente come diagnostica esplorativa \textit{post-hoc} e non interviene né nell'addestramento né nel calcolo delle metriche predittive dei classificatori. Il fit eseguito su $\mathbf{X}_{S,\mathrm{test}}$ definisce pertanto il sistema di riferimento visuale utilizzato per il confronto con i domini target e non una trasformazione impiegata nel processo di training o di inferenza. Tale scelta implica che il sistema di coordinate diagnostico sia costruito a partire dai dati di valutazione sorgente; l'analisi deve quindi essere interpretata come esplorativa e non come procedura di validazione indipendente.
 
 La configurazione \texttt{PCA\_COMPONENTS=2} vincola la trasformazione alla costruzione di un sottospazio bidimensionale, coerentemente con la finalità esclusivamente visuale dell'analisi. 
 Gli autovettori principali sono quindi determinati una sola volta sul riferimento sorgente e successivamente riutilizzati per tutti i benchmark. 
@@ -1778,14 +1787,9 @@ La procedura implementa operativamente l'ancoraggio a $(\boldsymbol{\mu}_S,\bold
 La stima della densità viene effettuata mediante \texttt{seaborn.kdeplot()}, con separazione delle curve sulla base della classe binaria e con normalizzazione indipendente delle densità \newline (\texttt{common\_norm=False}). 
 La regione sottostante le curve viene riempita mediante \texttt{fill=True}, mentre il parametro \texttt{cut=0} limita la rappresentazione all'intervallo definito dai dati osservati. Non viene specificato esplicitamente alcun parametro di \textit{bandwidth}: la larghezza del kernel è quindi determinata mediante il comportamento predefinito della procedura KDE utilizzata da \texttt{seaborn}.
 
-Poiché l'implementazione deve consentire l'ispezione di valori di densità distribuiti su scale molto differenti, l'asse verticale dei grafici viene rappresentato mediante una scala \textit{symlog}, con parametro \texttt{linthresh=1e-5}\footnote{La scala \texttt{symlog} (Symmetric Logarithmic) applica una trasformazione logaritmica all'asse $y$ mantenendo un intervallo puramente lineare all'interno della soglia $[-\text{\texttt{linthresh}}, +\text{\texttt{linthresh}}]$. Ciò previene divergenze verso $-\infty$ per densità prossime o pari a zero.}. 
-Questa configurazione implementa la scala grafica simmetrico-logaritmica descritta nella Sezione~\ref{subsubsec:log_scale_kde}: i valori KDE non vengono trasformati esplicitamente, mentre la sola visualizzazione dell'asse delle ordinate viene impostata mediante le funzionalità grafiche di Matplotlib.
+Poiché l'implementazione deve consentire l'ispezione di distribuzioni caratterizzate da scale molto differenti, l'asse verticale dei grafici viene rappresentato mediante una scala \texttt{symlog}, con parametro \texttt{linthresh=1e-5}\footnote{La scala \texttt{symlog} (\textit{Symmetric Logarithmic}) mantiene un intervallo lineare nell'intorno dello zero e adotta una rappresentazione logaritmica al di fuori di tale regione.}. La trasformazione riguarda esclusivamente la rappresentazione grafica dell'asse e non modifica numericamente i valori della densità KDE stimata.
 
-Le principali operazioni implementative della procedura sono sintetizzate
-nel Listato~\ref{lst:kde_source_scaling}, che evidenzia l'adattamento dello
-standardizzatore sul benchmark sorgente, l'applicazione delle statistiche
-così ottenute ai benchmark considerati e la successiva generazione delle
-stime KDE.
+Le principali operazioni implementative della procedura sono sintetizzate nel Listato~\ref{lst:kde_source_scaling}, che evidenzia l'adattamento dello standardizzatore sul benchmark sorgente, l'applicazione delle statistiche così ottenute ai benchmark considerati e la successiva generazione delle stime KDE.
 
 \begin{lstlisting}[
     style=python_thesis,
@@ -2410,14 +2414,14 @@ La composizione complessiva degli stadi implementativi è sintetizzata nella Fig
  
     \node [node_transform, below=1cm of align] (sampling) {
         \textbf{Campionamento Stratificato e Partizionamento}\\
-        Vincolo di Proporzionamento $\rho = 10$ ($10:1$) | Split 80\% Train / 20\% Test\\
+        Vincolo Bilanciamento $\rho = 10$ ($10:1$) | Split 80\% Train / 20\% Test\\
         Generazione 5 Benchmark Aggregati + 11 Benchmark Biclasse
     };
  
     % --- FASE 3: CORE COMPUTAZIONALE & TRAINING MULTI-SEED ---
     \node [node_process, below=2cm of sampling] (loop) {
         \textbf{Orchestrazione Multi-Seed (\texttt{main.py})}\\
-        Iterazione su Modelli ($m \in \{\text{DT, RF, HGB}\}$) e Semi ($s_k \in \mathcal{S}$)\\
+        Iterazione su Modelli ($m \in \{\text{DT, RF, HGB}\}$) e Semi ($\mathcal{S} = \{0, 1, \dots, 12345\}$)\\
         Nessuna Scalatura Applicata (Invarianza Monotonica)
     };
  
@@ -2437,7 +2441,7 @@ La composizione complessiva degli stadi implementativi è sintetizzata nella Fig
  
     \node [node_accent, below=1cm of infer_eval] (infer_stats) {
         \textbf{Validazione e Aggregazione Statistica}\\
-        Calcolo Metriche ($F_1$-Score, ROC-AUC, Average Precision (AP), Recall)\\
+        Calcolo Metriche ($F_1$-Score, ROC-AUC, PR-AUC, Recall)\\
         Test $t$ di Welch per Significatività Statistica vs Baseline
     };
  
@@ -2449,7 +2453,7 @@ La composizione complessiva degli stadi implementativi è sintetizzata nella Fig
  
     \node [node_process, below=1cm of diag_scaler] (diag_tools) {
         \textbf{Strumenti Diagnostici Avanzati}\\
-        Proiezioni PCA (2D) | Stima Densità KDE con Ancoraggio\\
+        Proiezioni PCA (2D/3D) | Stima Densità KDE con Ancoraggio\\
         XAI: TreeSHAP (Valori Shapley \& Feature Importance)
     };
  

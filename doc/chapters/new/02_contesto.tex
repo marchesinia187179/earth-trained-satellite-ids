@@ -272,12 +272,10 @@ Tali problematiche costituiscono l'oggetto della trattazione sviluppata nella se
         \textbf{Classificatore ML}
     };
     \node [node_primary, right=0.8cm of a_train] (a_test) {
-        \textbf{Test Terrestre}\\
-        (Stessa Distribuzione)
+        \textbf{Test Terrestre}
     };
     \node [node_process, right=0.8cm of a_test] (a_res) {
-        \textbf{Elevata Accuratezza}\\
-        (Prestazioni Elevate In-Domain)
+        \textbf{Elevata Accuratezza}
     };
 
     % Connessioni Scenario A
@@ -295,11 +293,10 @@ Tali problematiche costituiscono l'oggetto della trattazione sviluppata nella se
         \textbf{Classificatore ML}
     };
     \node [node_accent, right=1.6cm of b_train] (b_test) {
-        \textbf{Test Target (Distribuzione Differente)}\\
-        (Possibile Degrado Prestazionale)
+        \textbf{Test Target}
     };
     \node [node_alert, right=0.8cm of b_test] (b_res) {
-        \textbf{Possibile Degrado}\\[-5pt]
+        \textbf{Marcato Degrado}\\[-5pt]
         \textbf{Prestazionale}
     };
 
@@ -338,7 +335,7 @@ In questo scenario, i paradigmi di \textit{transfer learning} costituiscono una 
 Tali approcci mirano a riutilizzare la conoscenza acquisita nel dominio sorgente quando la disponibilità di osservazioni etichettate nel dominio target è limitata, riducendo la necessità di costruire un modello completamente indipendente a partire dal solo dominio di destinazione.
 
 In termini formali, un dominio $\mathcal{D}$ è definito dalla coppia costituita da uno spazio delle \textit{feature} $\mathcal{X}$\footnote{Nel contesto dei NIDS basati su flussi di rete, lo spazio $\mathcal{X}$ codifica attributi statistici del traffico, quali la dimensione media dei pacchetti, la durata dei flussi e i tempi di interarrivo.} e da una distribuzione di probabilità marginale $P(X)$, tale per cui $\mathcal{D}=\{\mathcal{X},P(X)\}$. 
-Assumendo uno spazio delle \textit{feature} condiviso ($\mathcal{X}_S=\mathcal{X}_T=\mathcal{X}$), dati un dominio di origine (\textit{source}) $\mathcal{D}_S=\{\mathcal{X},P_S(X)\}$ e un dominio di destinazione (\textit{target}) $\mathcal{D}_T=\{\mathcal{X},P_T(X)\}$, il fenomeno del \textit{domain shift} si verifica quando le distribuzioni marginali differiscono tra i contesti.
+Assumendo uno spazio delle \textit{feature} condiviso ($\mathcal{X}_S=\mathcal{X}_T=\mathcal{X}$), il termine \textit{domain shift} indica in senso generale un disallineamento tra le distribuzioni associate ai domini sorgente e target. Una possibile manifestazione è la variazione delle distribuzioni marginali delle osservazioni, $P_S(X)\neq P_T(X)$; tale condizione, tuttavia, non è da sola sufficiente a identificare lo specifico caso di \textit{covariate shift}.
 Un caso particolare è il \textit{covariate shift}, caratterizzato da
 \[ P_S(X)\neq P_T(X), \qquad P_S(Y\mid X)=P_T(Y\mid X), \]
 nel quale varia la distribuzione marginale delle osservazioni mantenendo invariata la relazione condizionata tra caratteristiche ed etichetta. 
