@@ -194,7 +194,7 @@ La maggiore eterogeneità della componente positiva risulta pertanto associata, 
 Tale comportamento deve tuttavia essere interpretato considerando la composizione dei benchmark ibridi. In queste configurazioni, la componente benigna proviene dal dominio sorgente UNSW-NB15, mentre quella malevola proviene dal dominio target; ne deriva una parziale associazione tra appartenenza di classe e provenienza del dataset. Il protocollo adottato non consente pertanto di separare completamente l'apprendimento di caratteristiche effettivamente associate alla natura malevola del traffico dall'apprendimento di caratteristiche indicative dell'identità del dominio o del dataset. Le elevate prestazioni target dei modelli ibridi devono quindi essere interpretate anche alla luce di questo possibile confondimento.
 
 La medesima differenza emerge considerando l'F1-Score medio calcolato sull'intera matrice di \textit{cross-evaluation}.
-All'interno del gruppo dei modelli ibridi, le configurazioni aggregate raggiungono generalmente valori globali superiori rispetto alla maggior parte dei rilevatori specialistici.
+All'interno del gruppo dei modelli ibridi, le configurazioni aggregate raggiungono generalmente macro-medie F1 sui benchmark superiori rispetto alla maggior parte dei rilevatori specialistici.
 Gli specialistici possono conseguire prestazioni eccellenti localmente, ma vengono maggiormente penalizzati quando la valutazione comprende distribuzioni differenti da quella utilizzata durante l'addestramento.
 
 Sul piano interpretativo, tali risultati sono compatibili con l'ipotesi metodologica secondo cui l'esposizione simultanea a più distribuzioni malevole possa essere associata a una regione decisionale capace di rappresentare una porzione più ampia dello spazio occupato dalla classe positiva.
@@ -224,26 +224,26 @@ Le differenze tra DT, RF e HGB devono inoltre essere riferite alle specifiche co
 
 La configurazione \textit{INJECTION} consente di effettuare il confronto più diretto tra le tre architetture, poiché mantiene invariata la composizione dei dati e modifica esclusivamente la famiglia algoritmica.
 In tale condizione, Random Forest presenta il profilo predittivo complessivamente più favorevole tra i classificatori considerati.
-La TPR media sui benchmark target raggiunge $0.98821$, mentre la media globale dell'F1-Score lungo l'intera matrice di \textit{cross-evaluation} è pari a $0.890221$.
+La TPR media sui benchmark target raggiunge $0.98821$, mentre la macro-media non pesata dell'F1-Score sui 16 benchmark, aggregata sui seed, è pari a $0.890221$.
 La TNR rimane contestualmente elevata, pari a $0.99057$.
 
-Decision Tree mostra un comportamento relativamente vicino a RF sul piano della sensibilità target, raggiungendo una TPR media pari a $0.96612$ e un F1-Score globale pari a $0.860388$.
+Decision Tree mostra un comportamento relativamente vicino a RF sul piano della sensibilità target, raggiungendo una TPR media pari a $0.96612$ e una macro-media F1 sui 16 benchmark pari a $0.860388$.
 La relativa TNR, pari a $0.98460$, risulta tuttavia la più contenuta tra le tre baseline.
 Nel perimetro delle sole metriche predittive analizzate, DT si colloca pertanto in una posizione intermedia, mantenendo una buona capacità di rilevamento cross-domain senza raggiungere il profilo globale osservato per RF.
 
 Histogram-based Gradient Boosting presenta invece un compromesso differente.
 La TNR della baseline raggiunge $0.99658$, il valore più elevato tra le tre architetture, indicando una maggiore capacità di contenere i falsi positivi sul traffico nominale considerato.
-Tale proprietà è accompagnata da una TPR target pari a $0.82970$, inferiore ai valori ottenuti da DT e RF, e da un F1-Score globale pari a $0.854074$.
+Tale proprietà è accompagnata da una TPR target pari a $0.82970$, inferiore ai valori ottenuti da DT e RF, e da una macro-media F1 sui 16 benchmark pari a $0.854074$.
 L'architettura HGB mostra pertanto, nella configurazione analizzata, un comportamento maggiormente orientato alla specificità rispetto alla sensibilità verso le distribuzioni malevole target.
 
 Il confronto \textit{multi-seed} introduce un ulteriore elemento discriminante.
-La deviazione standard dell'F1-Score globale della baseline è pari a $0.003516$ per DT, $0.036341$ per HGB e $0.002452$ per RF.
+La deviazione standard della macro-media non pesata dell'F1-Score sui 16 benchmark della baseline è pari a $0.003516$ per DT, $0.036341$ per HGB e $0.002452$ per RF.
 Random Forest associa quindi alla maggiore prestazione media globale anche la minore dispersione rispetto alle inizializzazioni considerate.
 Decision Tree mantiene anch'esso una variabilità contenuta, mentre HGB presenta una dispersione superiore di circa un ordine di grandezza rispetto agli altri due classificatori.
 
 Tale evidenza consente di distinguere prestazione e stabilità come proprietà complementari.
 Una singola esecuzione caratterizzata da metriche elevate non è infatti sufficiente a descrivere il comportamento di un classificatore quando il processo di apprendimento comprende componenti stocastiche.
-Nel protocollo considerato e limitatamente alla dispersione inter-seed della media globale dell'F1-Score nella baseline, RF mostra il comportamento più regolare tra le repliche, mentre HGB presenta la dispersione maggiore tra le tre architetture.
+Nel protocollo considerato e limitatamente alla dispersione inter-seed della macro-media non pesata dell'F1-Score sui 16 benchmark nella baseline, RF mostra il comportamento più regolare tra le repliche, mentre HGB presenta la dispersione maggiore tra le tre architetture.
 
 Le differenze architetturali emergono anche dall'analisi post-hoc delle attribuzioni SHAP.
 Nei modelli sorgente e nella configurazione \textit{INJECTION}, \texttt{pkts\_per\_sec} occupa la prima posizione di rilevanza globale per tutte e tre le architetture, evidenziando l'esistenza di un nucleo informativo condiviso.
@@ -422,9 +422,13 @@ Durante la sperimentazione sono stati inoltre generati artefatti relativi alle d
 Non è quindi possibile stabilire, sulla base dell'analisi sviluppata, se il compromesso tra falsi positivi e falsi negativi possa essere ulteriormente modificato mediante soglie specifiche per modello, dominio o contesto operativo.
 Le conclusioni sulla sensibilità e sulla specificità rimangono riferite alla configurazione decisionale effettivamente valutata.
 
+Un ulteriore limite riguarda la prevalenza di classe imposta artificialmente dal rapporto $10{:}1$ tra traffico nominale e malevolo. 
+Tale scelta rende direttamente confrontabili i benchmark, ma metriche quali Precision, F1-Score e Average Precision dipendono dalla prevalenza della classe positiva. 
+I relativi valori non devono pertanto essere interpretati come stime dirette delle prestazioni attese in deployment qualora il tasso operativo di attacco differisca da quello imposto nel protocollo sperimentale.
+
 Un sesto limite interessa la \textbf{portata dell'analisi statistica}.
-Il test $t$ di Welch è stato applicato alle distribuzioni multi-seed dell'F1-Score globale mediante confronti separati tra la baseline e le altre configurazioni.
-L'F1-Score globale utilizzato in tale procedura corrisponde alla media a peso uniforme dei valori F1 ottenuti sui $16$ benchmark della cross-evaluation; non costituisce un F1 pooled sulle singole predizioni né una stima pesata secondo la prevalenza attesa in deployment.
+Il test $t$ di Welch è stato applicato alle distribuzioni multi-seed della macro-media non pesata dell'F1-Score sui 16 benchmark mediante confronti separati tra la baseline e le altre configurazioni.
+La quantità utilizzata in tale procedura corrisponde alla media a peso uniforme dei valori F1 ottenuti sui 16 benchmark della cross-evaluation; non costituisce un F1 pooled sulle singole predizioni né una stima pesata secondo la prevalenza attesa in deployment.
 La procedura implementata utilizza inoltre la formulazione di Welch per campioni indipendenti e non sfrutta esplicitamente l'eventuale struttura di accoppiamento derivante dall'impiego del medesimo insieme nominale di seed nelle configurazioni confrontate. Anche tale aspetto circoscrive la portata inferenziale dei risultati e rafforza l'interpretazione esplorativa dell'analisi statistica.
 Il protocollo non applica correzioni per confronti multipli, quali Bonferroni o Benjamini--Hochberg; i confronti vengono pertanto interpretati in chiave esplorativa.
 

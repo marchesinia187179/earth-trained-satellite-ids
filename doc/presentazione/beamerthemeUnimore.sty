@@ -1,0 +1,138 @@
+% =========================================================================
+%  beamerthemeUnimore.sty
+%  Tema Beamer con l'identita' visiva UNIMORE (bordeaux/arancio),
+%  basato sul layout del template PowerPoint istituzionale.
+%  Riutilizzabile per qualsiasi presentazione, conferenza o seminario.
+% =========================================================================
+\ProvidesPackage{beamerthemeUnimore}[2026/09/03 v1.1 Unimore Beamer theme]
+
+\RequirePackage{tikz}
+\usetikzlibrary{calc}
+\RequirePackage[T1]{fontenc}
+\RequirePackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+% -------------------------------------------------------------------------
+% Palette colori (estratta dal template PowerPoint istituzionale)
+% -------------------------------------------------------------------------
+\definecolor{unimoreMaroon}{HTML}{93021F}   % barra di intestazione, sfondo titolo
+\definecolor{unimoreOrange}{HTML}{D14124}   % accento decorativo
+\definecolor{unimoreGray}{HTML}{63666A}     % testo footer / didascalie
+\definecolor{unimoreLightGray}{HTML}{B7B7B7}% dettagli secondari
+
+% -------------------------------------------------------------------------
+% Colori Beamer
+% -------------------------------------------------------------------------
+\setbeamercolor{header}{bg=unimoreMaroon, fg=white}
+\setbeamercolor{footline}{fg=unimoreGray, bg=white}
+\setbeamercolor{frametitle}{fg=black, bg=white}
+\setbeamercolor{normal text}{fg=black, bg=white}
+\setbeamercolor{itemize item}{fg=black}
+\setbeamercolor{itemize subitem}{fg=black}
+\setbeamercolor{itemize subsubitem}{fg=black}
+\setbeamercolor{block title}{fg=white, bg=unimoreMaroon}
+\setbeamercolor{block body}{fg=black, bg=unimoreLightGray!25}
+\setbeamercolor{alerted text}{fg=unimoreOrange}
+\setbeamercolor{structure}{fg=unimoreMaroon}
+
+% -------------------------------------------------------------------------
+% Font
+% -------------------------------------------------------------------------
+\setbeamerfont{frametitle}{size=\LARGE, series=\bfseries}
+\setbeamerfont{section in head}{size=\normalsize, series=\bfseries}
+\setbeamerfont{footline}{size=\tiny}
+\setbeamerfont{itemize/enumerate body}{size=\normalsize}
+
+% -------------------------------------------------------------------------
+% Margini generali del testo (per allineare corpo, titolo, header, footer)
+% -------------------------------------------------------------------------
+\setbeamersize{text margin left=1.1cm, text margin right=1.1cm}
+
+% -------------------------------------------------------------------------
+% Elenco puntato: pallino pieno / cerchio vuoto
+% -------------------------------------------------------------------------
+\setbeamertemplate{itemize item}{\raise1.2pt\hbox{\small$\bullet$}}
+\setbeamertemplate{itemize subitem}{\raise1pt\hbox{\footnotesize$\circ$}}
+\setbeamertemplate{itemize subsubitem}{\raise1pt\hbox{\scriptsize$\ast$}}
+
+\setbeamertemplate{navigation symbols}{}
+
+% -------------------------------------------------------------------------
+% Header: barra bordeaux con numero e titolo della sezione corrente
+% -------------------------------------------------------------------------
+\setbeamertemplate{headline}{%
+  \begin{beamercolorbox}[wd=\paperwidth, ht=1.05cm, dp=0.35cm, leftskip=1.1cm, rightskip=1.1cm]{header}
+    \hfill%
+    \usebeamerfont{section in head}%
+    \ifnum\value{section}>0 \insertsectionnumber.~\insertsection\fi
+  \end{beamercolorbox}
+}
+
+% -------------------------------------------------------------------------
+% Titolo di ogni slide (sotto la barra, in nero, grassetto)
+% -------------------------------------------------------------------------
+\setbeamertemplate{frametitle}{%
+  \vspace{0.45cm}%
+  \hspace{0pt}\usebeamerfont{frametitle}\usebeamercolor[fg]{frametitle}\insertframetitle\par
+  \vspace{0.25cm}%
+}
+
+% -------------------------------------------------------------------------
+% Footline: testo configurabile a sinistra, numero di pagina a destra.
+% Impostare con \unimorefootertext{...} nel preambolo del proprio file.
+% -------------------------------------------------------------------------
+\newcommand{\unimorefootertext}[1]{\renewcommand{\insertunimorefooter}{#1}}
+\newcommand{\insertunimorefooter}{}
+
+\setbeamertemplate{footline}{%
+  \begin{beamercolorbox}[wd=\paperwidth, ht=2.4ex, dp=1.6ex, leftskip=1.1cm, rightskip=1.1cm]{footline}
+    \usebeamerfont{footline}\insertunimorefooter
+    \hfill
+    \insertframenumber
+  \end{beamercolorbox}
+}
+
+% -------------------------------------------------------------------------
+% Slide del titolo: sfondo bordeaux, archi decorativi arancioni, logo.
+% Uso:
+%   \UnimoreTitlePage{Titolo}{Autori}{Affiliazione}{Riga informativa}{Riga secondaria}
+% -------------------------------------------------------------------------
+\newcommand{\Unimorelogo}{images/Logo_A_Negativo.eps}
+
+\newcommand{\UnimoreTitlePage}[5]{%
+\begin{frame}[plain]
+\begin{tikzpicture}[remember picture, overlay]
+  % Origine esplicita nell'angolo in basso a sinistra della pagina: tutte le
+  % coordinate sono espresse come offset (in cm) rispetto a questo punto,
+  % cosi' non dipendono dal punto in cui il tikzpicture viene inserito nel testo.
+  \coordinate (O) at (current page.south west);
+
+  % sfondo pieno bordeaux (tela 16cm x 9cm per aspectratio=169)
+  \fill[unimoreMaroon] (current page.south west) rectangle (current page.north east);
+
+  % archi decorativi arancioni (approssimazione dello sfondo originale)
+  \begin{scope}
+    \clip (current page.south west) rectangle (current page.north east);
+    \draw[unimoreOrange, line width=14pt] ($(O)+(-0.6,9.6)$) circle (3cm);
+    \draw[unimoreOrange, line width=14pt]  ($(O)+(15.3,-1.2)$) circle (6cm);
+  \end{scope}
+
+  % titolo
+  \node[anchor=north west, text width=13.0cm, align=left, text=white,
+        font=\bfseries\fontsize{24}{29}\selectfont] at ($(O)+(1.4,6)$) {#1};
+
+  % autori + affiliazione (un unico blocco per evitare sovrapposizioni)
+  \node[anchor=north west, text width=13.0cm, align=left, text=white,
+        font=\normalsize] at ($(O)+(1.4,5)$) {#2\\[4pt]{\itshape\small #3}};
+
+  % riga informativa + riga secondaria (ancorate al basso: non si sovrappongono mai al titolo)
+  \node[anchor=south west, text width=10.5cm, align=left, text=white,
+        font=\normalsize] at ($(O)+(1.4,0.65)$) {#4\\[2pt]{\itshape #5}};
+
+  % logo (in basso a destra)
+  \node[anchor=south east] at ($(O)+(15.6,0.5)$) {\includegraphics[width=4cm]{\Unimorelogo}};
+\end{tikzpicture}
+\end{frame}
+}
+
+\endinput

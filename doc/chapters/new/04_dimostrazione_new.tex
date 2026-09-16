@@ -198,18 +198,22 @@ Il successivo campionamento e la scalatura in funzione del parametro $\rho$ veng
 \label{subsec:dataset_target}
 
 I domini di destinazione $\mathcal{D}_T$ sono stati formalizzati a partire dal dataset \texttt{STIN} (\textit{Satellite-Terrestrial Integrated Network})~\cite{stin}\footnote{\url{https://github.com/kun9717/STIN-data-set/}}, focalizzato sull'identificazione di minacce informatiche in architetture di rete e infrastrutture spaziali integrate. 
-Acquisiti nella formulazione tabulare in formato CSV, a differenza del dominio sorgente $\mathcal{D}_S$, i dataset target considerati \textbf{contengono esclusivamente traffico malevolo}, con una totale assenza di campioni appartenenti alla classe di traffico lecito (\textit{Normal})\footnote{La composizione asimmetrica dei dataset STIN è determinata dalla struttura del testbed di cattura originario, progettato unicamente per isolare ed etichettare flussi di attacco in scenari operativi reali. Di conseguenza, per la costruzione dei benchmark di valutazione biclasse cross-dominio, la componente di traffico benigno ($Y=0$) viene estratta in modo coerente dal dominio sorgente UNSW-NB15, garantendo l'omogeneità del traffico lecito e preservando il rapporto di proporzionamento prefissato ($\rho = 10$).}.
+Acquisiti nella formulazione tabulare in formato CSV, i dataset STIN vengono utilizzati nel presente protocollo mantenendo, per la costruzione dei benchmark target, esclusivamente la componente malevola. 
+La componente di traffico benigno impiegata nei benchmark cross-domain rimane invece derivata dal dominio sorgente UNSW-NB15.
+Ne consegue che il protocollo non valuta il \textit{benign-domain shift}.
 
 La caratterizzazione del target si articola su due segmenti operativi distinti:
 \begin{itemize}
-    \item \textbf{Segmento Terrestre (\texttt{TER20}):} Rappresenta il traffico rilevato dai nodi di terra dell'infrastruttura STIN.
-    \item \textbf{Segmento Satellitare (\texttt{SAT20}):} Modellizza il traffico intercettato dai vettori spaziali, precisamente quelli satellitari.
+    \item \textbf{Segmento Terrestre (\texttt{TER20}):} rappresenta la componente del dataset STIN associata al segmento terrestre del testbed sperimentale.
+    \item \textbf{Segmento Satellitare (\texttt{SAT20}):} rappresenta la componente del dataset STIN associata al segmento satellitare del testbed sperimentale.
 \end{itemize}
 
 \subsubsection{Segmento Terrestre (\texttt{TER20})}
-Il dataset \texttt{TER20} comprende originariamente $127.244$ record ripartiti su dieci classi native di attacco: \textit{Botnet}, \textit{DDoS}, \textit{Syn\_DDoS}, \textit{UDP\_DDoS}, \textit{Web Attack}, \textit{Backdoor}, \textit{LDAP\_DDoS}, \textit{MSSQL\_DDoS}, \textit{NetBIOS\_DDoS} e \textit{Portmap\_DDoS}.
+Il sottoinsieme \texttt{TER20} utilizzato nella campagna sperimentale comprende $127.244$ osservazioni malevole associate al segmento satellitare del testbed STIN.
+La tassonomia nativa si articola esclusivamente su dieci vettori di attacco volumetrico: \textit{Botnet}, \textit{DDoS}, \textit{Syn\_DDoS}, \textit{UDP\_DDoS}, \textit{Web Attack}, \textit{Backdoor}, \textit{LDAP\_DDoS}, \textit{MSSQL\_DDoS}, \textit{NetBIOS\_DDoS} e \textit{Portmap\_DDoS}.
 
-In linea con la metodologia di accorpamento delle classi minoritarie (\textit{minority merge}) proposta da Azar et al.~\cite{azar2023}, le categorie con caratteristiche funzionali sovrapponibili e frequenza ridotta sono state raggruppate per preservare un'adeguata rappresentatività campionaria e riflettere la tassonomia delle macro-minacce. Nello specifico:
+In linea con la metodologia di accorpamento delle classi minoritarie (\textit{minority merge}) proposta da Azar et al.~\cite{azar2023}, le categorie con caratteristiche funzionali sovrapponibili e frequenza ridotta sono state raggruppate per preservare un'adeguata rappresentatività campionaria e riflettere la tassonomia delle macro-minacce. 
+Nello specifico:
 \begin{enumerate}
     \item Le classi \textit{Web Attack} e \textit{Backdoor} sono state accorpate alla classe principale \textit{Botnet};
     \item Le sottoclassi di attacco volumetrico \textit{LDAP\_DDoS}, \textit{MSSQL\_DDoS}, \textit{NetBIOS\_DDoS} e \textit{Portmap\_DDoS} sono state fuse nella macro-categoria \textit{DDoS}.
@@ -220,7 +224,7 @@ A seguito del processo di \textit{minority merge}, la volumetria complessiva rim
 \begin{table}[H]
     \centering
     \small
-    \caption{Distribuzione delle istanze del dataset \texttt{TER20} a seguito del processo di \textit{minority merge}.}
+    \caption{Distribuzione delle istanze malevole del sottoinsieme \texttt{TER20} utilizzato nella campagna sperimentale a seguito del processo di \textit{minority merge}.}
     \label{tab:ter20_distribution}
     \begin{tabular}{l p{6cm} r}
         \toprule
@@ -237,7 +241,7 @@ A seguito del processo di \textit{minority merge}, la volumetria complessiva rim
 \end{table}
 
 \subsubsection{Segmento Satellitare (\texttt{SAT20})}
-Il dataset \texttt{SAT20} include un totale di $82.320$ istanze, focalizzate in modo specifico sulle minacce dirette al segmento spaziale. 
+Il sottoinsieme \texttt{SAT20} utilizzato nella campagna sperimentale comprende $82.320$ osservazioni malevole associate al segmento satellitare del testbed STIN. 
 La tassonomia nativa si articola esclusivamente su due vettori di attacco volumetrico: \textit{UDP\_DDoS} e \textit{Syn\_DDoS}. 
 Vista l'assenza di classi marginali o fortemente sbilanciate, non è stata applicata alcuna procedura di \textit{minority merge}. 
 La distribuzione finale del segmento \texttt{SAT20} è dettagliata nella Tabella~\ref{tab:sat20_distribution}.
@@ -245,7 +249,7 @@ La distribuzione finale del segmento \texttt{SAT20} è dettagliata nella Tabella
 \begin{table}[H]
     \centering
     \small
-    \caption{Distribuzione delle istanze del dataset \texttt{SAT20}.}
+    \caption{Distribuzione delle istanze malevole del sottoinsieme \texttt{SAT20} utilizzato nella campagna sperimentale.}
     \label{tab:sat20_distribution}
     \begin{tabular}{llr}
         \toprule
@@ -516,7 +520,8 @@ Nelle sottosezioni seguenti vengono analizzati nel dettaglio i singoli criteri d
 
 La fase preliminare della pipeline di preprocessing è volta ad allineare gli spazi delle feature originariamente eterogenei del dominio sorgente $\mathcal{D}_S$ (UNSW-NB15) e dei domini di destinazione $\mathcal{D}_T$ (STIN, declinato in \texttt{TER20} e \texttt{SAT20}). 
 Il dataset sorgente si articola originariamente su un vettore di $d_S = 42$ attributi predittivi grezzi (a cui si aggiungono l'identificatore \texttt{id} e la doppia etichettatura nativa \texttt{attack\_cat} e \texttt{label}, per un totale di 45 colonne). 
-Diversamente, le sorgenti di destinazione presentano una struttura nativa composta da $d_T=30$ attributi predittivi, unitamente all'identificatore \texttt{id} e all'etichetta nativa \texttt{label}, utilizzata per rappresentare la specifica famiglia di attacco, per un totale di 32 colonne. Poiché i dataset target considerati contengono esclusivamente traffico malevolo, durante l'allineamento viene successivamente introdotta l'etichetta binaria del framework, fissata a $Y=1$.
+Diversamente, le sorgenti di destinazione presentano una struttura nativa composta da $d_T=30$ attributi predittivi, unitamente all'identificatore \texttt{id} e all'etichetta nativa \texttt{label}, utilizzata per rappresentare la specifica famiglia di attacco, per un totale di 32 colonne. 
+Poiché, nel protocollo sperimentale, i dataset target pre-processati conservano esclusivamente la componente malevola selezionata da STIN, durante l'allineamento viene introdotta l'etichetta binaria del framework, fissata a $Y = 1$.
 
 Per garantire l'interoperabilità e la generalizzabilità dei modelli di apprendimento automatico rispetto al \textit{domain shift}, la selezione dello spazio delle feature condiviso $d$ è stata regolata da tre criteri di filtraggio sequenziali:
 
@@ -637,7 +642,7 @@ La Tabella~\ref{tab:mapping_operator} formalizza le trasformazioni scalari $\psi
         \texttt{src\_pkts} & Numero totale di pacchetti in direzione forward \\
         \texttt{dst\_pkts} & Numero totale di pacchetti in direzione backward \\
         \texttt{src\_win\_byt} & Lunghezza finestra iniziale in direzione forward \\
-        \texttt{dst\_win\_byt} & Lunghezza finestra iniziale in direzione backward \\
+        \texttt{dst\_win\_byt} & Lunghezza finestra iniziale in direzione backward\footnote{Nel dominio STIN possono comparire valori negativi codificati nella feature target; tali valori vengono mantenuti nella rappresentazione e non devono essere interpretati come lunghezze fisiche negative, in quanto sono convenzionalmente associati alla tipologia di comunicazione.} \\
         \texttt{load\_s} & Throughput totale \\
         \texttt{down\_up\_ratio} & Asimmetria dei pacchetti \\
         \texttt{total\_bytes} & Bytes totali \\

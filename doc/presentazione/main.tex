@@ -1,0 +1,104 @@
+% =========================================================================
+%  main.tex — Esempio d'uso del tema beamerthemeUnimore
+%  Compilare con: pdflatex main.tex  (eseguire due volte)
+% =========================================================================
+\documentclass[aspectratio=169]{beamer}
+\usetheme{Unimore}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}  % cambiare in \usepackage[italian]{babel} se il pacchetto è installato e serve testo in italiano
+\usepackage{graphicx}
+
+% Testo mostrato nel piè di pagina di ogni slide (a sinistra, numero pagina a destra)
+\unimorefootertext{Nome presentazione - Data}
+
+\title{Titolo della presentazione}
+\author{Nome Cognome}
+
+\begin{document}
+
+% ------------------------------------------------------------------ %
+% 1) SLIDE DEL TITOLO
+% ------------------------------------------------------------------ %
+\UnimoreTitlePage
+  {Titolo della presentazione}
+  {\underline{Nome Cognome}, Coautore Due, Coautore Tre}
+  {\{name.surname\}@unimore.it}
+  {Nome del convegno / evento (data)}
+  {Città, Paese}
+
+% ------------------------------------------------------------------ %
+% 2) TEMPLATE 1 — Slide con elenco puntato (titolo + bullet su due livelli)
+% ------------------------------------------------------------------ %
+\section{Prima sezione}
+
+\begin{frame}{Titolo della slide}
+  \begin{itemize}
+    \item Primo punto
+    \item Secondo punto
+    \item Terzo punto
+    \item Quarto punto
+    \item Quinto punto con sotto-elenco
+    \begin{itemize}
+      \item Dettaglio uno
+      \item Dettaglio due
+      \item Dettaglio tre
+      \item \dots
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+% ------------------------------------------------------------------ %
+% 3) TEMPLATE 2 — Slide a due colonne (testo + immagine/figura)
+% ------------------------------------------------------------------ %
+\section{Seconda sezione}
+
+\begin{frame}{Titolo della slide}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      Testo introduttivo:
+      \begin{itemize}
+        \item Primo elemento
+        \begin{itemize}
+          \item Sotto-elemento A
+          \item Sotto-elemento B
+          \item Sotto-elemento C
+        \end{itemize}
+        \item \textbf{Secondo elemento}
+        \item \textbf{Terzo elemento}
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \centering
+      % Sostituire con \includegraphics[width=\linewidth]{figura.pdf}
+      \fbox{\parbox[c][4.5cm][c]{\linewidth}{\centering \textit{[Immagine / schema]}}}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------ %
+% 4) TEMPLATE 3 — Slide dei risultati (grafico + osservazioni)
+% ------------------------------------------------------------------ %
+\section{Terza sezione}
+
+\begin{frame}{Titolo della slide}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \centering
+      % Sostituire con \includegraphics[width=\linewidth]{grafico.pdf}
+      \fbox{\parbox[c][5cm][c]{\linewidth}{\centering \textit{[Grafico / figura]}}}
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \begin{itemize}
+        \item Punto chiave 1
+        \item Punto chiave 2
+        \item Punto chiave 3
+        \begin{itemize}
+          \item Dettaglio
+        \end{itemize}
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\end{document}

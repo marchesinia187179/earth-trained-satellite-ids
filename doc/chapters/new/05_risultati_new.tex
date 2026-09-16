@@ -196,7 +196,7 @@ I valori descrivono le popolazioni di classe originarie dalle quali sono costrui
         \texttt{NB15} & Nominale & $6.7933\times10^{4}$ & $5.7237\times10^{10}$ & $3.0231\times10^{4}$ & $1.7286\times10^{10}$ & $176.6758$ & $1.3836\times10^{4}$ \\
         \texttt{NB15} & Malevola & $2.0131\times10^{5}$ & $5.1871\times10^{10}$ & $1.9513\times10^{4}$ & $7.4651\times10^{10}$ & $87.5202$ & $1.4658\times10^{4}$ \\
         \texttt{INJECTION} & Malevola & $4.5475\times10^{8}$ & $9.0889\times10^{20}$ & $1.9463\times10^{4}$ & $7.4455\times10^{10}$ & $87.2266$ & $1.4635\times10^{4}$ \\
-        \texttt{NB15\_STIN} & Malevola & $1.1202\times10^{11}$ & $2.1150\times10^{23}$ & $1.0891\times10^{3}$ & $1.4180\times10^{6}$ & $-0.7813$\footnote{Il valore è negativo in quanti in STIN può equivalere anche a $-1$, in quanto è un valore convenzionale associato alla tipologia di comunicazione e non una misura fisica negativa.} & $4.0057\times10^{3}$ \\
+        \texttt{NB15\_STIN} & Malevola & $1.1202\times10^{11}$ & $2.1150\times10^{23}$ & $1.0891\times10^{3}$ & $1.4180\times10^{6}$ & $-0.7813$ & $4.0057\times10^{3}$ \\
         \bottomrule
     \end{tabular}
     }
@@ -260,6 +260,7 @@ Per \texttt{total\_bytes}, lo scostamento assume una forma differente: la media 
 Il traffico malevolo target occupa quindi una regione caratterizzata da volumi complessivi inferiori e da una dispersione sensibilmente ridotta.
 
 Anche \texttt{dst\_win\_byt} evidenzia una modifica strutturale: la media passa da $87.52$ per gli attacchi \texttt{NB15} a circa $-0.78$ per \texttt{STIN}, mentre la varianza diminuisce da circa $1.47\times10^{4}$ a $4.01\times10^{3}$. 
+Il valore medio negativo riflette la codifica numerica presente nella feature target STIN e non deve essere interpretato come una lunghezza fisica negativa della finestra.
 La distribuzione target risulta conseguentemente concentrata in regioni differenti rispetto a quelle maggiormente popolate dal traffico nominale sorgente.
 
 Le tre caratteristiche descrivono quindi modalità distinte di variazione cross-domain: \newline \texttt{pkts\_per\_sec} combina una forte traslazione con una marcata espansione della dispersione; \texttt{total\_bytes} presenta una riduzione della posizione centrale e una contrazione della varianza; \texttt{dst\_win\_byt} modifica sia la posizione sia la concentrazione della distribuzione. 
@@ -1318,11 +1319,11 @@ La verifica inferenziale utilizza la medesima procedura definita nella Sottosezi
 Per ciascun modello e seed viene quindi utilizzata la media dell'F1-Score sui $16$ benchmark, $\overline{F1}_{i}^{(k)}$, definita nell'Equazione~\eqref{eq:cap5_f1_seed_mean_source}. 
 I $K=10$ valori seed-level di ciascuno dei nove modelli ibridi vengono confrontati con quelli della baseline \texttt{injection\_aggregate} mediante un test $t$ di Welch bilaterale, con $\alpha=0.05$ e senza assumere uguaglianza delle varianze. Come nella precedente analisi, la procedura tratta i vettori come campioni indipendenti e non sfrutta esplicitamente l'eventuale struttura appaiata associata all'uso degli stessi seed.
 
-Anche in questo caso il test riguarda la prestazione \emph{globale} lungo l'intera cross-evaluation e non produce una verifica separata per i singoli benchmark sorgente o target.
+Anche in questo caso il test riguarda la macro-media non pesata dell'F1-Score sui 16 benchmark della cross-evaluation e non produce una verifica separata per i singoli benchmark sorgente o target.
 
 \paragraph{Sintesi descrittiva dell'F1-Score multi-seed.}
 Le statistiche complete sono riportate nella Tabella~\ref{tab:ibridi_welch_descriptive} in Appendice. 
-Per DT, la baseline raggiunge una media globale pari a $0.860388$, mentre i tre modelli aggregati ibridi si attestano intorno a $0.56287$. 
+Per DT, la baseline raggiunge una macro-media non pesata dell'F1-Score sui 16 benchmark pari a $0.860388$, mentre i tre modelli aggregati ibridi si attestano intorno a $0.56287$. 
 Per HGB, \texttt{injection\_aggregate} raggiunge $0.854074$, contro $0.562881$ dei modelli aggregati \texttt{nb15\_stin\_aggregate} e \newline \texttt{nb15\_ter20\_aggregate}. 
 Per RF, la baseline raggiunge $0.890221$, mentre gli aggregati ibridi rimangono nuovamente prossimi a $0.56287$.
 
@@ -1330,7 +1331,7 @@ Il valore intorno a $0.5625$ non rappresenta una prestazione uniformemente inter
 Esso sintetizza due regimi fortemente differenti: prestazioni quasi perfette sui nove benchmark target e prestazioni prossime allo zero sui sei benchmark NB15 e su \texttt{INJECTION}.
 
 Numerose configurazioni ibride presentano inoltre dispersioni inter-seed estremamente contenute, fino a deviazioni standard nulle. 
-Tale stabilità non costituisce di per sé un indicatore di migliore qualità predittiva: una configurazione può riprodurre con elevata regolarità un comportamento fortemente specializzato e mantenere comunque una prestazione globale inferiore alla baseline.
+Tale stabilità non costituisce di per sé un indicatore di migliore qualità predittiva: una configurazione può riprodurre con elevata regolarità un comportamento fortemente specializzato e mantenere comunque una macro-media F1 sui benchmark inferiore a quella della baseline.
 
 \paragraph{Risultati del test t di Welch.}
 I risultati completi dei $27$ confronti sono riportati nella Tabella~\ref{tab:ibridi_welch_results} in Appendice. 
@@ -1399,7 +1400,7 @@ Indicando con $\mathcal{G}_{S}$ l'insieme dei sei benchmark appartenenti alla ta
 dove $\overline{TPR}_{ij}$ rappresenta la TPR media sulle $K=10$ repliche per la coppia modello--test set. 
 Analogamente, i valori di F1-Score indicati come globali nel seguito corrispondono alla media a peso uniforme dei valori F1 ottenuti sui $16$ benchmark della cross-evaluation. Non costituiscono un F1 pooled sulle singole predizioni né una stima pesata secondo prevalenze operative reali.
 Il benchmark \texttt{INJECTION} e la media sull'intero insieme dei $16$ test vengono mantenuti separati, così da preservare l'informazione relativa all'asimmetria tra comportamento sorgente e target. 
-Per l'F1-Score viene richiamata la misura globale multi-seed già definita nell'Equazione~\eqref{eq:cap5_f1_seed_mean_source}.
+Per l'F1-Score viene richiamata la macro-media non pesata sui 16 benchmark, aggregata sui seed, già definita nell'Equazione~\eqref{eq:cap5_f1_seed_mean_source}.
 
 Nel paradigma $\mathcal{M}_{S}$ viene considerato \texttt{nb15\_aggregate}; per $\mathcal{M}_{\mathrm{base}}$ viene utilizzato \newline \texttt{injection\_aggregate}; per $\mathcal{M}_{H}$ vengono invece riportati gli intervalli minimo--massimo osservati tra i tre modelli aggregati \texttt{nb15\_stin\_aggregate}, \texttt{nb15\_sat20\_aggregate} e \newline \texttt{nb15\_ter20\_aggregate}.
 
@@ -1473,7 +1474,7 @@ Nel protocollo considerato, le variazioni prestazionali associate alla composizi
 \paragraph{Stabilità e significatività delle differenze globali.}
 L'analisi multi-seed rafforza il quadro descrittivo. 
 Tutti i $18$ confronti di Welch tra baseline e modelli sorgente e tutti i $27$ confronti tra baseline e modelli ibridi soddisfano il criterio $p<0.05$ adottato dal protocollo e risultano quindi statisticamente distinguibili secondo la procedura di Welch e le relative assunzioni. 
-In tutti i casi la media globale dell'F1-Score risulta superiore per \texttt{INJECTION}.
+In tutti i casi la macro-media non pesata dell'F1-Score sui 16 benchmark, aggregata sui seed, risulta superiore per INJECTION.
 
 Tale risultato riguarda la misura aggregata sui $16$ benchmark e non implica una superiorità della baseline su ciascun test individuale: i modelli aggregati ibridi, ad esempio, mantengono TPR superiori sui benchmark target.
 I \textit{p-value} sono inoltre valutati individualmente senza correzione per confronti multipli, per cui l'evidenza inferenziale conserva il carattere esplorativo definito dalla metodologia.
@@ -1634,7 +1635,7 @@ HGB privilegia maggiormente la preservazione del traffico nominale, mentre RF ri
 DT mantiene un profilo competitivo mediante la struttura meno articolata tra quelle considerate, senza che tale proprietà possa essere trasformata in un vantaggio computazionale misurato.
 
 \paragraph{Stabilità rispetto alle inizializzazioni.}
-La dispersione della media globale dell'F1-Score lungo i $10$ seed è pari a $0.003516$ per DT, $0.036341$ per HGB e $0.002452$ per RF. 
+La dispersione della macro-media non pesata dell'F1-Score sui 16 benchmark lungo i $10$ seed è pari a $0.003516$ per DT, $0.036341$ per HGB e $0.002452$ per RF. 
 RF combina quindi il maggiore valore medio con la minore dispersione tra le tre architetture della baseline; DT presenta anch'esso una variabilità contenuta, mentre HGB mostra una maggiore sensibilità all'inizializzazione.
 
 La stabilità non rappresenta una misura di costo computazionale, ma costituisce un ulteriore elemento nella valutazione predittiva: il confronto non riguarda soltanto la prestazione media, ma anche la regolarità con cui essa viene riprodotta nelle differenti repliche.
@@ -1662,7 +1663,7 @@ La Tabella~\ref{tab:cap5_classifier_tradeoff} riassume il confronto senza attrib
          & & \textbf{osservato} \\
         \midrule
         \textbf{DT:} singolo albero
-        & Elevata TPR target ($0.96612$) e buona prestazione globale.
+        & Elevata TPR target ($0.96612$) e buona macro-media F1 sui benchmark.
         & Prestazioni inferiori a RF; TNR più bassa tra le tre baseline ($0.98460$). \\
         \addlinespace
         \textbf{HGB:} ensemble iterativo basato su boosting
@@ -1809,7 +1810,7 @@ La TPR media sui benchmark target raggiunge $0.96612$ per DT, $0.82970$ per HGB 
 
 La medesima distinzione emerge considerando l'intera matrice di \textit{cross-evaluation}. 
 La baseline raggiunge la maggiore TPR media sui $16$ benchmark per tutte le architetture, pari a $0.88990$ per DT, $0.80246$ per HGB e $0.90071$ per RF. 
-Anche la sintesi multi-seed mediante F1-Score risulta coerente con tale comportamento, con valori globali rispettivamente pari a $0.860388$, $0.854074$ e $0.890221$. 
+Anche la sintesi multi-seed mediante la macro-media non pesata dell'F1-Score sui 16 benchmark risulta coerente con tale comportamento, con valori rispettivamente pari a $0.860388$, $0.854074$ e $0.890221$. 
 Il vantaggio della configurazione \texttt{INJECTION} deve quindi essere interpretato come maggiore uniformità tra conservazione della conoscenza sorgente e riconoscimento delle distribuzioni target, e non come massimizzazione della prestazione su ogni singolo benchmark.
 
 L'analisi inferenziale ha qualificato ulteriormente tale risultato. 
