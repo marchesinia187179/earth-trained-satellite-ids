@@ -25,7 +25,9 @@ Il Listato~\ref{lst:correct_normal_anomaly_sampling} implementa la determinazion
     label={lst:correct_normal_anomaly_sampling}
 ]
 def _get_correct_normal_and_anomaly_data_samples(
-    normal_data, anomaly_data, normal_samples, anomaly_samples):
+        normal_data, anomaly_data, normal_samples, anomaly_samples
+    ):
+
     # Calcola il corretto numero di campioni da estrarre dalle distribuzioni
     if normal_samples < anomaly_samples * MLConstants.NORMAL_ANOMALY_RATIO:
         n_anomaly_target = int(normal_samples / MLConstants.NORMAL_ANOMALY_RATIO)
@@ -244,6 +246,7 @@ if sum(y_series == 0) > 0:
     idx_normal = y_series[y_series == 0].sample(
         n=min(n_normal, sum(y_series == 0)), random_state=MLConstants.MAIN_SEED
     ).index
+
 idx_anomaly = pd.Index([])
 if sum(y_series == 1) > 0:
     idx_anomaly = y_series[y_series == 1].sample(

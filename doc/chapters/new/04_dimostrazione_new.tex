@@ -1756,12 +1756,9 @@ Il Listato~\ref{lst:pca_source_scaling} sintetizza entrambe le fasi, evidenziand
     label={lst:pca_source_scaling}
 ]
 scaler = StandardScaler()
-
 pca = PCA(n_components=MLConstants.PCA_COMPONENTS, random_state=MLConstants.MAIN_SEED)
-
 X_source_scaled = scaler.fit_transform(X_source)
 pca.fit(X_source_scaled)
-
 X_scaled = scaler.transform(X_test)
 X_pca = pca.transform(X_scaled)
 \end{lstlisting}
@@ -1802,7 +1799,6 @@ Le principali operazioni implementative della procedura sono sintetizzate nel Li
     label={lst:kde_source_scaling}
 ]
 scaler = StandardScaler().fit(df_source[valid_source_features])
-
 for feature in valid_features:
     if feature in scaler.feature_names_in_:
         idx = list(scaler.feature_names_in_).index(feature)
