@@ -658,9 +658,9 @@ La Tabella~\ref{tab:mapping_operator} formalizza le trasformazioni scalari $\psi
 
 Nel processo di mappatura emergono tre aspetti architetturali critici:
 \begin{itemize}
-    \item \textbf{Conversioni di Scala e Armonizzazione Temporale:} Per allineare le metriche, la durata dei flussi nel dominio sorgente è stata riscalata da secondi a microsecondi (fattore moltiplicativo $10^6$). Parallelamente, il throughput nominale (\texttt{sload}, \texttt{dload}), originariamente quantificato in bit/s in UNSW-NB15, è stato convertito in Byte/s (dividendolo per 8) per coincidere con l'unità di misura nativa dei domini target.
-    \item \textbf{Derivazione Analitica di Metriche Mancanti:} Nel dominio $\mathcal{D}_T$, il conteggio totale dei pacchetti di destinazione (\texttt{dst\_pkts}) non è fornito in forma diretta. Tale quantità viene pertanto stimata indirettamente mediante il prodotto tra il tasso di pacchetti in direzione backward (\texttt{bw\_pkt\_s}) e la durata del flusso (\texttt{fl\_dur}), normalizzata rispetto ai microsecondi ($10^6$). La ricostruzione dipende quindi dalla definizione e dalla precisione con cui la variabile \texttt{bw\_pkt\_s} è rappresentata nel dataset STIN e può produrre valori non interi.
-    \item \textbf{Stabilizzazione Numerica:} Durante il calcolo di indici razionali (come \texttt{down\_up\_ratio}, \texttt{byte\_ratio}, le densità di pacchetti e il \textit{packet rate}), è stata introdotta una costante di regolarizzazione $\epsilon = 10^{-6}$ ai denominatori. Questo accorgimento previene singolarità algebriche causate da divisioni per zero indotte da flussi anomali o malformati.
+    \item \textbf{Conversioni di Scala e Armonizzazione Temporale:} per allineare le metriche, la durata dei flussi nel dominio sorgente è stata riscalata da secondi a microsecondi (fattore moltiplicativo $10^6$). Parallelamente, il throughput nominale (\texttt{sload}, \texttt{dload}), originariamente quantificato in bit/s in UNSW-NB15, è stato convertito in Byte/s (dividendolo per 8) per coincidere con l'unità di misura nativa dei domini target.
+    \item \textbf{Derivazione Analitica di Metriche Mancanti:} nel dominio $\mathcal{D}_T$, il conteggio totale dei pacchetti di destinazione (\texttt{dst\_pkts}) non è fornito in forma diretta. Tale quantità viene pertanto stimata indirettamente mediante il prodotto tra il tasso di pacchetti in direzione backward (\texttt{bw\_pkt\_s}) e la durata del flusso (\texttt{fl\_dur}), normalizzata rispetto ai microsecondi ($10^6$). La ricostruzione dipende quindi dalla definizione e dalla precisione con cui la variabile \texttt{bw\_pkt\_s} è rappresentata nel dataset STIN e può produrre valori non interi.
+    \item \textbf{Stabilizzazione Numerica:} durante il calcolo di indici razionali (come \texttt{down\_up\_ratio}, \texttt{byte\_ratio}, le densità di pacchetti e il \textit{packet rate}), è stata introdotta una costante di regolarizzazione $\epsilon = 10^{-6}$ ai denominatori. Questo accorgimento previene singolarità algebriche causate da divisioni per zero indotte da flussi anomali o malformati.
 \end{itemize}
 
 A completamento della trattazione teorica, i Listati~\ref{lst:align_nb15} e~\ref{lst:align_stin} riportano l'implementazione in linguaggio Python delle funzioni \texttt{\_align\_nb15} e \texttt{\_align\_stin}.
@@ -786,9 +786,9 @@ L'infrastruttura di classificazione del framework è stata sviluppata in ambient
 Coerentemente con le premesse metodologiche discusse nella Sezione~\ref{subsec:famiglie_classificatori}, sono state selezionate tre famiglie di algoritmi di apprendimento supervisionato basati su alberi di decisione, caratterizzate da differenti livelli di complessità strutturale e capacità espressiva:
 
 \begin{itemize}
-    \item \textbf{Decision Tree (DT):} Classificatore a singolo albero di decisione, implementato tramite la classe \texttt{DecisionTreeClassifier}\footnote{\href{https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier}{Link alla documentazione del classificatore DT}}.
-    \item \textbf{Random Forest (RF):} Architettura d'insieme di tipo \textit{bagging}, implementata mediante la classe \texttt{RandomForestClassifier}\footnote{\href{https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier}{Link alla documentazione del classificatore RF}}.
-    \item \textbf{Histogram-based Gradient Boosting (HGB):} Algoritmo d'insieme di tipo \textit{boosting} ottimizzato per dataset di grandi dimensioni, implementato tramite la classe \newline \texttt{HistGradientBoostingClassifier}\footnote{\href{https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.HistGradientBoostingClassifier}{Link alla documentazione del classificatore HGB}}.
+    \item \textbf{Decision Tree (DT):} classificatore a singolo albero di decisione, implementato tramite la classe \texttt{DecisionTreeClassifier}\footnote{\href{https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier}{Link alla documentazione del classificatore DT}}.
+    \item \textbf{Random Forest (RF):} architettura d'insieme di tipo \textit{bagging}, implementata mediante la classe \texttt{RandomForestClassifier}\footnote{\href{https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier}{Link alla documentazione del classificatore RF}}.
+    \item \textbf{Histogram-based Gradient Boosting (HGB):} algoritmo d'insieme di tipo \textit{boosting} ottimizzato per dataset di grandi dimensioni, implementato tramite la classe \newline \texttt{HistGradientBoostingClassifier}\footnote{\href{https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.HistGradientBoostingClassifier}{Link alla documentazione del classificatore HGB}}.
 \end{itemize}
 
 Al fine di mantenere un protocollo omogeneo tra le configurazioni e ridurre il tuning come ulteriore fattore sperimentale, \textbf{non sono state applicate procedure di ricerca ed ottimizzazione automatica degli iperparametri} (quali \textit{GridSearchCV} o \textit{RandomizedSearchCV}). 
@@ -884,9 +884,9 @@ La composizione dei \textit{training set} per l'addestramento segue precise rego
     Anche per l'addestramento di queste architetture viene garantito e forzato il rispetto del rapporto di proporzionamento $\rho_{ben/mal} = 10/1$. 
     Sono state istanziate tre varianti di modelli ibridi aggregati:
     \begin{itemize}
-        \item \texttt{nb15\_stin\_aggregate}: Ibrido su dataset STIN complessivo.
-        \item \texttt{nb15\_ter20\_aggregate}: Ibrido sul solo canale target TER20.
-        \item \texttt{nb15\_sat20\_aggregate}: Ibrido sul solo canale target SAT20.
+        \item \texttt{nb15\_stin\_aggregate}: ibrido su dataset STIN complessivo.
+        \item \texttt{nb15\_ter20\_aggregate}: ibrido sul solo canale target TER20.
+        \item \texttt{nb15\_sat20\_aggregate}: ibrido sul solo canale target SAT20.
     \end{itemize}
 \end{enumerate}
 
