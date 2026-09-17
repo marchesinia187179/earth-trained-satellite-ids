@@ -35,6 +35,18 @@
 \setbeamercolor{alerted text}{fg=unimoreOrange}
 \setbeamercolor{structure}{fg=unimoreMaroon}
 
+% Blocco neutro
+\setbeamercolor{block title neutral}{fg=unimoreMaroon}
+\setbeamercolor{block body neutral}{fg=black}
+
+\newenvironment{neutralblock}[1]{%
+    \setbeamercolor{block title}{use=block title neutral, fg=block title neutral.fg, bg=block title neutral.bg}
+    \setbeamercolor{block body}{use=block body neutral,fg=block body neutral.fg, bg=block body neutral.bg}
+    \begin{block}{#1}
+}{%
+    \end{block}
+}
+
 % -------------------------------------------------------------------------
 % Font
 % -------------------------------------------------------------------------
@@ -99,40 +111,78 @@
 % -------------------------------------------------------------------------
 \newcommand{\Unimorelogo}{images/Logo_A_Negativo.eps}
 
-\newcommand{\UnimoreTitlePage}[5]{%
-\begin{frame}[plain]
-\begin{tikzpicture}[remember picture, overlay]
-  % Origine esplicita nell'angolo in basso a sinistra della pagina: tutte le
-  % coordinate sono espresse come offset (in cm) rispetto a questo punto,
-  % cosi' non dipendono dal punto in cui il tikzpicture viene inserito nel testo.
-  \coordinate (O) at (current page.south west);
+\newcommand{\UnimoreTitlePage}[6]{%
+  \begin{frame}[plain]
+    \begin{tikzpicture}[remember picture, overlay]
+      \coordinate (O) at (current page.south west);
+      % Sfondo
+      \fill[unimoreMaroon]
+        (current page.south west) rectangle (current page.north east);
 
-  % sfondo pieno bordeaux (tela 16cm x 9cm per aspectratio=169)
-  \fill[unimoreMaroon] (current page.south west) rectangle (current page.north east);
+      % Archi decorativi
+      \begin{scope}
+        \clip (current page.south west) rectangle (current page.north east);
+        \draw[unimoreOrange, line width=14pt]
+          ($(O)+(-0.6,9.6)$) circle (3cm);
+        \draw[unimoreOrange, line width=14pt]
+          ($(O)+(15.3,-1.2)$) circle (6cm);
+      \end{scope}
 
-  % archi decorativi arancioni (approssimazione dello sfondo originale)
-  \begin{scope}
-    \clip (current page.south west) rectangle (current page.north east);
-    \draw[unimoreOrange, line width=14pt] ($(O)+(-0.6,9.6)$) circle (3cm);
-    \draw[unimoreOrange, line width=14pt]  ($(O)+(15.3,-1.2)$) circle (6cm);
-  \end{scope}
+      % Titolo
+      \node[
+        anchor=north west,
+        text width=13.0cm,
+        align=left,
+        text=white,
+        font=\bfseries\fontsize{17}{20}\selectfont
+      ] (title) at ($(O)+(1.4,6)$) {#1};
 
-  % titolo
-  \node[anchor=north west, text width=13.0cm, align=left, text=white,
-        font=\bfseries\fontsize{24}{29}\selectfont] at ($(O)+(1.4,6)$) {#1};
+      % Relatore e correlatore - sinistra
+      \node[
+        anchor=north west,
+        text width=6.0cm,
+        align=left,
+        text=white,
+        font=\small
+      ] (supervisors) at ([yshift=-0.45cm]title.south west) {
+        \textbf{Relatore:}\\
+        #2\\[5pt]
+        \textbf{Correlatore:}\\
+        #3
+      };
 
-  % autori + affiliazione (un unico blocco per evitare sovrapposizioni)
-  \node[anchor=north west, text width=13.0cm, align=left, text=white,
-        font=\normalsize] at ($(O)+(1.4,5)$) {#2\\[4pt]{\itshape\small #3}};
+      % Candidato - destra
+      \node[
+        anchor=north east,
+        text width=5.5cm,
+        align=right,
+        text=white,
+        font=\small
+      ] (candidate) at ([yshift=-0.45cm]title.south east) {
+        \textbf{Candidato:}\\
+        #4
+      };
 
-  % riga informativa + riga secondaria (ancorate al basso: non si sovrappongono mai al titolo)
-  \node[anchor=south west, text width=10.5cm, align=left, text=white,
-        font=\normalsize] at ($(O)+(1.4,0.65)$) {#4\\[2pt]{\itshape #5}};
+      % Informazioni finali
+      \node[
+        anchor=south west,
+        text width=10.5cm,
+        align=left,
+        text=white,
+        font=\footnotesize
+      ] at ([yshift=-1.5cm]supervisors.south west) {
+        #5\\[2pt]
+        {\itshape #6}
+      };
 
-  % logo (in basso a destra)
-  \node[anchor=south east] at ($(O)+(15.6,0.5)$) {\includegraphics[width=4cm]{\Unimorelogo}};
-\end{tikzpicture}
-\end{frame}
+      % Logo
+      \node[
+        anchor=south east
+      ] at ([yshift=-2.4cm]candidate.south east) {
+        \includegraphics[width=4cm]{\Unimorelogo}
+      };
+    \end{tikzpicture}
+  \end{frame}
 }
 
 \endinput

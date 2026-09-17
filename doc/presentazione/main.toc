@@ -1,0 +1,7 @@
+\babel@toc {italian}{}\relax 
+\babel@toc {italian}{}\relax 
+\beamer@sectionintoc {1}{Contesto}{2}{0}{1}
+\beamer@sectionintoc {2}{Problema}{3}{0}{2}
+\beamer@sectionintoc {3}{Contributi e Metodologia}{4}{0}{3}
+\beamer@sectionintoc {4}{Implementazione e Risultati}{7}{0}{4}
+\beamer@sectionintoc {5}{Conclusioni}{10}{0}{5}

@@ -1,104 +1,537 @@
 % =========================================================================
-%  main.tex — Esempio d'uso del tema beamerthemeUnimore
+%  main.tex — Presentazione Tesi di Laurea
+%  Base: template beamerthemeUnimore fornito dal correlatore
 %  Compilare con: pdflatex main.tex  (eseguire due volte)
 % =========================================================================
 \documentclass[aspectratio=169]{beamer}
 \usetheme{Unimore}
 
 \usepackage[utf8]{inputenc}
-\usepackage[english]{babel}  % cambiare in \usepackage[italian]{babel} se il pacchetto è installato e serve testo in italiano
+\usepackage[italian]{babel}
 \usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{array}
 
-% Testo mostrato nel piè di pagina di ogni slide (a sinistra, numero pagina a destra)
-\unimorefootertext{Nome presentazione - Data}
+% -------------------------------------------------------------------------
+% Stili TikZ centralizzati
+% Il file tikz_styles.tex si trova nella cartella padre della presentazione.
+% Contiene palette, librerie TikZ, nodi e frecce usati in tutte le figure.
+% -------------------------------------------------------------------------
+\input{../tikz_styles.tex}
 
-\title{Titolo della presentazione}
-\author{Nome Cognome}
+% Testo mostrato nel piè di pagina di ogni slide
+\unimorefootertext{LT L8 - A.A. 2025/2026}
+
+\title{\small Analisi della Trasferibilità di Network Intrusion Detection Systems basati su Machine Learning al Dominio Satellitare}
+\author{Alessandro Marchesini}
 
 \begin{document}
 
 % ------------------------------------------------------------------ %
-% 1) SLIDE DEL TITOLO
+% 1) TITOLO
 % ------------------------------------------------------------------ %
 \UnimoreTitlePage
-  {Titolo della presentazione}
-  {\underline{Nome Cognome}, Coautore Due, Coautore Tre}
-  {\{name.surname\}@unimore.it}
-  {Nome del convegno / evento (data)}
-  {Città, Paese}
+  {Analisi della Trasferibilità di NIDS basati\\su Machine Learning al Dominio Satellitare}
+  {Prof. Mirco Marchetti}
+  {Dott. Dimitri Galli}
+  {Alessandro Marchesini\\Matricola 187179}
+  {Discussione della Prova Finale -- A.A. 2025/2026}
+  {Dipartimento di Ingegneria ``Enzo Ferrari''}
 
 % ------------------------------------------------------------------ %
-% 2) TEMPLATE 1 — Slide con elenco puntato (titolo + bullet su due livelli)
+% 2) INTRODUZIONE — CONTESTO
 % ------------------------------------------------------------------ %
-\section{Prima sezione}
+\section{Contesto}
 
-\begin{frame}{Titolo della slide}
-  \begin{itemize}
-    \item Primo punto
-    \item Secondo punto
-    \item Terzo punto
-    \item Quarto punto
-    \item Quinto punto con sotto-elenco
-    \begin{itemize}
-      \item Dettaglio uno
-      \item Dettaglio due
-      \item Dettaglio tre
-      \item \dots
-    \end{itemize}
-  \end{itemize}
-\end{frame}
-
-% ------------------------------------------------------------------ %
-% 3) TEMPLATE 2 — Slide a due colonne (testo + immagine/figura)
-% ------------------------------------------------------------------ %
-\section{Seconda sezione}
-
-\begin{frame}{Titolo della slide}
+\begin{frame}{NIDS tra Dominio Terrestre e Satellitare}
   \begin{columns}[T]
     \begin{column}{0.5\textwidth}
-      Testo introduttivo:
-      \begin{itemize}
-        \item Primo elemento
-        \begin{itemize}
-          \item Sotto-elemento A
-          \item Sotto-elemento B
-          \item Sotto-elemento C
-        \end{itemize}
-        \item \textbf{Secondo elemento}
-        \item \textbf{Terzo elemento}
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.5\textwidth}
       \centering
-      % Sostituire con \includegraphics[width=\linewidth]{figura.pdf}
-      \fbox{\parbox[c][4.5cm][c]{\linewidth}{\centering \textit{[Immagine / schema]}}}
+      \resizebox{!}{4.5cm}{%
+        \begin{tikzpicture}
+          \node[node_primary] (earth) {
+            \textbf{Dominio Sorgente}\\
+            rete terrestre
+          };
+
+          \node[node_process, below=0.7cm of earth] (nids) {
+            \textbf{NIDS + ML}\\
+            apprendimento\\
+            supervisionato
+          };
+
+          \node[node_accent, below=0.7cm of nids] (space) {
+            \textbf{Dominio Target}\\
+            scenario terrestre-spaziale
+          };
+
+          \draw[arrow_source] (earth) -- node[left, font=\scriptsize] {training} (nids);
+          \draw[arrow_target] (nids) -- node[left, font=\scriptsize] {inference} (space);
+
+          \node[node_alert, right=1cm of nids] (shift) {
+            \textbf{Domain shift}\\
+            distribuzioni di\\
+            traffico differenti
+          };
+
+          \draw[arrow_alert] (earth.east) to[bend left=20] (shift.north);
+          \draw[arrow_alert] (shift.south) to[bend left=20] (space.east);
+        \end{tikzpicture}
+      }
+    \end{column}
+
+    \begin{column}{0.4\textwidth}
+      \begin{block}{Motivazione}
+        \footnotesize Una buona prestazione \textbf{in-domain} non garantisce la stessa efficacia quando cambia la distribuzione dei dati.
+      \end{block}
+
+      \begin{alertblock}{Problema}
+        \footnotesize Misurare la \textbf{trasferibilità} del NIDS dal sorgente terrestre verso distribuzioni target satellitari.
+      \end{alertblock}
     \end{column}
   \end{columns}
 \end{frame}
 
 % ------------------------------------------------------------------ %
-% 4) TEMPLATE 3 — Slide dei risultati (grafico + osservazioni)
+% 3) PROBLEM STATEMENT — RQ
 % ------------------------------------------------------------------ %
-\section{Terza sezione}
+\section{Problema}
 
-\begin{frame}{Titolo della slide}
-  \begin{columns}[T]
-    \begin{column}{0.55\textwidth}
+\begin{frame}{Problema di Ricerca e Domande Sperimentali}
+  \centering
+    \begin{block}{Obiettivo}
       \centering
-      % Sostituire con \includegraphics[width=\linewidth]{grafico.pdf}
-      \fbox{\parbox[c][5cm][c]{\linewidth}{\centering \textit{[Grafico / figura]}}}
+      \footnotesize Valutare la \textbf{robustezza cross-domain} distinguendo assenza di conoscenza target, conoscenza target sparsa e specializzazione sul target.
+    \end{block}
+    
+    \begin{center}
+      \begin{tikzpicture}[x=2.8cm,y=1.2cm]
+
+          % Linea tratteggiata "a onda"
+          \draw[draw=unimoreMaroon, dashed, thick]
+              plot[smooth] coordinates {
+                  (0,0)
+                  (1,0)
+                  (2,0)
+                  (3,0)
+              };
+
+          % Punti rossi
+          \fill[unimoreMaroon] (0,0) circle (3pt);
+          \fill[unimoreMaroon] (1,0) circle (3pt);
+          \fill[unimoreMaroon] (2,0) circle (3pt);
+          \fill[unimoreMaroon] (3,0) circle (3pt);
+
+          % Etichette
+          \node[align=center, text=unimoreMaroon, anchor=north] at (0,1)
+              {\footnotesize \textbf{RQ1}\\[-2pt]\footnotesize Trasferibilità diretta\\[-2pt]\footnotesize dei modelli};
+
+          \node[align=center, text=unimoreMaroon, anchor=south] at (1,-1.2)
+              {\footnotesize \textbf{RQ2}\\[-2pt]\footnotesize Introduzione controllata\\[-2pt]\footnotesize del target};
+
+          \node[align=center, text=unimoreMaroon, anchor=north] at (2,-0.2)
+              {\footnotesize \textbf{RQ3}\\[-2pt]\footnotesize Granularità\\[-2pt]\footnotesize dei modelli};
+
+          \node[align=center, text=unimoreMaroon, anchor=south] at (3,-1.2)
+              {\footnotesize \textbf{RQ4}\\[-2pt]\footnotesize Architettura\\[-2pt]\footnotesize dei modelli};
+
+      \end{tikzpicture}
+    \end{center}
+\end{frame}
+
+% ------------------------------------------------------------------ %
+% 4) CONTRIBUTI / FRAMEWORK
+% ------------------------------------------------------------------ %
+\section{Contributi e Metodologia}
+
+\begin{frame}{Contributo: Framework di Valutazione Cross-Domain}
+  \centering
+  \begin{tikzpicture}[node distance=0.72cm]
+    \node[node_primary, text width=3.05cm, minimum height=1.05cm] (repr) {
+      \textbf{1. Rappresentazione comune}\\
+      allineamento semantico e dimensionale
+    };
+
+    \node[node_process, right=0.70cm of repr, text width=3.05cm, minimum height=1.05cm] (train) {
+      \textbf{2. Training controllato}\\
+      Source-only / INJECTION / Hybrid
+    };
+
+    \node[node_accent, right=0.70cm of train, text width=3.05cm, minimum height=1.05cm] (eval) {
+      \textbf{3. Cross-evaluation}\\
+      stesso panel di benchmark
+    };
+
+    \draw[arrow_flow] (repr) -- (train);
+    \draw[arrow_flow] (train) -- (eval);
+
+    \node[node_output, below=1.05cm of train, text width=9.8cm, minimum height=1.35cm] (analysis) {
+      \textbf{Diagnostica e interpretazione}\\[1mm]
+      PCA / KDE \qquad $\vert$ \qquad SHAP \qquad $\vert$ \qquad TPR--TNR--F1--AP \qquad $\vert$ \qquad test $t$ di Welch
+    };
+
+    \draw[arrow_flow] (repr.south) -- ($(analysis.north)+(-3.1,0)$);
+    \draw[arrow_param] (train.south) -- (analysis.north);
+    \draw[arrow_flow] (eval.south) -- ($(analysis.north)+(3.1,0)$);
+  \end{tikzpicture}
+
+  \vspace{0.30cm}
+  \small
+  Il contributo consiste in un protocollo sistematico per studiare la \textbf{trasferibilità} di NIDS supervisionati tra domini eterogenei.
+\end{frame}
+
+% ------------------------------------------------------------------ %
+% 5) DATASET E MAPPING
+% ------------------------------------------------------------------ %
+\begin{frame}{Dataset e Allineamento nello Spazio Condiviso}
+  \begin{columns}[T]
+    \begin{column}{0.66\textwidth}
+      \centering
+      \begin{tikzpicture}[node distance=0.85cm]
+        \node[node_primary, text width=2.75cm, minimum height=1.20cm] (nb15) {
+          \textbf{UNSW-NB15}\\
+          $257\,673$ record\\
+          $42$ feature predittive grezze
+        };
+
+        \node[node_accent, right=0.80cm of nb15, text width=2.75cm, minimum height=1.20cm] (stin) {
+          \textbf{STIN}\\
+          TER20 + SAT20\\
+          $209\,564$ record\\
+          $30$ feature predittive grezze
+        };
+
+        \node[node_transform, below=0.90cm of nb15, text width=2.75cm, minimum height=0.95cm] (psis) {
+          $\boldsymbol{\psi}_S$\\
+          selezione + trasformazioni
+        };
+
+        \node[node_transform, below=0.90cm of stin, text width=2.75cm, minimum height=0.95cm] (psit) {
+          $\boldsymbol{\psi}_T$\\
+          selezione + trasformazioni
+        };
+
+        \node[node_output, below=0.95cm of $(psis)!0.5!(psit)$, text width=5.35cm, minimum height=0.95cm] (shared) {
+          \textbf{Spazio condiviso $\mathcal{X}_{\text{shared}}$}\\
+          $d=16$ feature predittive continue
+        };
+
+        \draw[arrow_source] (nb15) -- (psis);
+        \draw[arrow_target] (stin) -- (psit);
+        \draw[arrow_flow] (psis) -- (shared);
+        \draw[arrow_flow] (psit) -- (shared);
+      \end{tikzpicture}
     \end{column}
-    \begin{column}{0.45\textwidth}
-      \begin{itemize}
-        \item Punto chiave 1
-        \item Punto chiave 2
-        \item Punto chiave 3
+
+    \begin{column}{0.34\textwidth}
+      \begin{block}{Vincoli comuni}
+        \small
         \begin{itemize}
-          \item Dettaglio
+          \item $\rho_{ben/mal}=10:1$
+          \item split $80/20$
+          \item $93\,000$ benigni
+          \item $9\,300$ malevoli
+          \item $102\,300$ record / benchmark aggregato
         \end{itemize}
-      \end{itemize}
+      \end{block}
+
+      \begin{alertblock}{Composizione}
+        \small
+        Nel protocollo il traffico \textbf{benigno} resta NB15; STIN fornisce la componente \textbf{malevola target}.
+      \end{alertblock}
     \end{column}
   \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------ %
+% 6) TRE PARADIGMI
+% ------------------------------------------------------------------ %
+\begin{frame}{Tre Paradigmi di Addestramento}
+  \centering
+  \begin{tikzpicture}[node distance=0.8cm]
+    \node[node_primary, text width=3.3cm, minimum height=3.1cm] (sourceModel) {
+      \textbf{$\mathcal{M}_S$ — Source-only}\\[2mm]
+      Benigno: $100\%\,\mathcal{D}_S$\\[1mm]
+      Malevolo: $100\%\,\mathcal{D}_S$\\[2mm]
+      \textbf{0 campioni target}
+    };
+
+    \node[node_process, right=0.75cm of sourceModel, text width=3.3cm, minimum height=3.1cm] (injModel) {
+      \textbf{$\mathcal{M}_{base}$ — INJECTION}\\[2mm]
+      Benigno: $100\%\,\mathcal{D}_S$\\[1mm]
+      Malevolo: $9\,271$ source\\
+      $+\;29$ target\\[2mm]
+      $\approx 0.31\%$ della classe positiva
+    };
+
+    \node[node_accent, right=0.75cm of injModel, text width=3.3cm, minimum height=3.1cm] (hybridModel) {
+      \textbf{$\mathcal{M}_H$ — Hybrid}\\[2mm]
+      Benigno: $100\%\,\mathcal{D}_S$\\[1mm]
+      Malevolo: $100\%\,\mathcal{D}_T$\\[2mm]
+      \textbf{specializzazione target}
+    };
+  \end{tikzpicture}
+
+  \vspace{0.35cm}
+
+  \begin{columns}[T]
+    \begin{column}{0.32\textwidth}
+      \centering
+      \textbf{Assenza} di conoscenza target
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \centering
+      Conoscenza target \textbf{sparsa}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \centering
+      Conoscenza target \textbf{dominante}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------ %
+% 7) IMPLEMENTAZIONE / PROTOCOLLO
+% ------------------------------------------------------------------ %
+\section{Implementazione e Risultati}
+
+\begin{frame}{Implementazione e Protocollo Sperimentale}
+  \centering
+  \begin{tikzpicture}[node distance=0.55cm]
+    \node[node_database, text width=1.75cm, minimum height=1.05cm] (data) {
+      \textbf{Dataset}\\
+      NB15 / STIN
+    };
+
+    \node[node_transform, right=0.45cm of data, text width=2.05cm, minimum height=1.05cm] (prep) {
+      \textbf{Preprocessing}\\
+      mapping a 16 feature
+    };
+
+    \node[node_output, right=0.45cm of prep, text width=2.05cm, minimum height=1.05cm] (bench) {
+      \textbf{Benchmark}\\
+      5 aggregati + 11 biclasse
+    };
+
+    \node[node_process, right=0.45cm of bench, text width=1.85cm, minimum height=1.05cm] (trainp) {
+      \textbf{Training}\\
+      DT / HGB / RF
+    };
+
+    \node[node_accent, right=0.45cm of trainp, text width=1.85cm, minimum height=1.05cm] (evalp) {
+      \textbf{Evaluation}\\
+      16 test set
+    };
+
+    \draw[arrow_flow] (data) -- (prep);
+    \draw[arrow_flow] (prep) -- (bench);
+    \draw[arrow_param] (bench) -- (trainp);
+    \draw[arrow_target] (trainp) -- (evalp);
+  \end{tikzpicture}
+
+  \vspace{0.45cm}
+
+  \begin{columns}[T]
+    \begin{column}{0.32\textwidth}
+      \begin{block}{Riproducibilità}
+        \centering
+        $K=10$ seed\\[1mm]
+        stesso protocollo e stessi test set
+      \end{block}
+    \end{column}
+
+    \begin{column}{0.32\textwidth}
+      \begin{block}{Valutazione}
+        \centering
+        TPR / TNR / Precision / F1 / AP\\[1mm]
+        PCA / KDE / SHAP
+      \end{block}
+    \end{column}
+
+    \begin{column}{0.32\textwidth}
+      \begin{block}{Analisi statistica}
+        \centering
+        macro-F1 sui 16 benchmark\\[1mm]
+        test $t$ di Welch esplorativo
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------ %
+% 8) RISULTATO PRINCIPALE — SOURCE VS INJECTION
+% ------------------------------------------------------------------ %
+\begin{frame}{Risultato Principale: Effetto della Conoscenza Target Sparsa}
+  \begin{columns}[T]
+    \begin{column}{0.67\textwidth}
+      \centering
+      \textbf{TPR media sui nove benchmark target}
+
+      \vspace{0.25cm}
+      \begin{tikzpicture}[x=6.0cm,y=0.60cm]
+        % Asse e griglia
+        \draw[arrow_flow] (0,0) -- (1.06,0) node[right, font=\scriptsize] {TPR};
+        \foreach \x/\lab in {0/0,0.25/0.25,0.5/0.50,0.75/0.75,1/1.00} {
+          \draw[neutralgrey!20] (\x,0.12) -- (\x,6.35);
+          \node[below, font=\scriptsize] at (\x,0) {\lab};
+        }
+
+        % DT
+        \node[left, font=\small\bfseries] at (0,5.65) {DT};
+        \fill[mainblue!75] (0,5.35) rectangle (0.3234,5.65);
+        \fill[paramgreen!80] (0,4.90) rectangle (0.96612,5.20);
+        \node[right, font=\scriptsize] at (0.3234,5.50) {0.3234};
+        \node[right, font=\scriptsize\bfseries] at (0.96612,5.05) {0.9661};
+
+        % HGB
+        \node[left, font=\small\bfseries] at (0,3.85) {HGB};
+        \fill[mainblue!75] (0,3.55) rectangle (0.0607,3.85);
+        \fill[paramgreen!80] (0,3.10) rectangle (0.82970,3.40);
+        \node[right, font=\scriptsize] at (0.0607,3.70) {0.0607};
+        \node[right, font=\scriptsize\bfseries] at (0.82970,3.25) {0.8297};
+
+        % RF
+        \node[left, font=\small\bfseries] at (0,2.05) {RF};
+        \fill[mainblue!75] (0,1.75) rectangle (0.3035,2.05);
+        \fill[paramgreen!80] (0,1.30) rectangle (0.98821,1.60);
+        \node[right, font=\scriptsize] at (0.3035,1.90) {0.3035};
+        \node[right, font=\scriptsize\bfseries] at (0.98821,1.45) {0.9882};
+
+        % Legenda
+        \fill[mainblue!75] (0.03,0.45) rectangle (0.075,0.68);
+        \node[anchor=west, font=\scriptsize] at (0.085,0.565) {Source-only};
+        \fill[paramgreen!80] (0.36,0.45) rectangle (0.405,0.68);
+        \node[anchor=west, font=\scriptsize] at (0.415,0.565) {INJECTION};
+      \end{tikzpicture}
+    \end{column}
+
+    \begin{column}{0.33\textwidth}
+      \begin{exampleblock}{Solo 29 campioni target}
+        Incremento TPR target:
+        \begin{itemize}
+          \item DT: $+0.6427$
+          \item HGB: $+0.7690$
+          \item RF: $+0.6847$
+        \end{itemize}
+      \end{exampleblock}
+
+      \begin{block}{Prestazioni sorgente}
+        La TPR media sui benchmark NB15 rimane sostanzialmente invariata:
+        \[
+        |\Delta \mathrm{TPR}| \approx 10^{-3}.
+        \]
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------ %
+% 9) RISULTATI GLOBALI — TRADE-OFF
+% ------------------------------------------------------------------ %
+\begin{frame}{Risultati Globali: Generalizzazione vs Specializzazione}
+  \begin{columns}[T]
+    \begin{column}{0.60\textwidth}
+      \centering
+      \textbf{TPR media sull'intera cross-evaluation (16 benchmark)}
+
+      \vspace{0.25cm}
+      \small
+      \renewcommand{\arraystretch}{1.35}
+      \begin{tabular}{lccc}
+        \toprule
+        \textbf{Paradigma} & \textbf{DT} & \textbf{HGB} & \textbf{RF} \\
+        \midrule
+        Source-only & 0.5288 & 0.3694 & 0.5161 \\
+        \textbf{INJECTION} & \textbf{0.8899} & \textbf{0.8025} & \textbf{0.9007} \\
+        Hybrid aggregato & 0.5626 & 0.5525--0.5627 & 0.5626 \\
+        \bottomrule
+      \end{tabular}
+
+      \vspace{0.38cm}
+      \begin{tikzpicture}[node distance=0.35cm]
+        \node[node_primary, text width=2.55cm, minimum height=1.35cm] (s) {
+          \textbf{Source-only}\\
+          buono su NB15\\
+          debole sul target
+        };
+
+        \node[node_process, right=0.35cm of s, text width=2.55cm, minimum height=1.35cm] (i) {
+          \textbf{INJECTION}\\
+          risposta più uniforme\\
+          source + target
+        };
+
+        \node[node_accent, right=0.35cm of i, text width=2.55cm, minimum height=1.35cm] (h) {
+          \textbf{Hybrid}\\
+          TPR target $\approx 1$\\
+          TPR NB15 $\approx 0$
+        };
+      \end{tikzpicture}
+    \end{column}
+
+    \begin{column}{0.40\textwidth}
+      \begin{alertblock}{Specializzazione ibrida}
+        \small
+        TPR target: circa $0.9818$--$0.9999$.\\[1mm]
+        TPR sugli attacchi NB15: quasi nulla.
+      \end{alertblock}
+
+      \begin{exampleblock}{Architetture nella baseline}
+        \small
+        \textbf{RF}: miglior profilo predittivo misurato
+        \[
+        \mathrm{TPR}_{target}=0.98821,
+        \quad
+        \mathrm{F1}=0.890221
+        \]
+        \textbf{HGB}: TNR più elevata, $0.99658$.
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------ %
+% 10) CONCLUSIONI
+% ------------------------------------------------------------------ %
+\section{Conclusioni}
+
+\begin{frame}{Conclusioni}
+  \centering
+  \begin{tikzpicture}[node distance=0.55cm]
+    \node[node_primary, text width=3.25cm, minimum height=2.15cm] (c1) {
+      \textbf{1. Trasferibilità diretta}\\[1mm]
+      Limitata e dipendente dalla distribuzione target.
+    };
+
+    \node[node_process, right=0.65cm of c1, text width=3.25cm, minimum height=2.15cm] (c2) {
+      \textbf{2. Conoscenza target sparsa}\\[1mm]
+      INJECTION è associata a una forte crescita della sensibilità target preservando il sorgente.
+    };
+
+    \node[node_accent, right=0.65cm of c2, text width=3.25cm, minimum height=2.15cm] (c3) {
+      \textbf{3. Specializzazione}\\[1mm]
+      Massimizzare il target non equivale a massimizzare la robustezza cross-domain.
+    };
+  \end{tikzpicture}
+
+  \vspace{0.45cm}
+
+  \begin{block}{Limiti da mantenere espliciti}
+    \centering
+    Benign-domain shift non valutato
+    \quad $\bullet$ \quad
+    target basato su STIN
+    \quad $\bullet$ \quad
+    29 campioni non sono una quantità minima/ottimale
+    \quad $\bullet$ \quad
+    costi di deployment non misurati
+  \end{block}
+
+  \vspace{0.25cm}
+  \Large
+  \textbf{La prestazione intra-domain non è sufficiente per valutare\\
+  la robustezza di un NIDS destinato a scenari eterogenei.}
 \end{frame}
 
 \end{document}
