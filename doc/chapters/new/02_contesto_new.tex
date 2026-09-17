@@ -263,19 +263,20 @@ Tali problematiche costituiscono l'oggetto della trattazione sviluppata nella se
     \begin{tikzpicture}
 
     % SCENARIO A: VALUTAZIONE TRADIZIONALE (INTRA-DOMAIN)
-    \node [node_database] (a_data) {
-        \textbf{Dataset}\\[-5pt]
-        \textbf{Terrestre}
-    };
-    \node [node_process, right=0.8cm of a_data] (a_train) {
+    \node [node_process] at (-2.35, 0) (a_train) {
         \textbf{Addestramento}\\[-5pt]
         \textbf{Classificatore ML}
     };
-    \node [node_primary, right=0.8cm of a_train] (a_test) {
+    \node [node_primary] at (2.35, 0) (a_test) {
         \textbf{Test Terrestre}
     };
-    \node [node_process, right=0.8cm of a_test] (a_res) {
-        \textbf{Elevata Accuratezza}
+    \node [node_database, left=1.5cm of a_train] (a_data) {
+        \textbf{Dataset}\\[-5pt]
+        \textbf{Terrestre}
+    };
+    \node [node_process, right=1.5cm of a_test] (a_res) {
+        \textbf{Elevata}\\[-5pt]
+        \textbf{Accuratezza}
     };
 
     % Connessioni Scenario A
@@ -284,18 +285,18 @@ Tali problematiche costituiscono l'oggetto della trattazione sviluppata nella se
     \draw [arrow_flow, draw=paramgreen] (a_test) -- (a_res);
 
     % SCENARIO B: IMPATTO DEL DOMAIN SHIFT (CROSS-DOMAIN TRANSFERABILITY)
-    \node [node_database, below=2.1cm of a_data] (b_data) {
+    \node [node_database, below=2cm of a_data] (b_data) {
         \textbf{Dataset}\\[-5pt]
         \textbf{Terrestre}
     };
-    \node [node_process, right=0.8cm of b_data] (b_train) {
+    \node [node_process, right=1.5cm of b_data] (b_train) {
         \textbf{Addestramento}\\[-5pt]
         \textbf{Classificatore ML}
     };
-    \node [node_accent, right=1.6cm of b_train] (b_test) {
+    \node [node_accent, right=1.8cm of b_train] (b_test) {
         \textbf{Test Target}
     };
-    \node [node_alert, right=0.8cm of b_test] (b_res) {
+    \node [node_alert, right=0.85cm of b_test] (b_res) {
         \textbf{Marcato Degrado}\\[-5pt]
         \textbf{Prestazionale}
     };
