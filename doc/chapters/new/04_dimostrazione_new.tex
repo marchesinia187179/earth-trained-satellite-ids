@@ -209,8 +209,8 @@ La caratterizzazione del target si articola su due segmenti operativi distinti:
 \end{itemize}
 
 \subsubsection{Segmento Terrestre (\texttt{TER20})}
-Il sottoinsieme \texttt{TER20} utilizzato nella campagna sperimentale comprende $127.244$ osservazioni malevole associate al segmento satellitare del testbed STIN.
-La tassonomia nativa si articola esclusivamente su dieci vettori di attacco volumetrico: \textit{Botnet}, \textit{DDoS}, \textit{Syn\_DDoS}, \textit{UDP\_DDoS}, \textit{Web Attack}, \textit{Backdoor}, \textit{LDAP\_DDoS}, \textit{MSSQL\_DDoS}, \textit{NetBIOS\_DDoS} e \textit{Portmap\_DDoS}.
+Il sottoinsieme \texttt{TER20} utilizzato nella campagna sperimentale comprende $127.244$ osservazioni malevole associate al segmento terrestre del testbed STIN.
+La tassonomia nativa si articola in dieci categorie di attacco: \textit{Botnet}, \textit{DDoS}, \textit{Syn\_DDoS}, \textit{UDP\_DDoS}, \textit{Web Attack}, \textit{Backdoor}, \textit{LDAP\_DDoS}, \textit{MSSQL\_DDoS}, \textit{NetBIOS\_DDoS} e \textit{Portmap\_DDoS}.
 
 In linea con la metodologia di accorpamento delle classi minoritarie (\textit{minority merge}) proposta da Azar et al.~\cite{azar2023}, le categorie con caratteristiche funzionali sovrapponibili e frequenza ridotta sono state raggruppate per preservare un'adeguata rappresentatività campionaria e riflettere la tassonomia delle macro-minacce. 
 Nello specifico:
@@ -2404,12 +2404,12 @@ La composizione complessiva degli stadi implementativi è sintetizzata nella Fig
  
     % --- FASE 1: INGESTIONE E DATASET GREZZI ---
     \node [node_database, above left=1cm and 0cm of align] (unsw) {
-        \textbf{UNSW-NB15} ($\mathcal{D}_S$)\\
+        \textbf{UNSW-NB15} ($\bm{\mathcal{D}_S}$)\\
         \small 257.673 record | 45 col.
     };
  
     \node [node_database, draw=accentorange, fill=lightorange, above right=1cm and 0cm of align] (stin) {
-        \textbf{STIN} ($\mathcal{D}_T$: TER20 / SAT20)\\
+        \textbf{STIN} ($\bm{\mathcal{D}_T}$)\\
         \small 209.564 record | 32 col.
     };
  
@@ -2442,7 +2442,7 @@ La composizione complessiva degli stadi implementativi è sintetizzata nella Fig
  
     \node [node_accent, below=1cm of infer_eval] (infer_stats) {
         \textbf{Validazione e Aggregazione Statistica}\\
-        Calcolo Metriche ($F_1$-Score, ROC-AUC, PR-AUC, Recall)\\
+        Calcolo Metriche ($F_1$-Score, ROC-AUC, AP, Recall)\\
         Test $t$ di Welch per Significatività Statistica vs Baseline
     };
  
