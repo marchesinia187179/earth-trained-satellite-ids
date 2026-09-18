@@ -81,14 +81,10 @@
       }
     \end{column}
 
-    \begin{column}{0.4\textwidth}
-      \begin{block}{Motivazione}
-        \footnotesize Una buona prestazione \textbf{in-domain} non garantisce la stessa efficacia quando cambia la distribuzione dei dati.
+    \begin{column}{0.3\textwidth}
+      \begin{block}{Limite}
+        \footnotesize Le prestazioni \textbf{in-domain} non sono sufficienti per caratterizzare la robustezza di un NIDS in presenza di \textbf{domain shift}.
       \end{block}
-
-      \begin{alertblock}{Problema}
-        \footnotesize Misurare la \textbf{trasferibilità} del NIDS dal sorgente terrestre verso distribuzioni target satellitari.
-      \end{alertblock}
     \end{column}
   \end{columns}
 \end{frame}
@@ -96,48 +92,49 @@
 % ------------------------------------------------------------------ %
 % 3) PROBLEM STATEMENT — RQ
 % ------------------------------------------------------------------ %
-\section{Problema}
+\section{Obiettivo}
 
 \begin{frame}{Problema di Ricerca e Domande Sperimentali}
   \centering
-    \begin{block}{Obiettivo}
-      \centering
-      \footnotesize Valutare la \textbf{robustezza cross-domain} distinguendo assenza di conoscenza target, conoscenza target sparsa e specializzazione sul target.
-    \end{block}
-    
-    \begin{center}
-      \begin{tikzpicture}[x=2.8cm,y=1.2cm]
+  \begin{columns}[T]
+    \begin{column}{0.3\textwidth}
+      \begin{block}{Obiettivo}
+        \footnotesize Valutare la \textbf{generalizzazione cross-domain} di modelli addestrati sul dominio sorgente terrestre verso distribuzioni target terrestre-spaziali.      
+      \end{block}
+    \end{column}
 
-          % Linea tratteggiata "a onda"
+    \begin{column}{0.6\textwidth}
+      \begin{tikzpicture}
           \draw[draw=unimoreMaroon, dashed, thick]
               plot[smooth] coordinates {
                   (0,0)
-                  (1,0)
-                  (2,0)
-                  (3,0)
+                  (0,-1)
+                  (0,-2)
+                  (0,-3)
               };
 
           % Punti rossi
           \fill[unimoreMaroon] (0,0) circle (3pt);
-          \fill[unimoreMaroon] (1,0) circle (3pt);
-          \fill[unimoreMaroon] (2,0) circle (3pt);
-          \fill[unimoreMaroon] (3,0) circle (3pt);
+          \fill[unimoreMaroon] (0,-1) circle (3pt);
+          \fill[unimoreMaroon] (0,-2) circle (3pt);
+          \fill[unimoreMaroon] (0,-3) circle (3pt);
 
           % Etichette
-          \node[align=center, text=unimoreMaroon, anchor=north] at (0,1)
-              {\footnotesize \textbf{RQ1}\\[-2pt]\footnotesize Trasferibilità diretta\\[-2pt]\footnotesize dei modelli};
+          \node[align=left, text=unimoreMaroon, anchor=west] at (0.2,0)
+              {\textbf{RQ1} \footnotesize Trasferibilità diretta e Domain Shift};
 
-          \node[align=center, text=unimoreMaroon, anchor=south] at (1,-1.2)
-              {\footnotesize \textbf{RQ2}\\[-2pt]\footnotesize Introduzione controllata\\[-2pt]\footnotesize del target};
+          \node[align=left, text=unimoreMaroon, anchor=west] at (0.2,-1)
+              {\textbf{RQ2} \footnotesize Adattamento mediante Conoscenza Target Sparsa};
 
-          \node[align=center, text=unimoreMaroon, anchor=north] at (2,-0.2)
-              {\footnotesize \textbf{RQ3}\\[-2pt]\footnotesize Granularità\\[-2pt]\footnotesize dei modelli};
+          \node[align=left, text=unimoreMaroon, anchor=west] at (0.2,-2)
+              {\textbf{RQ3} \footnotesize Granularità, Specializzazione e Generalizzazione};
 
-          \node[align=center, text=unimoreMaroon, anchor=south] at (3,-1.2)
-              {\footnotesize \textbf{RQ4}\\[-2pt]\footnotesize Architettura\\[-2pt]\footnotesize dei modelli};
+          \node[align=left, text=unimoreMaroon, anchor=west] at (0.2,-3)
+              {\textbf{RQ4} \footnotesize Architettura, Stabilità e Struttura Decisionale};
 
       \end{tikzpicture}
-    \end{center}
+    \end{column}
+  \end{columns}
 \end{frame}
 
 % ------------------------------------------------------------------ %
@@ -147,6 +144,7 @@
 
 \begin{frame}{Contributo: Framework di Valutazione Cross-Domain}
   \centering
+  \resizebox{\textwidth}{!}{
   \begin{tikzpicture}[node distance=0.72cm]
     \node[node_primary, text width=3.05cm, minimum height=1.05cm] (repr) {
       \textbf{1. Rappresentazione comune}\\
@@ -179,6 +177,7 @@
   \vspace{0.30cm}
   \small
   Il contributo consiste in un protocollo sistematico per studiare la \textbf{trasferibilità} di NIDS supervisionati tra domini eterogenei.
+  }
 \end{frame}
 
 % ------------------------------------------------------------------ %

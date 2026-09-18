@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025/Debian) (preloaded format=pdflatex 2026.7.20)  17 SEP 2026 17:17
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025/Debian) (preloaded format=pdflatex 2026.7.20)  18 SEP 2026 08:40
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -849,100 +849,101 @@ Package pdftex.def Info: images/Logo_A_Negativo-eps-converted-to.pdf  used on in
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}{/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc} <./images/Logo_A_Negativo-eps-converted-to.pdf>] [2
 
-] [3
+]
+Overfull \hbox (7.672pt too wide) in paragraph at lines 138--138
+[][]  
+ []
+
+[3
 
 ]
-LaTeX Font Info:    Trying to load font information for U+msa on input line 182.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 181.
  (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 182.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 181.
  (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <10> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 182.
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 181.
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <7> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 182.
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 181.
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <5> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 182.
-
-Overfull \vbox (45.35538pt too high) detected at line 182
- []
-
-[4
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 181.
+ [4
 
 ]
 LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <10> not available
-(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 245.
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 244.
 LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <7> not available
-(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 245.
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 244.
 LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <5> not available
-(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 245.
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 244.
 LaTeX Font Info:    Font shape `T1/phv/b/it' in size <10> not available
-(Font)              Font shape `T1/phv/b/sl' tried instead on input line 245.
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 244.
 LaTeX Font Info:    Font shape `T1/phv/b/it' in size <7> not available
-(Font)              Font shape `T1/phv/b/sl' tried instead on input line 245.
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 244.
 LaTeX Font Info:    Font shape `T1/phv/b/it' in size <5> not available
-(Font)              Font shape `T1/phv/b/sl' tried instead on input line 245.
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 244.
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <10.95> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 245.
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 244.
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <8> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 245.
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 244.
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <6> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 245.
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 244.
 
-Overfull \vbox (60.48344pt too high) detected at line 245
+Overfull \vbox (60.48344pt too high) detected at line 244
  []
 
 [5
 
 ]
-Overfull \vbox (11.77347pt too high) detected at line 292
+Overfull \vbox (11.77347pt too high) detected at line 291
  []
 
 [6
 
 ]
-Overfull \hbox (10.94104pt too wide) in paragraph at lines 360--360
+Overfull \hbox (10.94104pt too wide) in paragraph at lines 359--359
  [][]\T1/phv/b/n/10 Preprocessing 
  []
 
 
-Overfull \vbox (9.02873pt too high) detected at line 360
+Overfull \vbox (9.02873pt too high) detected at line 359
  []
 
 [7
 
 ]
-Overfull \vbox (76.21472pt too high) detected at line 427
+Overfull \vbox (76.21472pt too high) detected at line 426
  []
 
 [8
 
 {/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-t1.enc}]
-Overfull \hbox (17.03627pt too wide) in paragraph at lines 492--492
+Overfull \hbox (17.03627pt too wide) in paragraph at lines 491--491
  [][] 
  []
 
 
-Overfull \hbox (40.39003pt too wide) in paragraph at lines 492--492
+Overfull \hbox (40.39003pt too wide) in paragraph at lines 491--491
  [][] 
  []
 
 
-Overfull \hbox (13.82614pt too wide) detected at line 492
+Overfull \hbox (13.82614pt too wide) detected at line 491
 [][] \OT1/cmss/m/n/10 = \T1/phv/m/n/10 0\OML/cmm/m/it/10 :\T1/phv/m/n/10 98821\OML/cmm/m/it/10 ;  [] \OT1/cmss/m/n/10 = \T1/phv/m/n/10 0\OML/cmm/m/it/10 :\T1/phv/m/n/10 890221
  []
 
 
-Overfull \vbox (57.82047pt too high) detected at line 492
+Overfull \vbox (57.82047pt too high) detected at line 491
  []
 
 [9
 
 ]
-Overfull \vbox (92.84523pt too high) detected at line 535
+Overfull \vbox (92.84523pt too high) detected at line 534
  []
 
 [10
@@ -963,18 +964,18 @@ LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
 Package rerunfilecheck Info: File `main.out' has not changed.
-(rerunfilecheck)             Checksum: DE1496B74D07975AA5147D1E3397B08E;617.
+(rerunfilecheck)             Checksum: 8AC82449089A75CC1277E6E587C792BD;622.
  ) 
 Here is how much of TeX's memory you used:
- 27815 strings out of 467533
- 551001 string characters out of 5422138
- 961529 words of memory out of 5000000
- 56119 multiletter control sequences out of 15000+600000
+ 27814 strings out of 467533
+ 550958 string characters out of 5422138
+ 961537 words of memory out of 5000000
+ 56118 multiletter control sequences out of 15000+600000
  716618 words of font info for 135 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  128i,14n,123p,502b,1201s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1000.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1095.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvro8a.pfb>
-Output written on main.pdf (10 pages, 162209 bytes).
+Output written on main.pdf (10 pages, 162008 bytes).
 PDF statistics:
  200 PDF objects out of 1000 (max. 8388607)
  131 compressed objects within 2 object streams
