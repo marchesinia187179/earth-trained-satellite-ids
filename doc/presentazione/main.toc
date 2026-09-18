@@ -4,5 +4,6 @@
 \beamer@sectionintoc {2}{Problem Statement}{3}{0}{2}
 \beamer@sectionintoc {3}{Contributi}{4}{0}{3}
 \beamer@sectionintoc {4}{Metodologia}{5}{0}{4}
-\beamer@sectionintoc {5}{Implementazione e Risultati}{7}{0}{5}
-\beamer@sectionintoc {6}{Conclusioni}{10}{0}{6}
+\beamer@sectionintoc {5}{Risultato Principale}{7}{0}{5}
+\beamer@sectionintoc {6}{Risultati Globali}{8}{0}{6}
+\beamer@sectionintoc {7}{Conclusioni}{9}{0}{7}

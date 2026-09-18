@@ -400,146 +400,120 @@
 \end{frame}
 
 % ------------------------------------------------------------------ %
-% 7) IMPLEMENTAZIONE / PROTOCOLLO
+% 7) RISULTATO PRINCIPALE — SOURCE VS INJECTION
 % ------------------------------------------------------------------ %
-\section{Implementazione e Risultati}
+\section{Risultato Principale}
 
-\begin{frame}{Implementazione e Protocollo Sperimentale}
-  \centering
-  \begin{tikzpicture}[node distance=0.55cm]
-    \node[node_database, text width=1.75cm, minimum height=1.05cm] (data) {
-      \textbf{Dataset}\\
-      NB15 / STIN
-    };
-
-    \node[node_transform, right=0.45cm of data, text width=2.05cm, minimum height=1.05cm] (prep) {
-      \textbf{Preprocessing}\\
-      mapping a 16 feature
-    };
-
-    \node[node_output, right=0.45cm of prep, text width=2.05cm, minimum height=1.05cm] (bench) {
-      \textbf{Benchmark}\\
-      5 aggregati + 11 biclasse
-    };
-
-    \node[node_process, right=0.45cm of bench, text width=1.85cm, minimum height=1.05cm] (trainp) {
-      \textbf{Training}\\
-      DT / HGB / RF
-    };
-
-    \node[node_accent, right=0.45cm of trainp, text width=1.85cm, minimum height=1.05cm] (evalp) {
-      \textbf{Evaluation}\\
-      16 test set
-    };
-
-    \draw[arrow_flow] (data) -- (prep);
-    \draw[arrow_flow] (prep) -- (bench);
-    \draw[arrow_param] (bench) -- (trainp);
-    \draw[arrow_target] (trainp) -- (evalp);
-  \end{tikzpicture}
-
-  \vspace{0.45cm}
-
+\begin{frame}{Effetto della Conoscenza Target Sparsa}
   \begin{columns}[T]
-    \begin{column}{0.32\textwidth}
-      \begin{block}{Riproducibilità}
-        \centering
-        $K=10$ seed\\[1mm]
-        stesso protocollo e stessi test set
-      \end{block}
-    \end{column}
-
-    \begin{column}{0.32\textwidth}
-      \begin{block}{Valutazione}
-        \centering
-        TPR / TNR / Precision / F1 / AP\\[1mm]
-        PCA / KDE / SHAP
-      \end{block}
-    \end{column}
-
-    \begin{column}{0.32\textwidth}
-      \begin{block}{Analisi statistica}
-        \centering
-        macro-F1 sui 16 benchmark\\[1mm]
-        test $t$ di Welch esplorativo
-      \end{block}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-% ------------------------------------------------------------------ %
-% 8) RISULTATO PRINCIPALE — SOURCE VS INJECTION
-% ------------------------------------------------------------------ %
-\begin{frame}{Risultato Principale: Effetto della Conoscenza Target Sparsa}
-  \begin{columns}[T]
-    \begin{column}{0.67\textwidth}
+    \begin{column}{0.5\textwidth}
       \centering
-      \textbf{TPR media sui nove benchmark target}
+      \small \textbf{TPR media sui benchmark Source-only}
 
-      \vspace{0.25cm}
-      \begin{tikzpicture}[x=6.0cm,y=0.60cm]
-        % Asse e griglia
-        \draw[arrow_flow] (0,0) -- (1.06,0) node[right, font=\scriptsize] {TPR};
-        \foreach \x/\lab in {0/0,0.25/0.25,0.5/0.50,0.75/0.75,1/1.00} {
-          \draw[neutralgrey!20] (\x,0.12) -- (\x,6.35);
-          \node[below, font=\scriptsize] at (\x,0) {\lab};
-        }
+      \vspace{0.2cm}
 
-        % DT
-        \node[left, font=\small\bfseries] at (0,5.65) {DT};
-        \fill[mainblue!75] (0,5.35) rectangle (0.3234,5.65);
-        \fill[paramgreen!80] (0,4.90) rectangle (0.96612,5.20);
-        \node[right, font=\scriptsize] at (0.3234,5.50) {0.3234};
-        \node[right, font=\scriptsize\bfseries] at (0.96612,5.05) {0.9661};
+      \resizebox{!}{3.5cm}{
+        \begin{tikzpicture}[x=6.0cm,y=0.60cm]
+          % Asse e griglia
+          \draw[arrow_flow] (0,0) -- (1.06,0) node[right, font=\scriptsize] {TPR};
+          \foreach \x/\lab in {0/0,0.25/0.25,0.5/0.50,0.75/0.75,1/1.00} {
+            \draw[neutralgrey!20] (\x,0.12) -- (\x,6.35);
+            \node[below, font=\scriptsize] at (\x,0) {\lab};
+          }
 
-        % HGB
-        \node[left, font=\small\bfseries] at (0,3.85) {HGB};
-        \fill[mainblue!75] (0,3.55) rectangle (0.0607,3.85);
-        \fill[paramgreen!80] (0,3.10) rectangle (0.82970,3.40);
-        \node[right, font=\scriptsize] at (0.0607,3.70) {0.0607};
-        \node[right, font=\scriptsize\bfseries] at (0.82970,3.25) {0.8297};
+          % DT
+          \node[left, font=\small\bfseries] at (0,5.65) {DT};
+          \fill[mainblue!75] (0,5.35) rectangle (0.394,5.65);
+          \fill[paramgreen!80] (0,4.90) rectangle (0.890,5.20);
+          \node[right, font=\scriptsize] at (0.394,5.50) {0.394};
+          \node[right, font=\scriptsize\bfseries] at (0.890,5.05) {0.890};
 
-        % RF
-        \node[left, font=\small\bfseries] at (0,2.05) {RF};
-        \fill[mainblue!75] (0,1.75) rectangle (0.3035,2.05);
-        \fill[paramgreen!80] (0,1.30) rectangle (0.98821,1.60);
-        \node[right, font=\scriptsize] at (0.3035,1.90) {0.3035};
-        \node[right, font=\scriptsize\bfseries] at (0.98821,1.45) {0.9882};
+          % HGB
+          \node[left, font=\small\bfseries] at (0,3.85) {HGB};
+          \fill[mainblue!75] (0,3.55) rectangle (0.291,3.85);
+          \fill[paramgreen!80] (0,3.10) rectangle (0.802,3.40);
+          \node[right, font=\scriptsize] at (0.291,3.70) {0.291};
+          \node[right, font=\scriptsize\bfseries] at (0.802,3.25) {0.802};
 
-        % Legenda
-        \fill[mainblue!75] (0.03,0.45) rectangle (0.075,0.68);
-        \node[anchor=west, font=\scriptsize] at (0.085,0.565) {Source-only};
-        \fill[paramgreen!80] (0.36,0.45) rectangle (0.405,0.68);
-        \node[anchor=west, font=\scriptsize] at (0.415,0.565) {INJECTION};
-      \end{tikzpicture}
+          % RF
+          \node[left, font=\small\bfseries] at (0,2.05) {RF};
+          \fill[mainblue!75] (0,1.75) rectangle (0.373,2.05);
+          \fill[paramgreen!80] (0,1.30) rectangle (0.901,1.60);
+          \node[right, font=\scriptsize] at (0.373,1.90) {0.373};
+          \node[right, font=\scriptsize\bfseries] at (0.901,1.45) {0.901};
+
+          % Legenda
+          \fill[mainblue!75] (0.03,0.45) rectangle (0.075,0.68);
+          \node[anchor=west, font=\scriptsize] at (0.085,0.565) {Source-only};
+          \fill[paramgreen!80] (0.38,0.45) rectangle (0.425,0.68);
+          \node[anchor=west, font=\scriptsize] at (0.435,0.565) {INJECTION};
+        \end{tikzpicture}
+      }
+
+      \vspace{0.2cm}
+
+      \footnotesize DT: $+0.496$ \;\; HGB: $+0.511$ \;\; RF: $+0.528$
     \end{column}
 
-    \begin{column}{0.33\textwidth}
-      \begin{exampleblock}{Solo 29 campioni target}
-        Incremento TPR target:
-        \begin{itemize}
-          \item DT: $+0.6427$
-          \item HGB: $+0.7690$
-          \item RF: $+0.6847$
-        \end{itemize}
-      \end{exampleblock}
+    \begin{column}{0.6\textwidth}
+      \centering
+      \small \textbf{TPR media sui benchmark Hybrid}
 
-      \begin{block}{Prestazioni sorgente}
-        La TPR media sui benchmark NB15 rimane sostanzialmente invariata:
-        \[
-        |\Delta \mathrm{TPR}| \approx 10^{-3}.
-        \]
-      \end{block}
+      \vspace{0.2cm}
+
+      \resizebox{!}{3.5cm}{
+        \begin{tikzpicture}[x=6.0cm,y=0.60cm]
+          % Asse e griglia
+          \draw[arrow_flow] (0,0) -- (1.06,0) node[right, font=\scriptsize] {TPR};
+          \foreach \x/\lab in {0/0,0.25/0.25,0.5/0.50,0.75/0.75,1/1.00} {
+            \draw[neutralgrey!20] (\x,0.12) -- (\x,6.35);
+            \node[below, font=\scriptsize] at (\x,0) {\lab};
+          }
+
+          % DT
+          \node[left, font=\small\bfseries] at (0,5.65) {DT};
+          \fill[mainblue!75] (0,5.35) rectangle (0.510,5.65);
+          \fill[paramgreen!80] (0,4.90) rectangle (0.890,5.20);
+          \node[right, font=\scriptsize] at (0.510,5.50) {0.510};
+          \node[right, font=\scriptsize\bfseries] at (0.890,5.05) {0.890};
+
+          % HGB
+          \node[left, font=\small\bfseries] at (0,3.85) {HGB};
+          \fill[mainblue!75] (0,3.55) rectangle (0.389,3.85);
+          \fill[paramgreen!80] (0,3.10) rectangle (0.802,3.40);
+          \node[right, font=\scriptsize] at (0.389,3.70) {0.389};
+          \node[right, font=\scriptsize\bfseries] at (0.802,3.25) {0.802};
+
+          % RF
+          \node[left, font=\small\bfseries] at (0,2.05) {RF};
+          \fill[mainblue!75] (0,1.75) rectangle (0.461,2.05);
+          \fill[paramgreen!80] (0,1.30) rectangle (0.901,1.60);
+          \node[right, font=\scriptsize] at (0.461,1.90) {0.461};
+          \node[right, font=\scriptsize\bfseries] at (0.901,1.45) {0.901};
+
+          % Legenda
+          \fill[mainblue!75] (0.03,0.45) rectangle (0.075,0.68);
+          \node[anchor=west, font=\scriptsize] at (0.085,0.565) {Hybrid};
+          \fill[paramgreen!80] (0.38,0.45) rectangle (0.425,0.68);
+          \node[anchor=west, font=\scriptsize] at (0.435,0.565) {INJECTION};
+        \end{tikzpicture}
+      }
+
+      \vspace{0.2cm}
+
+      \footnotesize DT: $+0.380$ \;\; HGB: $+0.413$ \;\; RF: $+0.440$
     \end{column}
   \end{columns}
 \end{frame}
 
 % ------------------------------------------------------------------ %
-% 9) RISULTATI GLOBALI — TRADE-OFF
+% 8) RISULTATI GLOBALI — TRADE-OFF
 % ------------------------------------------------------------------ %
-\begin{frame}{Risultati Globali: Generalizzazione vs Specializzazione}
+\section{Risultati Globali}
+
+\begin{frame}{Generalizzazione vs Specializzazione}
   \begin{columns}[T]
-    \begin{column}{0.60\textwidth}
+    \begin{column}{0.6\textwidth}
       \centering
       \textbf{TPR media sull'intera cross-evaluation (16 benchmark)}
 
@@ -578,7 +552,7 @@
       \end{tikzpicture}
     \end{column}
 
-    \begin{column}{0.40\textwidth}
+    \begin{column}{0.4\textwidth}
       \begin{alertblock}{Specializzazione ibrida}
         \small
         TPR target: circa $0.9818$--$0.9999$.\\[1mm]
