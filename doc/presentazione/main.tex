@@ -12,6 +12,7 @@
 \usepackage{amsmath}
 \usepackage{booktabs}
 \usepackage{array}
+\usepackage{bm}
 
 % -------------------------------------------------------------------------
 % Stili TikZ centralizzati
@@ -21,7 +22,7 @@
 \input{../tikz_styles.tex}
 
 % Testo mostrato nel piè di pagina di ogni slide
-\unimorefootertext{LT L8 - A.A. 2025/2026}
+\unimorefootertext{LT L-08 - A.A. 2025/2026}
 
 \title{\small Analisi della Trasferibilità di Network Intrusion Detection Systems basati su Machine Learning al Dominio Satellitare}
 \author{Alessandro Marchesini}
@@ -34,7 +35,7 @@
 \UnimoreTitlePage
   {Analisi della Trasferibilità di NIDS basati\\su Machine Learning al Dominio Satellitare}
   {Prof. Mirco Marchetti}
-  {Dott. Dimitri Galli}
+  {Ing. Dimitri Galli}
   {Alessandro Marchesini\\Matricola 187179}
   {Discussione della Prova Finale -- A.A. 2025/2026}
   {Dipartimento di Ingegneria ``Enzo Ferrari''}
@@ -42,7 +43,7 @@
 % ------------------------------------------------------------------ %
 % 2) INTRODUZIONE — CONTESTO
 % ------------------------------------------------------------------ %
-\section{Contesto}
+\section{Introduzione}
 
 \begin{frame}{NIDS tra Dominio Terrestre e Satellitare}
   \begin{columns}[T]
@@ -70,7 +71,7 @@
           \draw[arrow_target] (nids) -- node[left, font=\scriptsize] {inference} (space);
 
           \node[node_alert, right=1cm of nids] (shift) {
-            \textbf{Domain shift}\\
+            \textbf{Domain Shift}\\
             distribuzioni di\\
             traffico differenti
           };
@@ -92,7 +93,7 @@
 % ------------------------------------------------------------------ %
 % 3) PROBLEM STATEMENT — RQ
 % ------------------------------------------------------------------ %
-\section{Obiettivo}
+\section{Problem Statement}
 
 \begin{frame}{Problema di Ricerca e Domande Sperimentali}
   \centering
@@ -140,105 +141,126 @@
 % ------------------------------------------------------------------ %
 % 4) CONTRIBUTI / FRAMEWORK
 % ------------------------------------------------------------------ %
-\section{Contributi e Metodologia}
+\section{Contributi}
 
-\begin{frame}{Contributo: Framework di Valutazione Cross-Domain}
+\begin{frame}{Framework di Valutazione Cross-Domain}
   \centering
-  \resizebox{\textwidth}{!}{
-  \begin{tikzpicture}[node distance=0.72cm]
-    \node[node_primary, text width=3.05cm, minimum height=1.05cm] (repr) {
-      \textbf{1. Rappresentazione comune}\\
-      allineamento semantico e dimensionale
-    };
+  \resizebox{!}{3cm}{
+    \begin{tikzpicture}
+      \node[node_output] (analysis) {
+        \textbf{Diagnostica e interpretazione}\\
+        PCA / KDE \;\; SHAP \;\; TPR--TNR--F1--AP \;\; test $t$ di Welch
+      };
 
-    \node[node_process, right=0.70cm of repr, text width=3.05cm, minimum height=1.05cm] (train) {
-      \textbf{2. Training controllato}\\
-      Source-only / INJECTION / Hybrid
-    };
+      \node[node_process, above=1cm of analysis, xshift=0.6cm] (train) {
+        \textbf{Training}\\
+        \textbf{Controllato}
+      };
 
-    \node[node_accent, right=0.70cm of train, text width=3.05cm, minimum height=1.05cm] (eval) {
-      \textbf{3. Cross-evaluation}\\
-      stesso panel di benchmark
-    };
+      \node[node_primary, left=0.7cm of train] (repr) {
+        \textbf{Rappresentazione}\\
+        \textbf{Comune}
+      };
 
-    \draw[arrow_flow] (repr) -- (train);
-    \draw[arrow_flow] (train) -- (eval);
+      \node[node_accent, right=0.7cm of train] (eval) {
+        \textbf{Cross}\\
+        \textbf{Evaluation}
+      };
 
-    \node[node_output, below=1.05cm of train, text width=9.8cm, minimum height=1.35cm] (analysis) {
-      \textbf{Diagnostica e interpretazione}\\[1mm]
-      PCA / KDE \qquad $\vert$ \qquad SHAP \qquad $\vert$ \qquad TPR--TNR--F1--AP \qquad $\vert$ \qquad test $t$ di Welch
-    };
+      \draw[arrow_flow] (repr) -- (train);
+      \draw[arrow_flow] (train) -- (eval);
 
-    \draw[arrow_flow] (repr.south) -- ($(analysis.north)+(-3.1,0)$);
-    \draw[arrow_param] (train.south) -- (analysis.north);
-    \draw[arrow_flow] (eval.south) -- ($(analysis.north)+(3.1,0)$);
-  \end{tikzpicture}
+      
+
+      \draw[arrow_flow] (repr.south) -- ($(analysis.north) + (-3,0)$);
+      \draw[arrow_param] (train.south) -- ($(analysis.north) + (0.6,0)$);
+      \draw[arrow_flow] (eval.south) -- ($(analysis.north) + (3.56,0)$);
+    \end{tikzpicture}
+  }
 
   \vspace{0.30cm}
-  \small
-  Il contributo consiste in un protocollo sistematico per studiare la \textbf{trasferibilità} di NIDS supervisionati tra domini eterogenei.
-  }
+
+  \footnotesize Il contributo consiste in un \textbf{protocollo sistematico per studiare la trasferibilità} di NIDS supervisionati tra domini eterogenei.
 \end{frame}
 
 % ------------------------------------------------------------------ %
 % 5) DATASET E MAPPING
 % ------------------------------------------------------------------ %
-\begin{frame}{Dataset e Allineamento nello Spazio Condiviso}
+\section{Metodologia}
+
+\begin{frame}{Preprocessing \& Datasets}
   \begin{columns}[T]
-    \begin{column}{0.66\textwidth}
+    \begin{column}{0.5\textwidth}
       \centering
-      \begin{tikzpicture}[node distance=0.85cm]
-        \node[node_primary, text width=2.75cm, minimum height=1.20cm] (nb15) {
-          \textbf{UNSW-NB15}\\
-          $257\,673$ record\\
-          $42$ feature predittive grezze
-        };
+      \resizebox{!}{4.5cm}{
+        \begin{tikzpicture}
+          \node [node_transform] (align) {
+              \textbf{Operatore di Mappatura e Pulizia}
+          };
+      
+          % --- FASE 1: INGESTIONE E DATASET GREZZI ---
+          \node [node_database, above=1cm of align, xshift=-2cm, minimum width=3.2cm, minimum height=2cm] (unsw) {
+              \textbf{UNSW-NB15}\\
+              \footnotesize $\mathcal{D}_S$
+          };
+      
+          \node [node_database, draw=accentorange, fill=lightorange, above=1cm of align, xshift=2cm, minimum width=3.2cm, minimum height=2cm] (stin) {
+              \textbf{STIN}\\
+              \footnotesize $\mathcal{D}_{T \in \{TER20-SAT20\}}$
+          };
+      
+          \node [node_transform, below=1cm of align] (sampling) {
+              \textbf{Campionamento Stratificato e Partizionamento}\\
+              $ben/mal = 10 \; (10:1)$ \;\; $tr/te = 80/20$\\
+              5 Benchmark Aggregati + 11 Benchmark Biclasse
+          };
 
-        \node[node_accent, right=0.80cm of nb15, text width=2.75cm, minimum height=1.20cm] (stin) {
-          \textbf{STIN}\\
-          TER20 + SAT20\\
-          $209\,564$ record\\
-          $30$ feature predittive grezze
-        };
-
-        \node[node_transform, below=0.90cm of nb15, text width=2.75cm, minimum height=0.95cm] (psis) {
-          $\boldsymbol{\psi}_S$\\
-          selezione + trasformazioni
-        };
-
-        \node[node_transform, below=0.90cm of stin, text width=2.75cm, minimum height=0.95cm] (psit) {
-          $\boldsymbol{\psi}_T$\\
-          selezione + trasformazioni
-        };
-
-        \node[node_output, below=0.95cm of $(psis)!0.5!(psit)$, text width=5.35cm, minimum height=0.95cm] (shared) {
-          \textbf{Spazio condiviso $\mathcal{X}_{\text{shared}}$}\\
-          $d=16$ feature predittive continue
-        };
-
-        \draw[arrow_source] (nb15) -- (psis);
-        \draw[arrow_target] (stin) -- (psit);
-        \draw[arrow_flow] (psis) -- (shared);
-        \draw[arrow_flow] (psit) -- (shared);
-      \end{tikzpicture}
+          \draw [arrow_source] (unsw.south) -- (align.north);
+          \draw [arrow_target] (stin.south) -- (align.north);
+          \draw [arrow_flow] (align) -- (sampling);
+        \end{tikzpicture}
+      }
     \end{column}
 
-    \begin{column}{0.34\textwidth}
-      \begin{block}{Vincoli comuni}
-        \small
-        \begin{itemize}
-          \item $\rho_{ben/mal}=10:1$
-          \item split $80/20$
-          \item $93\,000$ benigni
-          \item $9\,300$ malevoli
-          \item $102\,300$ record / benchmark aggregato
-        \end{itemize}
-      \end{block}
+    \begin{column}{0.5\textwidth}
+      \centering
+      \resizebox{!}{4.5cm}{
+        \begin{tikzpicture}
+          \node[node_primary, minimum width=5cm] (sourceModel) {
+            \textbf{Source-only}\\
+            \\
+            Ben: $100\%\mathcal{D}_S$\\
+            Mal: $100\%\mathcal{D}_S$
+          };
 
-      \begin{alertblock}{Composizione}
-        \small
-        Nel protocollo il traffico \textbf{benigno} resta NB15; STIN fornisce la componente \textbf{malevola target}.
-      \end{alertblock}
+          \node[node_process, below=0.3cm of sourceModel, minimum width=5cm] (injModel) {
+            \textbf{INJECTION}\\
+            \\
+            Ben: $100\%\mathcal{D}_S$\\
+            Mal: $\approx 99.7\%\mathcal{D}_S + 0.3\%\mathcal{D}_T$
+          };
+
+          \node[node_accent, below=0.3cm of injModel, minimum width=5cm] (hybridModel) {
+            \textbf{Hybrid}\\
+            \\
+            Ben: $100\%\mathcal{D}_S$\\
+            Mal: $100\%\mathcal{D}_T$
+          };
+
+          \node [right, font=\footnotesize, text=neutralgrey, align=left] at (sourceModel.east) {
+            Conoscenza target\\
+            \textbf{assente}
+          };
+          \node [right, font=\footnotesize, text=paramgreen, align=left] at (injModel.east) {
+            Conoscenza target\\
+            \textbf{sparsa}
+          };
+          \node [right, font=\footnotesize, text=accentorange, align=left] at (hybridModel.east) {
+            Conoscenza target\\
+            \textbf{dominante}
+          };
+        \end{tikzpicture}
+      }
     \end{column}
   \end{columns}
 \end{frame}
@@ -246,46 +268,133 @@
 % ------------------------------------------------------------------ %
 % 6) TRE PARADIGMI
 % ------------------------------------------------------------------ %
-\begin{frame}{Tre Paradigmi di Addestramento}
-  \centering
-  \begin{tikzpicture}[node distance=0.8cm]
-    \node[node_primary, text width=3.3cm, minimum height=3.1cm] (sourceModel) {
-      \textbf{$\mathcal{M}_S$ — Source-only}\\[2mm]
-      Benigno: $100\%\,\mathcal{D}_S$\\[1mm]
-      Malevolo: $100\%\,\mathcal{D}_S$\\[2mm]
-      \textbf{0 campioni target}
-    };
-
-    \node[node_process, right=0.75cm of sourceModel, text width=3.3cm, minimum height=3.1cm] (injModel) {
-      \textbf{$\mathcal{M}_{base}$ — INJECTION}\\[2mm]
-      Benigno: $100\%\,\mathcal{D}_S$\\[1mm]
-      Malevolo: $9\,271$ source\\
-      $+\;29$ target\\[2mm]
-      $\approx 0.31\%$ della classe positiva
-    };
-
-    \node[node_accent, right=0.75cm of injModel, text width=3.3cm, minimum height=3.1cm] (hybridModel) {
-      \textbf{$\mathcal{M}_H$ — Hybrid}\\[2mm]
-      Benigno: $100\%\,\mathcal{D}_S$\\[1mm]
-      Malevolo: $100\%\,\mathcal{D}_T$\\[2mm]
-      \textbf{specializzazione target}
-    };
-  \end{tikzpicture}
-
-  \vspace{0.35cm}
-
-  \begin{columns}[T]
-    \begin{column}{0.32\textwidth}
+\begin{frame}{Models \& Validation}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
       \centering
-      \textbf{Assenza} di conoscenza target
+      \resizebox{\textwidth}{!}{
+        \begin{tikzpicture}[taxonomy_dot/.style={circle, fill=unimoreMaroon, inner sep=2.8pt}]
+            % ---------------------------------------------------------------------
+            % NODI
+            % ---------------------------------------------------------------------
+            \node[taxonomy_dot, label={[anchor=west]right:\textbf{TREE-BASED METHODS}}] (tree) at (0,0) {};
+
+            \node[taxonomy_dot, label={[anchor=west]right:\textbf{SINGLE TREE}}] (single) at (-2.8,-2.8) {};
+            \node[taxonomy_dot, label={[anchor=west]right:\textbf{ENSEMBLE}}] (ensemble) at (2.8,-2.8) {};
+
+            \node[taxonomy_dot, label={[anchor=west]right:\textbf{BAGGING}}] (bagging) at (1.4,-4.4) {};
+            \node[taxonomy_dot, label={[anchor=west]right:\textbf{BOOSTING}}] (boosting) at (4.2,-4.4) {};
+
+            \node[taxonomy_dot, label={[anchor=west]right:\textbf{DT}}] (dt) at (-2.8,-6.0) {};
+            \node[taxonomy_dot, label={[anchor=west]right:\textbf{RF}}] (rf) at (1.4,-6.0) {};
+            \node[taxonomy_dot, label={[anchor=west]right:\textbf{HGB}}] (hgb) at (4.2,-6.0) {};
+
+            % ---------------------------------------------------------------------
+            % CONNETTORI
+            % ---------------------------------------------------------------------
+            % TREE-BASED METHODS -> SINGLE TREE / ENSEMBLE
+            \draw[thick] (tree) -- (0,-2.0);
+            \draw[thick] (-2.8,-2.0) -- (2.8,-2.0);
+            \draw[thick] (-2.8,-2.0) -- (single);
+            \draw[thick] (2.8,-2.0) -- (ensemble);
+
+            % SINGLE TREE -> DT
+            \draw[thick] (single) -- (dt);
+
+            % ENSEMBLE -> BAGGING / BOOSTING
+            \draw[thick] (ensemble) -- (2.8,-3.6);
+            \draw[thick] (1.4,-3.6) -- (4.2,-3.6);
+            \draw[thick] (1.4,-3.6) -- (bagging);
+            \draw[thick] (4.2,-3.6) -- (boosting);
+
+            % BAGGING -> RF
+            \draw[thick] (bagging) -- (rf);
+
+            % BOOSTING -> HGB
+            \draw[thick] (boosting) -- (hgb);
+        \end{tikzpicture}
+      }
     \end{column}
-    \begin{column}{0.32\textwidth}
+
+    \begin{column}{0.5\textwidth}
       \centering
-      Conoscenza target \textbf{sparsa}
-    \end{column}
-    \begin{column}{0.32\textwidth}
-      \centering
-      Conoscenza target \textbf{dominante}
+      \resizebox{!}{5.5cm}{
+        \begin{tikzpicture}[]
+
+            % Livello 1: Dati Iniziali
+            \node [node_primary] (data) {Traffico Preprocessato};
+
+            % Livello 3: Nodi Multi-seed e Addestramenti Paralleli
+            \node [node_accent, below=0.7cm of data] (seed2) {
+                Seed\\
+                Stocastico $s_2$
+            };
+            \node [node_accent, left=1cm of seed2] (seed1) {
+                Seed\\
+                Stocastico $s_1$
+            };
+            \node [right=0.15cm of seed2] (dots1) {\dots};
+            \node [node_accent, right=1cm of seed2] (seedK) {
+                Seed\\
+                Stocastico $s_K$
+            };
+
+            \node [node_process, below=0.7cm of seed1] (train1) {
+                Addestramento\\
+                Modello $M$
+            };
+            \node [node_process, below=0.7cm of seed2] (train2) {
+                Addestramento\\
+                Modello $M$
+            };
+            \node [right=0cm of train2] (dots2) {\dots};
+            \node [node_process, below=0.7cm of seedK] (trainK) {
+                Addestramento\\
+                Modello $M$
+            };
+
+            % Frecce dal blocco Benchmark ai percorsi paralleli
+            \draw [arrow_flow] ($(data.south) + (0, -0.35)$) -| (seed1);
+            \draw [arrow_flow] (data.south) -- (seed2);
+            \draw [arrow_flow] ($(data.south) + (0, -0.35)$) -| (seedK);
+
+            \draw [arrow_flow] (seed1) -- (train1);
+            \draw [arrow_flow] (seed2) -- (train2);
+            \draw [arrow_flow] (seedK) -- (trainK);
+
+            % Livello 4: Valutazione
+            \node [node_output, below=0.7cm of train1] (eval1) {
+                Matrice $H_1$
+            };
+            \node [node_output, below=0.7cm of train2] (eval2) {
+                Matrice $H_2$
+            };
+            \node [right=0.3cm of eval2] (dots3) {\dots};            
+            \node [node_output, below=0.7cm of trainK] (evalK) {
+                Matrice $H_K$
+            };
+
+            \draw [arrow_flow] (train1) -- (eval1);
+            \draw [arrow_flow] (train2) -- (eval2);
+            \draw [arrow_flow] (trainK) -- (evalK);
+
+            % Livello 5: Aggregazione Statistica
+            \node [node_process, below=0.7cm of eval2] (agg) {
+                Calcolo Stime Campionarie
+            };
+            
+            \draw [arrow_flow] (eval1.south) |- ++(0, -0.35) -| (agg.north);
+            \draw [arrow_flow] (eval2) -- (agg);
+            \draw [arrow_flow] (evalK.south) |- ++(0,-0.35) -| (agg.north);
+
+            % Livello 6: Test
+            \node [node_output, below=0.7cm of agg] (welch) {
+                Test $t$ di Welch ($p$-value)
+            };
+            
+            \draw [arrow_flow] (agg) -- (welch);
+        \end{tikzpicture}
+      }
     \end{column}
   \end{columns}
 \end{frame}
