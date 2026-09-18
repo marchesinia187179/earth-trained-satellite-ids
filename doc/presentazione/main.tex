@@ -122,16 +122,16 @@
 
           % Etichette
           \node[align=left, text=unimoreMaroon, anchor=west] at (0.2,0)
-              {\textbf{RQ1} \footnotesize Trasferibilità diretta e Domain Shift};
+              {\textbf{RQ1} \footnotesize \textcolor{black}{Trasferibilità diretta e Domain Shift}};
 
           \node[align=left, text=unimoreMaroon, anchor=west] at (0.2,-1)
-              {\textbf{RQ2} \footnotesize Adattamento mediante Conoscenza Target Sparsa};
+              {\textbf{RQ2} \footnotesize \textcolor{black}{Adattamento mediante Conoscenza Target Sparsa}};
 
           \node[align=left, text=unimoreMaroon, anchor=west] at (0.2,-2)
-              {\textbf{RQ3} \footnotesize Granularità, Specializzazione e Generalizzazione};
+              {\textbf{RQ3} \footnotesize \textcolor{black}{Granularità, Specializzazione e Generalizzazione}};
 
           \node[align=left, text=unimoreMaroon, anchor=west] at (0.2,-3)
-              {\textbf{RQ4} \footnotesize Architettura, Stabilità e Struttura Decisionale};
+              {\textbf{RQ4} \footnotesize \textcolor{black}{Architettura, Stabilità e Struttura Decisionale}};
 
       \end{tikzpicture}
     \end{column}
@@ -402,13 +402,13 @@
 % ------------------------------------------------------------------ %
 % 7) RISULTATO PRINCIPALE — SOURCE VS INJECTION
 % ------------------------------------------------------------------ %
-\section{Risultato Principale}
+\section{Risultati Principale}
 
 \begin{frame}{Effetto della Conoscenza Target Sparsa}
   \begin{columns}[T]
     \begin{column}{0.5\textwidth}
       \centering
-      \small \textbf{TPR media sui benchmark Source-only}
+      \small \textbf{TPR media} $\bf{\mathcal{M}_{\mathcal{S}} + \mathcal{M}_{INJ}}$
 
       \vspace{0.2cm}
 
@@ -422,21 +422,21 @@
           }
 
           % DT
-          \node[left, font=\small\bfseries] at (0,5.65) {DT};
+          \node[left, font=\small\bfseries] at (0,5.3) {DT};
           \fill[mainblue!75] (0,5.35) rectangle (0.394,5.65);
           \fill[paramgreen!80] (0,4.90) rectangle (0.890,5.20);
           \node[right, font=\scriptsize] at (0.394,5.50) {0.394};
           \node[right, font=\scriptsize\bfseries] at (0.890,5.05) {0.890};
 
           % HGB
-          \node[left, font=\small\bfseries] at (0,3.85) {HGB};
+          \node[left, font=\small\bfseries] at (0,3.5) {HGB};
           \fill[mainblue!75] (0,3.55) rectangle (0.291,3.85);
           \fill[paramgreen!80] (0,3.10) rectangle (0.802,3.40);
           \node[right, font=\scriptsize] at (0.291,3.70) {0.291};
           \node[right, font=\scriptsize\bfseries] at (0.802,3.25) {0.802};
 
           % RF
-          \node[left, font=\small\bfseries] at (0,2.05) {RF};
+          \node[left, font=\small\bfseries] at (0,1.65) {RF};
           \fill[mainblue!75] (0,1.75) rectangle (0.373,2.05);
           \fill[paramgreen!80] (0,1.30) rectangle (0.901,1.60);
           \node[right, font=\scriptsize] at (0.373,1.90) {0.373};
@@ -455,9 +455,9 @@
       \footnotesize DT: $+0.496$ \;\; HGB: $+0.511$ \;\; RF: $+0.528$
     \end{column}
 
-    \begin{column}{0.6\textwidth}
+    \begin{column}{0.5\textwidth}
       \centering
-      \small \textbf{TPR media sui benchmark Hybrid}
+      \small \textbf{TPR media} $\bf{\mathcal{M}_{\mathcal{T}} + \mathcal{M}_{INJ}}$
 
       \vspace{0.2cm}
 
@@ -471,21 +471,21 @@
           }
 
           % DT
-          \node[left, font=\small\bfseries] at (0,5.65) {DT};
+          \node[left, font=\small\bfseries] at (0,5.3) {DT};
           \fill[mainblue!75] (0,5.35) rectangle (0.510,5.65);
           \fill[paramgreen!80] (0,4.90) rectangle (0.890,5.20);
           \node[right, font=\scriptsize] at (0.510,5.50) {0.510};
           \node[right, font=\scriptsize\bfseries] at (0.890,5.05) {0.890};
 
           % HGB
-          \node[left, font=\small\bfseries] at (0,3.85) {HGB};
+          \node[left, font=\small\bfseries] at (0,3.5) {HGB};
           \fill[mainblue!75] (0,3.55) rectangle (0.389,3.85);
           \fill[paramgreen!80] (0,3.10) rectangle (0.802,3.40);
           \node[right, font=\scriptsize] at (0.389,3.70) {0.389};
           \node[right, font=\scriptsize\bfseries] at (0.802,3.25) {0.802};
 
           % RF
-          \node[left, font=\small\bfseries] at (0,2.05) {RF};
+          \node[left, font=\small\bfseries] at (0,1.65) {RF};
           \fill[mainblue!75] (0,1.75) rectangle (0.461,2.05);
           \fill[paramgreen!80] (0,1.30) rectangle (0.901,1.60);
           \node[right, font=\scriptsize] at (0.461,1.90) {0.461};
@@ -509,66 +509,98 @@
 % ------------------------------------------------------------------ %
 % 8) RISULTATI GLOBALI — TRADE-OFF
 % ------------------------------------------------------------------ %
-\section{Risultati Globali}
+\section{Risultati di Granularità}
 
 \begin{frame}{Generalizzazione vs Specializzazione}
   \begin{columns}[T]
-    \begin{column}{0.6\textwidth}
+    \begin{column}{0.5\textwidth}
       \centering
-      \textbf{TPR media sull'intera cross-evaluation (16 benchmark)}
+      \small \textbf{TPR media} $\bf{\mathcal{D}_{\mathcal{S}}}$
 
-      \vspace{0.25cm}
-      \small
-      \renewcommand{\arraystretch}{1.35}
-      \begin{tabular}{lccc}
-        \toprule
-        \textbf{Paradigma} & \textbf{DT} & \textbf{HGB} & \textbf{RF} \\
-        \midrule
-        Source-only & 0.5288 & 0.3694 & 0.5161 \\
-        \textbf{INJECTION} & \textbf{0.8899} & \textbf{0.8025} & \textbf{0.9007} \\
-        Hybrid aggregato & 0.5626 & 0.5525--0.5627 & 0.5626 \\
-        \bottomrule
-      \end{tabular}
+      \vspace{0.2cm}
 
-      \vspace{0.38cm}
-      \begin{tikzpicture}[node distance=0.35cm]
-        \node[node_primary, text width=2.55cm, minimum height=1.35cm] (s) {
-          \textbf{Source-only}\\
-          buono su NB15\\
-          debole sul target
-        };
+      \resizebox{!}{3.5cm}{
+        \begin{tikzpicture}[x=6.0cm,y=0.60cm]
+          % Asse e griglia
+          \draw[arrow_flow] (0,0) -- (1.06,0) node[right, font=\scriptsize] {TPR};
+          \foreach \x/\lab in {0/0,0.25/0.25,0.5/0.50,0.75/0.75,1/1.00} {
+            \draw[neutralgrey!20] (\x,0.12) -- (\x,6.35);
+            \node[below, font=\scriptsize] at (\x,0) {\lab};
+          }
 
-        \node[node_process, right=0.35cm of s, text width=2.55cm, minimum height=1.35cm] (i) {
-          \textbf{INJECTION}\\
-          risposta più uniforme\\
-          source + target
-        };
+          % DT
+          \node[left, font=\small\bfseries] at (0,5.3) {DT};
+          \fill[accentorange!75] (0,5.35) rectangle (0.529,5.65);
+          \fill[neutralgrey!80] (0,4.90) rectangle (0.367,5.20);
+          \node[right, font=\scriptsize] at (0.529,5.50) {0.529};
+          \node[right, font=\scriptsize\bfseries] at (0.367,5.05) {0.367};
 
-        \node[node_accent, right=0.35cm of i, text width=2.55cm, minimum height=1.35cm] (h) {
-          \textbf{Hybrid}\\
-          TPR target $\approx 1$\\
-          TPR NB15 $\approx 0$
-        };
-      \end{tikzpicture}
+          % HGB
+          \node[left, font=\small\bfseries] at (0,3.5) {HGB};
+          \fill[accentorange!75] (0,3.55) rectangle (0.369,3.85);
+          \fill[neutralgrey!80] (0,3.10) rectangle (0.275,3.40);
+          \node[right, font=\scriptsize] at (0.369,3.70) {0.369};
+          \node[right, font=\scriptsize\bfseries] at (0.275,3.25) {0.275};
+
+          % RF
+          \node[left, font=\small\bfseries] at (0,1.65) {RF};
+          \fill[accentorange!75] (0,1.75) rectangle (0.516,2.05);
+          \fill[neutralgrey!80] (0,1.30) rectangle (0.344,1.60);
+          \node[right, font=\scriptsize] at (0.516,1.90) {0.516};
+          \node[right, font=\scriptsize\bfseries] at (0.344,1.45) {0.344};
+
+          % Legenda
+          \fill[accentorange!75] (0.03,0.45) rectangle (0.075,0.68);
+          \node[anchor=west, font=\scriptsize] at (0.085,0.565) {Aggregato};
+          \fill[neutralgrey!80] (0.38,0.45) rectangle (0.425,0.68);
+          \node[anchor=west, font=\scriptsize] at (0.435,0.565) {Biclassi};
+        \end{tikzpicture}
+      }
     \end{column}
 
-    \begin{column}{0.4\textwidth}
-      \begin{alertblock}{Specializzazione ibrida}
-        \small
-        TPR target: circa $0.9818$--$0.9999$.\\[1mm]
-        TPR sugli attacchi NB15: quasi nulla.
-      \end{alertblock}
+    \begin{column}{0.5\textwidth}
+      \centering
+      \small \textbf{TPR media} $\bf{\mathcal{D}_{\mathcal{T}}}$
 
-      \begin{exampleblock}{Architetture nella baseline}
-        \small
-        \textbf{RF}: miglior profilo predittivo misurato
-        \[
-        \mathrm{TPR}_{target}=0.98821,
-        \quad
-        \mathrm{F1}=0.890221
-        \]
-        \textbf{HGB}: TNR più elevata, $0.99658$.
-      \end{exampleblock}
+      \vspace{0.2cm}
+
+      \resizebox{!}{3.5cm}{
+        \begin{tikzpicture}[x=6.0cm,y=0.60cm]
+          % Asse e griglia
+          \draw[arrow_flow] (0,0) -- (1.06,0) node[right, font=\scriptsize] {TPR};
+          \foreach \x/\lab in {0/0,0.25/0.25,0.5/0.50,0.75/0.75,1/1.00} {
+            \draw[neutralgrey!20] (\x,0.12) -- (\x,6.35);
+            \node[below, font=\scriptsize] at (\x,0) {\lab};
+          }
+
+          % DT
+          \node[left, font=\small\bfseries] at (0,5.3) {DT};
+          \fill[accentorange!75] (0,5.35) rectangle (0.563,5.65);
+          \fill[neutralgrey!80] (0,4.90) rectangle (0.484,5.20);
+          \node[right, font=\scriptsize] at (0.563,5.50) {0.563};
+          \node[right, font=\scriptsize\bfseries] at (0.484,5.05) {0.484};
+
+          % HGB
+          \node[left, font=\small\bfseries] at (0,3.5) {HGB};
+          \fill[accentorange!75] (0,3.55) rectangle (0.559,3.85);
+          \fill[neutralgrey!80] (0,3.10) rectangle (0.304,3.40);
+          \node[right, font=\scriptsize] at (0.559,3.70) {0.559};
+          \node[right, font=\scriptsize\bfseries] at (0.304,3.25) {0.304};
+
+          % RF
+          \node[left, font=\small\bfseries] at (0,1.65) {RF};
+          \fill[accentorange!75] (0,1.75) rectangle (0.563,2.05);
+          \fill[neutralgrey!80] (0,1.30) rectangle (0.410,1.60);
+          \node[right, font=\scriptsize] at (0.563,1.90) {0.563};
+          \node[right, font=\scriptsize\bfseries] at (0.410,1.45) {0.410};
+
+          % Legenda
+          \fill[accentorange!75] (0.03,0.45) rectangle (0.075,0.68);
+          \node[anchor=west, font=\scriptsize] at (0.085,0.565) {Aggregati};
+          \fill[neutralgrey!80] (0.38,0.45) rectangle (0.425,0.68);
+          \node[anchor=west, font=\scriptsize] at (0.435,0.565) {Biclassi};
+        \end{tikzpicture}
+      }
     \end{column}
   \end{columns}
 \end{frame}
