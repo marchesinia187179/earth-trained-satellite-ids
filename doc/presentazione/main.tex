@@ -217,7 +217,7 @@
       
           \node [node_database, draw=accentorange, fill=lightorange, above=1cm of align, xshift=2cm, minimum width=3.2cm, minimum height=2cm] (stin) {
               \textbf{STIN}\\
-              \footnotesize $\mathcal{D}_{T \in \{TER20-SAT20\}}$
+              \footnotesize $\mathcal{D}_{T \in \{TER20,\; SAT20\}}$
           };
       
           \node [node_transform, below=1cm of align] (sampling) {
@@ -237,7 +237,7 @@
       \centering
       \resizebox{!}{4.5cm}{
         \begin{tikzpicture}
-          \node[node_primary, minimum width=5cm] (sourceModel) {
+          \node[node_primary, minimum width=4cm] (sourceModel) {
             \textbf{Source-only}\\
             \\
             Ben: $100\%\mathcal{D}_S$\\
@@ -251,7 +251,7 @@
             Mal: $\approx 99.7\%\mathcal{D}_S + 0.3\%\mathcal{D}_T$
           };
 
-          \node[node_accent, below=0.3cm of injModel, minimum width=5cm] (hybridModel) {
+          \node[node_accent, below=0.3cm of injModel, minimum width=4cm] (hybridModel) {
             \textbf{Hybrid}\\
             \\
             Ben: $100\%\mathcal{D}_S$\\
