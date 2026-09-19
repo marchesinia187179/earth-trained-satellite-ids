@@ -14,6 +14,17 @@
 \usepackage{array}
 \usepackage{bm}
 
+\usepackage{subcaption}
+\usepackage{float}
+
+\usepackage{tabularx}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{adjustbox}
+\usepackage{varwidth}
+\usepackage{ragged2e}
+\usepackage{tablefootnote}
+
 % -------------------------------------------------------------------------
 % Stili TikZ centralizzati
 % Il file tikz_styles.tex si trova nella cartella padre della presentazione.
@@ -402,7 +413,7 @@
 % ------------------------------------------------------------------ %
 % 7) RISULTATO PRINCIPALE — SOURCE VS INJECTION
 % ------------------------------------------------------------------ %
-\section{Risultati Principale}
+\section{Risultati}
 
 \begin{frame}{Effetto della Conoscenza Target Sparsa}
   \begin{columns}[T]
@@ -507,10 +518,8 @@
 \end{frame}
 
 % ------------------------------------------------------------------ %
-% 8) RISULTATI GLOBALI — TRADE-OFF
+% 8) RISULTATI DI GRANULARITA
 % ------------------------------------------------------------------ %
-\section{Risultati di Granularità}
-
 \begin{frame}{Generalizzazione vs Specializzazione}
   \begin{columns}[T]
     \begin{column}{0.5\textwidth}
@@ -606,46 +615,108 @@
 \end{frame}
 
 % ------------------------------------------------------------------ %
-% 10) CONCLUSIONI
+% 9) CONCLUSIONI
 % ------------------------------------------------------------------ %
 \section{Conclusioni}
 
-\begin{frame}{Conclusioni}
-  \centering
-  \begin{tikzpicture}[node distance=0.55cm]
-    \node[node_primary, text width=3.25cm, minimum height=2.15cm] (c1) {
-      \textbf{1. Trasferibilità diretta}\\[1mm]
-      Limitata e dipendente dalla distribuzione target.
-    };
+\begin{frame}{Risposte alle Domande Sperimentali}
+  \tiny
+    \begin{tabularx}{\linewidth}{>{\centering\arraybackslash}p{0.5cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+        \toprule
+        \textbf{\color{unimoreMaroon}RQ} & \textbf{\color{unimoreMaroon}Risposta} & \textbf{\color{unimoreMaroon}Evidenza} & \textbf{\color{unimoreMaroon}Limite} \\
+        \midrule
+        \color{unimoreMaroon}\textbf{RQ1} &
+        Trasferibilità source-only limitata e dipendente dalla distribuzione target. &
+        Marcata riduzione della TPR sui target, con episodi locali di trasferibilità. &
+        \textit{Benign-domain shift} non valutato. \\
+        \addlinespace
+        \addlinespace
+        \color{unimoreMaroon}\textbf{RQ2} &
+        Conoscenza target sparsa associata a una maggiore generalizzazione cross-domain. &
+        La configurazione \textit{INJECTION} è associata a una maggiore sensibilità target, preservando sostanzialmente la risposta su NB15. &
+        Il $\approx 0.3\%$ dei campioni non definisce una quantità minima od ottimale. \\
+        \addlinespace
+        \addlinespace
+        \color{unimoreMaroon}\textbf{RQ3} &
+        Aggregazione associata a una generalizzazione più uniforme; specializzazione maggiormente dipendente dalla distribuzione. &
+        Modelli aggregati più uniformi; rilevatori biclasse più dipendenti dalla famiglia d'attacco. &
+        Presenti eccezioni di trasferimento tra specifiche famiglie. \\
+        \addlinespace
+        \addlinespace
+        \color{unimoreMaroon}\textbf{RQ4} &
+        L'architettura modula sensibilità, specificità e stabilità. &
+        RF mostra il profilo misurato più favorevole; HGB privilegia la specificità; DT risulta intermedio. &
+        Costi computazionali e di deployment non valutati. \\
+        \bottomrule
+    \end{tabularx}
+\end{frame}
 
-    \node[node_process, right=0.65cm of c1, text width=3.25cm, minimum height=2.15cm] (c2) {
-      \textbf{2. Conoscenza target sparsa}\\[1mm]
-      INJECTION è associata a una forte crescita della sensibilità target preservando il sorgente.
-    };
+% ------------------------------------------------------------------ %
+% 10) TAKEAWAYS E FUTURO
+% ------------------------------------------------------------------ %
+\begin{frame}{Takeaways e Sviluppi Futuri}
+  \begin{columns}[T]
+    % TAKEAWAYS
+    \begin{column}{0.5\textwidth}
+      \begin{block}{\textbf{Takeaways}}
+        \scriptsize \textcolor{unimoreMaroon}{\textbf{01}} - \textbf{La prestazione in-domain non garantisce robustezza cross-domain}
 
-    \node[node_accent, right=0.65cm of c2, text width=3.25cm, minimum height=2.15cm] (c3) {
-      \textbf{3. Specializzazione}\\[1mm]
-      Massimizzare il target non equivale a massimizzare la robustezza cross-domain.
-    };
-  \end{tikzpicture}
+        \vspace{0.2cm}
 
-  \vspace{0.45cm}
+        \scriptsize \textcolor{unimoreMaroon}{\textbf{02}} - \textbf{Una conoscenza target estremamente limitata può favorire la generalizzazione preservando il sorgente}
 
-  \begin{block}{Limiti da mantenere espliciti}
-    \centering
-    Benign-domain shift non valutato
-    \quad $\bullet$ \quad
-    target basato su STIN
-    \quad $\bullet$ \quad
-    29 campioni non sono una quantità minima/ottimale
-    \quad $\bullet$ \quad
-    costi di deployment non misurati
-  \end{block}
+        \vspace{0.2cm}
 
-  \vspace{0.25cm}
-  \Large
-  \textbf{La prestazione intra-domain non è sufficiente per valutare\\
-  la robustezza di un NIDS destinato a scenari eterogenei.}
+        \scriptsize \textcolor{unimoreMaroon}{\textbf{03}} - \textbf{La robustezza è un compromesso tra adaptation e retention}
+      \end{block}
+    \end{column}
+
+    % SVILUPPI FUTURI
+    \begin{column}{0.5\textwidth}
+      \resizebox{0.9\textwidth}{!}{
+        \begin{tikzpicture}[
+            future_dot/.style={circle, fill=unimoreMaroon, text=white, font=\bfseries\footnotesize, inner sep=2.2pt},
+            future_label/.style={font=\footnotesize, align=left}
+        ]
+
+            % Coordinate dei tre punti
+            \coordinate (p1) at (0,0);
+            \coordinate (p2) at (2.4,1.1);
+            \coordinate (p3) at (3.75,3);
+
+            % Freccia curva
+            \draw[arrow_flow] (0,0) to[bend right=35] (4,4);
+
+            % Pallino 1
+            \node[future_dot] at (p1) {1};
+            \node[future_label, anchor=west] at ($(p1)+(0.2,-0.2)$) {
+              \textbf{Estendere il domain shift}
+            };
+
+            % Pallino 2
+            \node[future_dot] at (p2) {2};
+            \node[future_label, anchor=west] at ($(p2)+(0.2,-0.2)$) {
+              \textbf{Granularità Injection}\\ 
+              \textbf{e trade-off decisionale}
+            };
+
+            % Pallino 3
+            \node[future_dot] at (p3) {3};
+            \node[future_label, anchor=west] at ($(p3)+(0.2,0)$) {
+              \textbf{Valutare costi}\\
+              \textbf{computazionali e}\\
+              \textbf{deployment}
+            };
+        \end{tikzpicture}
+      }
+    \end{column}
+  \end{columns}
+
+  \vspace{0.2cm}
+
+  \begin{center}
+    \footnotesize \color{unimoreMaroon}\textbf{Adattarsi a nuove distribuzioni senza perdere la conoscenza acquisita.}
+  \end{center}
 \end{frame}
 
 \end{document}
