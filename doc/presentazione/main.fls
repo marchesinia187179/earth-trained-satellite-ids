@@ -590,9 +590,6 @@ INPUT /usr/share/texlive/texmf-dist/fonts/vf/adobe/helvetic/phvb8t.vf
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/adobe/helvetic/phvb8r.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/vf/adobe/helvetic/phvb8t.vf
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/adobe/helvetic/phvb8r.tfm
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/adobe/helvetic/phvb8t.tfm
-INPUT /usr/share/texlive/texmf-dist/fonts/vf/adobe/helvetic/phvb8t.vf
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/adobe/helvetic/phvb8r.tfm
 OUTPUT main.nav
 OUTPUT main.toc
 OUTPUT main.snm

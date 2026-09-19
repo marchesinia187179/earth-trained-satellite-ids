@@ -658,17 +658,26 @@
   \begin{columns}[T]
     % TAKEAWAYS
     \begin{column}{0.5\textwidth}
-      \begin{block}{\textbf{Takeaways}}
-        \scriptsize \textcolor{unimoreMaroon}{\textbf{01}} - \textbf{La prestazione in-domain non garantisce robustezza cross-domain}
+      \centering
+      \resizebox{0.7\textwidth}{!}{
+        \begin{tikzpicture}[
+          takeaway_box/.style={node_transform, minimum width=6cm, align=center, font=\scriptsize\bfseries},
+          takeaway_label/.style={above, font=\scriptsize\bfseries, text=unimoreMaroon}
+        ]
 
-        \vspace{0.2cm}
+          % TAKEAWAY 1
+          \node[takeaway_box] (t1) at (0,0) {La prestazione in-domain non\\ garantisce robustezza cross-domain};
+          \node[takeaway_label] at (t1.north) {I Takeaway};
 
-        \scriptsize \textcolor{unimoreMaroon}{\textbf{02}} - \textbf{Una conoscenza target estremamente limitata può favorire la generalizzazione preservando il sorgente}
+          % TAKEAWAY 2
+          \node[takeaway_box, below=0.7cm of t1] (t2) {Una conoscenza target estremamente\\ limitata può favorire la generalizzazione\\ preservando il sorgente};
+          \node[takeaway_label] at (t2.north) {II Takeaway};
 
-        \vspace{0.2cm}
-
-        \scriptsize \textcolor{unimoreMaroon}{\textbf{03}} - \textbf{La robustezza è un compromesso tra adaptation e retention}
-      \end{block}
+          % TAKEAWAY 3
+          \node[takeaway_box, below=0.7cm of t2] (t3) {La robustezza è un compromesso\\ tra adaptation e retention};
+          \node[takeaway_label] at (t3.north) {III Takeaway};
+        \end{tikzpicture}
+      }
     \end{column}
 
     % SVILUPPI FUTURI
