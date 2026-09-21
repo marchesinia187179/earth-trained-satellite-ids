@@ -1,5 +1,7 @@
 # Earth-Trained Satellite IDS
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![Datasets](https://img.shields.io/badge/data-not%20included-informational.svg)](#raw-data-and-dataset-sources) [![Status](https://img.shields.io/badge/status-research%20prototype-blue.svg)](#scope-and-workflow)
+
 Feasibility study of a cross-domain, hybrid intrusion-detection pipeline for satellite-network traffic. The project aligns terrestrial and satellite traffic data in a shared feature space, builds supervised binary classifiers, evaluates their cross-dataset performance, and analyses the variability of the results across multiple random seeds.
 
 The current implementation trains three supervised scikit-learn model families:
@@ -9,6 +11,27 @@ The current implementation trains three supervised scikit-learn model families:
 - HistGradientBoosting (`hgb`)
 
 Although the original project description refers to Random Forest and Isolation Forest, no Isolation Forest implementation is currently present in the source code.
+
+<p align="center">
+	<img src="doc/images/chapter5/pca/pca_hybrid_nb15_stin.png" alt="PCA projection of the hybrid NB15-STIN dataset" width="47%" />
+	<img src="doc/images/chapter5/heatmaps/rf_TPR_aggregated_matrix_hybrid_vs_baseline.png" alt="Random Forest aggregated TPR heatmap" width="47%" />
+</p>
+
+<p align="center"><em>Examples of the source-anchored feature analysis and cross-domain performance analysis included in the repository.</em></p>
+
+<details>
+<summary><strong>Repository snapshot at a glance</strong></summary>
+
+| Area | Contents |
+| --- | --- |
+| Data processing | Raw-data alignment, feature engineering, stratified splitting and hybrid-dataset construction |
+| Learning | Random Forest, Decision Tree and HistGradientBoosting |
+| Evaluation | Classification metrics, probability analysis, PR curves and threshold analysis |
+| Explainability | Feature importance and SHAP summaries |
+| Statistical analysis | Multi-seed aggregation and Welch's t-test |
+| Documentation | LaTeX thesis source, generated PDF and presentation |
+
+</details>
 
 ## Scope and workflow
 
@@ -50,13 +73,25 @@ The repository also contains Python bytecode, a local `venv/` directory, compile
 
 ## Input datasets
 
-The configured raw input paths are:
+### Raw data and dataset sources
+
+The raw CSV files are intentionally not included in this repository. The `.gitignore` file excludes the raw-data directories and the preprocessing pipeline expects the files locally at the paths shown below. The sources referenced by the thesis are:
+
+- [UNSW-NB15 dataset](https://research.unsw.edu.au/projects/unsw-nb15-dataset), used by the `nb15` preprocessing path;
+- [STIN dataset repository](https://github.com/kun9717/STIN-data-set/), referenced for the satellite and terrestrial traffic data used by the `sat20` and `ter20` paths.
+
+After obtaining the data from their respective sources, place the required CSV files in the configured `data/raw/` directory:
 
 ```text
 data/raw/nb15.csv
 data/raw/sat20.csv
 data/raw/ter20.csv
 ```
+
+The repository does not contain an automated download script. Dataset licensing, access conditions, file naming, and any required conversion remain subject to the original dataset providers. The exact columns required by this implementation are listed below.
+
+<details>
+<summary><strong>Expected raw-data schemas</strong></summary>
 
 `nb15` is processed through the NB15-specific alignment path. The `sat20` and `ter20` inputs use the STIN-style alignment path. The preprocessing code expects the following raw columns.
 
@@ -71,6 +106,8 @@ The classes `Analysis`, `Backdoor`, `Shellcode`, and `Worms` are removed before 
 `fl_dur`, `l_fw_pkt`, `l_bw_pkt`, `fw_pk`, `bw_pkt_s`, `fw_win_byt`, `bw_win_byt`, `fl_byt_s`, `fl_iat_min`, `down_up_ratio`, and `label`.
 
 For `ter20`, `Botnet`, `Web Attack`, and `Backdoor` are merged into `Botnet`; `LDAP_DDoS`, `MSSQL_DDoS`, `NetBIOS_DDoS`, and `Portmap_DDoS` are merged into `DDoS`. The satellite and terrestrial inputs are assigned binary anomaly labels by the alignment code.
+
+</details>
 
 ## Feature engineering and dataset generation
 
@@ -202,17 +239,16 @@ runs/
 ├── rf/<seed>/
 ├── dt/<seed>/
 └── hgb/<seed>/
-	└── <seed>/
-		├── models/
-		│   ├── *.joblib
-		│   ├── models_registry.csv
-		│   ├── models_metadata.csv
-		│   └── feature_importance/
-		└── results/
-			├── classifications.csv
-			├── by_model/
-			├── by_dataset/
-			└── plots/
+	├── models/
+	│   ├── *.joblib
+	│   ├── models_registry.csv
+	│   ├── models_metadata.csv
+	│   └── feature_importance/
+	└── results/
+		├── classifications.csv
+		├── by_model/
+		├── by_dataset/
+		└── plots/
 ```
 
 The repository currently also contains preprocessed snapshots under `data/nb15_models_preprocessed_data/` and `data/hybrid_models_preprocessed_data/`, and experiment snapshots under `runs/nb15_models/` and `runs/hybrid_models/`. These stored snapshot names do not exactly match the runtime paths defined by the current configuration; a new execution follows `ProjectPaths` and generates or expects `data/preprocessed/` and model-family directories directly below `runs/`.
@@ -243,3 +279,9 @@ The `doc/` directory contains the LaTeX thesis source, bibliography, tables, Tik
 ## License
 
 This project is distributed under the MIT License. See [LICENSE](LICENSE).
+
+## Continue the project 🚀
+
+This repository is intended as a research starting point rather than a finished product. Continue the work by bringing new datasets into the shared feature space, validating the assumptions behind the hybrid benchmarks, comparing additional classifiers, extending the statistical analysis, and documenting reproducible experiments. Every careful improvement can make cross-domain intrusion detection for satellite networks more robust, interpretable and useful.
+
+**The next experiment is yours: reproduce the pipeline, question its assumptions, and help move the project forward.** 🌍🛰️
