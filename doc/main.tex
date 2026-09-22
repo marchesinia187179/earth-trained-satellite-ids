@@ -49,18 +49,47 @@
 % GESTIONE DELLE PAGINE
 % ==============================================================================
 
-% Stili di pagina
 \usepackage{scrlayer-scrpage}
 
-\ifoot[]{}
-\cfoot[]{}
-\ofoot[\pagemark]{\pagemark}
+% Rimuove header e footer predefiniti
+\clearpairofpagestyles
 
-\pagestyle{scrplain}
+% Testo da memorizzare per ogni capitolo
+\renewcommand{\chaptermark}[1]{%
+    \markboth{Capitolo \thechapter\ -- #1}{}%
+}
+
+% Titolo del capitolo sul margine esterno:
+% - pagine pari    -> sinistra
+% - pagine dispari -> destra
+\ohead{\small\normalfont\leftmark}
+
+% Numero di pagina sul margine esterno
+% L'asterisco lo mantiene anche nelle pagine "plain"
+%\ofoot*{\pagemark}
+\ofoot{\small\normalfont\pagemark}
+
+% Linea sotto l'intestazione
+%\KOMAoptions{headsepline=0.4pt}
+
+% Stile principale
+\pagestyle{scrheadings}
+
+% Pagine bianche generate da openright / cleardoublepage
+\usepackage{emptypage}
+
+% Stili di pagina
+%\usepackage{scrlayer-scrpage}
+
+%\ifoot[]{}
+%\cfoot[]{}
+%\ofoot[\pagemark]{\pagemark}
+
+%\pagestyle{scrplain}
 
 % Rende completamente bianche le pagine inserite automaticamente
 % da openright / cleardoublepage
-\usepackage{emptypage}
+%\usepackage{emptypage}
 
 
 % ==============================================================================
@@ -458,7 +487,8 @@
 % \pagenumbering{arabic} reimposta automaticamente il contatore a pagina 1.
 \pagenumbering{arabic}
 
-\pagestyle{scrplain}
+%\pagestyle{scrplain}
+\pagestyle{scrheadings}
 
 \input{chapters/new/01_introduzione_new.tex}
 \input{chapters/new/02_contesto_new.tex}
@@ -475,6 +505,12 @@
 \cleardoublepage
 \appendix
 
+% Da questo punto l'intestazione diventa:
+% "Appendice A -- ..."
+\renewcommand{\chaptermark}[1]{%
+    \markboth{Appendice \thechapter\ -- #1}{}%
+}
+
 % Appendice A -- Implementazione
 \input{chapters/new/appendice_implementazione_new.tex}
 
@@ -488,6 +524,9 @@
 
 \cleardoublepage
 
+% Intestazione dedicata alla bibliografia
+\markboth{Bibliografia}{Bibliografia}
+
 \printbibliography[
     heading=bibintoc,
     title={Bibliografia}
@@ -499,6 +538,9 @@
 % ==============================================================================
 
 \cleardoublepage
+
+% Nessuna intestazione e nessun numero di pagina
+\pagestyle{empty}
 
 \input{chapters/new/ringraziamenti_new.tex}
 
