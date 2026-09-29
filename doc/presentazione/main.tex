@@ -25,6 +25,9 @@
 \usepackage{ragged2e}
 \usepackage{tablefootnote}
 
+\usetikzlibrary{positioning, calc}
+
+
 % -------------------------------------------------------------------------
 % Stili TikZ centralizzati
 % Il file tikz_styles.tex si trova nella cartella padre della presentazione.
@@ -57,49 +60,190 @@
 \section{Introduzione}
 
 \begin{frame}{NIDS tra Dominio Terrestre e Satellitare}
-  \begin{columns}[T]
-    \begin{column}{0.5\textwidth}
+  \centering
+  \resizebox{!}{5.4cm}{%
+    \begin{tikzpicture}[minimum width=4cm, minimum height=1.3cm]
+
+    % NODI SEGMENTO TERRESTRE
+    \node [node_process] (nids_space) {
+        \textbf{NIDS}\\
+        \textbf{(Segmento Spaziale)}
+    };
+    \node [node_primary, left=1.5cm of nids_space] (gateway) {
+        \textbf{Satellite Gateway /}\\
+        \textbf{Ground Station}
+    };
+    \node [node_primary, right=1.5cm of nids_space] (terminal) {
+        \textbf{Terminale Utente}
+    };
+
+    \node [node_primary, below=1.5cm of nids_space] (core) {
+        \textbf{Rete Core Terrestre}
+    };
+    \node [node_process, left=1.5cm of core] (nids_ground) {
+        \textbf{NIDS}\\
+        \textbf{(Segmento Terrestre)}
+    };
+    
+    \node [node_alert, right=1.5cm of core] (logic_attack) {
+        \textbf{Attacchi Logici}\\
+        \textbf{(Minaccia)}
+    };
+
+    % NODI SEGMENTO SPAZIALE
+    \node [node_alert, above=4cm of nids_space] (rf_attack) {
+        \textbf{Attacchi RF}
+    };
+    \node [node_primary, above=2cm of gateway] (leo) {
+        \textbf{Costellazione LEO}
+    };
+    \node [node_primary, above=2cm of terminal] (geo) {
+        \textbf{Costellazione GEO}
+    };
+
+    % CONNESSIONI SPAZIALI ED INTER-SATELLITARI
+    \draw [arrow_alert, dashed] (rf_attack.west) -| (leo.north);
+    \draw [arrow_alert, dashed] (rf_attack.east) -| (geo.north);
+    \draw [arrow_bidi, dashed] (leo) -- node[above, yshift=-0.25cm, font=\footnotesize, text=neutralgrey] {ISL} (geo);
+
+    % CANALI RF (SPAZIO - TERRA)
+    \draw [arrow_bidi, dashed] (leo.south) -- node[midway, xshift=-1cm, font=\footnotesize, text=neutralgrey] {Canale RF} (gateway.north);
+    \draw [arrow_bidi, dashed] (geo.south) -- node[midway, xshift=1cm, font=\footnotesize, text=neutralgrey] {Canale RF} (terminal.north);
+
+    % CONNESSIONI TERRESTRI E MONITORAGGIO NIDS
+    \draw [arrow_bidi, dashed] (gateway) -- (nids_space);
+    \draw [arrow_bidi, dashed] (terminal) -- (nids_space);
+
+    \draw [arrow_bidi] (gateway.south) |- ($(nids_space.south) + (0,-0.5)$) -| (core.north);
+    \draw [arrow_bidi] (terminal.south) |- ($(nids_space.south) + (0,-0.5)$) -| (core.north);
+
+    \draw [arrow_bidi] (nids_ground) -- (core);
+    \draw [arrow_alert] (logic_attack) -- (core);
+
+    % LIMITI ORIZZONTALI COMUNI PER I DUE GROUP BOX
+    \coordinate (box_left) at ($(gateway.west)+(-0.5,0)$); 
+    \coordinate (box_right) at ($(terminal.east)+(0.5,0)$);
+
+    % Box
+    \begin{scope}[on background layer]  
+        % Segmento spaziale 
+        \node[ 
+            group_box, 
+            fit={(box_left |- rf_attack.north) (box_right |- leo.south) (leo) (geo) (rf_attack)} 
+        ] (gspace) {}; 
+        
+        % Segmento terrestre 
+        \node[ 
+            group_box, 
+            fit={(box_left |- nids_space.north) (box_right |- logic_attack.south) (nids_space) (gateway) (terminal) (core) (nids_ground) (logic_attack)} 
+        ] (gter) {};
+    \end{scope}
+
+    \node[above, yshift=-0.25cm, font=\footnotesize\bfseries, text=neutralgrey] at (gspace.north) {Segmento Spaziale};
+    \node[above, yshift=-0.25cm, font=\footnotesize\bfseries, text=neutralgrey] at (gter.north) {Segmento Terrestre};
+
+    \end{tikzpicture}
+  }
+\end{frame}
+
+
+% ------------------------------------------------------------------ %
+% 3) PROBLEM STATEMENT
+% ------------------------------------------------------------------ %
+\section{Problem Statement}
+
+\begin{frame}{Problema di Ricerca}
+  \begin{columns}[c]
+    \begin{column}{0.6\textwidth}
       \centering
-      \resizebox{!}{4.5cm}{%
+      \begin{tikzpicture}
+        \node[
+          rotate=-2, inner sep=0pt, draw=black, line width=0.4pt,
+          drop shadow={shadow xshift=0.12cm, shadow yshift=-0.12cm, opacity=0.12}
+        ] at (0,0) {
+            \includegraphics[width=0.45\textwidth]{images/stin-first-page.jpg}
+        };
+        \node[
+          rotate=4, inner sep=0pt, draw=black, line width=0.4pt,
+          drop shadow={shadow xshift=0.12cm, shadow yshift=-0.12cm, opacity=0.12}
+        ] at (1.5,-0.5) {
+            \includegraphics[width=0.45\textwidth]{images/stin-network.jpg}
+        };
+      \end{tikzpicture}
+    \end{column}
+
+    \begin{column}{0.6\textwidth}
+      \raggedright
+      \Large
+      Assenza di dati satellitari adeguatamente etichettati
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------ %
+% 4) CONTRIBUTI
+% ------------------------------------------------------------------ %
+\section{Contributi}
+
+\begin{frame}{Contributi del Progetto}
+  \begin{columns}[c]
+    \begin{column}{0.4\textwidth}
+      \resizebox{\textwidth}{!}{
         \begin{tikzpicture}
-          \node[node_primary] (earth) {
-            \textbf{Dominio Sorgente}\\
-            rete terrestre
-          };
+          \draw[draw=unimoreMaroon, dashed, thick]
+              plot[smooth] coordinates {
+                  (0,0)
+                  (0,-1)
+                  (0,-2)
+              };
 
-          \node[node_process, below=0.7cm of earth] (nids) {
-            \textbf{NIDS + ML}\\
-            apprendimento\\
-            supervisionato
-          };
+          % Punti rossi
+          \fill[unimoreMaroon] (0,0) circle (3pt);
+          \fill[unimoreMaroon] (0,-1) circle (3pt);
+          \fill[unimoreMaroon] (0,-2) circle (3pt);
 
-          \node[node_accent, below=0.7cm of nids] (space) {
-            \textbf{Dominio Target}\\
-            scenario terrestre-spaziale
-          };
-
-          \draw[arrow_source] (earth) -- node[left, font=\scriptsize] {training} (nids);
-          \draw[arrow_target] (nids) -- node[left, font=\scriptsize] {inference} (space);
-
-          \node[node_alert, right=1cm of nids] (shift) {
-            \textbf{Domain Shift}\\
-            distribuzioni di\\
-            traffico differenti
-          };
-
-          \draw[arrow_alert] (earth.east) to[bend left=20] (shift.north);
-          \draw[arrow_alert] (shift.south) to[bend left=20] (space.east);
+          % Etichette
+          \node[align=left, anchor=west] at (0.2,0) {Framework Cross-Domain};
+          \node[align=left, anchor=west] at (0.2,-1) {Protocollo di Cross-Evaluation};
+          \node[align=left, anchor=west] at (0.2,-2) {Analisi Cross-Domain};
         \end{tikzpicture}
       }
     \end{column}
 
-    \begin{column}{0.3\textwidth}
-      \begin{block}{Limite}
-        \footnotesize Le prestazioni \textbf{in-domain} non sono sufficienti per caratterizzare la robustezza di un NIDS in presenza di \textbf{domain shift}.
-      \end{block}
+    \begin{column}{0.6\textwidth}
+      \resizebox{\textwidth}{!}{
+        \begin{tikzpicture}
+          \node [node_database, draw=black, minimum width=2.5cm, minimum height=1.4cm] at (0,0) (data) {
+            \textbf{Raw Data}
+          };
+
+          \node (prep) [node_transform, minimum width=3.5cm, below=0.5cm of data] {
+              \textbf{Preprocessing}
+          };
+
+
+          \node [node_transform, below right=0.5cm and -0.5cm of prep, minimum width=3.5cm] (train) {
+              \textbf{Models Training}
+          };
+
+          \node [node_transform, below right=0.5cm and -0.5cm of train, minimum width=3.5cm] (cross) {
+              \textbf{Cross-Evaluation}
+          };
+          
+          \draw [arrow_flow] (data.south) -- (prep.north);
+          \draw [arrow_flow] (prep) |- node[near start, left, font=\footnotesize, align=right] {Datasets\\Preprocessati} (train.west);
+          \draw [arrow_flow] (train) |- node[near start, left, font=\footnotesize, align=right] {Modelli\\Addestrati} (cross.west);
+          \draw [arrow_flow] (prep) -| node[near end, right, font=\footnotesize, align=left] {Datasets\\Preprocessati} (cross.north);
+        \end{tikzpicture}
+      }
     \end{column}
   \end{columns}
 \end{frame}
+
+
+
+
+
 
 % ------------------------------------------------------------------ %
 % 3) PROBLEM STATEMENT — RQ
