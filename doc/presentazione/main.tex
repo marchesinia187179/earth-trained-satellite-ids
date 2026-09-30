@@ -154,25 +154,25 @@
 
 \begin{frame}{Problema di ricerca}
   \begin{columns}[c]
-    \begin{column}{0.6\textwidth}
-      \centering
+    \begin{column}{0.5\textwidth}
+      \raggedleft
       \begin{tikzpicture}
         \node[
           inner sep=0pt, draw=black, line width=0.5pt,
           drop shadow={shadow xshift=0.12cm, shadow yshift=-0.12cm, opacity=0.12}
         ] at (0,0) {
-            \includegraphics[width=0.45\textwidth]{images/stin-first-page.jpg}
+            \includegraphics[width=0.5\textwidth]{images/stin-first-page.jpg}
         };
         \node[
           inner sep=0pt, draw=black, line width=0.5pt,
           drop shadow={shadow xshift=0.12cm, shadow yshift=-0.12cm, opacity=0.12}
         ] at (1.5,-0.5) {
-            \includegraphics[width=0.45\textwidth]{images/stin-network.jpg}
+            \includegraphics[width=0.5\textwidth]{images/stin-network.jpg}
         };
       \end{tikzpicture}
     \end{column}
 
-    \begin{column}{0.6\textwidth}
+    \begin{column}{0.5\textwidth}
       \raggedright
       \Large
       Assenza di dati satellitari adeguatamente etichettati
@@ -754,5 +754,137 @@
     \node[align=left, anchor=west] at (0.3,-2) {Valutazione dei costi computazionali e deployment};
   \end{tikzpicture}
 \end{frame}
+
+
+% ------------------------------------------------------------------ %
+% 12) SLIDE DI BACKUP
+% ------------------------------------------------------------------ %
+\begingroup
+
+% Header vuoto: mantiene la barra bordeaux,
+% ma nasconde numero e nome della section
+\setbeamertemplate{headline}{%
+  \begin{beamercolorbox}[
+    wd=\paperwidth,
+    ht=1.05cm,
+    dp=0.35cm,
+    leftskip=1.1cm,
+    rightskip=1.1cm
+  ]{header}
+  \end{beamercolorbox}
+}
+
+\begin{frame}{}
+  \begin{center}
+    \Large \textbf{Slide di backup}
+  \end{center}
+\end{frame}
+
+\endgroup
+
+
+% ------------------------------------------------------------------ %
+% 12) PCA
+% ------------------------------------------------------------------ %
+\section{Diagnostica}
+
+\begin{frame}{Principal Component Analysis}
+  \centering
+  \begin{columns}[c,onlytextwidth]
+    % Immagine 1
+    \begin{column}{0.33\textwidth}
+      \centering
+      Source-only
+      \includegraphics[width=\textwidth, trim=0 0 5cm 1.5cm, clip]{../images/chapter5/pca/pca_sorgente_nb15.png}
+    \end{column}
+
+    % Immagine 2
+    \begin{column}{0.33\textwidth}
+      \centering
+      Injection
+      \includegraphics[width=\textwidth, trim=0 0 5cm 1.5cm, clip]{../images/chapter5/pca/pca_baseline_injection.png}
+    \end{column}
+
+    % Immagine 3
+    \begin{column}{0.33\textwidth}
+      \centering
+      Hybrid
+      \includegraphics[width=\textwidth, trim=0 0 5cm 1.5cm, clip]{../images/chapter5/pca/pca_hybrid_nb15_stin.png}
+    \end{column}
+  \end{columns}
+
+  \vspace{0.5cm}
+
+  \resizebox{2cm}{!}{
+    \begin{tikzpicture}[box/.style={node_transform, align=center, font=\bfseries}]
+      % Anomaly data
+      \node[circle, fill=accentorange, inner sep=2pt] (c1) at (0,0) {};
+      \node[anchor=west] (an) at (0.1,0) {Anomaly data};
+
+      % Normal data
+      \node[circle, fill=mainblue, inner sep=2pt] (c2) at (0,-0.5) {};
+      \node[anchor=west] (nd) at (0.1,-0.5) {Normal data};
+
+      \begin{scope}[on background layer]  
+        \node[box, fit={(an) (nd) (c1) (c2)}] {}; 
+      \end{scope}
+    \end{tikzpicture}
+  }
+\end{frame}
+
+
+% ------------------------------------------------------------------ %
+% 13) KDE
+% ------------------------------------------------------------------ %
+\section{Diagnostica}
+
+\begin{frame}{Kernel Density Estimation}
+  \centering
+  \begin{columns}[c,onlytextwidth]
+    % Immagine 1
+    \begin{column}{0.33\textwidth}
+      \centering
+      Source-only
+      \includegraphics[width=\textwidth, trim=0 0 5cm 0, clip]{../images/chapter5/kde/kde_sorgente_nb15.png}
+    \end{column}
+
+    % Immagine 2
+    \begin{column}{0.33\textwidth}
+      \centering
+      Injection
+      \includegraphics[width=\textwidth, trim=0 0 5cm 0, clip]{../images/chapter5/kde/kde_baseline_injection.png}
+    \end{column}
+
+    % Immagine 3
+    \begin{column}{0.33\textwidth}
+      \centering
+      Hybrid
+      \includegraphics[width=\textwidth, trim=0 0 5cm 0, clip]{../images/chapter5/kde/kde_hybrid_nb15_stin.png}
+    \end{column}
+  \end{columns}
+
+  \vspace{0.5cm}
+
+  \resizebox{2cm}{!}{
+    \begin{tikzpicture}[box/.style={node_transform, align=center, font=\bfseries}]
+      % Anomaly data
+      \node[circle, fill=accentorange, inner sep=2pt] (c1) at (0,0) {};
+      \node[anchor=west] (an) at (0.1,0) {Anomaly data};
+
+      % Normal data
+      \node[circle, fill=mainblue, inner sep=2pt] (c2) at (0,-0.5) {};
+      \node[anchor=west] (nd) at (0.1,-0.5) {Normal data};
+
+      \begin{scope}[on background layer]  
+        \node[box, fit={(an) (nd) (c1) (c2)}] {}; 
+      \end{scope}
+    \end{tikzpicture}
+  }
+\end{frame}
+
+
+
+
+
 
 \end{document}

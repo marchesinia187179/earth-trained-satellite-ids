@@ -1,8 +1,14 @@
 # Fdb version 4
-["pdflatex"] 1790773640.23988 "/home/marchesini-alessandro/Documents/progetto-tesi/codice/earth-trained-satellite-ids/doc/presentazione/main.tex" "main.pdf" "main" 1790773643.50595 0
+["pdflatex"] 1790790777.07689 "/home/marchesini-alessandro/Documents/progetto-tesi/codice/earth-trained-satellite-ids/doc/presentazione/main.tex" "main.pdf" "main" 1790790783.37176 0
+  "../images/chapter5/kde/kde_baseline_injection.png" 1788597640.00339 509262 7d085e1ae5f65084f6dcaaacc752a3ff ""
+  "../images/chapter5/kde/kde_hybrid_nb15_stin.png" 1788597645.35544 459109 166ca3f3ed2b01121f86065dd5a4da0e ""
+  "../images/chapter5/kde/kde_sorgente_nb15.png" 1788597608.86015 568191 c78b7fad2300b58c2d275abf050715c2 ""
+  "../images/chapter5/pca/pca_baseline_injection.png" 1788597581.94293 252897 85069e638b73296d1fe324d15d469258 ""
+  "../images/chapter5/pca/pca_hybrid_nb15_stin.png" 1788597584.54295 178896 38506f8ed94cd5e6b7b4badfcca01937 ""
+  "../images/chapter5/pca/pca_sorgente_nb15.png" 1788597564.20979 257602 ad16cacbf8a6178e786a26d812fbcb41 ""
   "../tikz_styles.tex" 1789648774.73408 4279 b06dcd2a55497178dfd0d4d4fa9dbcd6 ""
   "/etc/texmf/web2c/texmf.cnf" 1784537368.78022 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/marchesini-alessandro/Documents/progetto-tesi/codice/earth-trained-satellite-ids/doc/presentazione/main.tex" 1790773636.76515 26518 bd7467b19179ea2cf93530367d3a1356 ""
+  "/home/marchesini-alessandro/Documents/progetto-tesi/codice/earth-trained-satellite-ids/doc/presentazione/main.tex" 1790790776.85723 30094 098c450a00a3d1ada68eef13501dfb1b ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/helvetic/phvb8r.tfm" 1136768653 4484 b828043cbd581d289d955903c1339981 ""
@@ -285,10 +291,10 @@
   "images/Logo_A_Negativo.eps" 1789362464 1354570 85b4d42fc6572e92b478a230b9c7dce9 ""
   "images/stin-first-page.jpg" 1790719651.57388 361284 a3f32d5d24cc5fec9a1dc5da4176f68e ""
   "images/stin-network.jpg" 1790714118.9281 117536 510ffbdd8c69b4e04045e8f318734a18 ""
-  "main.aux" 1790773643.33322 4008 6d6deb67dd3a3fd7b669081c8bc15740 "pdflatex"
-  "main.nav" 1790773643.33544 2297 d3bc4cfc642bc23bd3c8c3e40ef41d5c "pdflatex"
-  "main.out" 1790773643.3342 732 212046093bdb5c2f698cbe740743269f "pdflatex"
-  "main.tex" 1790773636.76515 26518 bd7467b19179ea2cf93530367d3a1356 ""
+  "main.aux" 1790790783.25544 4950 e4af2cd5b915a898414d8303484456b6 "pdflatex"
+  "main.nav" 1790790783.25716 2891 774df96e5934e5046ac2e92c10fdbc9f "pdflatex"
+  "main.out" 1790790783.25638 928 0ccedbe7fd650a636386d42bb6a52423 "pdflatex"
+  "main.tex" 1790790776.85723 30094 098c450a00a3d1ada68eef13501dfb1b ""
   (generated)
   "main.aux"
   "main.log"
