@@ -1,11 +1,9 @@
 \babel@toc {italian}{}\relax 
 \babel@toc {italian}{}\relax 
 \beamer@sectionintoc {1}{Introduzione}{2}{0}{1}
-\beamer@sectionintoc {2}{Problem Statement}{3}{0}{2}
+\beamer@sectionintoc {2}{Problem statement}{3}{0}{2}
 \beamer@sectionintoc {3}{Contributi}{4}{0}{3}
 \beamer@sectionintoc {4}{Metodologia}{5}{0}{4}
-\beamer@sectionintoc {5}{Metodologia}{7}{0}{5}
-\beamer@sectionintoc {6}{Problem Statement}{8}{0}{6}
-\beamer@sectionintoc {7}{Contributi}{9}{0}{7}
-\beamer@sectionintoc {8}{Risultati}{10}{0}{8}
-\beamer@sectionintoc {9}{Conclusioni}{12}{0}{9}
+\beamer@sectionintoc {5}{Research quests}{7}{0}{5}
+\beamer@sectionintoc {6}{Risultati}{8}{0}{6}
+\beamer@sectionintoc {7}{Conclusioni}{10}{0}{7}

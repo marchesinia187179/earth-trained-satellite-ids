@@ -59,7 +59,7 @@
 % ------------------------------------------------------------------ %
 \section{Introduzione}
 
-\begin{frame}{NIDS tra Dominio Terrestre e Satellitare}
+\begin{frame}{NIDS tra dominio terrestre e satellitare}
   \centering
   \resizebox{!}{5.4cm}{%
     \begin{tikzpicture}[minimum width=4cm, minimum height=1.3cm]
@@ -150,21 +150,21 @@
 % ------------------------------------------------------------------ %
 % 3) PROBLEM STATEMENT
 % ------------------------------------------------------------------ %
-\section{Problem Statement}
+\section{Problem statement}
 
-\begin{frame}{Problema di Ricerca}
+\begin{frame}{Problema di ricerca}
   \begin{columns}[c]
     \begin{column}{0.6\textwidth}
       \centering
       \begin{tikzpicture}
         \node[
-          rotate=-2, inner sep=0pt, draw=black, line width=0.4pt,
+          inner sep=0pt, draw=black, line width=0.5pt,
           drop shadow={shadow xshift=0.12cm, shadow yshift=-0.12cm, opacity=0.12}
         ] at (0,0) {
             \includegraphics[width=0.45\textwidth]{images/stin-first-page.jpg}
         };
         \node[
-          rotate=4, inner sep=0pt, draw=black, line width=0.4pt,
+          inner sep=0pt, draw=black, line width=0.5pt,
           drop shadow={shadow xshift=0.12cm, shadow yshift=-0.12cm, opacity=0.12}
         ] at (1.5,-0.5) {
             \includegraphics[width=0.45\textwidth]{images/stin-network.jpg}
@@ -186,29 +186,27 @@
 % ------------------------------------------------------------------ %
 \section{Contributi}
 
-\begin{frame}{Contributi del Progetto}
+\begin{frame}{Contributi del progetto}
   \begin{columns}[c]
     \begin{column}{0.4\textwidth}
-      \resizebox{\textwidth}{!}{
-        \begin{tikzpicture}
-          \draw[draw=unimoreMaroon, dashed, thick]
-              plot[smooth] coordinates {
-                  (0,0)
-                  (0,-1)
-                  (0,-2)
-              };
+      \begin{tikzpicture}
+        \draw[draw=unimoreMaroon, dashed, thick]
+            plot[smooth] coordinates {
+                (0,0)
+                (0,-1)
+                (0,-2)
+            };
 
-          % Punti rossi
-          \fill[unimoreMaroon] (0,0) circle (3pt);
-          \fill[unimoreMaroon] (0,-1) circle (3pt);
-          \fill[unimoreMaroon] (0,-2) circle (3pt);
+        % Punti rossi
+        \fill[unimoreMaroon] (0,0) circle (3pt);
+        \fill[unimoreMaroon] (0,-1) circle (3pt);
+        \fill[unimoreMaroon] (0,-2) circle (3pt);
 
-          % Etichette
-          \node[align=left, anchor=west] at (0.2,0) {Framework Cross-Domain};
-          \node[align=left, anchor=west] at (0.2,-1) {Protocollo di Cross-Evaluation};
-          \node[align=left, anchor=west] at (0.2,-2) {Analisi Cross-Domain};
-        \end{tikzpicture}
-      }
+        % Etichette
+        \node[align=left, anchor=west] at (0.2,0) {Framework Cross-Domain};
+        \node[align=left, anchor=west] at (0.2,-1) {Protocollo di Cross-Evaluation};
+        \node[align=left, anchor=west] at (0.2,-2) {Analisi Cross-Domain};
+      \end{tikzpicture}
     \end{column}
 
     \begin{column}{0.6\textwidth}
@@ -235,6 +233,7 @@
           \draw [arrow_flow] (prep) |- node[near start, left, font=\footnotesize, align=right] {Datasets\\Preprocessati} (train.west);
           \draw [arrow_flow] (train) |- node[near start, left, font=\footnotesize, align=right] {Modelli\\Addestrati} (cross.west);
           \draw [arrow_flow] (prep) -| node[near end, right, font=\footnotesize, align=left] {Datasets\\Preprocessati} (cross.north);
+          \draw [arrow_flow] (cross.south) -- node[below, yshift=-0.3cm, font=\footnotesize] {Risultati} ($(cross.south) + (0,-0.7cm)$);
         \end{tikzpicture}
       }
     \end{column}
@@ -247,7 +246,7 @@
 % ------------------------------------------------------------------ %
 \section{Metodologia}
 
-\begin{frame}{Datasets \& Preprocessing}
+\begin{frame}{Datasets}
   \centering
   \resizebox{!}{4.5cm}{
     \begin{tikzpicture}
@@ -282,7 +281,7 @@
           Mal: $100\%\mathcal{D}_\mathcal{S}$
       };
 
-      \node [right, xshift=1, text=neutralgrey, align=left] at (source.east) {
+      \node [right, xshift=1, text=mainblue, align=left] at (source.east) {
           \textbf{1} Scenario Aggregato\\
           \textbf{5} Scenari Specifici di Attacco
       };
@@ -309,19 +308,6 @@
     \end{tikzpicture}
   }
 \end{frame}
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 % ------------------------------------------------------------------ %
@@ -375,102 +361,191 @@
   \begin{center}
     Cross-Evaluation ripetuta per un pool di $10$ seed deterministici 
   \end{center}
-
 \end{frame}
 
 
+% ------------------------------------------------------------------ %
+% 7) RQ
+% ------------------------------------------------------------------ %
+\section{Research quests}
 
+\begin{frame}{Domande sperimentali}
+  \raggedright
+  \begin{tikzpicture}[dot/.style={circle, fill=unimoreMaroon, text=white, font=\bfseries, inner sep=2pt}]
+      \draw[draw=unimoreMaroon, dashed, thick]
+        plot[smooth] coordinates {
+          (0,0)
+          (0,-1)
+        };
 
+      % Punti rossi
+      \node[dot] at (0,0) {1};
+      \node[dot] at (0,-1) {2};
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+      % Etichette
+      \node[align=left, anchor=west] at (0.3,0) {Trasferibilità del Modello};
+      \node[align=left, anchor=west] at (0.3,-1) {Architettura e Granularità della Struttura Decisionale};
+  \end{tikzpicture}
+\end{frame}
 
 % ------------------------------------------------------------------ %
-% 6) DATASET E MAPPING
+% 8) RISULTATI AGGREGATI
 % ------------------------------------------------------------------ %
-\section{Metodologia}
+\section{Risultati}
 
-\begin{frame}{Preprocessing \& Datasets}
+\begin{frame}{Trasferibilità dei modelli aggregati}
   \begin{columns}[T]
     \begin{column}{0.5\textwidth}
       \centering
-      \resizebox{!}{4.5cm}{
-        \begin{tikzpicture}
-          \node [node_transform] (align) {
-              \textbf{Operatore di Mappatura e Pulizia}
-          };
       
-          % --- FASE 1: INGESTIONE E DATASET GREZZI ---
-          \node [node_database, above=1cm of align, xshift=-2cm, minimum width=3.2cm, minimum height=2cm] (unsw) {
-              \textbf{UNSW-NB15}\\
-              \footnotesize $\mathcal{D}_S$
-          };
-      
-          \node [node_database, draw=accentorange, fill=lightorange, above=1cm of align, xshift=2cm, minimum width=3.2cm, minimum height=2cm] (stin) {
-              \textbf{STIN}\\
-              \footnotesize $\mathcal{D}_{T \in \{TER20,\; SAT20\}}$
-          };
-      
-          \node [node_transform, below=1cm of align] (sampling) {
-              \textbf{Campionamento Stratificato e Partizionamento}\\
-              $ben/mal = 10 \; (10:1)$ \;\; $tr/te = 80/20$\\
-              5 Benchmark Aggregati + 11 Benchmark Biclasse
-          };
+      \textbf{TPR media del pool di seeds}
 
-          \draw [arrow_source] (unsw.south) -- (align.north);
-          \draw [arrow_target] (stin.south) -- (align.north);
-          \draw [arrow_flow] (align) -- (sampling);
+      \vspace{0.1cm}
+
+      \resizebox{!}{4cm}{
+        \begin{tikzpicture}[x=1.8cm,y=5.0cm]
+
+            % ================================================================
+            % ASSI
+            % ================================================================
+            \draw[arrow_flow]
+                (0,0) -- (5.8,0);
+
+            \draw[arrow_flow]
+                (0,0) -- (0,1.10)
+                node[above, font=\footnotesize] {TPR};
+
+            % ================================================================
+            % GRIGLIA E TICK ASSE Y
+            % ================================================================
+            \foreach \y/\lab in {
+                0/0,
+                0.25/0.25,
+                0.50/0.50,
+                0.75/0.75,
+                1.00/1.00
+            } {
+                \draw[neutralgrey!20]
+                    (0,\y) -- (5.65,\y);
+
+                \node[left, font=\footnotesize]
+                    at (0,\y) {\lab};
+            }
+
+            % ================================================================
+            % DT
+            % ================================================================
+            \fill[mainblue]
+                (0.55,0) rectangle (0.80,0.529);
+            \node[above, font=\footnotesize]
+                at (0.675,0.529) {0.529};
+
+            \fill[paramgreen]
+                (0.95,0) rectangle (1.20,0.890);
+            \node[above, font=\footnotesize\bfseries]
+                at (1.075,0.890) {0.890};
+
+            \fill[accentorange]
+                (1.35,0) rectangle (1.60,0.563);
+            \node[above, font=\footnotesize]
+                at (1.475,0.563) {0.563};
+
+            \node[below, font=\small\bfseries]
+                at (1.075,0) {DT};
+
+            % ================================================================
+            % HGB
+            % ================================================================
+            \fill[mainblue]
+                (2.25,0) rectangle (2.50,0.369);
+            \node[above, font=\footnotesize]
+                at (2.375,0.369) {0.369};
+
+            \fill[paramgreen]
+                (2.65,0) rectangle (2.90,0.802);
+            \node[above, font=\footnotesize\bfseries]
+                at (2.775,0.802) {0.802};
+
+            \fill[accentorange]
+                (3.05,0) rectangle (3.30,0.559);
+            \node[above, font=\footnotesize]
+                at (3.175,0.559) {0.559};
+
+            \node[below, font=\small\bfseries]
+                at (2.775,0) {HGB};
+
+            % ================================================================
+            % RF
+            % ================================================================
+            \fill[mainblue]
+                (3.95,0) rectangle (4.20,0.516);
+            \node[above, font=\footnotesize]
+                at (4.075,0.516) {0.516};
+
+            \fill[paramgreen]
+                (4.35,0) rectangle (4.60,0.901);
+            \node[above, font=\footnotesize\bfseries]
+                at (4.475,0.901) {0.901};
+
+            \fill[accentorange]
+                (4.75,0) rectangle (5.00,0.563);
+            \node[above, font=\footnotesize]
+                at (4.875,0.563) {0.563};
+
+            \node[below, font=\small\bfseries]
+                at (4.475,0) {RF};
+
+            % ================================================================
+            % LEGENDA
+            % ================================================================
+            %\fill[mainblue]
+            %    (0.55,1.15) rectangle (0.73,1.20);
+            %\node[anchor=west, font=\footnotesize]
+            %    at (0.78,1.175) {Source-only};
+
+            %\fill[paramgreen]
+            %    (2.10,1.15) rectangle (2.28,1.20);
+            %\node[anchor=west, font=\footnotesize]
+            %    at (2.33,1.175) {INJECTION};
+
+            %\fill[accentorange]
+            %    (3.60,1.15) rectangle (3.78,1.20);
+            %\node[anchor=west, font=\footnotesize]
+            %    at (3.83,1.175) {Hybrid};
+
         \end{tikzpicture}
       }
     \end{column}
 
     \begin{column}{0.5\textwidth}
-      \centering
-      \resizebox{!}{4.5cm}{
+      \resizebox{!}{4cm}{
         \begin{tikzpicture}
-          \node[node_primary, minimum width=4cm] (sourceModel) {
-            \textbf{Source-only}\\
-            \\
-            Ben: $100\%\mathcal{D}_S$\\
+          \node[node_primary, minimum width=4.7cm] at (0,0) (sourceModel) {
+            \textbf{Source-only}\\[5pt]
             Mal: $100\%\mathcal{D}_S$
           };
 
-          \node[node_process, below=0.3cm of sourceModel, minimum width=5cm] (injModel) {
-            \textbf{INJECTION}\\
-            \\
-            Ben: $100\%\mathcal{D}_S$\\
+          \node[node_process, minimum width=4.7cm] at (0,-1.7) (injModel) {
+            \textbf{INJECTION}\\[5pt]
             Mal: $\approx 99.7\%\mathcal{D}_S + 0.3\%\mathcal{D}_T$
           };
 
-          \node[node_accent, below=0.3cm of injModel, minimum width=4cm] (hybridModel) {
-            \textbf{Hybrid}\\
-            \\
-            Ben: $100\%\mathcal{D}_S$\\
+          \node[node_accent, minimum width=4.7cm] at (0,-3.4) (hybridModel) {
+            \textbf{Hybrid}\\[5pt]
             Mal: $100\%\mathcal{D}_T$
           };
 
-          \node [right, font=\footnotesize, text=neutralgrey, align=left] at (sourceModel.east) {
+          \node [right, xshift=1, font=\footnotesize, text=neutralgrey, align=left] at (sourceModel.east) {
             Conoscenza target\\
             \textbf{assente}
           };
-          \node [right, font=\footnotesize, text=paramgreen, align=left] at (injModel.east) {
+
+          \node [right, xshift=1, font=\footnotesize, text=paramgreen, align=left] at (injModel.east) {
             Conoscenza target\\
             \textbf{sparsa}
           };
-          \node [right, font=\footnotesize, text=accentorange, align=left] at (hybridModel.east) {
+
+          \node [right, xshift=1, font=\footnotesize, text=accentorange, align=left] at (hybridModel.east) {
             Conoscenza target\\
             \textbf{dominante}
           };
@@ -481,442 +556,203 @@
 \end{frame}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 % ------------------------------------------------------------------ %
-% 3) PROBLEM STATEMENT — RQ
+% 9) RISULTATI BICLASSE
 % ------------------------------------------------------------------ %
-\section{Problem Statement}
 
-\begin{frame}{Problema di Ricerca e Domande Sperimentali}
-  \centering
+\begin{frame}{Trasferibilità dei modelli specifici di attacco}
   \begin{columns}[T]
-    \begin{column}{0.3\textwidth}
-      \begin{block}{Obiettivo}
-        \footnotesize Valutare la \textbf{generalizzazione cross-domain} di modelli addestrati sul dominio sorgente terrestre verso distribuzioni target terrestre-spaziali.      
-      \end{block}
-    \end{column}
-
-    \begin{column}{0.6\textwidth}
-      \begin{tikzpicture}
-          \draw[draw=unimoreMaroon, dashed, thick]
-              plot[smooth] coordinates {
-                  (0,0)
-                  (0,-1)
-                  (0,-2)
-                  (0,-3)
-              };
-
-          % Punti rossi
-          \fill[unimoreMaroon] (0,0) circle (3pt);
-          \fill[unimoreMaroon] (0,-1) circle (3pt);
-          \fill[unimoreMaroon] (0,-2) circle (3pt);
-          \fill[unimoreMaroon] (0,-3) circle (3pt);
-
-          % Etichette
-          \node[align=left, text=unimoreMaroon, anchor=west] at (0.2,0)
-              {\textbf{RQ1} \footnotesize \textcolor{black}{Trasferibilità diretta e Domain Shift}};
-
-          \node[align=left, text=unimoreMaroon, anchor=west] at (0.2,-1)
-              {\textbf{RQ2} \footnotesize \textcolor{black}{Adattamento mediante Conoscenza Target Sparsa}};
-
-          \node[align=left, text=unimoreMaroon, anchor=west] at (0.2,-2)
-              {\textbf{RQ3} \footnotesize \textcolor{black}{Granularità, Specializzazione e Generalizzazione}};
-
-          \node[align=left, text=unimoreMaroon, anchor=west] at (0.2,-3)
-              {\textbf{RQ4} \footnotesize \textcolor{black}{Architettura, Stabilità e Struttura Decisionale}};
-
-      \end{tikzpicture}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-% ------------------------------------------------------------------ %
-% 4) CONTRIBUTI / FRAMEWORK
-% ------------------------------------------------------------------ %
-\section{Contributi}
-
-\begin{frame}{Framework di Valutazione Cross-Domain}
-  \centering
-  \resizebox{!}{3cm}{
-    \begin{tikzpicture}
-      \node[node_output] (analysis) {
-        \textbf{Diagnostica e interpretazione}\\
-        PCA / KDE \;\; SHAP \;\; TPR--TNR--F1--AP \;\; test $t$ di Welch
-      };
-
-      \node[node_process, above=1cm of analysis, xshift=0.6cm] (train) {
-        \textbf{Training}\\
-        \textbf{Controllato}
-      };
-
-      \node[node_primary, left=0.7cm of train] (repr) {
-        \textbf{Rappresentazione}\\
-        \textbf{Comune}
-      };
-
-      \node[node_accent, right=0.7cm of train] (eval) {
-        \textbf{Cross}\\
-        \textbf{Evaluation}
-      };
-
-      \draw[arrow_flow] (repr) -- (train);
-      \draw[arrow_flow] (train) -- (eval);
-
+    \begin{column}{0.5\textwidth}
+      \centering
       
+      \textbf{TPR media del pool di seeds}
 
-      \draw[arrow_flow] (repr.south) -- ($(analysis.north) + (-3,0)$);
-      \draw[arrow_param] (train.south) -- ($(analysis.north) + (0.6,0)$);
-      \draw[arrow_flow] (eval.south) -- ($(analysis.north) + (3.56,0)$);
-    \end{tikzpicture}
-  }
+      \vspace{0.1cm}
 
-  \vspace{0.30cm}
+      \resizebox{!}{4cm}{
+        \begin{tikzpicture}[x=1.8cm,y=5.0cm]
 
-  \footnotesize Il contributo consiste in un \textbf{protocollo sistematico per studiare la trasferibilità} di NIDS supervisionati tra domini eterogenei.
-\end{frame}
+            % ================================================================
+            % ASSI
+            % ================================================================
+            \draw[arrow_flow]
+                (0,0) -- (5.8,0);
 
+            \draw[arrow_flow]
+                (0,0) -- (0,1.10)
+                node[above, font=\footnotesize] {TPR};
 
+            % ================================================================
+            % GRIGLIA E TICK ASSE Y
+            % ================================================================
+            \foreach \y/\lab in {
+                0/0,
+                0.25/0.25,
+                0.50/0.50,
+                0.75/0.75,
+                1.00/1.00
+            } {
+                \draw[neutralgrey!20]
+                    (0,\y) -- (5.65,\y);
 
-% ------------------------------------------------------------------ %
-% 7) RISULTATO PRINCIPALE — SOURCE VS INJECTION
-% ------------------------------------------------------------------ %
-\section{Risultati}
+                \node[left, font=\footnotesize]
+                    at (0,\y) {\lab};
+            }
 
-\begin{frame}{Effetto della Conoscenza Target Sparsa}
-  \begin{columns}[T]
-    \begin{column}{0.5\textwidth}
-      \centering
-      \small \textbf{TPR media} $\bf{\mathcal{M}_{\mathcal{S}} + \mathcal{M}_{INJ}}$
+            % ================================================================
+            % DT
+            % ================================================================
+            \fill[mainblue]
+                (0.55,0) rectangle (0.80,0.367);
+            \node[above, font=\footnotesize]
+                at (0.675,0.367) {0.367};
 
-      \vspace{0.2cm}
+            \fill[accentorange]
+                (1.35,0) rectangle (1.60,0.484);
+            \node[above, font=\footnotesize]
+                at (1.475,0.484) {0.484};
 
-      \resizebox{!}{3.5cm}{
-        \begin{tikzpicture}[x=6.0cm,y=0.60cm]
-          % Asse e griglia
-          \draw[arrow_flow] (0,0) -- (1.06,0) node[right, font=\scriptsize] {TPR};
-          \foreach \x/\lab in {0/0,0.25/0.25,0.5/0.50,0.75/0.75,1/1.00} {
-            \draw[neutralgrey!20] (\x,0.12) -- (\x,6.35);
-            \node[below, font=\scriptsize] at (\x,0) {\lab};
-          }
+            \node[below, font=\small\bfseries]
+                at (1.075,0) {DT};
 
-          % DT
-          \node[left, font=\small\bfseries] at (0,5.3) {DT};
-          \fill[mainblue!75] (0,5.35) rectangle (0.394,5.65);
-          \fill[paramgreen!80] (0,4.90) rectangle (0.890,5.20);
-          \node[right, font=\scriptsize] at (0.394,5.50) {0.394};
-          \node[right, font=\scriptsize\bfseries] at (0.890,5.05) {0.890};
+            % ================================================================
+            % HGB
+            % ================================================================
+            \fill[mainblue]
+                (2.25,0) rectangle (2.50,0.275);
+            \node[above, font=\footnotesize]
+                at (2.375,0.275) {0.275};
 
-          % HGB
-          \node[left, font=\small\bfseries] at (0,3.5) {HGB};
-          \fill[mainblue!75] (0,3.55) rectangle (0.291,3.85);
-          \fill[paramgreen!80] (0,3.10) rectangle (0.802,3.40);
-          \node[right, font=\scriptsize] at (0.291,3.70) {0.291};
-          \node[right, font=\scriptsize\bfseries] at (0.802,3.25) {0.802};
+            \fill[accentorange]
+                (3.05,0) rectangle (3.30,0.304);
+            \node[above, font=\footnotesize]
+                at (3.175,0.304) {0.304};
 
-          % RF
-          \node[left, font=\small\bfseries] at (0,1.65) {RF};
-          \fill[mainblue!75] (0,1.75) rectangle (0.373,2.05);
-          \fill[paramgreen!80] (0,1.30) rectangle (0.901,1.60);
-          \node[right, font=\scriptsize] at (0.373,1.90) {0.373};
-          \node[right, font=\scriptsize\bfseries] at (0.901,1.45) {0.901};
+            \node[below, font=\small\bfseries]
+                at (2.775,0) {HGB};
 
-          % Legenda
-          \fill[mainblue!75] (0.03,0.45) rectangle (0.075,0.68);
-          \node[anchor=west, font=\scriptsize] at (0.085,0.565) {Source-only};
-          \fill[paramgreen!80] (0.38,0.45) rectangle (0.425,0.68);
-          \node[anchor=west, font=\scriptsize] at (0.435,0.565) {INJECTION};
+            % ================================================================
+            % RF
+            % ================================================================
+            \fill[mainblue]
+                (3.95,0) rectangle (4.20,0.344);
+            \node[above, font=\footnotesize]
+                at (4.075,0.344) {0.344};
+
+            \fill[accentorange]
+                (4.75,0) rectangle (5.00,0.410);
+            \node[above, font=\footnotesize]
+                at (4.875,0.410) {0.410};
+
+            \node[below, font=\small\bfseries]
+                at (4.475,0) {RF};
+
+            % ================================================================
+            % LEGENDA
+            % ================================================================
+            %\fill[mainblue]
+            %    (0.55,1.15) rectangle (0.73,1.20);
+            %\node[anchor=west, font=\footnotesize]
+            %    at (0.78,1.175) {Source-only};
+
+            %\fill[accentorange]
+            %    (3.60,1.15) rectangle (3.78,1.20);
+            %\node[anchor=west, font=\footnotesize]
+            %    at (3.83,1.175) {Hybrid};
+
         \end{tikzpicture}
       }
-
-      \vspace{0.2cm}
-
-      \footnotesize DT: $+0.496$ \;\; HGB: $+0.511$ \;\; RF: $+0.528$
     \end{column}
 
     \begin{column}{0.5\textwidth}
-      \centering
-      \small \textbf{TPR media} $\bf{\mathcal{M}_{\mathcal{H}} + \mathcal{M}_{INJ}}$
+      \resizebox{!}{4cm}{
+        \begin{tikzpicture}
+          \node[node_primary, minimum width=4.7cm] at (0,0) (sourceModel) {
+            \textbf{Source-only}\\[5pt]
+            Mal: $100\%\mathcal{D}_S$
+          };
 
-      \vspace{0.2cm}
+          \node[node_accent, minimum width=4.7cm] at (0,-3.4) (hybridModel) {
+            \textbf{Hybrid}\\[5pt]
+            Mal: $100\%\mathcal{D}_T$
+          };
 
-      \resizebox{!}{3.5cm}{
-        \begin{tikzpicture}[x=6.0cm,y=0.60cm]
-          % Asse e griglia
-          \draw[arrow_flow] (0,0) -- (1.06,0) node[right, font=\scriptsize] {TPR};
-          \foreach \x/\lab in {0/0,0.25/0.25,0.5/0.50,0.75/0.75,1/1.00} {
-            \draw[neutralgrey!20] (\x,0.12) -- (\x,6.35);
-            \node[below, font=\scriptsize] at (\x,0) {\lab};
-          }
-
-          % DT
-          \node[left, font=\small\bfseries] at (0,5.3) {DT};
-          \fill[mainblue!75] (0,5.35) rectangle (0.510,5.65);
-          \fill[paramgreen!80] (0,4.90) rectangle (0.890,5.20);
-          \node[right, font=\scriptsize] at (0.510,5.50) {0.510};
-          \node[right, font=\scriptsize\bfseries] at (0.890,5.05) {0.890};
-
-          % HGB
-          \node[left, font=\small\bfseries] at (0,3.5) {HGB};
-          \fill[mainblue!75] (0,3.55) rectangle (0.389,3.85);
-          \fill[paramgreen!80] (0,3.10) rectangle (0.802,3.40);
-          \node[right, font=\scriptsize] at (0.389,3.70) {0.389};
-          \node[right, font=\scriptsize\bfseries] at (0.802,3.25) {0.802};
-
-          % RF
-          \node[left, font=\small\bfseries] at (0,1.65) {RF};
-          \fill[mainblue!75] (0,1.75) rectangle (0.461,2.05);
-          \fill[paramgreen!80] (0,1.30) rectangle (0.901,1.60);
-          \node[right, font=\scriptsize] at (0.461,1.90) {0.461};
-          \node[right, font=\scriptsize\bfseries] at (0.901,1.45) {0.901};
-
-          % Legenda
-          \fill[mainblue!75] (0.03,0.45) rectangle (0.075,0.68);
-          \node[anchor=west, font=\scriptsize] at (0.085,0.565) {Hybrid};
-          \fill[paramgreen!80] (0.38,0.45) rectangle (0.425,0.68);
-          \node[anchor=west, font=\scriptsize] at (0.435,0.565) {INJECTION};
+          \node [right, xshift=1, font=\footnotesize, text=neutralgrey, align=left] at (sourceModel.east) {
+            Conoscenza target\\
+            \textbf{assente}
+          };
+          
+          \node [right, xshift=1, font=\footnotesize, text=accentorange, align=left] at (hybridModel.east) {
+            Conoscenza target\\
+            \textbf{dominante}
+          };
         \end{tikzpicture}
       }
-
-      \vspace{0.2cm}
-
-      \footnotesize DT: $+0.380$ \;\; HGB: $+0.413$ \;\; RF: $+0.440$
-    \end{column}
-  \end{columns}
-\end{frame}
-
-% ------------------------------------------------------------------ %
-% 8) RISULTATI DI GRANULARITA
-% ------------------------------------------------------------------ %
-\begin{frame}{Generalizzazione vs Specializzazione}
-  \begin{columns}[T]
-    \begin{column}{0.5\textwidth}
-      \centering
-      \small \textbf{TPR media} $\bf{\mathcal{D}_{\mathcal{S}}}$
-
-      \vspace{0.2cm}
-
-      \resizebox{!}{3.5cm}{
-        \begin{tikzpicture}[x=6.0cm,y=0.60cm]
-          % Asse e griglia
-          \draw[arrow_flow] (0,0) -- (1.06,0) node[right, font=\scriptsize] {TPR};
-          \foreach \x/\lab in {0/0,0.25/0.25,0.5/0.50,0.75/0.75,1/1.00} {
-            \draw[neutralgrey!20] (\x,0.12) -- (\x,6.35);
-            \node[below, font=\scriptsize] at (\x,0) {\lab};
-          }
-
-          % DT
-          \node[left, font=\small\bfseries] at (0,5.3) {DT};
-          \fill[accentorange!75] (0,5.35) rectangle (0.529,5.65);
-          \fill[neutralgrey!80] (0,4.90) rectangle (0.367,5.20);
-          \node[right, font=\scriptsize] at (0.529,5.50) {0.529};
-          \node[right, font=\scriptsize\bfseries] at (0.367,5.05) {0.367};
-
-          % HGB
-          \node[left, font=\small\bfseries] at (0,3.5) {HGB};
-          \fill[accentorange!75] (0,3.55) rectangle (0.369,3.85);
-          \fill[neutralgrey!80] (0,3.10) rectangle (0.275,3.40);
-          \node[right, font=\scriptsize] at (0.369,3.70) {0.369};
-          \node[right, font=\scriptsize\bfseries] at (0.275,3.25) {0.275};
-
-          % RF
-          \node[left, font=\small\bfseries] at (0,1.65) {RF};
-          \fill[accentorange!75] (0,1.75) rectangle (0.516,2.05);
-          \fill[neutralgrey!80] (0,1.30) rectangle (0.344,1.60);
-          \node[right, font=\scriptsize] at (0.516,1.90) {0.516};
-          \node[right, font=\scriptsize\bfseries] at (0.344,1.45) {0.344};
-
-          % Legenda
-          \fill[accentorange!75] (0.03,0.45) rectangle (0.075,0.68);
-          \node[anchor=west, font=\scriptsize] at (0.085,0.565) {Aggregato};
-          \fill[neutralgrey!80] (0.38,0.45) rectangle (0.425,0.68);
-          \node[anchor=west, font=\scriptsize] at (0.435,0.565) {Biclassi};
-        \end{tikzpicture}
-      }
-
-      \vspace{0.2cm}
-
-      \footnotesize DT: $-0.162$ \;\; HGB: $-0.094$ \;\; RF: $-0.172$
-    \end{column}
-
-    \begin{column}{0.5\textwidth}
-      \centering
-      \small \textbf{TPR media} $\bf{\mathcal{D}_{\mathcal{H}}}$
-
-      \vspace{0.2cm}
-
-      \resizebox{!}{3.5cm}{
-        \begin{tikzpicture}[x=6.0cm,y=0.60cm]
-          % Asse e griglia
-          \draw[arrow_flow] (0,0) -- (1.06,0) node[right, font=\scriptsize] {TPR};
-          \foreach \x/\lab in {0/0,0.25/0.25,0.5/0.50,0.75/0.75,1/1.00} {
-            \draw[neutralgrey!20] (\x,0.12) -- (\x,6.35);
-            \node[below, font=\scriptsize] at (\x,0) {\lab};
-          }
-
-          % DT
-          \node[left, font=\small\bfseries] at (0,5.3) {DT};
-          \fill[accentorange!75] (0,5.35) rectangle (0.563,5.65);
-          \fill[neutralgrey!80] (0,4.90) rectangle (0.484,5.20);
-          \node[right, font=\scriptsize] at (0.563,5.50) {0.563};
-          \node[right, font=\scriptsize\bfseries] at (0.484,5.05) {0.484};
-
-          % HGB
-          \node[left, font=\small\bfseries] at (0,3.5) {HGB};
-          \fill[accentorange!75] (0,3.55) rectangle (0.559,3.85);
-          \fill[neutralgrey!80] (0,3.10) rectangle (0.304,3.40);
-          \node[right, font=\scriptsize] at (0.559,3.70) {0.559};
-          \node[right, font=\scriptsize\bfseries] at (0.304,3.25) {0.304};
-
-          % RF
-          \node[left, font=\small\bfseries] at (0,1.65) {RF};
-          \fill[accentorange!75] (0,1.75) rectangle (0.563,2.05);
-          \fill[neutralgrey!80] (0,1.30) rectangle (0.410,1.60);
-          \node[right, font=\scriptsize] at (0.563,1.90) {0.563};
-          \node[right, font=\scriptsize\bfseries] at (0.410,1.45) {0.410};
-
-          % Legenda
-          \fill[accentorange!75] (0.03,0.45) rectangle (0.075,0.68);
-          \node[anchor=west, font=\scriptsize] at (0.085,0.565) {Aggregati};
-          \fill[neutralgrey!80] (0.38,0.45) rectangle (0.425,0.68);
-          \node[anchor=west, font=\scriptsize] at (0.435,0.565) {Biclassi};
-        \end{tikzpicture}
-      }
-      
-      \vspace{0.2cm}
-
-      \footnotesize DT: $-0.079$ \;\; HGB: $-0.255$ \;\; RF: $-0.153$
     \end{column}
   \end{columns}
 \end{frame}
 
+
 % ------------------------------------------------------------------ %
-% 9) CONCLUSIONI
+% 10) CONCLUSIONI
 % ------------------------------------------------------------------ %
 \section{Conclusioni}
 
-\begin{frame}{Risposte alle Domande Sperimentali}
-  \tiny
-    \begin{tabularx}{\linewidth}{>{\centering\arraybackslash}p{0.5cm} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
-        \toprule
-        \textbf{\color{unimoreMaroon}RQ} & \textbf{\color{unimoreMaroon}Risposta} & \textbf{\color{unimoreMaroon}Evidenza} & \textbf{\color{unimoreMaroon}Limite} \\
-        \midrule
-        \color{unimoreMaroon}\textbf{RQ1} &
-        Trasferibilità source-only limitata e dipendente dalla distribuzione target. &
-        Marcata riduzione della TPR sui target, con episodi locali di trasferibilità. &
-        \textit{Benign-domain shift} non valutato. \\
-        \addlinespace
-        \addlinespace
-        \color{unimoreMaroon}\textbf{RQ2} &
-        Conoscenza target sparsa associata a una maggiore generalizzazione cross-domain. &
-        La configurazione \textit{INJECTION} è associata a una maggiore sensibilità target, preservando sostanzialmente la risposta su NB15. &
-        Il $\approx 0.3\%$ dei campioni non definisce una quantità minima od ottimale. \\
-        \addlinespace
-        \addlinespace
-        \color{unimoreMaroon}\textbf{RQ3} &
-        Aggregazione associata a una generalizzazione più uniforme; specializzazione maggiormente dipendente dalla distribuzione. &
-        Modelli aggregati più uniformi; rilevatori biclasse più dipendenti dalla famiglia d'attacco. &
-        Presenti eccezioni di trasferimento tra specifiche famiglie. \\
-        \addlinespace
-        \addlinespace
-        \color{unimoreMaroon}\textbf{RQ4} &
-        L'architettura modula sensibilità, specificità e stabilità. &
-        RF mostra il profilo misurato più favorevole; HGB privilegia la specificità; DT risulta intermedio. &
-        Costi computazionali e di deployment non valutati. \\
-        \bottomrule
-    \end{tabularx}
+\begin{frame}{Risposta alle domande sperimentali}
+  \raggedright
+  \begin{tikzpicture}[
+    box/.style={node_transform, align=center, font=\bfseries},
+    dot/.style={circle, fill=unimoreMaroon, text=white, font=\bfseries, inner sep=2pt}
+  ]
+    % Linea
+    \draw[draw=unimoreMaroon, dashed, thick]
+      plot[smooth] coordinates {
+        (0,0)
+        (0,-1)
+        (0,-2)
+      };
+        
+    % Punti rossi
+    \node[dot] at (0,-1) {1};
+    \node[dot] at (0,-2) {2};
+
+    % Etichette
+    \node[align=left, anchor=west] at (0.3,-1) {Trasferibilità del Modello};
+    \node[align=left, anchor=west] at (0.3,-2) {Architettura e Granularità della Struttura Decisionale};
+    
+    % Risposta
+    \node[box] (t1) at (5.5,0.5) {
+      Nel domain shift, i modelli possono perdere capacità discriminativa;\\
+      tuttavia una conoscenza target, seppur sparsa e limitata,\\
+      favorisce l'adaptation preservando la retention
+    };
+  \end{tikzpicture}
 \end{frame}
 
+
 % ------------------------------------------------------------------ %
-% 10) TAKEAWAYS E FUTURO
+% 11) SVILUPPI FUTURI
 % ------------------------------------------------------------------ %
-\begin{frame}{Takeaways e Sviluppi Futuri}
-  \begin{columns}[T]
-    % TAKEAWAYS
-    \begin{column}{0.5\textwidth}
-      \centering
-      \resizebox{0.7\textwidth}{!}{
-        \begin{tikzpicture}[
-          takeaway_box/.style={node_transform, minimum width=6cm, align=center, font=\scriptsize\bfseries},
-          takeaway_label/.style={above, font=\scriptsize\bfseries, text=unimoreMaroon}
-        ]
+\begin{frame}{Sviluppi futuri}
+  \raggedright
+  \begin{tikzpicture}[dot/.style={circle, fill=unimoreMaroon, text=white, font=\bfseries, inner sep=2pt}]
+    \draw[draw=unimoreMaroon, dashed, thick]
+      plot[smooth] coordinates {
+        (0,0)
+        (0,-1)
+        (0,-2)
+      };
 
-          % TAKEAWAY 1
-          \node[takeaway_box] (t1) at (0,0) {La prestazione in-domain non\\ garantisce robustezza cross-domain};
-          \node[takeaway_label] at (t1.north) {I Takeaway};
+    % Punti rossi
+    \node[dot] at (0,0) {1};
+    \node[dot] at (0,-1) {2};
+    \node[dot] at (0,-2) {3};
 
-          % TAKEAWAY 2
-          \node[takeaway_box, below=0.7cm of t1] (t2) {Una conoscenza target estremamente\\ limitata può favorire la generalizzazione\\ preservando il sorgente};
-          \node[takeaway_label] at (t2.north) {II Takeaway};
-
-          % TAKEAWAY 3
-          \node[takeaway_box, below=0.7cm of t2] (t3) {La robustezza è un compromesso\\ tra adaptation e retention};
-          \node[takeaway_label] at (t3.north) {III Takeaway};
-        \end{tikzpicture}
-      }
-    \end{column}
-
-    % SVILUPPI FUTURI
-    \begin{column}{0.5\textwidth}
-      \resizebox{0.9\textwidth}{!}{
-        \begin{tikzpicture}[
-            future_dot/.style={circle, fill=unimoreMaroon, text=white, font=\bfseries\footnotesize, inner sep=2.2pt},
-            future_label/.style={font=\footnotesize, align=left}
-        ]
-
-            % Coordinate dei tre punti
-            \coordinate (p1) at (0,0);
-            \coordinate (p2) at (2.4,1.1);
-            \coordinate (p3) at (3.75,3);
-
-            % Freccia curva
-            \draw[arrow_flow] (0,0) to[bend right=35] (4,4);
-
-            % Pallino 1
-            \node[future_dot] at (p1) {1};
-            \node[future_label, anchor=west] at ($(p1)+(0.2,-0.2)$) {
-              \textbf{Estendere il domain shift}
-            };
-
-            % Pallino 2
-            \node[future_dot] at (p2) {2};
-            \node[future_label, anchor=west] at ($(p2)+(0.2,-0.2)$) {
-              \textbf{Granularità Injection}\\ 
-              \textbf{e trade-off decisionale}
-            };
-
-            % Pallino 3
-            \node[future_dot] at (p3) {3};
-            \node[future_label, anchor=west] at ($(p3)+(0.2,0)$) {
-              \textbf{Valutare costi}\\
-              \textbf{computazionali e}\\
-              \textbf{deployment}
-            };
-        \end{tikzpicture}
-      }
-    \end{column}
-  \end{columns}
-
-  \vspace{0.2cm}
-
-  \begin{center}
-    \footnotesize \color{unimoreMaroon}\textbf{Adattarsi a nuove distribuzioni senza perdere la conoscenza acquisita.}
-  \end{center}
+    % Etichette
+    \node[align=left, anchor=west] at (0.3,0) {Estensione del domain target};
+    \node[align=left, anchor=west] at (0.3,-1) {Analisi della granularità di baseline e trade-off decisionale};
+    \node[align=left, anchor=west] at (0.3,-2) {Valutazione dei costi computazionali e deployment};
+  \end{tikzpicture}
 \end{frame}
 
 \end{document}
