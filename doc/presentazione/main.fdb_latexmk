@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1790842091.26772 "/home/marchesini-alessandro/Documents/progetto-tesi/codice/earth-trained-satellite-ids/doc/presentazione/main.tex" "main.pdf" "main" 1790842103.36603 0
+["pdflatex"] 1790864803.46193 "/home/marchesini-alessandro/Documents/progetto-tesi/codice/earth-trained-satellite-ids/doc/presentazione/main.tex" "main.pdf" "main" 1790864813.94755 0
   "../images/chapter5/heatmaps/rf_TPR_aggregated_matrix_hybrid_vs_baseline.png" 1788891482.20451 1174131 309e9d63d20628c20da9b462909e5965 ""
   "../images/chapter5/heatmaps/rf_TPR_aggregated_matrix_source_vs_baseline.png" 1788891482.19372 1150728 835b2e7ca560f9448bf6df017f89afd3 ""
   "../images/chapter5/kde/kde_baseline_injection.png" 1788597640.00339 509262 7d085e1ae5f65084f6dcaaacc752a3ff ""
@@ -13,7 +13,7 @@
   "../images/chapter5/shap/shap_rf_42_sorgente_nb15.png" 1788599197.99311 442263 652accfd4a97ba4ae8afe9858d692b1c ""
   "../tikz_styles.tex" 1789648774.73408 4279 b06dcd2a55497178dfd0d4d4fa9dbcd6 ""
   "/etc/texmf/web2c/texmf.cnf" 1784537368.78022 475 c0e671620eb5563b2130f56340a5fde8 ""
-  "/home/marchesini-alessandro/Documents/progetto-tesi/codice/earth-trained-satellite-ids/doc/presentazione/main.tex" 1790842090.92551 32858 e0e8220a674e39232317506c5080f1ca ""
+  "/home/marchesini-alessandro/Documents/progetto-tesi/codice/earth-trained-satellite-ids/doc/presentazione/main.tex" 1790864803.13246 29741 dace8ee4ddb504702096d5dd30f1c67f ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc" 1165713224 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/adobe/helvetic/phvb8r.tfm" 1136768653 4484 b828043cbd581d289d955903c1339981 ""
@@ -299,12 +299,13 @@
   "images/align_stin.jpg" 1790841091.26266 226678 5ccd9e5d13feffe711225d1822d4761e ""
   "images/features.jpg" 1790841550.27198 148885 3ce5289a0a421ab5ddea9000f9898da4 ""
   "images/features_descriptions.jpg" 1790841583.00428 153397 849956a6c6d09bdefc611bfb818aac47 ""
+  "images/network-nids-ml.png" 1790864792.97548 1256438 dd55eccdedcb9293111d112a7734089f ""
   "images/stin-first-page.jpg" 1790719651.57388 361284 a3f32d5d24cc5fec9a1dc5da4176f68e ""
   "images/stin-network.jpg" 1790714118.9281 117536 510ffbdd8c69b4e04045e8f318734a18 ""
-  "main.aux" 1790842103.21465 5593 2fdab58b7a84dad6491cbccc068f59d8 "pdflatex"
-  "main.nav" 1790842103.21762 3353 d8c180e16e205721e026086fe0a93691 "pdflatex"
-  "main.out" 1790842103.21653 933 1fc7c98a6518bb8768f937515e46c606 "pdflatex"
-  "main.tex" 1790842090.92551 32858 e0e8220a674e39232317506c5080f1ca ""
+  "main.aux" 1790864813.80437 5593 2fdab58b7a84dad6491cbccc068f59d8 "pdflatex"
+  "main.nav" 1790864813.80649 3353 d8c180e16e205721e026086fe0a93691 "pdflatex"
+  "main.out" 1790864813.80548 933 1fc7c98a6518bb8768f937515e46c606 "pdflatex"
+  "main.tex" 1790864803.13246 29741 dace8ee4ddb504702096d5dd30f1c67f ""
   (generated)
   "main.aux"
   "main.log"
