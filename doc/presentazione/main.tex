@@ -107,6 +107,7 @@
 \begin{frame}{Contributi del progetto}
   \begin{columns}[c]
     \begin{column}{0.4\textwidth}
+      \centering
       \begin{tikzpicture}
         \draw[draw=unimoreMaroon, dashed, thick]
             plot[smooth] coordinates {
@@ -121,9 +122,9 @@
         \fill[unimoreMaroon] (0,-2) circle (3pt);
 
         % Etichette
-        \node[align=left, anchor=west] at (0.2,0) {Framework Cross-Domain};
-        \node[align=left, anchor=west] at (0.2,-1) {Protocollo di Cross-Evaluation};
-        \node[align=left, anchor=west] at (0.2,-2) {Analisi Cross-Domain};
+        \node[align=left, anchor=west] at (0.2,0) {Framework};
+        \node[align=left, anchor=west] at (0.2,-1) {Esperimenti};
+        \node[align=left, anchor=west] at (0.2,-2) {Analisi XAI};
       \end{tikzpicture}
     \end{column}
 
@@ -316,11 +317,11 @@
     \begin{column}{0.5\textwidth}
       \centering
       
-      \textbf{TPR media del pool di seeds}
+      \quad \quad \quad \textbf{TPR media del pool di seeds}
 
       \vspace{0.1cm}
 
-      \resizebox{!}{4cm}{
+      \resizebox{!}{4.5cm}{
         \begin{tikzpicture}[x=1.8cm,y=5.0cm]
 
             % ================================================================
@@ -436,7 +437,11 @@
     \end{column}
 
     \begin{column}{0.5\textwidth}
-      \resizebox{!}{4cm}{
+      \centering
+
+      \vspace{0.7cm}
+
+      \resizebox{!}{3cm}{
         \begin{tikzpicture}
           \node[node_primary, minimum width=4.7cm] at (0,0) (sourceModel) {
             \textbf{Source-only}\\[5pt]
@@ -483,11 +488,11 @@
     \begin{column}{0.5\textwidth}
       \centering
       
-      \textbf{TPR media del pool di seeds}
+      \quad \quad \quad \textbf{TPR media del pool di seeds}
 
       \vspace{0.1cm}
 
-      \resizebox{!}{4cm}{
+      \resizebox{!}{4.5cm}{
         \begin{tikzpicture}[x=1.8cm,y=5.0cm]
 
             % ================================================================
@@ -583,7 +588,11 @@
     \end{column}
 
     \begin{column}{0.5\textwidth}
-      \resizebox{!}{4cm}{
+      \centering
+
+      \vspace{0.7cm}
+
+      \resizebox{!}{3cm}{
         \begin{tikzpicture}
           \node[node_primary, minimum width=4.7cm] at (0,0) (sourceModel) {
             \textbf{Source-only}\\[5pt]

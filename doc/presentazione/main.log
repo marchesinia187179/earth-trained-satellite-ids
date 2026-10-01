@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025/Debian) (preloaded format=pdflatex 2026.7.20)  1 OCT 2026 16:26
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025/Debian) (preloaded format=pdflatex 2026.7.20)  1 OCT 2026 16:43
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1067,52 +1067,47 @@ LaTeX Font Info:    Font shape `T1/phv/b/it' in size <6> not available
 (Font)              Font shape `T1/phv/b/sl' tried instead on input line 99.
  [3
 
- <./images/stin-first-page.jpg> <./images/stin-network.jpg>]
-Overfull \hbox (5.51064pt too wide) in paragraph at lines 159--159
-[][]  
- []
-
-[4
+ <./images/stin-first-page.jpg> <./images/stin-network.jpg>] [4
 
 ]
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <14.4> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 228.
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 229.
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <10> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 228.
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 229.
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <7> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 228.
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 229.
 LaTeX Font Info:    Font shape `T1/phv/bx/it' in size <14.4> not available
-(Font)              Font shape `T1/phv/b/it' tried instead on input line 228.
+(Font)              Font shape `T1/phv/b/it' tried instead on input line 229.
 LaTeX Font Info:    Font shape `T1/phv/b/it' in size <14.4> not available
-(Font)              Font shape `T1/phv/b/sl' tried instead on input line 228.
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 229.
 LaTeX Font Info:    Font shape `T1/phv/bx/it' in size <10> not available
-(Font)              Font shape `T1/phv/b/it' tried instead on input line 228.
+(Font)              Font shape `T1/phv/b/it' tried instead on input line 229.
 LaTeX Font Info:    Font shape `T1/phv/b/it' in size <10> not available
-(Font)              Font shape `T1/phv/b/sl' tried instead on input line 228.
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 229.
 LaTeX Font Info:    Font shape `T1/phv/bx/it' in size <7> not available
-(Font)              Font shape `T1/phv/b/it' tried instead on input line 228.
+(Font)              Font shape `T1/phv/b/it' tried instead on input line 229.
 LaTeX Font Info:    Font shape `T1/phv/b/it' in size <7> not available
-(Font)              Font shape `T1/phv/b/sl' tried instead on input line 228.
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 229.
 LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <14.4> not available
-(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 228.
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 229.
 LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <10> not available
-(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 228.
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 229.
 LaTeX Font Info:    Font shape `OT1/cmss/b/n' in size <7> not available
-(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 228.
+(Font)              Font shape `OT1/cmss/bx/n' tried instead on input line 229.
 LaTeX Font Info:    Font shape `T1/phv/b/it' in size <14.4> not available
-(Font)              Font shape `T1/phv/b/sl' tried instead on input line 228.
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 229.
 LaTeX Font Info:    Font shape `T1/phv/b/it' in size <10> not available
-(Font)              Font shape `T1/phv/b/sl' tried instead on input line 228.
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 229.
 LaTeX Font Info:    Font shape `T1/phv/b/it' in size <7> not available
-(Font)              Font shape `T1/phv/b/sl' tried instead on input line 228.
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 229.
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <5> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 228.
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 229.
 LaTeX Font Info:    Font shape `T1/phv/bx/it' in size <5> not available
-(Font)              Font shape `T1/phv/b/it' tried instead on input line 228.
+(Font)              Font shape `T1/phv/b/it' tried instead on input line 229.
 LaTeX Font Info:    Font shape `T1/phv/b/it' in size <5> not available
-(Font)              Font shape `T1/phv/b/sl' tried instead on input line 228.
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 229.
 
-Overfull \hbox (1.95438pt too wide) in paragraph at lines 228--228
+Overfull \hbox (1.95438pt too wide) in paragraph at lines 229--229
  [][] 
  []
 
@@ -1123,14 +1118,14 @@ Overfull \hbox (1.95438pt too wide) in paragraph at lines 228--228
 ] [7
 
 ]
-Overfull \hbox (5.23381pt too wide) in paragraph at lines 474--474
+Overfull \hbox (30.4304pt too wide) in paragraph at lines 479--479
  [][] 
  []
 
 [8
 
 ]
-Overfull \hbox (5.23381pt too wide) in paragraph at lines 611--611
+Overfull \hbox (30.4304pt too wide) in paragraph at lines 620--620
  [][] 
  []
 
@@ -1146,17 +1141,17 @@ Overfull \hbox (5.23381pt too wide) in paragraph at lines 611--611
 <../images/chapter5/pca/pca_sorgente_nb15.png, id=172, 761.244pt x 425.4294pt>
 File: ../images/chapter5/pca/pca_sorgente_nb15.png Graphic file (type png)
 <use ../images/chapter5/pca/pca_sorgente_nb15.png>
-Package pdftex.def Info: ../images/chapter5/pca/pca_sorgente_nb15.png  used on input line 751.
+Package pdftex.def Info: ../images/chapter5/pca/pca_sorgente_nb15.png  used on input line 760.
 (pdftex.def)             Requested size: 129.57445pt x 80.12296pt.
 <../images/chapter5/pca/pca_baseline_injection.png, id=175, 761.244pt x 425.4294pt>
 File: ../images/chapter5/pca/pca_baseline_injection.png Graphic file (type png)
 <use ../images/chapter5/pca/pca_baseline_injection.png>
-Package pdftex.def Info: ../images/chapter5/pca/pca_baseline_injection.png  used on input line 751.
+Package pdftex.def Info: ../images/chapter5/pca/pca_baseline_injection.png  used on input line 760.
 (pdftex.def)             Requested size: 129.57445pt x 80.12296pt.
 <../images/chapter5/pca/pca_hybrid_nb15_stin.png, id=177, 764.3757pt x 425.4294pt>
 File: ../images/chapter5/pca/pca_hybrid_nb15_stin.png Graphic file (type png)
 <use ../images/chapter5/pca/pca_hybrid_nb15_stin.png>
-Package pdftex.def Info: ../images/chapter5/pca/pca_hybrid_nb15_stin.png  used on input line 751.
+Package pdftex.def Info: ../images/chapter5/pca/pca_hybrid_nb15_stin.png  used on input line 760.
 (pdftex.def)             Requested size: 129.57445pt x 79.71413pt.
  [13
 
@@ -1164,17 +1159,17 @@ Package pdftex.def Info: ../images/chapter5/pca/pca_hybrid_nb15_stin.png  used o
 <../images/chapter5/kde/kde_sorgente_nb15.png, id=194, 1009.1301pt x 740.5266pt>
 File: ../images/chapter5/kde/kde_sorgente_nb15.png Graphic file (type png)
 <use ../images/chapter5/kde/kde_sorgente_nb15.png>
-Package pdftex.def Info: ../images/chapter5/kde/kde_sorgente_nb15.png  used on input line 799.
+Package pdftex.def Info: ../images/chapter5/kde/kde_sorgente_nb15.png  used on input line 808.
 (pdftex.def)             Requested size: 129.57445pt x 104.31056pt.
 <../images/chapter5/kde/kde_baseline_injection.png, id=196, 1009.1301pt x 740.5266pt>
 File: ../images/chapter5/kde/kde_baseline_injection.png Graphic file (type png)
 <use ../images/chapter5/kde/kde_baseline_injection.png>
-Package pdftex.def Info: ../images/chapter5/kde/kde_baseline_injection.png  used on input line 799.
+Package pdftex.def Info: ../images/chapter5/kde/kde_baseline_injection.png  used on input line 808.
 (pdftex.def)             Requested size: 129.57445pt x 104.31056pt.
 <../images/chapter5/kde/kde_hybrid_nb15_stin.png, id=198, 1009.1301pt x 740.5266pt>
 File: ../images/chapter5/kde/kde_hybrid_nb15_stin.png Graphic file (type png)
 <use ../images/chapter5/kde/kde_hybrid_nb15_stin.png>
-Package pdftex.def Info: ../images/chapter5/kde/kde_hybrid_nb15_stin.png  used on input line 799.
+Package pdftex.def Info: ../images/chapter5/kde/kde_hybrid_nb15_stin.png  used on input line 808.
 (pdftex.def)             Requested size: 129.57445pt x 104.31056pt.
  [14
 
@@ -1182,40 +1177,40 @@ Package pdftex.def Info: ../images/chapter5/kde/kde_hybrid_nb15_stin.png  used o
 <../images/chapter5/shap/shap_rf_42_sorgente_nb15.png, id=213, 554.07pt x 580.569pt>
 File: ../images/chapter5/shap/shap_rf_42_sorgente_nb15.png Graphic file (type png)
 <use ../images/chapter5/shap/shap_rf_42_sorgente_nb15.png>
-Package pdftex.def Info: ../images/chapter5/shap/shap_rf_42_sorgente_nb15.png  used on input line 829.
+Package pdftex.def Info: ../images/chapter5/shap/shap_rf_42_sorgente_nb15.png  used on input line 838.
 (pdftex.def)             Requested size: 129.57445pt x 129.11548pt.
 <../images/chapter5/shap/shap_rf_42_baseline_injection.png, id=215, 554.07pt x 580.569pt>
 File: ../images/chapter5/shap/shap_rf_42_baseline_injection.png Graphic file (type png)
 <use ../images/chapter5/shap/shap_rf_42_baseline_injection.png>
-Package pdftex.def Info: ../images/chapter5/shap/shap_rf_42_baseline_injection.png  used on input line 829.
+Package pdftex.def Info: ../images/chapter5/shap/shap_rf_42_baseline_injection.png  used on input line 838.
 (pdftex.def)             Requested size: 129.57445pt x 129.11548pt.
 <../images/chapter5/shap/shap_rf_42_hybrid_nb15_stin.png, id=217, 554.07pt x 580.569pt>
 File: ../images/chapter5/shap/shap_rf_42_hybrid_nb15_stin.png Graphic file (type png)
 <use ../images/chapter5/shap/shap_rf_42_hybrid_nb15_stin.png>
-Package pdftex.def Info: ../images/chapter5/shap/shap_rf_42_hybrid_nb15_stin.png  used on input line 829.
+Package pdftex.def Info: ../images/chapter5/shap/shap_rf_42_hybrid_nb15_stin.png  used on input line 838.
 (pdftex.def)             Requested size: 129.57445pt x 129.11548pt.
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <17.28> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 829.
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 838.
 LaTeX Font Info:    Font shape `T1/phv/m/it' in size <12> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 829.
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 838.
 LaTeX Font Info:    Font shape `T1/phv/bx/it' in size <17.28> not available
-(Font)              Font shape `T1/phv/b/it' tried instead on input line 829.
+(Font)              Font shape `T1/phv/b/it' tried instead on input line 838.
 LaTeX Font Info:    Font shape `T1/phv/b/it' in size <17.28> not available
-(Font)              Font shape `T1/phv/b/sl' tried instead on input line 829.
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 838.
 LaTeX Font Info:    Font shape `T1/phv/bx/it' in size <12> not available
-(Font)              Font shape `T1/phv/b/it' tried instead on input line 829.
+(Font)              Font shape `T1/phv/b/it' tried instead on input line 838.
 LaTeX Font Info:    Font shape `T1/phv/b/it' in size <12> not available
-(Font)              Font shape `T1/phv/b/sl' tried instead on input line 829.
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 838.
  [15
 
  <../images/chapter5/shap/shap_rf_42_sorgente_nb15.png> <../images/chapter5/shap/shap_rf_42_baseline_injection.png> <../images/chapter5/shap/shap_rf_42_hybrid_nb15_stin.png>]
 <../images/chapter5/heatmaps/rf_TPR_aggregated_matrix_source_vs_baseline.png, id=232, 1400.8335pt x 669.702pt>
 File: ../images/chapter5/heatmaps/rf_TPR_aggregated_matrix_source_vs_baseline.png Graphic file (type png)
 <use ../images/chapter5/heatmaps/rf_TPR_aggregated_matrix_source_vs_baseline.png>
-Package pdftex.def Info: ../images/chapter5/heatmaps/rf_TPR_aggregated_matrix_source_vs_baseline.png  used on input line 838.
+Package pdftex.def Info: ../images/chapter5/heatmaps/rf_TPR_aggregated_matrix_source_vs_baseline.png  used on input line 847.
 (pdftex.def)             Requested size: 333.75291pt x 152.77773pt.
 
-Overfull \vbox (2.5879pt too high) detected at line 838
+Overfull \vbox (2.5879pt too high) detected at line 847
  []
 
 [16
@@ -1224,7 +1219,7 @@ Overfull \vbox (2.5879pt too high) detected at line 838
 <../images/chapter5/heatmaps/rf_TPR_aggregated_matrix_hybrid_vs_baseline.png, id=243, 1412.8785pt x 853.2678pt>
 File: ../images/chapter5/heatmaps/rf_TPR_aggregated_matrix_hybrid_vs_baseline.png Graphic file (type png)
 <use ../images/chapter5/heatmaps/rf_TPR_aggregated_matrix_hybrid_vs_baseline.png>
-Package pdftex.def Info: ../images/chapter5/heatmaps/rf_TPR_aggregated_matrix_hybrid_vs_baseline.png  used on input line 847.
+Package pdftex.def Info: ../images/chapter5/heatmaps/rf_TPR_aggregated_matrix_hybrid_vs_baseline.png  used on input line 856.
 (pdftex.def)             Requested size: 333.75291pt x 194.83841pt.
  [17
 
@@ -1232,12 +1227,12 @@ Package pdftex.def Info: ../images/chapter5/heatmaps/rf_TPR_aggregated_matrix_hy
 <images/features.jpg, id=254, 821.0675pt x 586.19pt>
 File: images/features.jpg Graphic file (type jpg)
 <use images/features.jpg>
-Package pdftex.def Info: images/features.jpg  used on input line 867.
+Package pdftex.def Info: images/features.jpg  used on input line 876.
 (pdftex.def)             Requested size: 196.32384pt x 140.16074pt.
 <images/features_descriptions.jpg, id=255, 830.10126pt x 636.3775pt>
 File: images/features_descriptions.jpg Graphic file (type jpg)
 <use images/features_descriptions.jpg>
-Package pdftex.def Info: images/features_descriptions.jpg  used on input line 867.
+Package pdftex.def Info: images/features_descriptions.jpg  used on input line 876.
 (pdftex.def)             Requested size: 184.54488pt x 141.46974pt.
  [18
 
@@ -1245,12 +1240,12 @@ Package pdftex.def Info: images/features_descriptions.jpg  used on input line 86
 <images/align_nb15.jpg, id=263, 828.09375pt x 854.19125pt>
 File: images/align_nb15.jpg Graphic file (type jpg)
 <use images/align_nb15.jpg>
-Package pdftex.def Info: images/align_nb15.jpg  used on input line 884.
+Package pdftex.def Info: images/align_nb15.jpg  used on input line 893.
 (pdftex.def)             Requested size: 182.57973pt x 188.3267pt.
 <images/align_stin.jpg, id=264, 828.09375pt x 883.3pt>
 File: images/align_stin.jpg Graphic file (type jpg)
 <use images/align_stin.jpg>
-Package pdftex.def Info: images/align_stin.jpg  used on input line 884.
+Package pdftex.def Info: images/align_stin.jpg  used on input line 893.
 (pdftex.def)             Requested size: 176.69025pt x 188.46364pt.
  [19
 
@@ -1281,7 +1276,7 @@ Here is how much of TeX's memory you used:
  1141 hyphenation exceptions out of 8191
  128i,14n,123p,502b,1255s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmss10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvbo8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvro8a.pfb>
-Output written on main.pdf (19 pages, 7218770 bytes).
+Output written on main.pdf (19 pages, 7218859 bytes).
 PDF statistics:
  326 PDF objects out of 1000 (max. 8388607)
  203 compressed objects within 3 object streams
