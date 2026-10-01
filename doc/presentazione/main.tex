@@ -784,7 +784,7 @@
 
 
 % ------------------------------------------------------------------ %
-% 12) PCA
+% 13) PCA
 % ------------------------------------------------------------------ %
 \section{Diagnostica}
 
@@ -834,10 +834,8 @@
 
 
 % ------------------------------------------------------------------ %
-% 13) KDE
+% 14) KDE
 % ------------------------------------------------------------------ %
-\section{Diagnostica}
-
 \begin{frame}{Kernel Density Estimation}
   \centering
   \begin{columns}[c,onlytextwidth]
@@ -845,25 +843,25 @@
     \begin{column}{0.33\textwidth}
       \centering
       Source-only
-      \includegraphics[width=\textwidth, trim=0 0 5cm 0, clip]{../images/chapter5/kde/kde_sorgente_nb15.png}
+      \includegraphics[width=\textwidth, trim=0 0 5cm 1.5cm, clip]{../images/chapter5/kde/kde_sorgente_nb15.png}
     \end{column}
 
     % Immagine 2
     \begin{column}{0.33\textwidth}
       \centering
       Injection
-      \includegraphics[width=\textwidth, trim=0 0 5cm 0, clip]{../images/chapter5/kde/kde_baseline_injection.png}
+      \includegraphics[width=\textwidth, trim=0 0 5cm 1.5cm, clip]{../images/chapter5/kde/kde_baseline_injection.png}
     \end{column}
 
     % Immagine 3
     \begin{column}{0.33\textwidth}
       \centering
       Hybrid
-      \includegraphics[width=\textwidth, trim=0 0 5cm 0, clip]{../images/chapter5/kde/kde_hybrid_nb15_stin.png}
+      \includegraphics[width=\textwidth, trim=0 0 5cm 1.5cm, clip]{../images/chapter5/kde/kde_hybrid_nb15_stin.png}
     \end{column}
   \end{columns}
 
-  \vspace{0.5cm}
+  \vspace{0.2cm}
 
   \resizebox{2cm}{!}{
     \begin{tikzpicture}[box/.style={node_transform, align=center, font=\bfseries}]
@@ -883,6 +881,89 @@
 \end{frame}
 
 
+% ------------------------------------------------------------------ %
+% 15) SHAP
+% ------------------------------------------------------------------ %
+\begin{frame}{SHapley Additive exPlanations$_{RF_{seed42}}$}
+  \centering
+  \begin{columns}[c,onlytextwidth]
+    % Immagine 1
+    \begin{column}{0.33\textwidth}
+      \centering
+      Source-only
+      \includegraphics[width=\textwidth, trim=0 0 0 1cm, clip]{../images/chapter5/shap/shap_rf_42_sorgente_nb15.png}
+    \end{column}
+
+    % Immagine 2
+    \begin{column}{0.33\textwidth}
+      \centering
+      Injection
+      \includegraphics[width=\textwidth, trim=0 0 0 1cm, clip]{../images/chapter5/shap/shap_rf_42_baseline_injection.png}
+    \end{column}
+
+    % Immagine 3
+    \begin{column}{0.33\textwidth}
+      \centering
+      Hybrid
+      \includegraphics[width=\textwidth, trim=0 0 0 1cm, clip]{../images/chapter5/shap/shap_rf_42_hybrid_nb15_stin.png}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+
+% ------------------------------------------------------------------ %
+% 15) HEATMAPS Ds Dinj
+% ------------------------------------------------------------------ %
+\begin{frame}{Heatmaps aggregate$_{RF}$}
+  \centering
+  \includegraphics[width=0.85\textwidth, trim=0 0 0 1cm, clip]{../images/chapter5/heatmaps/rf_TPR_aggregated_matrix_source_vs_baseline.png}
+\end{frame}
+
+
+% ------------------------------------------------------------------ %
+% 16) HEATMAPS Dh Dinj
+% ------------------------------------------------------------------ %
+\begin{frame}{}
+  \centering
+  \includegraphics[width=0.85\textwidth, trim=0 0 0 1cm, clip]{../images/chapter5/heatmaps/rf_TPR_aggregated_matrix_hybrid_vs_baseline.png}
+\end{frame}
+
+
+% ------------------------------------------------------------------ %
+% 17) FORMULE ALLINEAMENTO SPAZIO FEATURE
+% ------------------------------------------------------------------ %
+\section{Allineamento}
+
+\begin{frame}{Allineamento delle feature}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \centering
+      \includegraphics[width=\textwidth]{images/features.jpg}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \centering
+      \includegraphics[width=0.94\textwidth]{images/features_descriptions.jpg}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ------------------------------------------------------------------ %
+% 18) CODICE ALLINEAMENTO SPAZIO FEATURE
+% ------------------------------------------------------------------ %
+\begin{frame}{}
+  \begin{columns}
+    \begin{column}{0.5\textwidth}
+      \raggedleft
+      \includegraphics[width=0.93\textwidth]{images/align_nb15.jpg}
+    \end{column}
+
+    \begin{column}{0.5\textwidth}
+      \raggedright
+      \includegraphics[width=0.90\textwidth]{images/align_stin.jpg}
+    \end{column}
+  \end{columns}
+\end{frame}
 
 
 
