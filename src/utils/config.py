@@ -26,7 +26,9 @@ class MLConstants:
     DECIMAL_DIGITS = 4                                          # Precision decimal places for metrics and rounding
 
     # --- Visualization & Explainability ---
-    PLOTTING_METRICS = ['TNR', 'TPR']                           # Metrics to display in evaluation plots
+    PLOTTING_METRICS = ['TP', 'TN', 'FP', 'FN', 
+                        'Accuracy', 'Precision', 'Recall', 'F1-Score', 
+                        'ROC-AUC', 'PR-AUC', 'TPR', 'FNR', 'TNR', 'FPR']    # Metrics to display in evaluation plots
     SHAP_MAX_SAMPLES = 500                                      # Maximum sample size used for SHAP explainer calculations
     PCA_COMPONENTS = 2                                          # Number of target dimensions for Principal Component Analysis
     KDE_TOP_FEATURES = ['pkts_per_sec', 'total_bytes', 'dst_win_byt']  # Top features selected for KDE distribution analysis
