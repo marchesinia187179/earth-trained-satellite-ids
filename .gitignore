@@ -1,9 +1,9 @@
 # Data & Datasets (Prevents uploading large files)
-raw/
-hybrid/
-nb15/
-sat20/
-ter20/
+#raw/
+#hybrid/
+#nb15/
+#sat20/
+#ter20/
 
 # Machine Learning Artifacts (Models & Weights)
 *.joblib
@@ -20,14 +20,14 @@ venv/
 requirements_fixed.txt
 
 # LaTeX Temporary Files
-doc/*.aux
-doc/*.log
-doc/*.toc
-doc/*.synctex.gz
-doc/*.bbl
-doc/*.blg
-doc/*.fdb_latexmk
-doc/*.fls
-doc/*.out
-doc/*.lof
-doc/*.lot
+#doc/*.aux
+#doc/*.log
+#doc/*.toc
+#doc/*.synctex.gz
+#doc/*.bbl
+#doc/*.blg
+#doc/*.fdb_latexmk
+#doc/*.fls
+#doc/*.out
+#doc/*.lof
+#doc/*.lot
