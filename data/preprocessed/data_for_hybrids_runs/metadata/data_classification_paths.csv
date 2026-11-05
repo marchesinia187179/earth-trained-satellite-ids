@@ -1,0 +1,17 @@
+id,dataset_type,path
+1,nb15,data/preprocessed/nb15/nb15_aggr_scaled.csv
+2,nb15,data/preprocessed/nb15/normal_anomaly/Normal_DoS.csv
+3,nb15,data/preprocessed/nb15/normal_anomaly/Normal_Exploits.csv
+4,nb15,data/preprocessed/nb15/normal_anomaly/Normal_Fuzzers.csv
+5,nb15,data/preprocessed/nb15/normal_anomaly/Normal_Generic.csv
+6,nb15,data/preprocessed/nb15/normal_anomaly/Normal_Reconnaissance.csv
+7,injection,data/preprocessed/hybrid/injection_aggr_scaled.csv
+8,nb15_stin,data/preprocessed/hybrid/nb15_stin_aggr_scaled.csv
+9,nb15_sat20,data/preprocessed/hybrid/nb15_sat20/nb15_sat20_aggr_scaled.csv
+10,nb15_ter20,data/preprocessed/hybrid/nb15_ter20/nb15_ter20_aggr_scaled.csv
+11,nb15_sat20,data/preprocessed/hybrid/nb15_sat20/normal_anomaly/Normal_Syn_DDoS.csv
+12,nb15_sat20,data/preprocessed/hybrid/nb15_sat20/normal_anomaly/Normal_UDP_DDoS.csv
+13,nb15_ter20,data/preprocessed/hybrid/nb15_ter20/normal_anomaly/Normal_Botnet.csv
+14,nb15_ter20,data/preprocessed/hybrid/nb15_ter20/normal_anomaly/Normal_DDoS.csv
+15,nb15_ter20,data/preprocessed/hybrid/nb15_ter20/normal_anomaly/Normal_Syn_DDoS.csv
+16,nb15_ter20,data/preprocessed/hybrid/nb15_ter20/normal_anomaly/Normal_UDP_DDoS.csv
