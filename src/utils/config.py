@@ -11,9 +11,9 @@ class MLConstants:
     """
 
     # --- Experimental Setup & Reproducibility ---
-    SEEDS = [0, 1, 7, 42, 101, 123, 999, 1337, 2026, 12345]     # Seeds used for random states across iterations
+    SEEDS = [42] # [0, 1, 7, 42, 101, 123, 999, 1337, 2026, 12345]     # Seeds used for random states across iterations
     MAIN_SEED = 127001                                          # Main seed for primary model initializations
-    MODEL_TYPE = ['rf', 'dt', 'hgb']                            # Supported model families (Random Forest, Decision Tree, HistGradientBoosting)
+    MODEL_TYPE = ['rf', 'hgb'] # ['rf', 'dt', 'hgb']                            # Supported model families (Random Forest, Decision Tree, HistGradientBoosting)
 
     # --- Dataset & Splitting Parameters ---
     NORMAL_ANOMALY_RATIO = 10                                   # Ratio of normal traffic to anomaly instances
@@ -148,25 +148,25 @@ class RoutineConfig:
     # Defines the standard set of models to be built during a routine phase
     DATASETS_TARGETS_FOR_MODEL_BUILDING = [
         # --- NB15 dataset ---
-        {'dataset_type': Naming.NB15, 'filename': f"{Naming.NB15}{Naming.AGGR_SCALED}{Naming.EXT}"},
-        {'dataset_type': Naming.NB15, 'filename': f"Normal_DoS{Naming.EXT}"},
-        {'dataset_type': Naming.NB15, 'filename': f"Normal_Exploits{Naming.EXT}"},
-        {'dataset_type': Naming.NB15, 'filename': f"Normal_Fuzzers{Naming.EXT}"},
-        {'dataset_type': Naming.NB15, 'filename': f"Normal_Generic{Naming.EXT}"},
-        {'dataset_type': Naming.NB15, 'filename': f"Normal_Reconnaissance{Naming.EXT}"},
+        #{'dataset_type': Naming.NB15, 'filename': f"{Naming.NB15}{Naming.AGGR_SCALED}{Naming.EXT}"},
+        #{'dataset_type': Naming.NB15, 'filename': f"Normal_DoS{Naming.EXT}"},
+        #{'dataset_type': Naming.NB15, 'filename': f"Normal_Exploits{Naming.EXT}"},
+        #{'dataset_type': Naming.NB15, 'filename': f"Normal_Fuzzers{Naming.EXT}"},
+        #{'dataset_type': Naming.NB15, 'filename': f"Normal_Generic{Naming.EXT}"},
+        #{'dataset_type': Naming.NB15, 'filename': f"Normal_Reconnaissance{Naming.EXT}"},
 
         # --- Hybrid dataset ---
-        #{'dataset_type': Naming.NB15_STIN, 'filename': f"{Naming.NB15_STIN}{Naming.AGGR_SCALED}{Naming.EXT}"},
-        #{'dataset_type': Naming.NB15_SAT20, 'filename': f"{Naming.NB15_SAT20}{Naming.AGGR_SCALED}{Naming.EXT}"},
-        #{'dataset_type': Naming.NB15_TER20, 'filename': f"{Naming.NB15_TER20}{Naming.AGGR_SCALED}{Naming.EXT}"},
+        {'dataset_type': Naming.NB15_STIN, 'filename': f"{Naming.NB15_STIN}{Naming.AGGR_SCALED}{Naming.EXT}"},
+        {'dataset_type': Naming.NB15_SAT20, 'filename': f"{Naming.NB15_SAT20}{Naming.AGGR_SCALED}{Naming.EXT}"},
+        {'dataset_type': Naming.NB15_TER20, 'filename': f"{Naming.NB15_TER20}{Naming.AGGR_SCALED}{Naming.EXT}"},
 
         # --- Specific Normal/Anomaly hybrid sub-datasets ---
-        #{'dataset_type': Naming.NB15_SAT20, 'filename': f"Normal_Syn_DDoS{Naming.EXT}"},
-        #{'dataset_type': Naming.NB15_SAT20, 'filename': f"Normal_UDP_DDoS{Naming.EXT}"},
-        #{'dataset_type': Naming.NB15_TER20, 'filename': f"Normal_Botnet{Naming.EXT}"},
-        #{'dataset_type': Naming.NB15_TER20, 'filename': f"Normal_DDoS{Naming.EXT}"},
-        #{'dataset_type': Naming.NB15_TER20, 'filename': f"Normal_Syn_DDoS{Naming.EXT}"},
-        #{'dataset_type': Naming.NB15_TER20, 'filename': f"Normal_UDP_DDoS{Naming.EXT}"},
+        {'dataset_type': Naming.NB15_SAT20, 'filename': f"Normal_Syn_DDoS{Naming.EXT}"},
+        {'dataset_type': Naming.NB15_SAT20, 'filename': f"Normal_UDP_DDoS{Naming.EXT}"},
+        {'dataset_type': Naming.NB15_TER20, 'filename': f"Normal_Botnet{Naming.EXT}"},
+        {'dataset_type': Naming.NB15_TER20, 'filename': f"Normal_DDoS{Naming.EXT}"},
+        {'dataset_type': Naming.NB15_TER20, 'filename': f"Normal_Syn_DDoS{Naming.EXT}"},
+        {'dataset_type': Naming.NB15_TER20, 'filename': f"Normal_UDP_DDoS{Naming.EXT}"},
         
         # --- Prposal dataset ---
         {'dataset_type': Naming.INJECTION, 'filename': f"{Naming.INJECTION}{Naming.AGGR_SCALED}{Naming.EXT}"}
@@ -205,25 +205,25 @@ class PlotConfig:
     # Preferred vertical order (Trained models row alignment)
     HEATMAP_ROW_ORDER = [
         # --- NB15 dataset ---
-        "(Aggregate nb15)",
-        "(DoS nb15)",
-        "(Exploits nb15)",
-        "(Fuzzers nb15)",
-        "(Generic nb15)",
-        "(Reconnaissance nb15)",
+        #"(Aggregate nb15)",
+        #"(DoS nb15)",
+        #"(Exploits nb15)",
+        #"(Fuzzers nb15)",
+        #"(Generic nb15)",
+        #"(Reconnaissance nb15)",
 
         # --- Hybrid dataset ---
-        #"(Aggregate nb15_stin)",
-        #"(Aggregate nb15_sat20)",
-        #"(Aggregate nb15_ter20)",
+        "(Aggregate nb15_stin)",
+        "(Aggregate nb15_sat20)",
+        "(Aggregate nb15_ter20)",
 
         # --- Specific Normal/Anomaly hybrid sub-datasets ---
-        #"(Syn_DDoS nb15_sat20)",
-        #"(UDP_DDoS nb15_sat20)",
-        #"(Botnet nb15_ter20)",
-        #"(DDoS nb15_ter20)",
-        #"(Syn_DDoS nb15_ter20)",
-        #"(UDP_DDoS nb15_ter20)",
+        "(Syn_DDoS nb15_sat20)",
+        "(UDP_DDoS nb15_sat20)",
+        "(Botnet nb15_ter20)",
+        "(DDoS nb15_ter20)",
+        "(Syn_DDoS nb15_ter20)",
+        "(UDP_DDoS nb15_ter20)",
 
         # --- Proposal dataset ---
         "(Aggregate injection)"
@@ -263,11 +263,11 @@ class PlotFlags:
     
     # Light-weight plots (standard visualizations)
     ENABLE_FEATURE_IMPORTANCE = True    # Feature importance bar charts
-    ENABLE_PROBABILITY_PLOTS = True     # Probability distribution histograms
+    ENABLE_PROBABILITY_PLOTS = False     # Probability distribution histograms
     ENABLE_PCA_PLOTS = True             # PCA 2D scatter plots
     ENABLE_PERFORMANCE_PLOTS = True     # Performance matrix heatmaps
-    ENABLE_PR_CURVE_PLOTS = True        # Precision-Recall (PR) Curve (Cross-Domain)
-    ENABLE_THRESHOLD_PLOTS = True       # F1-Score vs Threshold
+    ENABLE_PR_CURVE_PLOTS = False        # Precision-Recall (PR) Curve (Cross-Domain)
+    ENABLE_THRESHOLD_PLOTS = False       # F1-Score vs Threshold
     ENABLE_KDE_PLOTS = True             # KDE Plot about important features
 
 
